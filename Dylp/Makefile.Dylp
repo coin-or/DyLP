@@ -1,0 +1,146 @@
+
+# Secondary makefile for dylp.
+
+# svn/cvs: $Id$
+
+# Dylp source files
+
+LIBSRC :=
+LIBSRC += dy_cmdint.c
+LIBSRC += consys_io.c
+LIBSRC += consys_mathutils.c
+LIBSRC += consys_scaling.c
+LIBSRC += consys_utils.c
+LIBSRC += dy_basis.c
+LIBSRC += dy_bound.c
+LIBSRC += dy_coldstart.c
+LIBSRC += dy_conmgmt.c
+LIBSRC += dy_dual.c
+LIBSRC += dy_dualmultipivot.c
+LIBSRC += dy_dualpivot.c
+LIBSRC += dy_duenna.c
+LIBSRC += dy_force.c
+LIBSRC += dy_hotstart.c
+LIBSRC += dy_penalty.c
+LIBSRC += dy_pivreject.c
+LIBSRC += dy_primal.c
+LIBSRC += dy_primalmultipivot.c
+LIBSRC += dy_primalpivot.c
+LIBSRC += dy_scaling.c
+LIBSRC += dy_setup.c
+LIBSRC += dy_statistics.c
+LIBSRC += dy_varmgmt.c
+LIBSRC += dy_warmstart.c
+LIBSRC += dylp.c
+LIBSRC += dylp_io.c
+LIBSRC += dylp_utils.c
+LIBSRC += glpinv.c
+LIBSRC += glplib1.c
+LIBSRC += glplib2.c
+LIBSRC += glplib3.c
+LIBSRC += glplib4.c
+LIBSRC += glpluf.c
+LIBSRC += dy_options.c
+LIBSRC += vector_utils.c
+
+###############################################################################
+
+# Set DYLP_COMPILE_DEFS
+
+include ../Utils/Makefile.Config
+
+# By default, the COIN boilerplate puts -I- in CXXFLAGS. Hence the current
+# directory must be explicitly added to the search list for include files.
+
+CXXFLAGS += -I. -I ../Lib $(DYLP_COMPILE_DEFS)
+
+# COIN installation directory
+
+InstallDir ?= $(CoinDir)
+
+# Directory to hold dependency information.
+
+export DEPDIR := Dep
+
+# Makefile.lib is expecting C++ source (.cpp extension). We need to help it by
+# setting LIBOBJ and LIBDEP here. In order that libDylpStdLib and (if required)
+# libsunmath are actually included in libDylp.so, force the linker to choose
+# static libraries (=B static). Otherwise we'll have to add libDylpStdLib and
+# libsunmath to future links with libDylp. This would be particularly annoying
+# for libsunmath, which is required only in the Sun Workshop environment.
+
+LIBOBJ := $(addprefix $(TARGETDIR)/, $(LIBSRC:.c=.o))
+LIBDEP := $(addprefix $(DEPDIR)/, $(LIBSRC:.c=.d))
+
+VPATH += :../Lib
+LIBOBJ += -lDylpStdLib
+
+LIBLDFLAGS += -L../Lib -B static
+
+# Finding libsunmath is a little dicey. The bet here is that if the binary
+# for workshop is in <path>/bin/workshop, then in a standard installation
+# libsunmath will be in <path>/lib.
+
+ifeq ($(SunOS_PROGENV),SUNWspro)
+  PathToSunmath := $(subst bin/workshop,lib,$(call pathsearch,workshop))
+  VPATH += :$(PathToSunmath)
+  LIBOBJ += -lsunmath
+endif
+
+export LIBSRC
+export LIBOBJ
+export LIBDEP
+
+# Would be nice if these were defined outside of Makefile.lib. Definitions must
+# match.
+
+LIBNAMEOPT := lib$(LIBNAME)$(OptVersion)$(LIBEXT)
+LIBNAMENOOPT := lib$(LIBNAME)$(LIBEXT)
+
+# Directory to record what we've built.
+
+BUILDS = .Built
+
+###############################################################################
+
+.DELETE_ON_ERROR:
+
+.PHONY: default install library clean distclean libdepend
+
+default: library
+
+library: $(TARGETDIR)/$(LIBNAMEOPT)
+
+$(TARGETDIR)/$(LIBNAMEOPT): $(LIBSRC) -lDylpStdLib
+	$(MAKE) -f ${MakefileDir}/Makefile.lib library
+	@ mkdir -p $(BUILDS)
+	@ touch $(BUILDS)/$(TARGETDIR)
+
+install: library
+	@ rm -f $(LIBNAMENOOPT)
+	@ ${LN} $(TARGETDIR)/$(LIBNAMEOPT) $(LIBNAMENOOPT)
+	@ echo "Installing libraries ..."
+	@ mkdir -p $(InstallDir)/lib
+	@ ${CP} $(TARGETDIR)/$(LIBNAMEOPT) ${InstallDir}/lib
+	@ cd ${InstallDir}/lib ; \
+	  rm -f $(LIBNAMENOOPT) ; \
+	  ${LN} $(LIBNAMEOPT) $(LIBNAMENOOPT)
+
+clean:
+	@ cd ${InstallDir}/lib ; rm -rf lib$(LIBNAME)*
+	@ rm -f $(LIBNAMENOOPT)
+	@ rm -rf $(TARGETDIR)
+	@ rm -rf Junk Dep
+	@ rm -f $(BUILDS)/$(TARGETDIR)
+
+distclean:
+	@ cd ${InstallDir}/lib ; rm -rf lib$(LIBNAME)*
+	@ rm -f lib$(LIBNAME)*
+	@ if [ -d $(BUILDS) ] ; then \
+	    for dir in `ls $(BUILDS)` ; do \
+	      if [ -d $$dir ] ; then \
+		rm -rf $$dir ; \
+	      fi ; \
+	    done ; \
+	  fi
+	@ rm -rf $(BUILDS) Junk Dep
