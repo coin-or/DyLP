@@ -1,0 +1,44 @@
+* text=auto !eol
+DyLP/Makefile.am -text
+DyLP/Makefile.in -text
+DyLP/configure -text
+DyLP/configure.ac -text
+DyLP/doc/dylp.pdf -text svneol=unset#application/pdf
+DyLP/doc/dylp.ps -text svneol=unset#application/postscript
+DyLP/dylp_addlibs.txt.in -text
+DyLP/examples/Makefile.in -text
+DyLP/examples/generic.spc -text
+DyLP/inc/config_dylp.h.in -text
+DyLP/src/Dylp/Makefile.am -text
+DyLP/src/Dylp/Makefile.in -text
+DyLP/src/DylpStdLib/DylpConfig.h -text
+DyLP/src/DylpStdLib/Makefile.am -text
+DyLP/src/DylpStdLib/Makefile.in -text
+DyLP/src/DylpStdLib/dylib_binsrch.c -text
+DyLP/src/DylpStdLib/dylib_bnfrdr.c -text
+DyLP/src/DylpStdLib/dylib_bnfrdr.h -text
+DyLP/src/DylpStdLib/dylib_bnfrdrio.c -text
+DyLP/src/DylpStdLib/dylib_errs.c -text
+DyLP/src/DylpStdLib/dylib_errs.h -text
+DyLP/src/DylpStdLib/dylib_fortran.h -text
+DyLP/src/DylpStdLib/dylib_hash.c -text
+DyLP/src/DylpStdLib/dylib_hash.h -text
+DyLP/src/DylpStdLib/dylib_io.c -text
+DyLP/src/DylpStdLib/dylib_io.h -text
+DyLP/src/DylpStdLib/dylib_keytab.h -text
+DyLP/src/DylpStdLib/dylib_littab.c -text
+DyLP/src/DylpStdLib/dylib_std.h -text
+DyLP/src/DylpStdLib/dylib_strrtns.c -text
+DyLP/src/DylpStdLib/dylib_strrtns.h -text
+/Externals -text
+/Makefile.am -text
+/Makefile.in -text
+/config.guess -text
+/config.sub -text
+/configure -text
+/configure.ac -text
+/depcomp -text
+doxydoc/doxygen.conf -text
+/install-sh -text
+/ltmain.sh -text
+/missing -text
