@@ -63,7 +63,6 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libDylp_la_DEPENDENCIES = ../DylpStdLib/libDylpStdLib.la
 am_libDylp_la_OBJECTS = consys_io.lo consys_mathutils.lo \
 	consys_scaling.lo consys_utils.lo dy_basis.lo dy_bound.lo \
 	dy_cmdint.lo dy_coldstart.lo dy_conmgmt.lo dy_dual.lo \
@@ -279,6 +278,10 @@ libDylp_la_LDFLAGS = $(LT_LDFLAGS)
 
 # We want to have also the objects from the DylpStdLib in this library
 libDylp_la_LIBADD = ../DylpStdLib/libDylpStdLib.la
+
+# Since automake is not doing this on its own, we need to declare the
+# dependencies to the subdirectory libraries here
+libDylp_la_DEPENDENCIES = $(libDylp_la_LIBADD)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Windows
