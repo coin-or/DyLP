@@ -19912,15 +19912,26 @@ echo $ECHO_N "checking for COIN project DyLP... $ECHO_C" >&6
 # other locations)
 
 coin_has_dylp=unavailable
-if test $PACKAGE_TARNAME = dylp; then
-  coin_has_dylp=.
-else
-  if test -d $srcdir/../DyLP; then
-    coin_has_dylp=../DyLP
+if test x"$COIN_SKIP_PROJECTS" != x; then
+  for dir in $COIN_SKIP_PROJECTS; do
+    if test $dir = DyLP; then
+      coin_has_dylp=skipping
+    fi
+  done
+fi
+
+if test $coin_has_dylp != skipping; then
+  if test $PACKAGE_TARNAME = dylp; then
+    coin_has_dylp=.
+  else
+    if test -d $srcdir/../DyLP; then
+      coin_has_dylp=../DyLP
+    fi
   fi
 fi
 
-if test $coin_has_dylp != unavailable; then
+if test $coin_has_dylp != unavailable &&
+   test $coin_has_dylp != skipping; then
   # Set the #define if the component is available
 
 cat >>confdefs.h <<\_ACEOF
@@ -19938,7 +19949,8 @@ fi
   # Define the Makefile conditional
 
 
-if test $coin_has_dylp != unavailable; then
+if test $coin_has_dylp != unavailable &&
+                test $coin_has_dylp != skipping; then
   COIN_HAS_DYLP_TRUE=
   COIN_HAS_DYLP_FALSE='#'
 else
@@ -23723,7 +23735,7 @@ if test x"$coin_vpath_link_files" = x; then : ; else
 echo "$as_me: Creating VPATH links for data files" >&6;}
   for file in $coin_vpath_link_files; do
     rm -f $file
-    $LN_S $srcdir/$file $file
+    $LN_S $abs_source_dir/$file $file
   done
 fi
 
