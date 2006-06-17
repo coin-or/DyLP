@@ -102,9 +102,9 @@ AC_MSG_RESULT($booltype)
 AC_DEFINE_UNQUOTED([BOOL], [$booltype],
 		   [Define to the C type corresponding to the C++ bool type])
 
-# Compile and run the fpchecks.c program to find out about certain floating
-# point characteristics
-AC_MSG_CHECKING(for defines for floating point characteristics)
+########################################################################
+
+# We need -lm or libm.lib for the following checks
 mlibflag='-lm'
 case $build in
   *-cygwin* | *-mingw*)
@@ -114,43 +114,86 @@ case $build in
     esac
     ;;
 esac
-progname=conftest$EXEEXT
-$CC $CFLAGS $srcdir/fpchecks.c -o $progname $mlibflag >/dev/null 2>&1
-if test -x $progname; then :; else
-  AC_MSG_ERROR(Cannot compile fpchecks test program)
+
+# Find out if we have quiet_nan, and if not, how we can emulate it.
+
+AC_CHECK_HEADERS(sunmath.h)
+if test x$ac_cv_header_sunmath_h = xyes; then
+  AC_CHECK_LIB(sunmath, quiet_nan,
+    			  [AC_DEFINE([COIN_HAS_QUIET_NAN],[1],
+    						 [Define to 1 if quiet_nan is available])])
 fi
-if (./$progname >conftest.out 2>conftest.err); then
-  fpchecksout=`cat conftest.out`
-  AC_MSG_RESULT($fpchecksout)
+
+# Determine endianess
+AC_C_BIGENDIAN(,,AC_MSG_ERROR(Cannot determine endianness))
+
+# Find out what the names of finite and isnan are
+AC_CHECK_HEADERS(float.h)
+case $build in
+  *-cygwin*) ;;
+  *) AC_CHECK_HEADERS(ieeefp.h) ;;
+esac
+MY_C_FINITE=
+AC_CHECK_DECL([finite],[MY_C_FINITE=finite],,[
+#include <math.h>
+#ifdef HAVE_FLOAT_H
+# include <float.h>
+#endif
+#ifdef HAVE_IEEEFP_H
+# include <ieeefp.h>
+#endif])
+if test -z "$MY_C_FINITE"; then
+  AC_CHECK_DECL([_finite],[MY_C_FINITE=_finite],,[
+#include <math.h>
+#ifdef HAVE_FLOAT_H
+# include <float.h>
+#endif
+#ifdef HAVE_IEEEFP_H
+# include <ieeefp.h>
+#endif])
+fi
+if test -z "$MY_C_FINITE"; then
+  AC_CHECK_DECL([isfinite],[MY_C_FINITE=_finite],,[
+#include <math.h>
+#ifdef HAVE_FLOAT_H
+# include <float.h>
+#endif
+#ifdef HAVE_IEEEFP_H
+# include <ieeefp.h>
+#endif])
+fi
+if test -z "$MY_C_FINITE"; then
+  AC_MSG_WARN(Cannot find C-function for checking finite.  Check will be disabled)
 else
-  fpchecksout=`cat conftest.out`
-  AC_MSG_ERROR([Problems running fpchecks test program.  Output is
-$fpchecksout])
+  AC_DEFINE_UNQUOTED([DYLP_FINITE],[$MY_C_FINITE],
+                     [Define to be the name of C-function for finite check])
 fi
-# Get the defines out of the output
-if (grep __DYLP_SUNWspro conftest.out >/dev/null 2>&1); then
-  AC_DEFINE([__DYLP_SUNWspro], [1], [Define to 1 if DyLP's fpchecks outputs -D__DYLP_SUNWspro])
+
+MY_C_ISNAN=
+AC_CHECK_DECL([isnan],[MY_C_ISNAN=isnan],,[
+#include <math.h>
+#ifdef HAVE_FLOAT_H
+# include <float.h>
+#endif
+#ifdef HAVE_IEEEFP_H
+# include <ieeefp.h>
+#endif])
+if test -z "$MY_C_ISNAN"; then
+  AC_CHECK_DECL([_isnan],[MY_C_ISNAN=_isnan],,[
+#include <math.h>
+#ifdef HAVE_FLOAT_H
+# include <float.h>
+#endif
+#ifdef HAVE_IEEEFP_H
+# include <ieeefp.h>
+#endif])
 fi
-if (grep __DYLP_SUN conftest.out >/dev/null 2>&1); then
-  AC_DEFINE([__DYLP_SUN], [1], [Define to 1 if DyLP's fpchecks outputs -D__DYLP_SUN])
+if test -z "$MY_C_ISNAN"; then
+  AC_MSG_WARN(Cannot find C-function for checking isnan.  Check will be disabled)
+else
+  AC_DEFINE_UNQUOTED([DYLP_ISNAN],[$MY_C_ISNAN],
+                     [Define to be the name of C-function for isnan check])
 fi
-if (grep _GNU_SOURCE conftest.out >/dev/null 2>&1); then
-  AC_DEFINE([_GNU_SOURCE], [1], [Define to 1 if DyLP's fpchecks outputs -D_GNU_SOURCE])
-fi
-if (grep __BIG_ENDIAN conftest.out >/dev/null 2>&1); then
-  AC_DEFINE([__BIG_ENDIAN], [4321], [Define to 4321 if DyLP's fpchecks outputs -D__BIG_ENDIAN=4321])
-fi
-if (grep __LITTLE_ENDIAN conftest.out >/dev/null 2>&1); then
-  AC_DEFINE([__LITTLE_ENDIAN], [1234], [Define to 1234 if DyLP's fpchecks outputs -D__LITTLE_ENDIAN=1234])
-fi
-if (grep __DYLP_FIX_HUGE_VAL conftest.out >/dev/null 2>&1); then
-  AC_DEFINE([__DYLP_FIX_HUGE_VAL], [1], [Define to 1 if DyLP's fpchecks outputs -D__DYLP_FIX_HUGE_VAL])
-fi
-if (grep __DYLP_BROKEN_FPCLASS conftest.out >/dev/null 2>&1); then
-  AC_DEFINE([__DYLP_BROKEN_FPCLASS], [1], [Define to 1 if DyLP's fpchecks outputs -D__DYLP_BROKEN_FPCLASS])
-fi
-# clean up
-rm -f $progname conftest.out conftest.err
 
 AC_ARG_VAR(DYLP_ERRMSGDIR,[Directory containing the DyLP error message text file (dy_errmsgs.txt). Default is srcdir/src/Dylp])
 AC_SUBST(DYLP_ERRMSGDIR)

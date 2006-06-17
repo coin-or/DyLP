@@ -43,11 +43,11 @@ AC_COIN_INIT_AUTOMAKE
 #                  Check which subprojects are there                        #
 #############################################################################
 
-AC_COIN_MAIN_SUBDIRS(Data/Netlib)
-AC_COIN_MAIN_SUBDIRS(Data/Sample)
 AC_COIN_MAIN_SUBDIRS(DyLP)
 AC_COIN_MAIN_SUBDIRS(CoinUtils)
 AC_COIN_MAIN_SUBDIRS(Osi)
+AC_COIN_MAIN_SUBDIRS(Data/Netlib)
+AC_COIN_MAIN_SUBDIRS(Data/Sample)
 
 ##############################################################################
 #                   Finishing up by writing all the output                   #

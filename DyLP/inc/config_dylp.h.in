@@ -9,12 +9,27 @@
 /* Define to 1 if the DyLP package is used */
 #undef COIN_HAS_DYLP
 
+/* Define to 1 if quiet_nan is available */
+#undef COIN_HAS_QUIET_NAN
+
 /* Set to the full path directory name for the location of the error text
    message file dy_errmsgs.txt */
 #undef DYLP_ERRMSGDIR
 
+/* Define to be the name of C-function for finite check */
+#undef DYLP_FINITE
+
+/* Define to be the name of C-function for isnan check */
+#undef DYLP_ISNAN
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <float.h> header file. */
+#undef HAVE_FLOAT_H
+
+/* Define to 1 if you have the <ieeefp.h> header file. */
+#undef HAVE_IEEEFP_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -33,6 +48,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sunmath.h> header file. */
+#undef HAVE_SUNMATH_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
@@ -82,23 +100,6 @@
 /* Version number of package */
 #undef VERSION
 
-/* Define to 1 if DyLP's fpchecks outputs -D_GNU_SOURCE */
-#undef _GNU_SOURCE
-
-/* Define to 4321 if DyLP's fpchecks outputs -D__BIG_ENDIAN=4321 */
-#undef __BIG_ENDIAN
-
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_BROKEN_FPCLASS */
-#undef __DYLP_BROKEN_FPCLASS
-
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_FIX_HUGE_VAL */
-#undef __DYLP_FIX_HUGE_VAL
-
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_SUN */
-#undef __DYLP_SUN
-
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_SUNWspro */
-#undef __DYLP_SUNWspro
-
-/* Define to 1234 if DyLP's fpchecks outputs -D__LITTLE_ENDIAN=1234 */
-#undef __LITTLE_ENDIAN
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#undef WORDS_BIGENDIAN
