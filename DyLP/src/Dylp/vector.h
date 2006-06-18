@@ -30,6 +30,8 @@
   @(#)vector.h         4.5         11/06/04
   svn/cvs: $Id$
 */
+
+#include <config_dylp.h>
  
 /*
   Why, you might ask, are we including ctype.h? Well, it's required by the
@@ -96,7 +98,6 @@
   have a little-endian machine (the 80x86 family being far and away the most
   common example), you need to flip the byte order.
 */
- 
   typedef union { unsigned char fpchr[8] ; double fpdbl ; } fpunion_t ;
 /*
   Yes, all this really is needed to get all the various compilers to quit
@@ -156,12 +157,14 @@
                                        (unsigned char) '\177' } } ;
 #endif /* WORDS_BIGENDIAN */
 
-#ifdef COIN_HAS_QUITE_NAN
-# include <sunmath.h>
-#else
+/*
+  If we didn't find a quiet_nan function, fake it with a macro.
+*/
+
+#ifndef DYLP_HAS_QUIET_NAN
 # define quiet_nan(zz_dummy_zz) (QNaNbits.fpdbl)
-#endif
- 
+#endif 
+
 /*
   On some machines, HUGE_VAL isn't actually IEEE infinity. Fix that if
   necessary.
@@ -171,9 +174,10 @@
  
 #undef HUGE_VAL
 #define HUGE_VAL (Infbits.fpdbl)
- 
+
 /*
-  Handling the C functions finite and isnan
+  Some subset of these will work on any system. Check config_dylp.h to see
+  which ones are actually in use.
 */
 #ifdef HAVE_FLOAT_H
 # include <float.h>
@@ -181,17 +185,10 @@
 #ifdef HAVE_IEEEFP_H
 # include <ieeefp.h>
 #endif
-#ifdef DYLP_FINITE
-# define DylpFinite(a) DYLP_FINITE(a)
-#else
-# define DylpFinite(a) TRUE
+#ifdef HAVE_IEEEFP_H
+# include <ieeefp.h>
 #endif
-#ifdef DYLP_ISNAN
-# define DylpIsnan(a) DYLP_ISNAN(a)
-#else
-# define DylpIsnan(a) TRUE
-#endif
- 
+
 /*
   In a Sun/Solaris environment, the definitions and functions that support
   IEEE floating point are in ieeefp.h. This seems to be true even if GNU
@@ -205,28 +202,13 @@
  
   In a Microsoft environment the correct functions look to be _finite and
   _isnan from float.h.
- 
-  Sun/Solaris typedef's an enum, fpclass_t, for IEEE FP number classification
-  codes, and bonsaiG and dylp expect to see it. GNU C gets clever, and uses
-  an unnamed enum to create integer values for #define's of the
-  classification symbols.  Pretty much everyone else sticks with simple
-  #define's.
- 
-  Sun/Solaris names the classification function fpclass. Others call the
-  function fpclassify.
+
+  Assign the proper names for this system to finite and isnan. Again, check
+  config_dylp to see the actual names.
 */
-/* 
-#if (defined(__DYLP_SUN) || defined(__DYLP_SUNWspro))
-# include <ieeefp.h>
-  extern int isnan(double dsrc) ;
-#else
-# if defined(_MSC_VER)
-#   include <float.h>
-#   define finite _finite
-#   define isnan _isnan
-# endif
-#endif
-*/
+
+# define finite DYLP_ISFINITE
+# define isnan  DYLP_ISNAN
  
  
 /*

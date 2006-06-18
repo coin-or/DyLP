@@ -1,6 +1,7 @@
 /* inc/config_dylp.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to the C type corresponding to the C++ bool type */
+/* Define to the C type whose size in bytes matches the size in bytes of the
+   the C++ bool type. */
 #undef BOOL
 
 /* If defined, debug sanity checks are performed during runtime */
@@ -9,30 +10,36 @@
 /* Define to 1 if the DyLP package is used */
 #undef COIN_HAS_DYLP
 
-/* Define to 1 if quiet_nan is available */
-#undef COIN_HAS_QUIET_NAN
-
 /* Set to the full path directory name for the location of the error text
    message file dy_errmsgs.txt */
 #undef DYLP_ERRMSGDIR
 
-/* Define to be the name of C-function for finite check */
-#undef DYLP_FINITE
+/* Define this symbol if the quiet_nan function exists. This function should
+   return the bit pattern for IEEE quiet NaN. */
+#undef DYLP_HAS_QUIET_NAN
 
-/* Define to be the name of C-function for isnan check */
+/* Define to be the name of the C function used to check that an IEEE floating
+   point value is finite. */
+#undef DYLP_ISFINITE
+
+/* Define to be the name of the C function used to check that an IEEE floating
+   point value is NaN. */
 #undef DYLP_ISNAN
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define to 1 if you have the <float.h> header file. */
+/* Define to 1 if math.h exists. */
 #undef HAVE_FLOAT_H
 
-/* Define to 1 if you have the <ieeefp.h> header file. */
+/* Define to 1 if math.h exists. */
 #undef HAVE_IEEEFP_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
+
+/* Define to 1 if math.h exists. */
+#undef HAVE_MATH_H
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -49,7 +56,7 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the <sunmath.h> header file. */
+/* Define to 1 if math.h exists. */
 #undef HAVE_SUNMATH_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
@@ -78,21 +85,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* The size of a `bool', as computed by sizeof. */
-#undef SIZEOF_BOOL
-
-/* The size of a `char', as computed by sizeof. */
-#undef SIZEOF_CHAR
-
-/* The size of a `int', as computed by sizeof. */
-#undef SIZEOF_INT
-
-/* The size of a `long int', as computed by sizeof. */
-#undef SIZEOF_LONG_INT
-
-/* The size of a `short int', as computed by sizeof. */
-#undef SIZEOF_SHORT_INT
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

@@ -42,7 +42,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "DylpConfig.h"
+#include <config_dylp.h>
 
 /*
   A utility definition which allows for easy suppression of unused variable

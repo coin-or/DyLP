@@ -831,7 +831,7 @@ consys_struct *consys_create (const char *nme, flags parts, flags opts,
   consys->opts = opts ;
   consys->inf = infinity ;
   consys->tiny = 1.0e-20 ;
-  if (DylpFinite(infinity)) setflg(consys->opts,CONSYS_FININF) ;
+  if (finite(infinity)) setflg(consys->opts,CONSYS_FININF) ;
   consys->colsze = colsze ;
   consys->rowsze = rowsze ;
 /*
