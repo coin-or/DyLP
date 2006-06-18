@@ -14,6 +14,7 @@ AC_PREREQ(2.59)
 
 AC_INIT([DyLP],[0.1],[coin-dylp@list.coin-or.org])
 
+
 AC_COPYRIGHT([
 Copyright 2006 International Business Machines and others.
 All Rights Reserved.
@@ -67,133 +68,68 @@ AC_COIN_HAS_PROJECT(DyLP)
 #                       Doing project specific tests                        #
 #############################################################################
 
-# Find out the C type that corresponds to the C++ bool type in size
+# Determine the C type that corresponds to the C++ bool type in size
 
-AC_LANG_PUSH(C++)
-AC_CHECK_SIZEOF(bool)
-AC_LANG_POP(C++)
-
-AC_LANG_PUSH(C)
-AC_CHECK_SIZEOF(char)
-if test $ac_cv_sizeof_bool = $ac_cv_sizeof_char; then
-  booltype=char
-else
-  AC_CHECK_SIZEOF(int)
-  if test $ac_cv_sizeof_bool = $ac_cv_sizeof_int; then
-    booltype=int
-  else
-    AC_CHECK_SIZEOF(short int)
-    if test $ac_cv_sizeof_bool = $ac_cv_sizeof_short_int; then
-      booltype="short int"
-    else
-      AC_CHECK_SIZEOF(long int)
-      if test $ac_cv_sizeof_bool = $ac_cv_sizeof_long_int; then
-        booltype="long int"
-      else
-        AC_MSG_ERROR(Cannot determine C type corresponding to C++ bool type)
-      fi
-    fi
-  fi
-fi
-AC_LANG_POP(C)
-# just some output to be shown to the user
-AC_MSG_CHECKING(for C type corresponding to C++ bool type)
-AC_MSG_RESULT($booltype)
-AC_DEFINE_UNQUOTED([BOOL], [$booltype],
-		   [Define to the C type corresponding to the C++ bool type])
+AC_DYLP_EQUIV_FOR_CPP_BOOL
 
 ########################################################################
 
-# We need -lm or libm.lib for the following checks
-mlibflag='-lm'
-case $build in
-  *-cygwin* | *-mingw*)
-    case $CC in
-      cl) mlibflags=libm.lib
-          ;;
-    esac
-    ;;
-esac
+# The floating point functions we'll be looking for seem to live in one of
+# the following headers: math.h, ieeefp.h, float.h, and sunmath.h. Check
+# for presence. We'll use the results to limit the work below. 
 
-# Find out if we have quiet_nan, and if not, how we can emulate it.
+AC_CHECK_HEADER([math.h],
+    [AC_DEFINE([HAVE_MATH_H],[1],[Define to 1 if math.h exists.])
+     fp_header_list="math.h" 
+     AC_C_ADD_TO_INCLUDES([math.h])
+     LIBS="-lm $LIBS"],
+    [AC_MSG_WARN([It appears that math.h is missing.])
+     AC_MSG_WARN([There is no hope of building dylp on this system.])])
+AC_CHECK_HEADER([ieeefp.h],
+    [AC_DEFINE([HAVE_IEEEFP_H],[1],[Define to 1 if math.h exists.])
+     fp_header_list="ieeefp.h $fp_header_list"
+     AC_C_ADD_TO_INCLUDES([ieeefp.h])],
+    [])
+AC_CHECK_HEADER([float.h],
+    [AC_DEFINE([HAVE_FLOAT_H],[1],[Define to 1 if math.h exists.])
+     fp_header_list="float.h $fp_header_list"
+     AC_C_ADD_TO_INCLUDES([float.h])],
+    [])
+AC_CHECK_HEADER([sunmath.h],
+    [AC_DEFINE([HAVE_SUNMATH_H],[1],[Define to 1 if math.h exists.])
+     fp_header_list="sunmath.h $fp_header_list"
+     AC_C_ADD_TO_INCLUDES([sunmath.h])
+     LIBS="-lsunmath $LIBS"],
+    [])
 
-AC_CHECK_HEADERS(sunmath.h)
-if test x$ac_cv_header_sunmath_h = xyes; then
-  AC_CHECK_LIB(sunmath, quiet_nan,
-    			  [AC_DEFINE([COIN_HAS_QUIET_NAN],[1],
-    						 [Define to 1 if quiet_nan is available])])
-fi
+AC_MSG_NOTICE([Found floating point header files $fp_header_list.])
+AC_MSG_NOTICE([includes are now:])
+AC_MSG_NOTICE([$ac_includes_default])
 
-# Determine endianess
-AC_C_BIGENDIAN(,,AC_MSG_ERROR(Cannot determine endianness))
+# Now determine the names in this environment for isfinite() and isnan(). The
+# most common variants are finite() and isnan(). We check for others. After
+# these macros finish, DYLP_ISFINITE has the name for isfinite(), and
+# DYLP_ISNAN has the name for isnan().
 
-# Find out what the names of finite and isnan are
-AC_CHECK_HEADERS(float.h)
-case $build in
-  *-cygwin*) ;;
-  *) AC_CHECK_HEADERS(ieeefp.h) ;;
-esac
-MY_C_FINITE=
-AC_CHECK_DECL([finite],[MY_C_FINITE=finite],,[
-#include <math.h>
-#ifdef HAVE_FLOAT_H
-# include <float.h>
-#endif
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
-#endif])
-if test -z "$MY_C_FINITE"; then
-  AC_CHECK_DECL([_finite],[MY_C_FINITE=_finite],,[
-#include <math.h>
-#ifdef HAVE_FLOAT_H
-# include <float.h>
-#endif
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
-#endif])
-fi
-if test -z "$MY_C_FINITE"; then
-  AC_CHECK_DECL([isfinite],[MY_C_FINITE=_finite],,[
-#include <math.h>
-#ifdef HAVE_FLOAT_H
-# include <float.h>
-#endif
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
-#endif])
-fi
-if test -z "$MY_C_FINITE"; then
-  AC_MSG_WARN(Cannot find C-function for checking finite.  Check will be disabled)
-else
-  AC_DEFINE_UNQUOTED([DYLP_FINITE],[$MY_C_FINITE],
-                     [Define to be the name of C-function for finite check])
-fi
+AC_DYLP_FIND_ISFINITE
+AC_DYLP_FIND_ISNAN
 
-MY_C_ISNAN=
-AC_CHECK_DECL([isnan],[MY_C_ISNAN=isnan],,[
-#include <math.h>
-#ifdef HAVE_FLOAT_H
-# include <float.h>
-#endif
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
-#endif])
-if test -z "$MY_C_ISNAN"; then
-  AC_CHECK_DECL([_isnan],[MY_C_ISNAN=_isnan],,[
-#include <math.h>
-#ifdef HAVE_FLOAT_H
-# include <float.h>
-#endif
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
-#endif])
-fi
-if test -z "$MY_C_ISNAN"; then
-  AC_MSG_WARN(Cannot find C-function for checking isnan.  Check will be disabled)
-else
-  AC_DEFINE_UNQUOTED([DYLP_ISNAN],[$MY_C_ISNAN],
-                     [Define to be the name of C-function for isnan check])
-fi
+# Check for the presence of a quiet_nan function. To my knowledge, this will
+# exist only if sunmath is present, but hey, who knows what lurks out there.
+
+AC_CHECK_FUNC([quiet_nan],
+    [AC_DEFINE([DYLP_HAS_QUIET_NAN],[1],
+	[Define this symbol if the quiet_nan function exists. This function
+	 should return the bit pattern for IEEE quiet NaN.])])
+
+# And determine whether we're big-endian or little-endian. This is necessary to
+# define the correct patterns for IEEE infinity and quiet_nan, in the event
+# that we can't get them any other way. This will define WORDS_BIGENDIAN if
+# we're on a big-endian machine, and do nothing otherwise.
+
+AC_C_BIGENDIAN
+
+# Finally, dylp needs to know where it's error message text file is located.
 
 AC_ARG_VAR(DYLP_ERRMSGDIR,[Directory containing the DyLP error message text file (dy_errmsgs.txt). Default is srcdir/src/Dylp])
 AC_SUBST(DYLP_ERRMSGDIR)
@@ -225,7 +161,7 @@ AC_CONFIG_FILES([Makefile
 		 dylp_addlibs.txt])
 
 # Here put the location and name of the configuration header file
-AC_CONFIG_HEADER([inc/config_dylp.h])
+AC_CONFIG_HEADERS([inc/config_dylp.h])
 
 # Finally, we let configure write all the output...
 AC_COIN_FINALIZE
