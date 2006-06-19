@@ -52,6 +52,21 @@
   this is a good bet.
 */
 #include <math.h>
+
+/*
+  Some subset of these will work on any system. Check config_dylp.h to see
+  which ones are actually in use.
+*/
+#ifdef HAVE_FLOAT_H
+# include <float.h>
+#endif
+#ifdef HAVE_IEEEFP_H
+# include <ieeefp.h>
+#endif
+#ifdef HAVE_SUNMATH_H
+# include <sunmath.h>
+#endif
+
  
 /*
   The Theory: quiet_nan is used to indicate failure (by returning NaN)
@@ -174,20 +189,6 @@
  
 #undef HUGE_VAL
 #define HUGE_VAL (Infbits.fpdbl)
-
-/*
-  Some subset of these will work on any system. Check config_dylp.h to see
-  which ones are actually in use.
-*/
-#ifdef HAVE_FLOAT_H
-# include <float.h>
-#endif
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
-#endif
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
-#endif
 
 /*
   In a Sun/Solaris environment, the definitions and functions that support

@@ -19,7 +19,6 @@ AC_DEFUN([AC_DYLP_EQUIV_FOR_CPP_BOOL],
 # ac_cv_sizeof_cpp_bool=8
   AC_MSG_NOTICE([C++ bool is $ac_cv_sizeof_cpp_bool bytes.])
 
-
   AC_LANG_PUSH(C)
   dylp_booltype="no"
   _AC_COMPUTE_INT([(long) (sizeof (char))],

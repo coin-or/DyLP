@@ -103,8 +103,8 @@ AC_CHECK_HEADER([sunmath.h],
     [])
 
 AC_MSG_NOTICE([Found floating point header files $fp_header_list.])
-AC_MSG_NOTICE([includes are now:])
-AC_MSG_NOTICE([$ac_includes_default])
+# AC_MSG_NOTICE([includes are now:])
+# AC_MSG_NOTICE([$ac_includes_default])
 
 # Now determine the names in this environment for isfinite() and isnan(). The
 # most common variants are finite() and isnan(). We check for others. After
@@ -131,13 +131,25 @@ AC_C_BIGENDIAN
 
 # Finally, dylp needs to know where it's error message text file is located.
 
-AC_ARG_VAR(DYLP_ERRMSGDIR,[Directory containing the DyLP error message text file (dy_errmsgs.txt). Default is srcdir/src/Dylp])
+AC_ARG_VAR(DYLP_ERRMSGDIR,
+    [Directory containing the DyLP error message text file (dy_errmsgs.txt).
+     Default is srcdir/src/Dylp])
 AC_SUBST(DYLP_ERRMSGDIR)
 if test x"$DYLP_ERRMSGDIR" = x; then
   DYLP_ERRMSGDIR=$abs_source_dir/src/Dylp
 fi
-AC_DEFINE_UNQUOTED([DYLP_ERRMSGDIR], ["$DYLP_ERRMSGDIR"],
-		   [Set to the full path directory name for the location of the error text message file dy_errmsgs.txt])
+AC_DEFINE_UNQUOTED([DYLP_ERRMSGDIR],
+    ["$DYLP_ERRMSGDIR"],
+    [Set to the full path directory name for the location of the error text
+     message file dy_errmsgs.txt])
+
+##############################################################################
+#		Dylp configuration options				     #
+##############################################################################
+
+AC_DYLP_PARANOIA([no])
+AC_DYLP_STATISTICS([no])
+AC_DYLP_INFO([yes])
 
 ##############################################################################
 #                   VPATH links for example input files                      #
