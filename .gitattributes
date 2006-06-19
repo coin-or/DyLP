@@ -35,6 +35,7 @@ DyLP/src/DylpStdLib/dylib_std.h -text
 DyLP/src/DylpStdLib/dylib_strrtns.c -text
 DyLP/src/DylpStdLib/dylib_strrtns.h -text
 /Externals -text
+/LICENSE -text
 /Makefile.am -text
 /Makefile.in -text
 /README -text
