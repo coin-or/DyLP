@@ -5,7 +5,9 @@
   After building the sample wrapper programs, you should have two wrappers:
 
     * osi_dylp, a simple native interface to dylp, written in C. This
-      wrapper has no dependence on COIN code.
+      wrapper has no dependence on COIN code. osi+dylp is essentially the
+      same thing, but C++. It's not built by default, you'll need to edit
+      Makefile.in to build it.
 
     * odsi+dylp, a simple wrapper that runs dylp through the OsiDylp OSI
       layer.
@@ -14,8 +16,8 @@
   command line parameters for the wrappers. Typing `plain' will get you a
   usage message. `plain <problem>' will search in the current directory and
   in COIN/Mps/Netlib for the specified problem file (Note 1). By default,
-  plain will run the osi_dylp wrapper; you can change this by editing the
-  script. You can also select the wrapper you want as a command line
+  plain will run the odsi+dylp wrapper; you can change the default by editing
+  the script. You can also select the wrapper you want as a command line
   parameter.
 
   Once it locates the problem file, plain will look around for a dylp options
@@ -54,8 +56,4 @@
 	  other hand, does support some extensions that may be useful in
 	  other contexts.
   ---------------------------
-
-  The file Makefile.bare is a bare-bones makefile which illustrates how to
-  build a simple (one file) application using OsiDylp outside of the COIN
-  build environment. It uses the odsi+dylp main program as the application.
 

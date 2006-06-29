@@ -144,9 +144,9 @@ static void print_version (ioid chn, bool echo,
   const char *disc2 = "warranty; not even for MERCHANTABILITY or FITNESS FOR A"
 		      " PARTICULAR PURPOSE." ;
 
-  outfmt(dy_logchn,dy_gtxecho,"\n%s (%s) V %s",cmd,nme,ver) ;
-  outfmt(dy_logchn,dy_gtxecho,"\nCopyright (C) 2004 Lou Hafer") ;
-  outfmt(dy_logchn,dy_gtxecho,"\n%s\n%s\n",disc1,disc2) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s (%s) V %s",cmd,nme,ver) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,"\nCopyright (C) 2004 Lou Hafer") ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s\n%s\n",disc1,disc2) ;
 
   return ; }
 
@@ -154,61 +154,62 @@ static void print_help (ioid chn, bool echo)
 /*
   Print help message.
 */
-{ outfmt(chn,echo,"\nusage: dylp [<options>] [<problem-file>]") ;
+{ dyio_outfmt(chn,echo,"\nusage: dylp [<options>] [<problem-file>]") ;
 
-  outfmt(chn,echo,"\n\nThe options presently in place are:\n") ;
+  dyio_outfmt(chn,echo,"\n\nThe options presently in place are:\n") ;
 
-  outfmt(chn,echo,"\n  %s\t\t\t%s","-s",
-	 "Run silent: turns off echo of all generated text to") ;
-  outfmt(chn,echo,"\n\t\t\t%s",
-	 "stdout. The default output-file path is changed") ;
-  outfmt(chn,echo,"\n\t\t\t%s",
-	 "from stdout to NULL. Silent overpowers terse, in") ;
-  outfmt(chn,echo,"\n\t\t\t%s","the event both are specified.") ;
+  dyio_outfmt(chn,echo,"\n  %s\t\t\t%s","-s",
+	      "Run silent: turns off echo of all generated text to") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s",
+	      "stdout. The default output-file path is changed") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s",
+	      "from stdout to NULL. Silent overpowers terse, in") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s","the event both are specified.") ;
 
-  outfmt(chn,echo,"\n  %s\t\t\t%s","-t",
-	 "Terse output on stdout. Behaviour is as for silent,") ;
-  outfmt(chn,echo,"\n\t\t\t%s",
-	 "but allows an opening title and closing message") ;
-  outfmt(chn,echo,"\n\t\t\t%s","giving the result of the LP.") ;
+  dyio_outfmt(chn,echo,"\n  %s\t\t\t%s","-t",
+	      "Terse output on stdout. Behaviour is as for silent,") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s",
+	      "but allows an opening title and closing message") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s","giving the result of the LP.") ;
 
-  outfmt(chn,echo,"\n  %s\t\t\t%s","-p <num>",
-  	 "Set overall print level to <num>, [0..5].") ;
+  dyio_outfmt(chn,echo,"\n  %s\t\t\t%s","-p <num>",
+  	      "Set overall print level to <num>, [0..5].") ;
 
-  outfmt(chn,echo,"\n  %s\t%s","-e <errmsg-file>",
-	 "Source text for error messages (defaults to") ;
-  outfmt(chn,echo,"\n\t\t\t%s","dy_errmsgs.txt).") ;
+  dyio_outfmt(chn,echo,"\n  %s\t%s","-e <errmsg-file>",
+	      "Source text for error messages (defaults to") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s","dy_errmsgs.txt).") ;
 
-  outfmt(chn,echo,"\n  %s\t%s","-E <errlog-file>",
-	  "A logging file for error messages (default is to") ;
-  outfmt(chn,echo,"\n\t\t\t%s","direct error messages to the log file).") ;
+  dyio_outfmt(chn,echo,"\n  %s\t%s","-E <errlog-file>",
+	       "A logging file for error messages (default is to") ;
+  dyio_outfmt(chn,echo,
+	      "\n\t\t\t%s","direct error messages to the log file).") ;
 
-  outfmt(chn,echo,"\n  %s\t%s","-o <option-file>",
-	 "Control ('.spc') options file for dylp (default is no file).") ;
+  dyio_outfmt(chn,echo,"\n  %s\t%s","-o <option-file>",
+	      "Control ('.spc') options file for dylp (default is no file).") ;
 
-  outfmt(chn,echo,"\n  %s\t%s","-m <problem-file>",
-	 "The problem ('.mps') specification (no default).") ;
+  dyio_outfmt(chn,echo,"\n  %s\t%s","-m <problem-file>",
+	      "The problem ('.mps') specification (no default).") ;
 
-  outfmt(chn,echo,"\n  %s\t\t%s","-L <log-file>",
-	 "A log of dylp's execution (default is no execution") ;
-  outfmt(chn,echo,"\n\t\t\t%s","logging).") ;
+  dyio_outfmt(chn,echo,"\n  %s\t\t%s","-L <log-file>",
+	      "A log of dylp's execution (default is no execution") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s","logging).") ;
 
-  outfmt(chn,echo,"\n  %s\t%s","-O <output-file>",
-	 "The output file. Defaults to stdout unless the -s or -t") ;
-  outfmt(chn,echo,"\n\t\t\t%s",
-	 "options are present, in which case the default is no") ;
-  outfmt(chn,echo,"\n\t\t\t%s","output.") ;
+  dyio_outfmt(chn,echo,"\n  %s\t%s","-O <output-file>",
+	      "The output file. Defaults to stdout unless the -s or -t") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s",
+	      "options are present, in which case the default is no") ;
+  dyio_outfmt(chn,echo,"\n\t\t\t%s","output.") ;
 
-  outfmt(chn,echo,"\n  %s\t\t\t%s","-h",
-	 "Print this help message and exit.") ;
-  outfmt(chn,echo,"\n  %s\t\t\t%s","-v",
-	 "Print version and exit.") ;
+  dyio_outfmt(chn,echo,"\n  %s\t\t\t%s","-h",
+	      "Print this help message and exit.") ;
+  dyio_outfmt(chn,echo,"\n  %s\t\t\t%s","-v",
+	      "Print version and exit.") ;
 
-  outfmt(chn,echo,"\n\n%s %s",
-	 "The -m option is just an alternate way to specify the",
-	 "<problem-file>.") ;
+  dyio_outfmt(chn,echo,"\n\n%s %s",
+	      "The -m option is just an alternate way to specify the",
+	      "<problem-file>.") ;
 
-  outfmt(chn,echo,"\n\n%s\n%s\n%s\n",
+  dyio_outfmt(chn,echo,"\n\n%s\n%s\n%s\n",
   "The error log file is a duplicate of the error messages printed on",
   "stderr; the execution log file is a duplicate of output on stdout unless",
   "-s is specified to suppress output to stdout.") ;
@@ -320,7 +321,7 @@ static void prt_timeval (ioid chn, bool echo, struct timeval *tv)
   secs = mins%60 ;
   mins = mins/60 ;
   csecs = tv->tv_usec/1e4 ;
-  outfmt(chn,echo,"%d:%02d:%02d.%02d",hrs,mins,secs,csecs) ;
+  dyio_outfmt(chn,echo,"%d:%02d:%02d.%02d",hrs,mins,secs,csecs) ;
 
   return ; }
 
@@ -354,8 +355,8 @@ static void stats_lp (const char *outpath, bool echo, lpprob_struct *lp,
   { warn(2,rtnnme,"file name") ;
     chn = IOID_NOSTRM ; }
   else
-  { chn = pathtoid(outpath,NULL) ;
-    if (chn == IOID_INV) chn = openfile(outpath,"w") ;
+  { chn = dyio_pathtoid(outpath,NULL) ;
+    if (chn == IOID_INV) chn = dyio_openfile(outpath,"w") ;
     if (chn == IOID_INV)
     { warn(10,rtnnme,outpath,"w") ;
       chn = IOID_NOSTRM ; }
@@ -365,19 +366,20 @@ static void stats_lp (const char *outpath, bool echo, lpprob_struct *lp,
   lp return code.
 */
   if (lp == NULL)
-  { outfmt(chn,echo,
-	   "\n\n<< %s: LP problem structure is NULL! >>\n", rtnnme) ; }
+  { dyio_outfmt(chn,echo,
+	        "\n\n<< %s: LP problem structure is NULL! >>\n", rtnnme) ; }
   else
-  { outfmt(chn,echo,"\n\nSystem: %s\t\t\tfinal status: %s after %d iterations.",
-	   lp->consys->nme,dy_prtlpphase(lp->phase,FALSE),lp->iters) ;
+  { dyio_outfmt(chn,echo,
+		"\n\nSystem: %s\t\t\tfinal status: %s after %d iterations.",
+	        lp->consys->nme,dy_prtlpphase(lp->phase,FALSE),lp->iters) ;
     if (lp->phase == dyDONE)
-    { outfmt(chn,echo,"\n    lp status: %s",dy_prtlpret(lp->lpret)) ;
+    { dyio_outfmt(chn,echo,"\n    lp status: %s",dy_prtlpret(lp->lpret)) ;
       switch (lp->lpret)
       { case lpOPTIMAL:
-	{ outfmt(chn,echo,"\t\tobjective: %.9g",lp->obj) ;
+	{ dyio_outfmt(chn,echo,"\t\tobjective: %.9g",lp->obj) ;
 	  break ; }
 	case lpINFEAS:
-	{ outfmt(chn,echo,"\t\tinfeasibility: %.9g",lp->obj) ;
+	{ dyio_outfmt(chn,echo,"\t\tinfeasibility: %.9g",lp->obj) ;
 	  break ; }
 	case lpUNBOUNDED:
 	{ if (lp->obj != 0)
@@ -387,23 +389,23 @@ static void stats_lp (const char *outpath, bool echo, lpprob_struct *lp,
 	    else
 	    { vndx = (int) lp->obj ;
 	      bpos = 1 ; }
-	    outfmt(chn,echo,"\t\tunbounded variable %s (%d) (%s)",
-		   consys_nme(lp->consys,'v',vndx,FALSE,NULL),vndx,
-		   (bpos < 0)?"decreasing":"increasing") ; }
+	    dyio_outfmt(chn,echo,"\t\tunbounded variable %s (%d) (%s)",
+		        consys_nme(lp->consys,'v',vndx,FALSE,NULL),vndx,
+		        (bpos < 0)?"decreasing":"increasing") ; }
 	  break ; }
 	default:
 	{ break ; } } }
     if (lptime != NULL)
-    { outfmt(chn,echo,"\n    lp time: ") ;
+    { dyio_outfmt(chn,echo,"\n    lp time: ") ;
       prt_timeval(chn,echo,lptime) ;
-      outfmt(chn,echo," (%.2f)",lptime->tv_sec+lptime->tv_usec/1e6) ; } }
+      dyio_outfmt(chn,echo," (%.2f)",lptime->tv_sec+lptime->tv_usec/1e6) ; } }
 # ifdef DYLP_STATISTICS
   if (lpstats != NULL) dy_dumpstats(chn,echo,lpstats,lp->consys) ;
 # endif
   
-  outfmt(chn,echo,"\n") ;
+  dyio_outfmt(chn,echo,"\n") ;
 
-  flushio(chn,echo) ;
+  dyio_flushio(chn,echo) ;
 
   return ; }
 
@@ -625,7 +627,7 @@ int main (int argc, char *argv[])
 	break ; }
       case '?':
       { errinit(errmsgpath,errlogpath,TRUE) ;
-	ioinit() ;
+	dyio_ioinit() ;
 	errmsg(3,rtnnme,"command line option",optopt) ;
 	exit (1) ; } }
 /*
@@ -689,7 +691,7 @@ int main (int argc, char *argv[])
   else
     errecho = TRUE ;
   errinit(errmsgpath,errlogpath,errecho) ;
-  if (ioinit() != TRUE)
+  if (dyio_ioinit() != TRUE)
   { errmsg(1,rtnnme,__LINE__) ;
     exit (2) ; }
 /*
@@ -697,21 +699,21 @@ int main (int argc, char *argv[])
   line-oriented. Serious internal confusion if we can't manage these. Set the
   initial command input channel to stdin.
 */
-  ttyout = openfile("stdout","w") ;
+  ttyout = dyio_openfile("stdout","w") ;
   if (ttyout == IOID_INV)
   { errmsg(1,rtnnme,__LINE__) ;
     exit(3) ; }
-  ttyin = openfile("stdin","r") ;
+  ttyin = dyio_openfile("stdin","r") ;
   if (ttyin == IOID_INV)
   { errmsg(1,rtnnme,__LINE__) ;
     exit(4) ; }
-  (void) setmode(ttyin,'l') ;
+  (void) dyio_setmode(ttyin,'l') ;
   dy_cmdchn = ttyin ;
 /*
   Initialize logging.
 */
   if (logpath != NULL)
-  { dy_logchn = openfile(logpath,"w") ;
+  { dy_logchn = dyio_openfile(logpath,"w") ;
     if (dy_logchn == IOID_INV)
     { warn(201,rtnnme,logpath) ;
       dy_logchn = IOID_NOSTRM ; } }
@@ -727,7 +729,7 @@ int main (int argc, char *argv[])
   if (errlogpath == NULL && dy_logchn != IOID_NOSTRM)
   { swaperrs = TRUE ;
     errlogpath = logpath ;
-    if (chgerrlog(errlogpath,errecho) == FALSE)
+    if (dyio_chgerrlog(errlogpath,errecho) == FALSE)
     { warn(18,rtnnme,"<null>",errlogpath) ; } }
 /*
   Ok, after all that work, check if we've been asked for the version or usage
@@ -742,18 +744,18 @@ int main (int argc, char *argv[])
 /*
   We're up! Banners to the appropriate places.
 */
-  outfmt(dy_logchn,terse,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
-  outfmt(dy_logchn,terse,"\n\t\t%s",runtime) ;
-  outfmt(dy_logchn,terse,"\n\n") ;
+  dyio_outfmt(dy_logchn,terse,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
+  dyio_outfmt(dy_logchn,terse,"\n\t\t%s",runtime) ;
+  dyio_outfmt(dy_logchn,terse,"\n\n") ;
   if (outpath != NULL && strcmp(outpath,"stdout") != 0)
-  { outchn = pathtoid(outpath,NULL) ;
-    if (outchn == IOID_INV) outchn = openfile(outpath,"w") ;
+  { outchn = dyio_pathtoid(outpath,NULL) ;
+    if (outchn == IOID_INV) outchn = dyio_openfile(outpath,"w") ;
     if (outchn == IOID_INV)
     { warn(10,rtnnme,outpath,"w") ; }
     else
-    { outfmt(outchn,FALSE,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
-      outfmt(outchn,FALSE,"\n\t\t%s",runtime) ;
-      outfmt(outchn,FALSE,"\n\n") ; } }
+    { dyio_outfmt(outchn,FALSE,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
+      dyio_outfmt(outchn,FALSE,"\n\t\t%s",runtime) ;
+      dyio_outfmt(outchn,FALSE,"\n\n") ; } }
 /*
   Time to set up the lp options. Establish a set of defaults, then read the
   options file to see what the user has in mind. Because this is a standalone
@@ -766,9 +768,9 @@ int main (int argc, char *argv[])
   main_lpopts->fullsys = TRUE ;
   main_lpopts->coldbasis = ibLOGICAL ;
   if (optpath != NULL)
-  { dy_cmdchn = openfile(optpath,"r") ;
+  { dy_cmdchn = dyio_openfile(optpath,"r") ;
     if (dy_cmdchn == IOID_INV) exit (1) ;
-    (void) setmode(dy_cmdchn,'l') ;
+    (void) dyio_setmode(dy_cmdchn,'l') ;
     switch (process_cmds(silent))
     { case cmdOK:
       { break ; }
@@ -779,7 +781,7 @@ int main (int argc, char *argv[])
       default:
       { exit (1) ; } }
     if (dy_cmdchn != ttyin)
-    { (void) closefile(dy_cmdchn) ;
+    { (void) dyio_closefile(dy_cmdchn) ;
       dy_cmdchn = IOID_INV ; } }
 /*
   Make an attempt to read the mps input file.
@@ -815,14 +817,15 @@ int main (int argc, char *argv[])
   { if (printlvl >= 2)
     { dy_dumpcompact(dy_logchn,
 		     (dy_logchn == IOID_INV)?TRUE:FALSE,main_lp,FALSE) ; }
-    outfmt(dy_logchn,TRUE,"\nReturn code %s",dy_prtlpret(main_lp->lpret)) ;
+    dyio_outfmt(dy_logchn,TRUE,"\nReturn code %s",dy_prtlpret(main_lp->lpret)) ;
     if (main_lp->phase == dyDONE)
-      outfmt(dy_logchn,TRUE," after %d pivots",main_lp->iters) ;
+      dyio_outfmt(dy_logchn,TRUE," after %d pivots",main_lp->iters) ;
     if (main_lp->lpret == lpOPTIMAL)
-    { outfmt(dy_logchn,TRUE,"; objective %.8g",main_lp->obj) ; }
-    outfmt(dy_logchn,TRUE," (%.2f sec.)",lptime.tv_sec+lptime.tv_usec/1e6) ;
-    outfmt(dy_logchn,TRUE,".\n") ;
-    flushio(dy_logchn,dy_gtxecho) ; }
+    { dyio_outfmt(dy_logchn,TRUE,"; objective %.8g",main_lp->obj) ; }
+    dyio_outfmt(dy_logchn,TRUE,
+		" (%.2f sec.)",lptime.tv_sec+lptime.tv_usec/1e6) ;
+    dyio_outfmt(dy_logchn,TRUE,".\n") ;
+    dyio_flushio(dy_logchn,dy_gtxecho) ; }
 /*
   Final cleanup. Free space used by the remaining main_* structures.
 */
@@ -839,7 +842,7 @@ int main (int argc, char *argv[])
   an LP.
 */
   if (outchn != IOID_INV && outchn != ttyout)
-  { (void) closefile(outchn) ; }
+  { (void) dyio_closefile(outchn) ; }
 /*
   Leap to here for shutdown in cases where we never get as far as opening
   an output file. We still need to close the log file and shut down the i/o
@@ -847,8 +850,8 @@ int main (int argc, char *argv[])
 */
   NOOUTFILE_CLEANUP:
   if (dy_logchn != IOID_INV && dy_logchn != IOID_NOSTRM)
-  { (void) closefile(dy_logchn) ; }
-  ioterm() ;
+  { (void) dyio_closefile(dy_logchn) ; }
+  dyio_ioterm() ;
   errterm() ;
 
   exit(0) ;

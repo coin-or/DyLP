@@ -261,9 +261,9 @@ bool consys_geomscale (consys_struct *consys,
       if (rowscale[i]*rcmax > maxaij) maxaij = rowscale[i]*rcmax ;
       if (rowscale[i]*rcmin < minaij) minaij = rowscale[i]*rcmin ; }
 #   if (CONSYS_SCALING_DEBUG >= 1)
-    outfmt(dy_logchn,dy_gtxecho,
-	   "\n  %s: iter %d: %g <= a<ij> <= %g, geom = %g",
-	   rtnnme,iter,minaij,maxaij,sqrt(maxaij/minaij)) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n  %s: iter %d: %g <= a<ij> <= %g, geom = %g",
+		rtnnme,iter,minaij,maxaij,sqrt(maxaij/minaij)) ;
 #   endif
 
     maxaij = 0.0 ;
@@ -286,7 +286,7 @@ bool consys_geomscale (consys_struct *consys,
     sqm = sqrt(maxaij/minaij) ;
     eps = (sqm_old-sqm)/sqm_old ;
 #   if (CONSYS_SCALING_DEBUG >= 1)
-    outfmt(dy_logchn,dy_gtxecho,
+    dyio_outfmt(dy_logchn,dy_gtxecho,
 	   "\n  %s: iter %d: %g <= a<ij> <= %g, geom = %g, eps = %g",
 	   rtnnme,iter,minaij,maxaij,sqm,eps) ;
 #   endif
@@ -396,9 +396,9 @@ bool consys_equiscale (consys_struct *consys,
   sqm = sqrt(maxaij/minaij) ;
   eps = (sqm_old-sqm)/sqm_old ;
 # if (CONSYS_SCALING_DEBUG >= 1)
-  outfmt(dy_logchn,dy_gtxecho,
-	 "\n  %s: %g <= a<ij> <= %g, geom = %g, eps = %g",
-	 rtnnme,minaij,maxaij,sqm,eps) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,
+	      "\n  %s: %g <= a<ij> <= %g, geom = %g, eps = %g",
+	      rtnnme,minaij,maxaij,sqm,eps) ;
 # endif
 
   consys->maxaij = maxaij ;

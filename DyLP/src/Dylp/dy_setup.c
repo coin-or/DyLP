@@ -500,10 +500,10 @@ void dy_checkdefaults (consys_struct *sys,
   There's no good way to control this print statement, given the timing and
   purpose of this call. But it's occasionally handy for debugging.
 
-  outfmt(dy_logchn,TRUE,"\nPTOLS: pzero = %g, pscale = %g, pchk = %g",
-	 tols->zero,tols->pfeas_scale,tols->pchk) ;
-  outfmt(dy_logchn,TRUE,"\nDTOLS: dzero = %g, dscale = %g, dchk = %g",
-	 tols->cost,tols->dfeas_scale,tols->dchk) ;
+  dyio_outfmt(dy_logchn,TRUE,"\nPTOLS: pzero = %g, pscale = %g, pchk = %g",
+	      tols->zero,tols->pfeas_scale,tols->pchk) ;
+  dyio_outfmt(dy_logchn,TRUE,"\nDTOLS: dzero = %g, dscale = %g, dchk = %g",
+	      tols->cost,tols->dfeas_scale,tols->dchk) ;
 */
 
   return ; }

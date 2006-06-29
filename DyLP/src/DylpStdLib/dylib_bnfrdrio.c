@@ -74,7 +74,7 @@ static const char *prtbnftype (bnftype_enum type)
     case bnfL:
       return ("L") ;
     default:
-    { outfxd(badtype,-(sizeof(badtype)-1),'l',"bad bnf type (%d)",type) ;
+    { dyio_outfxd(badtype,-(sizeof(badtype)-1),'l',"bad bnf type (%d)",type) ;
       return (badtype) ; } } }
 
 
@@ -106,7 +106,8 @@ static const char *prtbnfttype (bnfttype_enum ttype)
     case bnfttQ:
       return ("Q") ;
     default:
-    { outfxd(badtype,-(sizeof(badtype)-1),'l',"bad terminal type (%d)",ttype) ;
+    { dyio_outfxd(badtype,-(sizeof(badtype)-1),
+		  'l',"bad terminal type (%d)",ttype) ;
       return (badtype) ; } } }
 
 
@@ -132,12 +133,12 @@ static void prtdefname (ioid chn, bool echo, bnfdef_struct *def)
 */
 
 { if (def == NULL)
-    outfmt(chn,echo,"<<null pointer>>") ;
+    dyio_outfmt(chn,echo,"<<null pointer>>") ;
   else
   if (def->name == NULL)
-    outfmt(chn,echo,"unnamed(%#08x)",def) ;
+    dyio_outfmt(chn,echo,"unnamed(%#08x)",def) ;
   else
-    outfmt(chn,echo,"%s",def->name) ;
+    dyio_outfmt(chn,echo,"%s",def->name) ;
     
   return ; }
 
@@ -154,12 +155,12 @@ static void prtrefname (ioid chn, bool echo, bnfref_struct *ref)
 */
 
 { if (ref == NULL)
-    outfmt(chn,echo,"<<null pointer>>") ;
+    dyio_outfmt(chn,echo,"<<null pointer>>") ;
   else
   if (ref->name == NULL)
-    outfmt(chn,echo,"unnamed(%#08x)",ref) ;
+    dyio_outfmt(chn,echo,"unnamed(%#08x)",ref) ;
   else
-    outfmt(chn,echo,"%s",ref->name) ;
+    dyio_outfmt(chn,echo,"%s",ref->name) ;
     
   return ; }
 
@@ -178,9 +179,9 @@ static void prtstring (ioid chn, bool echo, const char *string)
 */
 
 { if (string != NULL)
-    outfmt(chn,echo,"\"%s\"",string) ;
+    dyio_outfmt(chn,echo,"\"%s\"",string) ;
   else
-    outchr(chn,echo,'*') ; }
+    dyio_outchr(chn,echo,'*') ; }
 
 
 
@@ -197,10 +198,10 @@ static void prtstore (ioid chn, bool echo, bnfref_any ref)
 */
 
 { if (flgon(ref.t2->uflgs,bnfstore) == TRUE || ref.t2->type == bnfI)
-  { if (flgon(ref.t2->uflgs,bnfatsgn) == TRUE) outchr(chn,echo,'@') ;
-    outfmt(chn,echo,"%d",ref.t2->offset) ; }
+  { if (flgon(ref.t2->uflgs,bnfatsgn) == TRUE) dyio_outchr(chn,echo,'@') ;
+    dyio_outfmt(chn,echo,"%d",ref.t2->offset) ; }
   else
-    outchr(chn,echo,'*') ; }
+    dyio_outchr(chn,echo,'*') ; }
 
 
 static void prtlst (ioid chn, bool echo, struct bnfref_type3 *ref)
@@ -216,10 +217,10 @@ static void prtlst (ioid chn, bool echo, struct bnfref_type3 *ref)
 */
 
 { if (flgon(ref->uflgs,bnflst) == TRUE)
-  { if (flgon(ref->uflgs,bnfstbg) == TRUE) outchr(chn,echo,'@') ;
+  { if (flgon(ref->uflgs,bnfstbg) == TRUE) dyio_outchr(chn,echo,'@') ;
     prtrefname(chn,echo,(bnfref_struct *) ref) ; }
   else
-    outchr(chn,echo,'*') ; }
+    dyio_outchr(chn,echo,'*') ; }
 
 
 static void prtlbl (ioid chn, bool echo,
@@ -242,16 +243,16 @@ static void prtlbl (ioid chn, bool echo,
     { prtrefname(chn,echo,src) ;
       break ; }
     case bnfncS:
-    { outfmt(chn,echo,"%%%d",(int) src) ;
+    { dyio_outfmt(chn,echo,"%%%d",(int) src) ;
       break ; }
     case bnfncC:
-    { outchr(chn,echo,'c') ;
+    { dyio_outchr(chn,echo,'c') ;
       break ; }
     case bnfncN:
-    { outchr(chn,echo,'n') ;
+    { dyio_outchr(chn,echo,'n') ;
       break ; }
     default:
-    { outfmt(chn,echo,"invalid! (%d)",code) ;
+    { dyio_outfmt(chn,echo,"invalid! (%d)",code) ;
       break ; } } }
 
 
@@ -271,13 +272,13 @@ static void prtlblsav (ioid chn, bool echo, int flg, bnfLBdef_struct *def)
 { if (flgon(def->dflgs,flg) == TRUE)
     switch (flg)
     { case bnfsvnd:
-      { outfmt(chn,echo,"%%%d",def->savnd) ;
+      { dyio_outfmt(chn,echo,"%%%d",def->savnd) ;
 	break ; }
       case bnfsvnm:
-      { outfmt(chn,echo,"%%%d",def->savnm) ;
+      { dyio_outfmt(chn,echo,"%%%d",def->savnm) ;
 	break ; } }
   else
-    outchr(chn,echo,'*') ; }
+    dyio_outchr(chn,echo,'*') ; }
   
       
 
@@ -303,54 +304,54 @@ void prtbnfref (ioid chn, bool echo, bnfref_struct *bnfref)
 */
   ref.com = bnfref ;
   if (ref.com == NULL)
-  { outfmt(chn,echo,"<null!>") ;
+  { dyio_outfmt(chn,echo,"<null!>") ;
     return ; }
 /*
   Print the basics: type, name, and name of associated definition.
 */
-  outfmt(chn,echo,"<%s,",prtbnftype(ref.com->type)) ;
+  dyio_outfmt(chn,echo,"<%s,",prtbnftype(ref.com->type)) ;
   prtrefname(chn,echo,ref.com) ;
-  outfmt(chn,echo,"->") ;
+  dyio_outfmt(chn,echo,"->") ;
   prtdefname(chn,echo,ref.com->defn) ;
 /*
   And flesh out with the remainder of the type-specific information.
 */
   switch (ref.com->type)
   { case bnfG:
-    { outchr(chn,echo,',') ;
+    { dyio_outchr(chn,echo,',') ;
       prtstore(chn,echo,ref) ;
-      outchr(chn,echo,',') ;
+      dyio_outchr(chn,echo,',') ;
       prtlst(chn,echo,ref.t3) ;
       break ; }
     case bnfNP:
-    { outchr(chn,echo,',') ;
+    { dyio_outchr(chn,echo,',') ;
       prtlst(chn,echo,ref.t3) ;
       break ; }
     case bnfP:
-    { outchr(chn,echo,',') ;
+    { dyio_outchr(chn,echo,',') ;
       if (flgon(ref.P->uflgs,bnfsv) == TRUE)
-        outfmt(chn,echo,"%%%d",ref.P->offset) ;
+        dyio_outfmt(chn,echo,"%%%d",ref.P->offset) ;
       else
 	prtstore(chn,echo,ref) ;
-      outchr(chn,echo,',') ;
+      dyio_outchr(chn,echo,',') ;
       prtlst(chn,echo,ref.t3) ;
       break ; }
     case bnfT:
-    { outchr(chn,echo,',') ;
+    { dyio_outchr(chn,echo,',') ;
       if (flgon(ref.T->uflgs,bnfflt) == TRUE)
-        outfmt(chn,echo,"flt,") ;
+        dyio_outfmt(chn,echo,"flt,") ;
       if (flgon(ref.T->uflgs,bnfdbl) == TRUE)
-        outfmt(chn,echo,"dbl,") ;
+        dyio_outfmt(chn,echo,"dbl,") ;
       if (flgon(ref.T->uflgs,bnfcs) == TRUE)
-        outfmt(chn,echo,"cs,") ;
+        dyio_outfmt(chn,echo,"cs,") ;
       if (flgon(ref.T->uflgs,bnfmin) == TRUE)
-        outfmt(chn,echo,"min,") ;
+        dyio_outfmt(chn,echo,"min,") ;
       if (flgon(ref.T->uflgs,bnfexact) == TRUE)
-        outfmt(chn,echo,"exact,") ;
+        dyio_outfmt(chn,echo,"exact,") ;
       prtstore(chn,echo,ref) ;
       break ; }
     case bnfI:
-    { outchr(chn,echo,',') ;
+    { dyio_outchr(chn,echo,',') ;
       prtstore(chn,echo,ref) ;
       break ; }
     case bnfDS:
@@ -361,7 +362,7 @@ void prtbnfref (ioid chn, bool echo, bnfref_struct *bnfref)
     { break ; }
     default:
     { break ; } }
-  outchr(chn,echo,'>') ; }
+  dyio_outchr(chn,echo,'>') ; }
 
 
 
@@ -391,20 +392,20 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
 */
   def.com = bnfdef ;
   if (def.com == NULL)
-  { outfmt(chn,echo,"<null!>") ;
+  { dyio_outfmt(chn,echo,"<null!>") ;
     return ; }
 /*
   Print the definition header first: type and name.
 */
-  outfmt(chn,echo,"\n<%s,",prtbnftype(def.com->type)) ;
+  dyio_outfmt(chn,echo,"\n<%s,",prtbnftype(def.com->type)) ;
   prtdefname(chn,echo,def.com) ;
   if (def.com->type == bnfG)
-  { outfmt(chn,echo,",%d,",def.G->size) ;
+  { dyio_outfmt(chn,echo,",%d,",def.G->size) ;
     if (def.G->link >= 0)
-      outfmt(chn,echo,"%d",def.G->link) ;
+      dyio_outfmt(chn,echo,"%d",def.G->link) ;
     else
-      outchr(chn,echo,'*') ; }
-  outfmt(chn,echo,"> ::= ") ;
+      dyio_outchr(chn,echo,'*') ; }
+  dyio_outfmt(chn,echo,"> ::= ") ;
 /*
   And now the body of the definition.
 */
@@ -431,8 +432,8 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
 	  for (compndx = 0 ; compndx < compnum ; compndx++)
 	    prtbnfref(chn,echo,*comprefs++) ; }
 	else
-	  outfmt(chn,echo,"<null alternative! (%d)>",altndx+1) ;
-	if (altndx < altnum-1) outfmt(chn,echo,txm1) ; }
+	  dyio_outfmt(chn,echo,"<null alternative! (%d)>",altndx+1) ;
+	if (altndx < altnum-1) dyio_outfmt(chn,echo,txm1) ; }
       break ; }
     case bnfP:
     { altrefs = def.P->alts ;
@@ -447,16 +448,16 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
 	  for (compndx = 0 ; compndx < compnum ; compndx++)
 	    prtbnfref(chn,echo,*comprefs++) ; }
 	else
-	  outfmt(chn,echo,"<null alternative! (%d)>",altndx+1) ;
-	if (altndx < altnum-1) outfmt(chn,echo,txm1) ; }
+	  dyio_outfmt(chn,echo,"<null alternative! (%d)>",altndx+1) ;
+	if (altndx < altnum-1) dyio_outfmt(chn,echo,txm1) ; }
       break ; }
     case bnfT:
-    { outfmt(chn,echo,"<%s",prtbnfttype(def.T->ttype)) ;
+    { dyio_outfmt(chn,echo,"<%s",prtbnfttype(def.T->ttype)) ;
       switch (def.T->ttype)
       { case bnfttNIL:
 	{ break ; }
 	case bnfttN:
-	{ outfmt(chn,echo,"(%d),",def.T->parm1) ;
+	{ dyio_outfmt(chn,echo,"(%d),",def.T->parm1) ;
 	  prtstring(chn,echo,def.T->val) ;
 	  break ; }
 	case bnfttID:
@@ -466,70 +467,70 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
 	{ prtstring(chn,echo,def.T->val) ;
 	  break ; }
 	case bnfttF:
-	{ outfmt(chn,echo,"(%d),",def.T->parm1) ;
+	{ dyio_outfmt(chn,echo,"(%d),",def.T->parm1) ;
 	  prtstring(chn,echo,def.T->val) ;
 	  break ; }
 	case bnfttQ:
-	{ outchr(chn,echo,'(') ;
+	{ dyio_outchr(chn,echo,'(') ;
 	  if (def.T->qschr < ' ')
-	    outfmt(chn,echo,"%#02x",def.T->qschr) ;
+	    dyio_outfmt(chn,echo,"%#02x",def.T->qschr) ;
 	  else
-	    outchr(chn,echo,def.T->qschr) ;
-	  outchr(chn,echo,',') ;
+	    dyio_outchr(chn,echo,def.T->qschr) ;
+	  dyio_outchr(chn,echo,',') ;
 	  if (def.T->qechr < ' ')
-	    outfmt(chn,echo,"%#02x",def.T->qechr) ;
+	    dyio_outfmt(chn,echo,"%#02x",def.T->qechr) ;
 	  else
-	    outchr(chn,echo,def.T->qechr) ;
-	  outfmt(chn,echo,"),") ;
+	    dyio_outchr(chn,echo,def.T->qechr) ;
+	  dyio_outfmt(chn,echo,"),") ;
 	  prtstring(chn,echo,def.T->val) ;
 	  break ; } }
-      outchr(chn,echo,'>') ;
+      dyio_outchr(chn,echo,'>') ;
       break ; }
     case bnfDS:
     case bnfDL:
-    { outchr(chn,echo,'<') ;
+    { dyio_outchr(chn,echo,'<') ;
       if (flgon(def.LB->dflgs,bnfadv) == TRUE)
-	outfmt(chn,echo,"a,") ;
+	dyio_outfmt(chn,echo,"a,") ;
       else
-	outfmt(chn,echo,"b,") ;
+	dyio_outfmt(chn,echo,"b,") ;
       prtlbl(chn,echo,def.LB->nmcd,def.LB->nmsrc) ;
-      outchr(chn,echo,',') ;
+      dyio_outchr(chn,echo,',') ;
       prtlblsav(chn,echo,bnfsvnm,def.LB) ;
-      outchr(chn,echo,',') ;
+      dyio_outchr(chn,echo,',') ;
       prtlbl(chn,echo,def.LB->ndcd,def.LB->ndsrc) ;
-      outfmt(chn,echo,"(%d)",def.LB->offset) ;
-      outchr(chn,echo,',') ;
+      dyio_outfmt(chn,echo,"(%d)",def.LB->offset) ;
+      dyio_outchr(chn,echo,',') ;
       prtlblsav(chn,echo,bnfsvnd,def.LB) ;
-      outchr(chn,echo,'>') ;
+      dyio_outchr(chn,echo,'>') ;
       break ; }
     case bnfRS:
     case bnfRL:
-    { outchr(chn,echo,'<') ;
+    { dyio_outchr(chn,echo,'<') ;
       if (flgon(def.LB->dflgs,bnfadv) == TRUE)
-	outfmt(chn,echo,"a,") ;
+	dyio_outfmt(chn,echo,"a,") ;
       else
-	outfmt(chn,echo,"b,") ;
+	dyio_outfmt(chn,echo,"b,") ;
       prtlbl(chn,echo,def.LB->nmcd,def.LB->nmsrc) ;
-      outfmt(chn,echo,"(%d)",def.LB->offset) ;
-      outchr(chn,echo,',') ;
+      dyio_outfmt(chn,echo,"(%d)",def.LB->offset) ;
+      dyio_outchr(chn,echo,',') ;
       prtlblsav(chn,echo,bnfsvnm,def.LB) ;
-      outchr(chn,echo,',') ;
+      dyio_outchr(chn,echo,',') ;
       prtlbl(chn,echo,def.LB->ndcd,def.LB->ndsrc) ;
-      outfmt(chn,echo,"(%d)",def.LB->offset2) ;
-      outchr(chn,echo,',') ;
+      dyio_outfmt(chn,echo,"(%d)",def.LB->offset2) ;
+      dyio_outchr(chn,echo,',') ;
       prtlblsav(chn,echo,bnfsvnd,def.LB) ;
-      outchr(chn,echo,'>') ;
+      dyio_outchr(chn,echo,'>') ;
       break ; }
     case bnfI:
-    { outfmt(chn,echo,"<%d>",def.I->ival) ;
+    { dyio_outfmt(chn,echo,"<%d>",def.I->ival) ;
       break ; }
     case bnfL:
-    { outchr(chn,echo,'<') ;
+    { dyio_outchr(chn,echo,'<') ;
       if (flgon(def.L->dflgs,bnfsvnm) == TRUE)
-	outfmt(chn,echo,"%%%d",(int) def.L->txt) ;
+	dyio_outfmt(chn,echo,"%%%d",(int) def.L->txt) ;
       else
 	prtstring(chn,echo,def.L->txt) ;
-      outchr(chn,echo,'>') ;
+      dyio_outchr(chn,echo,'>') ;
       break ; } } }
 
 #ifndef DYLP_NDEBUG
@@ -553,14 +554,15 @@ void printtab (ioid chn, bool echo,
 { int tabcnt ;
 
   if (numlvl == TRUE)
-  { outfmt(chn,echo,"%2d: ",nestlvl) ;
+  { dyio_outfmt(chn,echo,"%2d: ",nestlvl) ;
     nestlvl-- ; }
 /*
-  Change the field with in the outfmt statement to change the amount of
+  Change the field with in the dyio_outfmt statement to change the amount of
   indentation per level.
 */
   if (tablvl == TRUE)
-    for (tabcnt = nestlvl ; tabcnt > 0 ; tabcnt--) outfmt(chn,echo,"%4s"," ") ;
+  { for (tabcnt = nestlvl ; tabcnt > 0 ; tabcnt--)
+    { dyio_outfmt(chn,echo,"%4s"," ") ; } }
 
   return ; }
 

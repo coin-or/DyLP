@@ -5,20 +5,56 @@
 # $Id: Makefile.in 726 2006-04-17 04:16:00Z andreasw $
 
 ##########################################################################
-#    You can modify this example makefile to fit for your own program.   #
-#    Usually, you only need to change the five CHANGEME entries below.   #
+#			!! IMPORTANT !!
+
+# Makefile.in is the template used to produce the Makefile for the examples.
+# Makefile.in is processed when you run configure.  Variables bracketed by `@'
+# characters, e.g., @EXEEXT@, will be replaced with a value that is correct for
+# your specific installation and the choices you make when running configure.
+
+# If you write your own main program, or need to customise the Makefile for
+# some other reason, modify Makefile.in, not Makefile! Makefile is regenerated
+# every time you run configure, and your changes will be lost. If you don't see
+# variables like @EXEEXT@ below, you're looking at Makefile. You want
+# Makefile.in.
+
+# For those familiar with GNU autotools, who are asking ``What about
+# Makefile.am?'', stop looking. Makefile.in is the starting point in example
+# directories in a COIN distribution. Knowledge of make is all that's required
+# to work with Makefile.in, a more reasonable assumption for most users.
 ##########################################################################
 
-# To compile other examples, either changed the following line, or
-# add the argument DRIVER=problem_name to make
-DRIVER = odsi+dylp
+# Blocks prefixed with CHANGEME will probably need some adjustment if you write
+# a custom main program.
 
-# CHANGEME: This should be the name of your executable
-EXE = $(DRIVER)@EXEEXT@
+# As distributed, this makefile will build two sample main programs:
+#  * osi_dylp is a bare C driver for dylp; it makes no use of COIN software
+#  * odsi+dylp is a driver to exercise dylp via the OsiDylp OSI layer; it
+#    uses dylp as you should use it in the context of COIN.
+# Have a look at the README for more information about each of them.
+#
+# If you're customising this file for your own code, choose one of DRIVER_CXX
+# or DRIVER_C based on whether the main program is C or C++. The remainder of
+# the source files can be any mix of C or C++. (Adding other languages to the
+# mix will probably require more extensive modifications.)
 
-# CHANGEME: Here is the name of all object files corresponding to the source
-#           code that you wrote in order to define the problem statement
-OBJS =  $(DRIVER).@OBJEXT@ \
+# CHANGEME: The name of your main program.
+
+DRIVER_CXX = odsi+dylp
+DRIVER_C = osi_dylp
+
+# CHANGEME: This should be the name of your executable. You won't need to edit
+# these lines unless you want the final executable to have a name that's
+# different from the name you gave for DRIVER_CXX / DRIVER_C just above.
+
+EXE_CXX = $(DRIVER_CXX)@EXEEXT@
+EXE_C = $(DRIVER_C)@EXEEXT@
+
+# CHANGEME: OBJS* should specify the files required to build the executable.
+
+OBJS_CXX =  $(DRIVER_CXX).@OBJEXT@
+
+OBJS_C = $(DRIVER_C).@OBJEXT@ \
 	mpsio.@OBJEXT@
 
 # CHANGEME: Additional libraries
@@ -59,8 +95,14 @@ COININCDIR = @abs_include_dir@
 # Directory with COIN libraries
 COINLIBDIR = @abs_lib_dir@
 
-# Libraries necessary to link with Clp
-LIBS = -L$(COINLIBDIR) -lDylp -lOsiDylp -lOsi -lCoinUtils \
+# Libraries necessary to link with odsi+dylp
+LIBS_CXX = -L$(COINLIBDIR) -lDylp -lOsiDylp -lOsi -lCoinUtils \
+	@ADDLIBS@ \
+	`cat $(COINLIBDIR)/dylp_addlibs.txt` \
+	`cat $(COINLIBDIR)/coinutils_addlibs.txt`
+
+# Libraries necessary to link with osi_dylp
+LIBS_C = -L$(COINLIBDIR) -lDylp \
 	@ADDLIBS@ \
 	`cat $(COINLIBDIR)/dylp_addlibs.txt` \
 	`cat $(COINLIBDIR)/coinutils_addlibs.txt`
@@ -72,17 +114,22 @@ INCL =  -I`$(CYGPATH_W) $(COININCDIR)` $(ADDINCFLAGS)
 # The following is necessary under cygwin, if native compilers are used
 CYGPATH_W = @CYGPATH_W@
 
-all: $(EXE)
+all: $(EXE_CXX) $(EXE_C)
 
 .SUFFIXES: .cpp .c .o .obj
 
-$(EXE): $(OBJS)
+$(EXE_CXX): $(OBJS_CXX)
 	bla=;\
-	for file in $(OBJS); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
-	$(CXX) $(CXXLINKFLAGS) $(CXXFLAGS) -o $@ $$bla $(ADDLIBS) $(LIBS)
+	for file in $(OBJS_CXX); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
+	$(CXX) $(CXXLINKFLAGS) $(CXXFLAGS) -o $@ $$bla $(ADDLIBS) $(LIBS_CXX)
+
+$(EXE_C): $(OBJS_C)
+	bla=;\
+	for file in $(OBJS_C); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
+	$(CC) $(CXXLINKFLAGS) $(CFLAGS) -o $@ $$bla $(ADDLIBS) $(LIBS_C)
 
 clean:
-	rm -rf $(EXE) $(OBJS)
+	rm -rf $(EXE_CXX) $(EXE_C) $(OBJS_CXX) $(OBJS_C)
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(INCL) -c -o $@ `test -f '$<' || echo '$(SRCDIR)/'`$<

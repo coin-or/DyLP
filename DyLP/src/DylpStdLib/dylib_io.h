@@ -86,35 +86,36 @@ typedef struct { lexclass class ;
 		 char *string ; } lex_struct ;
 #endif
 
-extern bool ioinit(void) ;
-extern void ioterm(void) ;
+extern bool dyio_ioinit(void) ;
+extern void dyio_ioterm(void) ;
 
-extern ioid openfile(const char *path, const char *mode) ;
-extern bool isactive(ioid id) ;
-extern bool closefile(ioid id) ;
-extern bool DyLPsetmode(ioid id, char mode), ttyq(ioid id) ;
+extern ioid dyio_openfile(const char *path, const char *mode) ;
+extern bool dyio_isactive(ioid id) ;
+extern bool dyio_closefile(ioid id) ;
+extern bool dyio_setmode(ioid id, char mode), dyio_ttyq(ioid id) ;
 
-extern bool chgerrlog(const char *path, bool echo) ;
+extern bool dyio_chgerrlog(const char *path, bool echo) ;
 
-extern const char *idtopath(ioid id) ;
-extern ioid pathtoid(const char *path, const char *mode) ;
+extern const char *dyio_idtopath(ioid id) ;
+extern ioid dyio_pathtoid(const char *path, const char *mode) ;
 
-extern long mark(ioid id) ;
-extern bool backup(ioid id, long there) ;
+extern long dyio_mark(ioid id) ;
+extern bool dyio_backup(ioid id, long there) ;
 
-extern bool scan(ioid id, const char pattern[], bool rwnd, bool wrap) ;
-extern lex_struct *scanlex(ioid id),
-		  *scanstr(ioid id,
-			   lexclass stype, int fslen, char qschr, char qechr) ;
+extern bool dyio_scan(ioid id, const char pattern[], bool rwnd, bool wrap) ;
+extern lex_struct *dyio_scanlex(ioid id),
+		  *dyio_scanstr(ioid id, lexclass stype,
+				int fslen, char qschr, char qechr) ;
 
-extern void flushio(ioid id, bool echo),
-	    outfmt(ioid id, bool echo, const char *pattern, ... ),
-	    outchr(ioid id, bool echo, char chr) ;
-extern int outfxd(char *buffer, int fldsze, char lcr,
-		  const char *pattern, ... ) ;
+extern void dyio_flushio(ioid id, bool echo),
+	    dyio_outfmt(ioid id, bool echo, const char *pattern, ... ),
+	    dyio_outchr(ioid id, bool echo, char chr) ;
+extern int dyio_outfxd(char *buffer, int fldsze, char lcr,
+		       const char *pattern, ... ) ;
 
 #ifdef _DYLIB_FORTRAN
-extern void outfmt_(integer *ftnid, logical *ftnecho, char *pattern, ... ) ;
+extern void dyio_outfmt_(integer *ftnid,
+			 logical *ftnecho, char *pattern, ... ) ;
 #endif
 
 #endif /* _DYLIB_IO_H */

@@ -197,19 +197,20 @@
   environment, the necessary definitions seem to live in math.h. The upshot
   is that we need to explicitly pull in ieeefp.h here for a Sun environment.
  
-  For reasons that escape me (but likely have to do with compiling using strict
-  ANSI compliance), in the Sun/Solaris environment the function isnan doesn't
-  get declared from math.h. Declare it here.
- 
   In a Microsoft environment the correct functions look to be _finite and
   _isnan from float.h.
 
-  Assign the proper names for this system to finite and isnan. Again, check
-  config_dylp to see the actual names.
+  Assign the proper names to finite and isnan, based on the values deduced by
+  configure. Again, check config_dylp to see the actual names. If either name
+  is already defined, bet that it's the correct definition.
 */
 
+#ifndef finite
 # define finite DYLP_ISFINITE
+#endif
+#ifndef isnan
 # define isnan  DYLP_ISNAN
+#endif
  
  
 /*

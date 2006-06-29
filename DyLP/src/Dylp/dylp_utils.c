@@ -328,10 +328,10 @@ bool dy_calcprimals (void)
 
 # ifndef DYLP_NDEBUG
   if (print >= 3)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n\tprim.max = %g, scale = %g, pzero = %g, pfeas = %g.",
-	   dy_lp->prim.max,dy_tols->pfeas_scale,
-	   dy_tols->zero,dy_tols->pfeas) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n\tprim.max = %g, scale = %g, pzero = %g, pfeas = %g.",
+	        dy_lp->prim.max,dy_tols->pfeas_scale,
+	        dy_tols->zero,dy_tols->pfeas) ; }
 # endif
 
 # ifdef PARANOIA
@@ -371,30 +371,34 @@ bool dy_calcprimals (void)
   the nonbasic variables.
 */
   if (print >= 5)
-  { outfmt(dy_logchn,dy_gtxecho,"\n%s: recalculated primal variables:",rtnnme) ;
-    outfmt(dy_logchn,dy_gtxecho,"\n%8s%20s%16s%16s%16s%8s","pos'n","var (ndx)",
-	   "lb","val","ub","status") ;
-    if (degenActive) outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: recalculated primal variables:",rtnnme) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%8s%20s%16s%16s%16s%8s","pos'n","var (ndx)",
+	        "lb","val","ub","status") ;
+    if (degenActive) dyio_outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
     for (bndx = 1 ; bndx <= dy_sys->concnt ; bndx++)
     { vndx = dy_basis[bndx] ;
-      outfmt(dy_logchn,dy_gtxecho,"\n%8d%14s (%3d)%16.8g%16.8g%16.8g%8s",bndx,
-	     consys_nme(dy_sys,'v',vndx,FALSE,NULL),vndx,
-	     dy_sys->vlb[vndx],dy_x[vndx],dy_sys->vub[vndx],
-	     dy_prtvstat(dy_status[vndx])) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n%8d%14s (%3d)%16.8g%16.8g%16.8g%8s",bndx,
+		  consys_nme(dy_sys,'v',vndx,FALSE,NULL),vndx,
+		  dy_sys->vlb[vndx],dy_x[vndx],dy_sys->vub[vndx],
+		  dy_prtvstat(dy_status[vndx])) ;
       if (degenActive == TRUE && dy_degenset[bndx] > 0)
       { if (dy_brkout[bndx] > 0)
-	  outfmt(dy_logchn,dy_gtxecho,"%16.8g",
-		 dy_xbasic[bndx]-dy_sys->vlb[vndx]) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"%16.8g",
+		      dy_xbasic[bndx]-dy_sys->vlb[vndx]) ;
 	else
-	  outfmt(dy_logchn,dy_gtxecho,"%16.8g",
-		 dy_sys->vub[vndx]-dy_xbasic[bndx]) ; } }
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"%16.8g",
+		      dy_sys->vub[vndx]-dy_xbasic[bndx]) ; } }
     if (print >= 6)
     { for (vndx = 1 ; vndx <= dy_sys->varcnt ; vndx++)
       { if (dy_var2basis[vndx] != 0) continue ;
-	outfmt(dy_logchn,dy_gtxecho,"\n%8s%14s (%3d)%16.8g%16.8g%16.8g%8s"," ",
-	       consys_nme(dy_sys,'v',vndx,FALSE,NULL),vndx,
-	       dy_sys->vlb[vndx],dy_x[vndx],dy_sys->vub[vndx],
-	       dy_prtvstat(dy_status[vndx])) ; } } }
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n%8s%14s (%3d)%16.8g%16.8g%16.8g%8s"," ",
+		    consys_nme(dy_sys,'v',vndx,FALSE,NULL),vndx,
+		    dy_sys->vlb[vndx],dy_x[vndx],dy_sys->vub[vndx],
+		    dy_prtvstat(dy_status[vndx])) ; } } }
 # endif
 
 /*
@@ -594,14 +598,14 @@ dyret_enum dy_updateprimals (int j, double deltaj, double *p_abarj)
 	dy_opts->print.phase2 >= 2)
     { k = dy_lp->ubnd.ndx ;
       statk = dy_status[k] ;
-      outfmt(dy_logchn,dy_gtxecho,
-	     "\n    Pseudo-unbounded: growth %e for %s (%d) %s = %g",
-	     dy_lp->ubnd.ratio,consys_nme(dy_sys,'v',k,FALSE,NULL),k,
-	     dy_prtvstat(statk),dy_x[k]) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n    Pseudo-unbounded: growth %e for %s (%d) %s = %g",
+		  dy_lp->ubnd.ratio,consys_nme(dy_sys,'v',k,FALSE,NULL),k,
+		  dy_prtvstat(statk),dy_x[k]) ;
       if (flgon(statk,vstatBUUB))
-      { outfmt(dy_logchn,dy_gtxecho," > %g.",dy_sys->vub[k]) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho," > %g.",dy_sys->vub[k]) ; }
       else
-      { outfmt(dy_logchn,dy_gtxecho," < %g.",dy_sys->vlb[k]) ; } }
+      { dyio_outfmt(dy_logchn,dy_gtxecho," < %g.",dy_sys->vlb[k]) ; } }
 #   endif
   }
 # ifndef DYLP_NDEBUG
@@ -613,17 +617,20 @@ dyret_enum dy_updateprimals (int j, double deltaj, double *p_abarj)
     for (kpos = 1 ; kpos <= dy_sys->concnt ; kpos++)
       if (abarj[kpos] != 0)
       { if (first == TRUE)
-	{ outfmt(dy_logchn,dy_gtxecho,"\n\trevised primal variables:") ;
-	  outfmt(dy_logchn,dy_gtxecho,"\n%8s%20s%16s%16s%16s %s","pos'n","var (ndx)",
-		 "lb","val","ub","status") ;
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n\trevised primal variables:") ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "\n%8s%20s%16s%16s%16s %s","pos'n","var (ndx)",
+		      "lb","val","ub","status") ;
 	  first = FALSE ; }
 	k = dy_basis[kpos] ;
-	outfmt(dy_logchn,dy_gtxecho,"\n%8d%14s (%3d)%16.8g%16.8g%16.8g %s",kpos,
-	       consys_nme(dy_sys,'v',k,FALSE,NULL),k,
-	       dy_sys->vlb[k],dy_xbasic[kpos],dy_sys->vub[k],
-	       dy_prtvstat(dy_status[k])) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n%8d%14s (%3d)%16.8g%16.8g%16.8g %s",kpos,
+		    consys_nme(dy_sys,'v',k,FALSE,NULL),k,
+		    dy_sys->vlb[k],dy_xbasic[kpos],dy_sys->vub[k],
+		    dy_prtvstat(dy_status[k])) ; }
     if (first == TRUE)
-      outfmt(dy_logchn,dy_gtxecho,"\n\tno change to primal variables.") ; }
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n\tno change to primal variables.") ; }
 # endif
 /*
   That's it. If retval is still dyrINV, nothing out of the ordinary happened,
@@ -726,18 +733,21 @@ void dy_calcduals (void)
 
 # ifndef DYLP_NDEBUG
   if (print >= 3)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n\tdual.max = %g, scale = %g, dzero = %g, dfeas = %g.",
-	   dy_lp->dual.max,dy_tols->dfeas_scale,dy_tols->cost,dy_tols->dfeas) ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n\tdual.max = %g, scale = %g, dzero = %g, dfeas = %g.",
+	        dy_lp->dual.max,dy_tols->dfeas_scale,
+		dy_tols->cost,dy_tols->dfeas) ;
     if (print >= 7)
-    { outfmt(dy_logchn,dy_gtxecho,"\n\n%8s%20s%16s","pos'n","constraint","val") ;
-      if (degenActive) outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n\n%8s%20s%16s","pos'n","constraint","val") ;
+      if (degenActive)
+	dyio_outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
       for (xkpos = 1 ; xkpos <= dy_sys->concnt ; xkpos++)
-      { outfmt(dy_logchn,dy_gtxecho,"\n%8d%20s%16.8g",xkpos,
-	       consys_nme(dy_sys,'c',xkpos,FALSE,NULL),dy_y[xkpos]) ;
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%8d%20s%16.8g",xkpos,
+		    consys_nme(dy_sys,'c',xkpos,FALSE,NULL),dy_y[xkpos]) ;
 	if (degenActive && dy_ddegenset[xkpos] > 0)
-	{ outfmt(dy_logchn,dy_gtxecho,"%16.8g",dy_y[xkpos]) ; } }
-      outchr(dy_logchn,dy_gtxecho,'\n') ; } }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"%16.8g",dy_y[xkpos]) ; } }
+      dyio_outchr(dy_logchn,dy_gtxecho,'\n') ; } }
 # endif
 
   return ; }
@@ -1045,11 +1055,11 @@ void dy_setbasicstatus (void)
     if (xistatus != dy_status[xindx])
     { if ((dy_lp->phase != dyADDVAR && dy_opts->print.basis >= 3) ||
 	  (dy_lp->phase == dyADDVAR && dy_opts->print.varmgmt >= 3))
-      { outfmt(dy_logchn,dy_gtxecho,"\n\t%s (%d) = %g, status %s ",
-	       consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,xi,
-	       dy_prtvstat(xistatus)) ;
-	outfmt(dy_logchn,dy_gtxecho,"corrected to %s.",
-	       dy_prtvstat(dy_status[xindx])) ; } }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t%s (%d) = %g, status %s ",
+		    consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,xi,
+		    dy_prtvstat(xistatus)) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"corrected to %s.",
+		    dy_prtvstat(dy_status[xindx])) ; } }
 #   endif
   }
 
@@ -1074,8 +1084,9 @@ void dy_dseinit (void)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.dual >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,"\n   (%s)%d: initialising ||beta<k>||^2 for DSE.",
-  	   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n   (%s)%d: initialising ||beta<k>||^2 for DSE.",
+	        dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ; }
 # endif
 
 /*
@@ -1119,8 +1130,9 @@ void dy_pseinit (void)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.phase1 >= 2 || dy_opts->print.phase2 >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,"\n   (%s)%d: initialising ||abar~<k>||^2 for PSE.",
-  	   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n   (%s)%d: initialising ||abar~<k>||^2 for PSE.",
+	        dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ; }
 # endif
 
   memset(dy_frame,0,(dy_sys->varcnt+1)*sizeof(bool)) ;
@@ -1639,23 +1651,26 @@ void dy_chkdual (int lvl)
   Summary. Print if there's any error.
 */
   if (lvl >= 1 && yerrcnt+cbarerrcnt+ycbarerrcnt+cbarstatuserrcnt > 0)
-  { outfmt(dy_logchn,dy_gtxecho,"\n  %s: [%s]: (%s)%d: ",rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  %s: [%s]: (%s)%d: ",rtnnme,
+	        dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		dy_lp->tot.iters) ;
     if (yerrcnt > 0)
-    { outfmt(dy_logchn,dy_gtxecho,"%d y value errors (%g)", yerrcnt,yerrtot) ; }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "%d y value errors (%g)", yerrcnt,yerrtot) ; }
     if (cbarerrcnt > 0)
-    { if (yerrcnt > 0) outfmt(dy_logchn,dy_gtxecho,", ") ;
-      outfmt(dy_logchn,dy_gtxecho,"%d cbar value errors (%g)",
-	     cbarerrcnt,cbarerrtot) ; }
+    { if (yerrcnt > 0) dyio_outfmt(dy_logchn,dy_gtxecho,", ") ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,"%d cbar value errors (%g)",
+		  cbarerrcnt,cbarerrtot) ; }
     if (ycbarerrcnt > 0)
-    { if (yerrcnt+cbarerrcnt > 0) outfmt(dy_logchn,dy_gtxecho,", ") ;
-      outfmt(dy_logchn,dy_gtxecho,"%d y/cbar agreement errors",ycbarerrcnt) ; }
+    { if (yerrcnt+cbarerrcnt > 0) dyio_outfmt(dy_logchn,dy_gtxecho,", ") ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "%d y/cbar agreement errors",ycbarerrcnt) ; }
     if (cbarstatuserrcnt > 0)
     { if (yerrcnt+cbarerrcnt+ycbarerrcnt > 0)
-      { outfmt(dy_logchn,dy_gtxecho,", ") ; }
-      outfmt(dy_logchn,dy_gtxecho,
-	     "%d cbar/status agreement errors",cbarstatuserrcnt) ; }
-    outchr(dy_logchn,dy_gtxecho,'.') ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", ") ; }
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "%d cbar/status agreement errors",cbarstatuserrcnt) ; }
+    dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 /*
   Clean up and we're done.
 */

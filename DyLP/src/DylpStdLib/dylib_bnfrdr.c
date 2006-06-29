@@ -467,13 +467,13 @@ static bool dogenerator (bnfGref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon(ref->uflgs,bnfdebug))
     if (debug++ == 0)
-    { outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+    { dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
       nestlvl = 0 ; }
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     prtbnfref(dbgchn,dbgecho,(bnfref_struct *) ref) ;
-    outfmt(dbgchn,dbgecho," ::=\n") ; }
+    dyio_outfmt(dbgchn,dbgecho," ::=\n") ; }
 # endif
 
 /*
@@ -572,12 +572,12 @@ static bool dogenerator (bnfGref_struct *ref)
   if (debug > 0)
   { if (success == FALSE)
     { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-      outfmt(dbgchn,dbgecho,"-- fail @ %d of %d --",compndx,compnum) ; }
-    outchr(dbgchn,dbgecho,'\n') ;
+      dyio_outfmt(dbgchn,dbgecho,"-- fail @ %d of %d --",compndx,compnum) ; }
+    dyio_outchr(dbgchn,dbgecho,'\n') ;
     nestlvl-- ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-        outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+        dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
 
 /*
@@ -639,20 +639,20 @@ static bool dononprimitive (bnfNPref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon(ref->uflgs,bnfdebug))
     if (debug++ == 0)
-    { outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+    { dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
       nestlvl = 0 ; }
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     prtbnfref(dbgchn,dbgecho,(bnfref_struct *) ref) ;
-    outfmt(dbgchn,dbgecho," ::=\n") ; }
+    dyio_outfmt(dbgchn,dbgecho," ::=\n") ; }
 # endif
 
 /*
   Prepare for failure of an alternative parse. Mark the input and create a copy
   of curnde, so we can recover if a parse fails.
 */
-  marker = mark(bnfchn) ;
+  marker = dyio_mark(bnfchn) ;
   if (curnde != NULL)
   { if (cndesze <= 0)
     { errmsg(1,rtnnme,__LINE__) ;
@@ -685,7 +685,8 @@ static bool dononprimitive (bnfNPref_struct *ref)
 #   ifndef DYLP_NDEBUG
     if (debug > 0)
     { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-      outfmt(dbgchn,dbgecho,"[ alternative %d of %d ]\n",altndx+1,altnum) ; }
+      dyio_outfmt(dbgchn,dbgecho,
+		  "[ alternative %d of %d ]\n",altndx+1,altnum) ; }
 #   endif
 
     if (comprefs == NULL)
@@ -750,15 +751,15 @@ static bool dononprimitive (bnfNPref_struct *ref)
     if (debug > 0)
     { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
       if (success == TRUE)
-      { outfmt(dbgchn,dbgecho,"[ pass %d ]",altndx+1) ;
+      { dyio_outfmt(dbgchn,dbgecho,"[ pass %d ]",altndx+1) ;
 	nestlvl-- ;
 	if (flgon(ref->uflgs,bnfdebug))
 	  if (--debug == 0)
-	    outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	    dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
       else
-        outfmt(dbgchn,dbgecho,
-	       "[ fail %d @ %d of %d ]",altndx+1,compndx,compnum) ;
-      outchr(dbgchn,dbgecho,'\n') ; }
+        dyio_outfmt(dbgchn,dbgecho,
+		    "[ fail %d @ %d of %d ]",altndx+1,compndx,compnum) ;
+      dyio_outchr(dbgchn,dbgecho,'\n') ; }
 #   endif
 
 /*
@@ -771,7 +772,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
       return (TRUE) ; }
     else
     { if (curnde != NULL) memcpy((void *) curnde,(void *) savcnde,cndesze) ;
-      backup(bnfchn,marker) ; } }
+      dyio_backup(bnfchn,marker) ; } }
 /*
   To get here, all the alternative parses have failed. Clean up and return
   failure.
@@ -784,7 +785,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
   { nestlvl-- ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
   
   return (FALSE) ; }
@@ -839,13 +840,13 @@ static bool doprimitive (bnfNPref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon(ref->uflgs,bnfdebug))
     if (debug++ == 0)
-    { outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+    { dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
       nestlvl = 0 ; }
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     prtbnfref(dbgchn,dbgecho,(bnfref_struct *) ref) ;
-    outfmt(dbgchn,dbgecho," ::=\n") ; }
+    dyio_outfmt(dbgchn,dbgecho," ::=\n") ; }
 # endif
 
 /*
@@ -855,7 +856,7 @@ static bool doprimitive (bnfNPref_struct *ref)
   here and only made non-null while we're dealing with a terminal, literal, or
   primitive in the parse loop.
 */
-  marker = mark(bnfchn) ;
+  marker = dyio_mark(bnfchn) ;
   if (curnde != NULL)
   { if (cndesze <= 0)
     { errmsg(1,rtnnme,__LINE__) ;
@@ -892,7 +893,8 @@ static bool doprimitive (bnfNPref_struct *ref)
 #   ifndef DYLP_NDEBUG
     if (debug > 0)
     { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-      outfmt(dbgchn,dbgecho,"[ alternative %d of %d ]\n",altndx+1,altnum) ; }
+      dyio_outfmt(dbgchn,dbgecho,
+		  "[ alternative %d of %d ]\n",altndx+1,altnum) ; }
 #   endif
 
     if (comprefs == NULL)
@@ -965,15 +967,15 @@ static bool doprimitive (bnfNPref_struct *ref)
     if (debug > 0)
     { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
       if (success == TRUE)
-      { outfmt(dbgchn,dbgecho,"[ pass %d ]",altndx+1) ;
+      { dyio_outfmt(dbgchn,dbgecho,"[ pass %d ]",altndx+1) ;
 	nestlvl-- ;
 	if (flgon(ref->uflgs,bnfdebug))
 	  if (--debug == 0)
-	    outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	    dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
       else
-        outfmt(dbgchn,dbgecho,
-	       "[ fail %d @ %d of %d ]",altndx+1,compndx,compnum) ;
-      outchr(dbgchn,dbgecho,'\n') ; }
+        dyio_outfmt(dbgchn,dbgecho,
+		    "[ fail %d @ %d of %d ]",altndx+1,compndx,compnum) ;
+      dyio_outchr(dbgchn,dbgecho,'\n') ; }
 #   endif
 
 /*
@@ -1022,7 +1024,7 @@ static bool doprimitive (bnfNPref_struct *ref)
   else
   { if (curnde != NULL) memcpy((void *) curnde,(void *) savcnde,cndesze) ;
     *lcltxt = '\0' ;
-    backup(bnfchn,marker) ; } }
+    dyio_backup(bnfchn,marker) ; } }
 /*
   To get here, all the alternative parses have failed or an error was detected
   which caused the alternatives loop to abort. Clean up and return
@@ -1039,7 +1041,7 @@ static bool doprimitive (bnfNPref_struct *ref)
   { nestlvl-- ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
   
   return (FALSE) ; }
@@ -1124,7 +1126,7 @@ bool doterminal (bnfTref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon(ref->uflgs,bnfdebug))
     if (debug++ == 0)
-      outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+      dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
@@ -1143,23 +1145,23 @@ bool doterminal (bnfTref_struct *ref)
     { lex = &lex_nil ;
       break ; }
     case bnfttN:
-    { lex = scanlex(bnfchn) ;
+    { lex = dyio_scanlex(bnfchn) ;
       if (lex->class != LCNUM) success = FALSE ;
       break ; }
     case bnfttID:
-    { lex = scanlex(bnfchn) ;
+    { lex = dyio_scanlex(bnfchn) ;
       if (lex->class != LCID) success = FALSE ;
       break ; }
     case bnfttD:
-    { lex = scanlex(bnfchn) ;
+    { lex = dyio_scanlex(bnfchn) ;
       if (lex->class != LCDEL) success = FALSE ;
       break ; }
     case bnfttF:
-    { lex = scanstr(bnfchn,LCFS,def->parm1,'\0','\0') ;
+    { lex = dyio_scanstr(bnfchn,LCFS,def->parm1,'\0','\0') ;
       if (lex->class != LCFS) success = FALSE ;
       break ; }
     case bnfttQ:
-    { lex = scanstr(bnfchn,LCQS,0,def->qschr,def->qechr) ;
+    { lex = dyio_scanstr(bnfchn,LCQS,0,def->qschr,def->qechr) ;
       if (lex->class != LCQS && lex->class != LCNIL) success = FALSE ;
       break ; }
     default:
@@ -1170,12 +1172,12 @@ bool doterminal (bnfTref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (debug > 0)
   { if (lex->string != NULL)
-      outfmt(dbgchn,dbgecho," = \"%s\"\n",lex->string) ;
+      dyio_outfmt(dbgchn,dbgecho," = \"%s\"\n",lex->string) ;
     else
-      outfmt(dbgchn,dbgecho," = nil\n") ;
+      dyio_outfmt(dbgchn,dbgecho," = nil\n") ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
 
   if (success == FALSE) return (FALSE) ;
@@ -1332,16 +1334,16 @@ bool doimmediate (bnfIref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon(ref->uflgs,bnfdebug))
     if (debug++ == 0)
-      outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+      dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     prtbnfref(dbgchn,dbgecho,(bnfref_struct *) ref) ;
-    outfmt(dbgchn,dbgecho,"\n") ;
+    dyio_outfmt(dbgchn,dbgecho,"\n") ;
     nestlvl-- ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
 
   if (offset_in_range(ref->offset,sizeof(int)) == FALSE)
@@ -1394,7 +1396,7 @@ bool doliteral (bnfLref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon(ref->uflgs,bnfdebug))
     if (debug++ == 0)
-      outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+      dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
@@ -1410,12 +1412,12 @@ bool doliteral (bnfLref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (debug > 0)
   { if (txt != NULL)
-      outfmt(dbgchn,dbgecho," = \"%s\"\n",txt) ;
+      dyio_outfmt(dbgchn,dbgecho," = \"%s\"\n",txt) ;
     else
-      outfmt(dbgchn,dbgecho," = nil\n") ;
+      dyio_outfmt(dbgchn,dbgecho," = nil\n") ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
 
   if (txt == NULL)
@@ -1485,15 +1487,15 @@ bool dolabel (bnfLBref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon (ref->uflgs,bnfdebug))
     if (debug++ == 0)
-      outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+      dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     prtbnfref(dbgchn,dbgecho,(bnfref_struct *) ref) ;
-    outchr(dbgchn,dbgecho,'\n') ;
+    dyio_outchr(dbgchn,dbgecho,'\n') ;
     nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ name ]") ; }
+    dyio_outfmt(dbgchn,dbgecho,"[ name ]") ; }
 # endif
 
 /*
@@ -1524,9 +1526,9 @@ bool dolabel (bnfLBref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ \"%s\" ]\n",nmtxt) ;
+    dyio_outfmt(dbgchn,dbgecho,"[ \"%s\" ]\n",nmtxt) ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ value ]\n") ;
+    dyio_outfmt(dbgchn,dbgecho,"[ value ]\n") ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ; }
 # endif
 
@@ -1588,11 +1590,11 @@ bool dolabel (bnfLBref_struct *ref)
     warn(58,rtnnme,nmtxt) ;
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ value: %#1x ]\n",nmtxt) ;
+    dyio_outfmt(dbgchn,dbgecho,"[ value: %#1x ]\n",nmtxt) ;
     nestlvl -= 2 ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
 
 /*
@@ -1682,15 +1684,15 @@ bool doreference (bnfLBref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (flgon (ref->uflgs,bnfdebug))
     if (debug++ == 0)
-      outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+      dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     prtbnfref(dbgchn,dbgecho,(bnfref_struct *) ref) ;
-    outchr(dbgchn,dbgecho,'\n') ;
+    dyio_outchr(dbgchn,dbgecho,'\n') ;
     nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ socket ]") ; }
+    dyio_outfmt(dbgchn,dbgecho,"[ socket ]") ; }
 # endif
 
 /*
@@ -1745,9 +1747,9 @@ bool doreference (bnfLBref_struct *ref)
 # ifndef DYLP_NDEBUG
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ \"%s\" = %#1x ]\n",nmtxt) ;
+    dyio_outfmt(dbgchn,dbgecho,"[ \"%s\" = %#1x ]\n",nmtxt) ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ label ]\n") ;
+    dyio_outfmt(dbgchn,dbgecho,"[ label ]\n") ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ; }
 # endif
 
@@ -1803,11 +1805,11 @@ bool doreference (bnfLBref_struct *ref)
     warn(65,rtnnme) ;
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ \"%s\" = %#1x ]\n",nmtxt) ;
+    dyio_outfmt(dbgchn,dbgecho,"[ \"%s\" = %#1x ]\n",nmtxt) ;
     nestlvl -= 2 ;
     if (flgon(ref->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
 
 /*
@@ -1887,12 +1889,12 @@ bool dolist (bnfref_any ref)
 # ifndef DYLP_NDEBUG
   if (flgon(ref.t3->uflgs,bnfdebug))
     if (debug++ == 0)
-    { outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
+    { dyio_outfmt(dbgchn,dbgecho,"\n\n>>>>>> trace begins >>>>>>\n") ;
       nestlvl = 0 ; }
   if (debug > 0)
   { nestlvl++ ;
     printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ begin list ]\n") ; }
+    dyio_outfmt(dbgchn,dbgecho,"[ begin list ]\n") ; }
 # endif
 
 /*
@@ -1954,7 +1956,7 @@ bool dolist (bnfref_any ref)
 #   ifndef DYLP_NDEBUG
     if (debug > 0)
     { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-      outfmt(dbgchn,dbgecho,"[ body ]\n") ; }
+      dyio_outfmt(dbgchn,dbgecho,"[ body ]\n") ; }
 #   endif
 
     switch (def.com->type)
@@ -1981,7 +1983,7 @@ bool dolist (bnfref_any ref)
 	*socket = newnde ; }
       curnde = newnde ; }
 
-    marker = mark(bnfchn) ;
+    marker = dyio_mark(bnfchn) ;
     if (flgon(ref.t3->uflgs,bnfstbg) == TRUE && def.com->type == bnfP)
     { lclsavtxt = curtxt ;
       curtxt = NULL ; }
@@ -1989,7 +1991,7 @@ bool dolist (bnfref_any ref)
 #   ifndef DYLP_NDEBUG
     if (debug > 0)
     { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-      outfmt(dbgchn,dbgecho,"[ separator ]\n") ; }
+      dyio_outfmt(dbgchn,dbgecho,"[ separator ]\n") ; }
 #   endif
 
     if (sepref->type == bnfP)
@@ -1997,13 +1999,13 @@ bool dolist (bnfref_any ref)
     else
       sepsuccess = doterminal((bnfTref_struct *) sepref) ;
     if (sepsuccess == FALSE)
-    { if (sepref->type == bnfT) backup(bnfchn,marker) ;
+    { if (sepref->type == bnfT) dyio_backup(bnfchn,marker) ;
       if (flgon(ref.t3->uflgs,bnfstbg) == TRUE && def.com->type == bnfP)
 	curtxt = lclsavtxt ;
       break ; }
 
     if (flgon(ref.t3->uflgs,bnfstbg) == TRUE)
-    { backup(bnfchn,marker) ;
+    { dyio_backup(bnfchn,marker) ;
       if (def.com->type == bnfP) curtxt = lclsavtxt ; } }
 /*
   End of the loop to parse the list. Now we clean up and return. For
@@ -2057,11 +2059,11 @@ bool dolist (bnfref_any ref)
 # ifndef DYLP_NDEBUG
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
-    outfmt(dbgchn,dbgecho,"[ end list ]\n") ;
+    dyio_outfmt(dbgchn,dbgecho,"[ end list ]\n") ;
     nestlvl-- ;
     if (flgon(ref.t3->uflgs,bnfdebug))
       if (--debug == 0)
-	outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
+	dyio_outfmt(dbgchn,dbgecho,"<<<<<< trace ends <<<<<<\n\n") ; }
 # endif
 
   return (success) ; }

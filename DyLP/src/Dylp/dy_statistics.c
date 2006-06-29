@@ -329,14 +329,14 @@ void dy_dumpstats (ioid chn, bool echo,
   int histfld = 9 ;
 
   if (lpstats == NULL)
-  { outfmt(chn,echo,"\n\n<< %s: NULL lpstats structure! >>\n",rtnnme) ;
+  { dyio_outfmt(chn,echo,"\n\n<< %s: NULL lpstats structure! >>\n",rtnnme) ;
     return ; }
   
-  outfmt(chn,echo,"\n\nLP statistics:") ;
+  dyio_outfmt(chn,echo,"\n\nLP statistics:") ;
 
-  outfmt(chn,echo,"\n  Angle of constraints to objective (degrees):") ;
-  outfmt(chn,echo,"\n\tmax: %g\tmin: %g\n",
-	 lpstats->angle.max,lpstats->angle.min) ;
+  dyio_outfmt(chn,echo,"\n  Angle of constraints to objective (degrees):") ;
+  dyio_outfmt(chn,echo,"\n\tmax: %g\tmin: %g\n",
+	      lpstats->angle.max,lpstats->angle.min) ;
 
   degperbin = 180/(DYSTATS_HISTBINS-1) ;
   j = 0 ;
@@ -345,105 +345,109 @@ void dy_dumpstats (ioid chn, bool echo,
   { brklow = brkhi ;
     brkhi = outbrks[i] ;
     if (i < outbins/2)
-    { (void) outfxd(outbuf,histfld,'c',
-		    "[%d-%d)",((int) brklow),((int) brkhi)) ; }
+    { (void) dyio_outfxd(outbuf,histfld,'c',
+			 "[%d-%d)",((int) brklow),((int) brkhi)) ; }
     else
-    { (void) outfxd(outbuf,histfld,'c',
-		    "(%d-%d]",((int) brklow),((int) brkhi)) ; }
-    outfmt(chn,echo," %s",outbuf) ;
-    if (brkhi == 90) outfmt(chn,echo,"   [90]  ") ;
+    { (void) dyio_outfxd(outbuf,histfld,'c',
+			 "(%d-%d]",((int) brklow),((int) brkhi)) ; }
+    dyio_outfmt(chn,echo," %s",outbuf) ;
+    if (brkhi == 90) dyio_outfmt(chn,echo,"   [90]  ") ;
     outhist[i] = 0 ;
     for ( ; j*degperbin < brkhi ; j++)
     { outhist[i] += lpstats->angle.hist[j] ; } }
-  outchr(chn,echo,'\n') ;
+  dyio_outchr(chn,echo,'\n') ;
   for (i = 0 ; i < outbins/2 ; i++)
-  { (void) outfxd(outbuf,histfld,'c',"%d",outhist[i]) ;
-    outfmt(chn,echo," %s",outbuf) ; }
-  outfxd(outbuf,8,'c',"%d",lpstats->angle.hist[DYSTATS_HISTBINS-1]) ;
-  outfmt(chn,echo," %s",outbuf) ;
+  { (void) dyio_outfxd(outbuf,histfld,'c',"%d",outhist[i]) ;
+    dyio_outfmt(chn,echo," %s",outbuf) ; }
+  dyio_outfxd(outbuf,8,'c',"%d",lpstats->angle.hist[DYSTATS_HISTBINS-1]) ;
+  dyio_outfmt(chn,echo," %s",outbuf) ;
   for ( ; i < outbins ; i++)
-  { (void) outfxd(outbuf,histfld,'c',"%d",outhist[i]) ;
-    outfmt(chn,echo," %s",outbuf) ; }
+  { (void) dyio_outfxd(outbuf,histfld,'c',"%d",outhist[i]) ;
+    dyio_outfmt(chn,echo," %s",outbuf) ; }
 
-  outfmt(chn,echo,"\n  Factoring: %d refactorisations",lpstats->factor.cnt) ;
-  outfmt(chn,echo,"\n\trefactor interval (pivots): avg. %.2f\tmax %d",
-	 lpstats->factor.avgpivs,lpstats->factor.maxpivs) ;
+  dyio_outfmt(chn,echo,
+	      "\n  Factoring: %d refactorisations",lpstats->factor.cnt) ;
+  dyio_outfmt(chn,echo,"\n\trefactor interval (pivots): avg. %.2f\tmax %d",
+	      lpstats->factor.avgpivs,lpstats->factor.maxpivs) ;
 
-  outfmt(chn,echo,
-	 "\n  Pivot rejection: %d unstable, %d singular, max len. %d.",
-	 lpstats->pivrej.mad,lpstats->pivrej.sing,lpstats->pivrej.max) ;
+  dyio_outfmt(chn,echo,
+	      "\n  Pivot rejection: %d unstable, %d singular, max len. %d.",
+	      lpstats->pivrej.mad,lpstats->pivrej.sing,lpstats->pivrej.max) ;
   if (lpstats->pivrej.max > 0)
-  { outfmt(chn,echo,"\n\tpivot tolerance: %d reductions, min. tol = %g.",
-	   lpstats->pivrej.pivtol_red,lpstats->pivrej.min_pivtol) ;
-    outfmt(chn,echo,"\n\tpunts: %d called, %d returned.",
-	   lpstats->pivrej.puntcall,lpstats->pivrej.puntret) ; }
+  { dyio_outfmt(chn,echo,"\n\tpivot tolerance: %d reductions, min. tol = %g.",
+	        lpstats->pivrej.pivtol_red,lpstats->pivrej.min_pivtol) ;
+    dyio_outfmt(chn,echo,"\n\tpunts: %d called, %d returned.",
+	        lpstats->pivrej.puntcall,lpstats->pivrej.puntret) ; }
   
-  outfmt(chn,echo,"\n  Reduction of infeasibility:") ;
-  outfmt(chn,echo," maximum number of infeasible vars: %d",
-	 lpstats->infeas.maxcnt) ;
+  dyio_outfmt(chn,echo,"\n  Reduction of infeasibility:") ;
+  dyio_outfmt(chn,echo," maximum number of infeasible vars: %d",
+	      lpstats->infeas.maxcnt) ;
   if (lpstats->infeas.maxcnt > 0)
   { tot = lpstats->infeas.chgcnt1+lpstats->infeas.chgcnt2 ;
     temp = ((double) lpstats->infeas.totpivs)/tot ;
-    outfmt(chn,echo,"\n\tpivots to reduce: tot. %d, avg. %.2f, max %d",
-	   lpstats->infeas.totpivs,temp,lpstats->infeas.maxpivs) ;
-    outfmt(chn,echo,"\n\tsingle change: %d, multiple change: %d",
-	   lpstats->infeas.chgcnt1,lpstats->infeas.chgcnt2) ; }
+    dyio_outfmt(chn,echo,"\n\tpivots to reduce: tot. %d, avg. %.2f, max %d",
+	        lpstats->infeas.totpivs,temp,lpstats->infeas.maxpivs) ;
+    dyio_outfmt(chn,echo,"\n\tsingle change: %d, multiple change: %d",
+	        lpstats->infeas.chgcnt1,lpstats->infeas.chgcnt2) ; }
 
-  outfmt(chn,echo,"\n  Primal Multipivot: %d calls, %d sort, %d promote",
-	 lpstats->pmulti.cnt,lpstats->pmulti.nontrivial,
-	 lpstats->pmulti.promote) ;
+  dyio_outfmt(chn,echo,"\n  Primal Multipivot: %d calls, %d sort, %d promote",
+	      lpstats->pmulti.cnt,lpstats->pmulti.nontrivial,
+	      lpstats->pmulti.promote) ;
   if (lpstats->pmulti.cnt > 0)
   { temp = ((float) lpstats->pmulti.cands)/lpstats->pmulti.cnt ;
-    outfmt(chn,echo,"\n\tcandidates: tot. %d\tavg. %.2f",
-	   lpstats->pmulti.cands,temp) ; }
+    dyio_outfmt(chn,echo,"\n\tcandidates: tot. %d\tavg. %.2f",
+	        lpstats->pmulti.cands,temp) ; }
   
-  outfmt(chn,echo,"\n  Dual Multipivot: %d calls, %d promote, %d multipivot",
-	 lpstats->dmulti.cnt,lpstats->dmulti.promote,
-	 lpstats->dmulti.nontrivial) ;
+  dyio_outfmt(chn,echo,
+	      "\n  Dual Multipivot: %d calls, %d promote, %d multipivot",
+	      lpstats->dmulti.cnt,lpstats->dmulti.promote,
+	      lpstats->dmulti.nontrivial) ;
   if (lpstats->dmulti.cnt > 0)
   { if (lpstats->dmulti.nontrivial > 0)
     { temp = ((float) lpstats->dmulti.pivrnks)/lpstats->dmulti.nontrivial ; }
     else
     { temp = 0 ; }
-    outfmt(chn,echo,", avg. rank %.2f, max %d",temp,lpstats->dmulti.maxrnk) ;
+    dyio_outfmt(chn,echo,
+		", avg. rank %.2f, max %d",temp,lpstats->dmulti.maxrnk) ;
     temp = ((float) lpstats->dmulti.cands)/lpstats->dmulti.cnt ;
-    outfmt(chn,echo,"\n\tcandidates: tot. %d\tavg. %.2f",
-	   lpstats->dmulti.cands,temp) ;
+    dyio_outfmt(chn,echo,"\n\tcandidates: tot. %d\tavg. %.2f",
+	        lpstats->dmulti.cands,temp) ;
     temp = ((float) lpstats->dmulti.evals)/lpstats->dmulti.cnt ;
-    outfmt(chn,echo,"\n\tcolumn evals: tot. %d\tavg. %.2f",
-	   lpstats->dmulti.evals,temp) ;
+    dyio_outfmt(chn,echo,"\n\tcolumn evals: tot. %d\tavg. %.2f",
+	        lpstats->dmulti.evals,temp) ;
     temp = ((float) lpstats->dmulti.flips)/lpstats->dmulti.cnt ;
-    outfmt(chn,echo,"\n\tbound flips: tot. %d\tavg. %.2f",
-	   lpstats->dmulti.flips,temp) ; }
+    dyio_outfmt(chn,echo,"\n\tbound flips: tot. %d\tavg. %.2f",
+	        lpstats->dmulti.flips,temp) ; }
   temp = ((float) lpstats->dmulti.flippable)/orig_sys->varcnt ;
-  outfmt(chn,echo,"\n\tflippable vars: %d (%.2f%%)",
-	 lpstats->dmulti.flippable,temp*100) ;
+  dyio_outfmt(chn,echo,"\n\tflippable vars: %d (%.2f%%)",
+	      lpstats->dmulti.flippable,temp*100) ;
   
-  outfmt(chn,echo,"\n  Degeneracy:") ;
+  dyio_outfmt(chn,echo,"\n  Degeneracy:") ;
   if (lpstats->pdegen[0].cnt == 0)
-  { outfmt(chn,echo,"\n    Primal: inactive") ; }
+  { dyio_outfmt(chn,echo,"\n    Primal: inactive") ; }
   else
-  { outfmt(chn,echo,"\n    Primal:\tLevel\tEntries\t     Vars.\t\tPivots") ;
-    outfmt(chn,echo,"\n\t\t\t\tAvg.\tMax\tTot.\tAvg.\tMax") ;
+  { dyio_outfmt(chn,echo,
+		"\n    Primal:\tLevel\tEntries\t     Vars.\t\tPivots") ;
+    dyio_outfmt(chn,echo,"\n\t\t\t\tAvg.\tMax\tTot.\tAvg.\tMax") ;
     for (ndx = 1 ; ndx <= lpstats->pdegen[0].cnt ; ndx++)
-    { outfmt(chn,echo,"\n\t\t%d\t%d\t%.2f\t%d\t%d\t%.2f\t%d",
-	     ndx,lpstats->pdegen[ndx].cnt,
-	     lpstats->pdegen[ndx].avgsiz,lpstats->pdegen[ndx].maxsiz,
-	     lpstats->pdegen[ndx].totpivs,lpstats->pdegen[ndx].avgpivs,
-	     lpstats->pdegen[ndx].maxpivs) ; }
-    outchr(chn,echo,'\n') ; }
+    { dyio_outfmt(chn,echo,"\n\t\t%d\t%d\t%.2f\t%d\t%d\t%.2f\t%d",
+		  ndx,lpstats->pdegen[ndx].cnt,
+		  lpstats->pdegen[ndx].avgsiz,lpstats->pdegen[ndx].maxsiz,
+		  lpstats->pdegen[ndx].totpivs,lpstats->pdegen[ndx].avgpivs,
+		  lpstats->pdegen[ndx].maxpivs) ; }
+    dyio_outchr(chn,echo,'\n') ; }
   if (lpstats->ddegen[0].cnt == 0)
-  { outfmt(chn,echo,"\n    Dual: inactive") ; }
+  { dyio_outfmt(chn,echo,"\n    Dual: inactive") ; }
   else
-  { outfmt(chn,echo,"\n    Dual:\tLevel\tEntries\t     Vars.\t\tPivots") ;
-    outfmt(chn,echo,"\n\t\t\t\tAvg.\tMax\tTot.\tAvg.\tMax") ;
+  { dyio_outfmt(chn,echo,"\n    Dual:\tLevel\tEntries\t     Vars.\t\tPivots") ;
+    dyio_outfmt(chn,echo,"\n\t\t\t\tAvg.\tMax\tTot.\tAvg.\tMax") ;
     for (ndx = 1 ; ndx <= lpstats->ddegen[0].cnt ; ndx++)
-    { outfmt(chn,echo,"\n\t\t%d\t%d\t%.2f\t%d\t%d\t%.2f\t%d",
-	     ndx,lpstats->ddegen[ndx].cnt,
-	     lpstats->ddegen[ndx].avgsiz,lpstats->ddegen[ndx].maxsiz,
-	     lpstats->ddegen[ndx].totpivs,lpstats->ddegen[ndx].avgpivs,
-	     lpstats->ddegen[ndx].maxpivs) ; } }
-  outchr(chn,echo,'\n') ;
+    { dyio_outfmt(chn,echo,"\n\t\t%d\t%d\t%.2f\t%d\t%d\t%.2f\t%d",
+		  ndx,lpstats->ddegen[ndx].cnt,
+		  lpstats->ddegen[ndx].avgsiz,lpstats->ddegen[ndx].maxsiz,
+		  lpstats->ddegen[ndx].totpivs,lpstats->ddegen[ndx].avgpivs,
+		  lpstats->ddegen[ndx].maxpivs) ; } }
+  dyio_outchr(chn,echo,'\n') ;
 /*
   Run through the constraint management information and calculate totals,
   mins, and maxes, and information about how well we did guessing the correct
@@ -564,76 +568,79 @@ void dy_dumpstats (ioid chn, bool echo,
 /*
   Dump per phase information.
 */
-  outfmt(chn,echo,"\n  State\tEntry\tActivity\tAverage\n") ;
+  dyio_outfmt(chn,echo,"\n  State\tEntry\tActivity\tAverage\n") ;
   for (i = dyPRIMAL1 ; i <= dyFORCEFULL ; i++)
   { j = lpstats->phasecnts[i] ;
-    outfmt(chn,echo,"\n   %2s%2s\t%5d",
-	   dy_prtlpphase(((dyphase_enum) i),TRUE),
-	   (lpstats->ini_simplex == ((dyphase_enum) i))?"* ":"  ",j) ;
+    dyio_outfmt(chn,echo,"\n   %2s%2s\t%5d",
+	        dy_prtlpphase(((dyphase_enum) i),TRUE),
+	        (lpstats->ini_simplex == ((dyphase_enum) i))?"* ":"  ",j) ;
     temp = 0 ;
     switch (i)
     { case dyPRIMAL1:
       { if (j > 0)
 	{ temp = ((double) lpstats->p1.pivs)/j ;
-	  outfmt(chn,echo,"\t%8d\t%7.1f",lpstats->p1.pivs,temp) ; }
+	  dyio_outfmt(chn,echo,"\t%8d\t%7.1f",lpstats->p1.pivs,temp) ; }
 	break ; }
       case dyPRIMAL2:
       { if (j > 0)
 	{ temp = ((double) lpstats->p2.pivs)/j ;
-	  outfmt(chn,echo,"\t%8d\t%7.1f",lpstats->p2.pivs,temp) ; }
+	  dyio_outfmt(chn,echo,"\t%8d\t%7.1f",lpstats->p2.pivs,temp) ; }
 	break ; }
       case dyDUAL:
       { if (j > 0)
 	{ temp = ((double) lpstats->d2.pivs)/j ;
-	  outfmt(chn,echo,"\t%8d\t%7.1f",lpstats->d2.pivs,temp) ; }
+	  dyio_outfmt(chn,echo,"\t%8d\t%7.1f",lpstats->d2.pivs,temp) ; }
 	break ; }
       case dyPURGEVAR:
       { if (j > 0)
-	{ outfmt(chn,echo,"\t%8d\t%7.1f",totvdeact,((float) totvdeact)/j) ; }
+	{ dyio_outfmt(chn,echo,
+		      "\t%8d\t%7.1f",totvdeact,((float) totvdeact)/j) ; }
 	break ; }
       case dyADDVAR:
       { if (j > 0)
-	{ outfmt(chn,echo,"\t%8d\t%7.1f",totvact,((float) totvact)/j) ; }
+	{ dyio_outfmt(chn,echo,"\t%8d\t%7.1f",totvact,((float) totvact)/j) ; }
 	break ; }
       case dyPURGECON:
       { if (j > 0)
-	{ outfmt(chn,echo,"\t%8d\t%7.1f",totcdeact,((float) totcdeact)/j) ; }
+	{ dyio_outfmt(chn,echo,
+		      "\t%8d\t%7.1f",totcdeact,((float) totcdeact)/j) ; }
 	break ; }
       case dyADDCON:
       { if (j > 0)
-	{ outfmt(chn,echo,"\t%8d\t%7.1f",totcact-initallcact,
+	{ dyio_outfmt(chn,echo,"\t%8d\t%7.1f",totcact-initallcact,
 		 ((float) (totcact-initallcact))/j) ; }
 	break ; } } }
-  outchr(chn,echo,'\n') ;
+  dyio_outchr(chn,echo,'\n') ;
 /*
   Dump initial and final constraint summary information.
 */
-  outfmt(chn,echo,"\n  Initial/Final Constraint System: ") ;
-  outfmt(chn,echo,"%d inequalities, initial %d, final %d",
-	 ineqcnt,initcact,fincact) ;
-  outfmt(chn,echo,"\n\t%d near, %d perp, %d far",nearcnt,perpcnt,farcnt) ;
-  outfmt(chn,echo,"\n\ttotal: %d/%d active, %d/%d inactive.",
-	 right_init,wrong_fin,right_fin,wrong_init) ;
-  outfmt(chn,echo,"\n\tnear:  %d/%d active, %d/%d inactive.",
-	 rinear,wfnear,rfnear,winear) ;
-  outfmt(chn,echo,"\n\tperp:  %d/%d active, %d/%d inactive.",
-	 riperp,wfperp,rfperp,wiperp) ;
-  outfmt(chn,echo,"\n\tfar:   %d/%d active, %d/%d inactive.\n",
-	 rifar,wffar,rffar,wifar) ;
+  dyio_outfmt(chn,echo,"\n  Initial/Final Constraint System: ") ;
+  dyio_outfmt(chn,echo,"%d inequalities, initial %d, final %d",
+	      ineqcnt,initcact,fincact) ;
+  dyio_outfmt(chn,echo,"\n\t%d near, %d perp, %d far",nearcnt,perpcnt,farcnt) ;
+  dyio_outfmt(chn,echo,"\n\ttotal: %d/%d active, %d/%d inactive.",
+	      right_init,wrong_fin,right_fin,wrong_init) ;
+  dyio_outfmt(chn,echo,"\n\tnear:  %d/%d active, %d/%d inactive.",
+	      rinear,wfnear,rfnear,winear) ;
+  dyio_outfmt(chn,echo,"\n\tperp:  %d/%d active, %d/%d inactive.",
+	      riperp,wfperp,rfperp,wiperp) ;
+  dyio_outfmt(chn,echo,"\n\tfar:   %d/%d active, %d/%d inactive.\n",
+	      rifar,wffar,rffar,wifar) ;
 /*
   That takes care of the summaries. Now the detailed statistics on constraints.
 */
-  outfmt(chn,echo,"\n    Constraint\tType   Angle\tInit\tAct\tDeact\tFinal\n") ;
+  dyio_outfmt(chn,echo,
+	      "\n    Constraint\tType   Angle\tInit\tAct\tDeact\tFinal\n") ;
   for (i = 1 ; i <= m ; i++)
-  { outfmt(chn,echo,"\n%5d %s\t%2s %9.5f\t",
-	   i,consys_nme(orig_sys,'c',i,FALSE,NULL),
-	   consys_prtcontyp(orig_sys->ctyp[i]),
-	   lpstats->cons.angle[i]) ;
-    if (lpstats->cons.init[i] == TRUE) outfmt(chn,echo,"Y") ;
-    outfmt(chn,echo,"\t%d\t%d\t",
+  { dyio_outfmt(chn,echo,"\n%5d %s\t%2s %9.5f\t",
+	        i,consys_nme(orig_sys,'c',i,FALSE,NULL),
+	        consys_prtcontyp(orig_sys->ctyp[i]),
+	        lpstats->cons.angle[i]) ;
+    if (lpstats->cons.init[i] == TRUE) dyio_outfmt(chn,echo,"Y") ;
+    dyio_outfmt(chn,echo,"\t%d\t%d\t",
 	   lpstats->cons.actcnt[i],lpstats->cons.deactcnt[i]) ;
-    if (lpstats->cons.fin[i] == TRUE) outfmt(chn,echo,"Y") ;
+    if (lpstats->cons.fin[i] == TRUE) dyio_outfmt(chn,echo,"Y") ;
     }
-  outchr(chn,echo,'\n') ;
+  dyio_outchr(chn,echo,'\n') ;
 
   return ; }

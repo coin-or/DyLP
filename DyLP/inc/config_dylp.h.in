@@ -35,10 +35,10 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define to 1 if math.h exists. */
+/* Define to 1 if float.h exists. */
 #undef HAVE_FLOAT_H
 
-/* Define to 1 if math.h exists. */
+/* Define to 1 if ieeefp.h exists. */
 #undef HAVE_IEEEFP_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -62,7 +62,7 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if math.h exists. */
+/* Define to 1 if sunmath.h exists. */
 #undef HAVE_SUNMATH_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */

@@ -531,10 +531,11 @@ static dyphase_enum initial_activation (lpprob_struct *orig_lp)
   {
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.conmgmt >= 1)
-    { outfmt(dy_logchn,dy_gtxecho,
-	     "\n  [%s](%s)%d: pre-activating violated constraints, ",
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
-      outfmt(dy_logchn,dy_gtxecho,"obj = %g ...",dy_lp->z) ; }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n  [%s](%s)%d: pre-activating violated constraints, ",
+		  dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,"obj = %g ...",dy_lp->z) ; }
 #   endif
     conresult = dy_activateCons(orig_sys,FALSE) ;
     if (conresult > 0)
@@ -563,12 +564,12 @@ static dyphase_enum initial_activation (lpprob_struct *orig_lp)
   {
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.varmgmt >= 1)
-    { outfmt(dy_logchn,dy_gtxecho,
-	     "\n%s: [%s](%s)%d: pre-activating variables, ",
-	     rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters) ;
-      outfmt(dy_logchn,dy_gtxecho,"%s rules, obj = %g ...",
-	     dy_prtlpphase(dy_lp->simplex.next,TRUE),dy_lp->z) ; }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n%s: [%s](%s)%d: pre-activating variables, ",
+		  rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,"%s rules, obj = %g ...",
+		  dy_prtlpphase(dy_lp->simplex.next,TRUE),dy_lp->z) ; }
 #   endif
     if (dy_lp->simplex.next == dyPRIMAL1 || dy_lp->simplex.next == dyPRIMAL2)
     { varresult = dy_activateVars(orig_sys,NULL) ; }
@@ -627,7 +628,8 @@ static void determineLoadable (consys_struct *orig_sys)
     dy_lp->sys.loadablevars = FALSE ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.setup >= 2)
-    { outfmt(dy_logchn,dy_gtxecho,"\n    Full system activated at startup.") ; }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n    Full system activated at startup.") ; }
 #   endif
     return ; }
 /*
@@ -645,8 +647,9 @@ static void determineLoadable (consys_struct *orig_sys)
     if (flgon(statj,vstatNBFX)) fixcnt++ ; }
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.setup >= 2 || dy_opts->print.varmgmt >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n    %d fixed variables excluded from activation.",fixcnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n    %d fixed variables excluded from activation.",
+		fixcnt) ; }
 # endif
 /*
   Set the dy_lp.sys structure.
@@ -664,13 +667,13 @@ static void determineLoadable (consys_struct *orig_sys)
     dy_lp->sys.loadablevars = FALSE ;
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.setup >= 2 || dy_opts->print.varmgmt >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n    %d loadable variables remain inactive at startup.",
-	   dy_lp->sys.maxvars-dy_sys->archvcnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n    %d loadable variables remain inactive at startup.",
+	        dy_lp->sys.maxvars-dy_sys->archvcnt) ; }
   if (dy_opts->print.setup >= 2 || dy_opts->print.conmgmt >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n    %d loadable constraints remain inactive at startup.",
-	   dy_lp->sys.maxcons-dy_sys->concnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n    %d loadable constraints remain inactive at startup.",
+	        dy_lp->sys.maxcons-dy_sys->concnt) ; }
 # endif
 
   return ; }
@@ -892,9 +895,9 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 
 # ifndef DYLP_NDEBUG
   if (orig_opts->print.major >= 1)
-    outfmt(dy_logchn,dy_gtxecho,"\n  %s start for lp %s.",
-	   (start == startHOT)?"hot":((start == startWARM)?"warm":"cold"),
-	   orig_sys->nme) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,"\n  %s start for lp %s.",
+	        (start == startHOT)?"hot":((start == startWARM)?"warm":"cold"),
+	        orig_sys->nme) ;
 # endif
 # ifdef PARANOIA
 /*
@@ -1029,8 +1032,9 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
     { dy_lp->phase = dyDONE ;
 #ifndef DYLP_NDEBUG
       if (dy_opts->print.major >= 1)
-      { outfmt(dy_logchn,dy_gtxecho,"\n\n%s (%s): prima facie infeasibility.",
-	       rtnnme,dy_sys->nme) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\n%s (%s): prima facie infeasibility.",
+		    rtnnme,dy_sys->nme) ; }
 #   endif
     }
     dy_finishup(orig_lp,dy_lp->phase) ;
@@ -1128,8 +1132,9 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   { dy_lp->phase = phase ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.major >= 1)
-      outfmt(dy_logchn,dy_gtxecho,"\n\n%s (%s): entering phase %s, iter %d.",
-	     rtnnme,dy_sys->nme,dy_prtlpphase(phase,FALSE),dy_lp->tot.iters) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n\n%s (%s): entering phase %s, iter %d.",rtnnme,
+		  dy_sys->nme,dy_prtlpphase(phase,FALSE),dy_lp->tot.iters) ;
 #   endif
 #   ifdef DYLP_STATISTICS
     if (dy_stats != NULL) dy_stats->phasecnts[phase]++ ;
@@ -1240,10 +1245,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.varmgmt >= 1)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: purging variables, obj = %g ...",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
-		   dy_lp->z) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: purging variables, obj = %g ...",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
+		        dy_lp->z) ; }
 #	  endif
 	  cnt = dy_deactivateVars(orig_sys) ;
 	  dy_lp->lastz.vd = dy_lp->z ;
@@ -1255,10 +1260,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.varmgmt >= 2)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: variable purge skipped, obj = %g.",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
-		   dy_lp->z) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: variable purge skipped, obj = %g.",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
+		        dy_lp->z) ; }
 #	  endif
 	  phase = dy_lp->simplex.next ; }
 	break ; }
@@ -1309,9 +1314,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{ 
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.varmgmt >= 1)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: no loadable variables; skipping.",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: no loadable variables; skipping.",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),
+			dy_lp->tot.iters) ; }
 #	  endif
 	  phase = addvar_nextphase(0) ;
 	  break ; }
@@ -1321,12 +1327,13 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	    {
 #	      ifndef DYLP_NDEBUG
 	      if (dy_opts->print.varmgmt >= 1)
-	      { outfmt(dy_logchn,dy_gtxecho,
-		       "\n%s: [%s](%s)%d: activating variables, ",
-		       rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		       dy_lp->tot.iters) ;
-		outfmt(dy_logchn,dy_gtxecho,"%s rules, obj = %g ...",
-		       dy_prtlpphase(dy_lp->simplex.next,TRUE),dy_lp->z) ; }
+	      { dyio_outfmt(dy_logchn,dy_gtxecho,
+			    "\n%s: [%s](%s)%d: activating variables, ",rtnnme,
+			    dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+			    dy_lp->tot.iters) ;
+		dyio_outfmt(dy_logchn,dy_gtxecho,"%s rules, obj = %g ...",
+			    dy_prtlpphase(dy_lp->simplex.next,TRUE),
+			    dy_lp->z) ; }
 #	      endif
 	      cnt = dy_dualaddvars(orig_sys) ; }
 	      else
@@ -1345,12 +1352,12 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	  { 
 #	    ifndef DYLP_NDEBUG
 	    if (dy_opts->print.varmgmt >= 1)
-	    { outfmt(dy_logchn,dy_gtxecho,
-		     "\n%s: [%s](%s)%d: activating variables, ",
-		     rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		     dy_lp->tot.iters) ;
-	      outfmt(dy_logchn,dy_gtxecho,"%s rules, obj = %g ...",
-		     dy_prtlpphase(dy_lp->simplex.next,TRUE),dy_lp->z) ; }
+	    { dyio_outfmt(dy_logchn,dy_gtxecho,
+			  "\n%s: [%s](%s)%d: activating variables, ",
+			  rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+			  dy_lp->tot.iters) ;
+	      dyio_outfmt(dy_logchn,dy_gtxecho,"%s rules, obj = %g ...",
+			  dy_prtlpphase(dy_lp->simplex.next,TRUE),dy_lp->z) ; }
 #	    endif
 	    cnt = dy_activateVars(orig_sys,NULL) ;
 	    phase = addvar_nextphase(cnt) ; } }
@@ -1376,10 +1383,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.conmgmt >= 1)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: purging constraints, obj = %g ...",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
-		   dy_lp->z) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: purging constraints, obj = %g ...",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
+		        dy_lp->z) ; }
 #	  endif
 	  cnt = dy_deactivateCons(orig_sys) ;
 	  if (cnt < 0)
@@ -1395,10 +1402,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.conmgmt >= 2)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: constraint purge skipped, obj = %g.",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
-		   dy_lp->z) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: constraint purge skipped, obj = %g.",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters,
+		        dy_lp->z) ; }
 #	  endif
 	  phase = dyDUAL ; }
 	break ; }
@@ -1435,9 +1442,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{ phase = addcon_nextphase(0) ;
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.conmgmt >= 1)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: no loadable constraints; skipping.",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: no loadable constraints; skipping.",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),
+			dy_lp->tot.iters) ; }
 #	  endif
 	  break ; }
 	if (dy_lp->lpret == lpSWING ||
@@ -1447,10 +1455,11 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{
 #         ifndef DYLP_NDEBUG
 	  if (dy_opts->print.conmgmt >= 1)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: activating bounding constraints, ",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters) ;
-	    outfmt(dy_logchn,dy_gtxecho,"obj = %g ...",dy_lp->z) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: activating bounding constraints, ",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),
+			dy_lp->tot.iters) ;
+	    dyio_outfmt(dy_logchn,dy_gtxecho,"obj = %g ...",dy_lp->z) ; }
 #         endif
 	  cnt = dy_activateBndCons(orig_sys) ;
 	  if (cnt > 0)
@@ -1464,10 +1473,11 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	{
 #         ifndef DYLP_NDEBUG
 	  if (dy_opts->print.conmgmt >= 1)
-	  { outfmt(dy_logchn,dy_gtxecho,
-		   "\n  [%s](%s)%d: activating violated constraints, ",
-		   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters) ;
-	    outfmt(dy_logchn,dy_gtxecho,"obj = %g ...",dy_lp->z) ; }
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		        "\n  [%s](%s)%d: activating violated constraints, ",
+		        dy_sys->nme,dy_prtlpphase(phase,TRUE),
+			dy_lp->tot.iters) ;
+	    dyio_outfmt(dy_logchn,dy_gtxecho,"obj = %g ...",dy_lp->z) ; }
 #         endif
 	  cnt = dy_activateCons(orig_sys,TRUE) ;
 	  phase = addcon_nextphase(cnt) ; }
@@ -1569,10 +1579,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
     {
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.major >= 1)
-      { outfmt(dy_logchn,dy_gtxecho,
-	       "\n\n%s (%s): entering phase %s (final), iter %d.",
-	       rtnnme,dy_sys->nme,dy_prtlpphase(dyPURGEVAR,FALSE),
-	       dy_lp->tot.iters) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\n%s (%s): entering phase %s (final), iter %d.",
+		    rtnnme,dy_sys->nme,dy_prtlpphase(dyPURGEVAR,FALSE),
+		    dy_lp->tot.iters) ; }
 #     endif
       cnt = dy_deactivateVars(orig_sys) ;
       if (cnt < 0)
@@ -1583,10 +1593,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.major >= 1)
-      { outfmt(dy_logchn,dy_gtxecho,
-	       "\n\n%s (%s): entering phase %s (final), iter %d.",
-	       rtnnme,dy_sys->nme,dy_prtlpphase(dyPURGECON,FALSE),
-	       dy_lp->tot.iters) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\n%s (%s): entering phase %s (final), iter %d.",
+		    rtnnme,dy_sys->nme,dy_prtlpphase(dyPURGECON,FALSE),
+		    dy_lp->tot.iters) ; }
 #     endif
       dy_opts->con.deactlvl = 0 ;
       cnt = dy_deactivateCons(orig_sys) ;

@@ -10,8 +10,8 @@
 # Edit here to choose the C interface (osi_dylp) or
 # the OSI interface (odsi+dylp) as the default.
 
-set wrapper = (./osi_dylp -e ../Dylp/dy_errmsgs.txt)
-#set wrapper = (./odsi+dylp)
+#set wrapper = (./osi_dylp -e ../Dylp/dy_errmsgs.txt)
+set wrapper = (./odsi+dylp)
 
 # Usage message
 

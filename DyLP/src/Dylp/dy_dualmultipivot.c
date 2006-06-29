@@ -319,12 +319,12 @@ static void promoteSanePivot (dualcand_struct *incands)
       dy_opts->print.pivoting >= 3)
   { int j ;
     j = incands[firstnoflip].ndx ;
-    outfmt(dy_logchn,dy_gtxecho,"\n\t      first no-flip %s (%d) at %d, ",
-	   consys_nme(dy_sys,'v',j,FALSE,NULL),j,firstnoflip) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t      first no-flip %s (%d) at %d, ",
+	        consys_nme(dy_sys,'v',j,FALSE,NULL),j,firstnoflip) ;
     j = incands[firstsane].ndx ;
-    outfmt(dy_logchn,dy_gtxecho,"first sane %s (%d) at %d",
-	   consys_nme(dy_sys,'v',j,FALSE,NULL),j,firstsane) ;
-    outfmt(dy_logchn,dy_gtxecho,", promoted to %d.  ",ndx) ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho,"first sane %s (%d) at %d",
+	        consys_nme(dy_sys,'v',j,FALSE,NULL),j,firstsane) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,", promoted to %d.  ",ndx) ; }
 # endif
 # ifdef DYLP_STATISTICS
   if (dy_stats != NULL)
@@ -405,10 +405,11 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
 
 # ifndef DYLP_NDEBUG
   if (print >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,"\n    gathering candidates to enter ... ") ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n    gathering candidates to enter ... ") ;
     if (print >= 4)
-    { outfmt(dy_logchn,dy_gtxecho,
-	       "\n\tVariable\t  cbar<k>\tabar<i,k>\t  delta\tDisp") ; } }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n\tVariable\t  cbar<k>\tabar<i,k>\t  delta\tDisp") ; } }
 # endif
 /*
   Open a loop and scan for suitable nonbasic variables.
@@ -499,20 +500,21 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
     
 #   ifndef DYLP_NDEBUG
     if (print >= 5 || (print >= 4 && reject >= 0))
-    { outfmt(dy_logchn,dy_gtxecho,"\n\t%-8s (%d)",
-	     consys_nme(dy_sys,'v',k,FALSE,NULL),k) ;
-      outfmt(dy_logchn,dy_gtxecho,"\t%8g\t%8g",cbark,abarik) ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t%-8s (%d)",
+		  consys_nme(dy_sys,'v',k,FALSE,NULL),k) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,"\t%8g\t%8g",cbark,abarik) ;
       if (print >= 5)
       { switch (reject)
 	{ case -1:
-	  { outfmt(dy_logchn,dy_gtxecho,"\t\trejected -- status %s",
-		   dy_prtvstat(statk)) ;
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,"\t\trejected -- status %s",
+		        dy_prtvstat(statk)) ;
 	    break ; }
 	  case -2:
-	  { outfmt(dy_logchn,dy_gtxecho,"\t\trejected -- zero pivot") ;
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,"\t\trejected -- zero pivot") ;
 	    break ; }
 	  case -3:
-	  { outfmt(dy_logchn,dy_gtxecho,"\t\trejected -- wrong sign abar<ik>") ;
+	  { dyio_outfmt(dy_logchn,dy_gtxecho,
+			"\t\trejected -- wrong sign abar<ik>") ;
 	    break ; } } } }
 #   endif
 
@@ -560,15 +562,15 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
 
 #   ifndef DYLP_NDEBUG
     if (print >= 4)
-    { outfmt(dy_logchn,dy_gtxecho,"\t%8g\t accepted",deltak) ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\t%8g\t accepted",deltak) ;
       if (reject == 1)
-      { outfmt(dy_logchn,dy_gtxecho," (mad)") ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho," (mad)") ; }
       if (deltak == 0)
-      { outfmt(dy_logchn,dy_gtxecho," (degen)") ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho," (degen)") ; }
       if (incands[candcnt].flippable == TRUE)
-      { outfmt(dy_logchn,dy_gtxecho," (flip)") ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho," (flip)") ; }
       if (rev == TRUE)
-      { outfmt(dy_logchn,dy_gtxecho," (rev)") ; } }
+      { dyio_outfmt(dy_logchn,dy_gtxecho," (rev)") ; } }
 #   endif
   }
 /*
@@ -601,32 +603,34 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
 # ifndef DYLP_NDEBUG
   if (print >= 1)
   { if (print >= 3)
-    { outfmt(dy_logchn,dy_gtxecho,"\n   ") ;
-      outfmt(dy_logchn,dy_gtxecho,
-	     "\n\tVariable\tratio<ik>\tdelta<k>") ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n   ") ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n\tVariable\tratio<ik>\tdelta<k>") ;
       for (n = 1 ; n <= candcnt ; n++)
       { k = incands[n].ndx ;
 	ratioik = incands[n].ratioik ;
 	deltak = incands[n].ddelta ;
-	outfmt(dy_logchn,dy_gtxecho,"\n\t%-8s (%d)",
-	       consys_nme(dy_sys,'v',k,FALSE,NULL),k) ;
-	outfmt(dy_logchn,dy_gtxecho,"\t%8g\t%8g",ratioik,deltak) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t%-8s (%d)",
+		    consys_nme(dy_sys,'v',k,FALSE,NULL),k) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"\t%8g\t%8g",ratioik,deltak) ;
 	if (incands[n].madpiv == TRUE)
-	{ outfmt(dy_logchn,dy_gtxecho," (mad)") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," (mad)") ; }
 	if (deltak == 0)
-	{ outfmt(dy_logchn,dy_gtxecho," (degen)") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," (degen)") ; }
 	if (incands[n].flippable == TRUE)
-	{ outfmt(dy_logchn,dy_gtxecho," (flip)") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," (flip)") ; }
 	statk = dy_status[k] ;
 	if ((flgon(statk,vstatNBUB) && incands[n].pivdir == 1) ||
 	    (flgon(statk,vstatNBLB) && incands[n].pivdir == -1))
-	{ outfmt(dy_logchn,dy_gtxecho," (rev)") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," (rev)") ; }
 	if (n > 1)
-	{ outfmt(dy_logchn,dy_gtxecho," (%g)",deltak-incands[n-1].ddelta) ; } }
-      outfmt(dy_logchn,dy_gtxecho,"\n   ") ; }
-    outfmt(dy_logchn,dy_gtxecho,"%d candidates.",candcnt) ;
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+		      " (%g)",deltak-incands[n-1].ddelta) ; } }
+      dyio_outfmt(dy_logchn,dy_gtxecho,"\n   ") ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho,"%d candidates.",candcnt) ;
     if (retval != dyrOK)
-    { outfmt(dy_logchn,dy_gtxecho," Returning %s.",dy_prtdyret(retval)) ; } }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  " Returning %s.",dy_prtdyret(retval)) ; } }
   dy_opts->print.pivoting = print ;
 # endif
 
@@ -795,15 +799,15 @@ static int calcInfChange (dualcand_struct *candk, int i, double *xbasic)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.pivoting >= 3)
-  { outfmt(dy_logchn,dy_gtxecho,"\n\t%s (%d) piv = %g, pivmax = %g",
-	   consys_nme(dy_sys,'v',k,FALSE,NULL),k,
-	   candk->piv.inf,candk->piv.maxinf) ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t%s (%d) piv = %g, pivmax = %g",
+	        consys_nme(dy_sys,'v',k,FALSE,NULL),k,
+	        candk->piv.inf,candk->piv.maxinf) ;
     if (flippable == TRUE)
-    { outfmt(dy_logchn,dy_gtxecho," flip = %g, flipmax = %g",
-	     candk->flip.inf,candk->flip.maxinf) ; }
-    outfmt(dy_logchn,dy_gtxecho," pivdelta = %g",pivdeltak) ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho," flip = %g, flipmax = %g",
+		  candk->flip.inf,candk->flip.maxinf) ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho," pivdelta = %g",pivdeltak) ;
     if (flippable == TRUE)
-    { outfmt(dy_logchn,dy_gtxecho," flipdelta = %g",flipdeltak) ; } }
+    { dyio_outfmt(dy_logchn,dy_gtxecho," flipdelta = %g",flipdeltak) ; } }
 # endif
 /*
   That's it. The final thing we need to do is check on the status of the
@@ -914,9 +918,9 @@ bool selectWithInf (int i, dualcand_struct *incands,
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.pivoting >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n      starting inf tot = %g, max = %g",
-	   starttotinf,startmaxinf) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n      starting inf tot = %g, max = %g",
+	        starttotinf,startmaxinf) ; }
 # endif
 /*
   # ifdef PARANOIA
@@ -1003,9 +1007,9 @@ bool selectWithInf (int i, dualcand_struct *incands,
     if (abovebnd(xj,ubj))
     { predicttotinf += xj-ubj ; } }
   if (dy_opts->print.pivoting >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n      debug piv = %g, flip = %g, tot = %g, infeasibility = %g",
-	   pivinfk,flipinfk,totinfk,predicttotinf) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	     "\n      debug piv = %g, flip = %g, tot = %g, infeasibility = %g",
+	     pivinfk,flipinfk,totinfk,predicttotinf) ; }
 # endif
 
     if (candk->madpiv == FALSE)
@@ -1034,22 +1038,25 @@ bool selectWithInf (int i, dualcand_struct *incands,
     else
     { jpos = ndx-1 ; }
     lastdegen = jpos ;
-    outfmt(dy_logchn,dy_gtxecho,"\n      after %d degen",jpos) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,"\n      after %d degen",jpos) ;
     if (bestflipcand > 0)
     { j = incands[bestflipcand].ndx ;
-      outfmt(dy_logchn,dy_gtxecho,", best flip #%d, %s (%d) = %g",bestflipcand,
-	     consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestflipinf) ; }
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  ", best flip #%d, %s (%d) = %g",bestflipcand,
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestflipinf) ; }
     if (bestpivcand > 0)
     { j = incands[bestpivcand].ndx ;
-      outfmt(dy_logchn,dy_gtxecho,", best piv #%d, %s (%d) = %g",
-	     bestpivcand,consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestpivinf) ; }
+      dyio_outfmt(dy_logchn,dy_gtxecho,", best piv #%d, %s (%d) = %g",
+		  bestpivcand,
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestpivinf) ; }
     if (lastpivcand > 0)
     { j = incands[lastpivcand].ndx ;
-      outfmt(dy_logchn,dy_gtxecho,", last piv #%d, %s (%d) = %g",lastpivcand,
-	     consys_nme(dy_sys,'v',j,FALSE,NULL),j,lastpivinf) ; }
+      dyio_outfmt(dy_logchn,dy_gtxecho,", last piv #%d, %s (%d) = %g",
+		  lastpivcand,
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,lastpivinf) ; }
     if (bestflipcand < 0 && bestpivcand < 0 && lastpivcand < 0)
-    { outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
-    outchr(dy_logchn,dy_gtxecho,'.') ; }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
+    dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 # endif
 
 /*
@@ -1084,7 +1091,7 @@ bool selectWithInf (int i, dualcand_struct *incands,
     if (abovebnd(xj,ubj))
     { bestinf += xj-ubj ; } }
   if (dy_opts->print.pivoting >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
 	   "\n      debug piv = %g, flip = %g, tot = %g, infeasibility = %g",
 	   pivinfk,flipinfk,starttotinf,bestinf) ; }
 # endif
@@ -1108,25 +1115,26 @@ bool selectWithInf (int i, dualcand_struct *incands,
       { jpos = ndx ; }
       else
       { jpos = ndx-1 ; }
-      outfmt(dy_logchn,dy_gtxecho,"\n      after %d nondegen",jpos-lastdegen) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n      after %d nondegen",jpos-lastdegen) ;
       if (bestflipcand > 0)
       { j = incands[bestflipcand].ndx ;
-	outfmt(dy_logchn,dy_gtxecho,
-	       ", best flip #%d, %s (%d) = %g",bestflipcand,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestflipinf) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    ", best flip #%d, %s (%d) = %g",bestflipcand,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestflipinf) ; }
       if (bestpivcand > 0)
       { j = incands[bestpivcand].ndx ;
-	outfmt(dy_logchn,dy_gtxecho,
-	       ", best piv #%d, %s (%d) = %g",bestpivcand,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestpivinf) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    ", best piv #%d, %s (%d) = %g",bestpivcand,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j,bestpivinf) ; }
       if (lastpivcand > 0)
       { j = incands[lastpivcand].ndx ;
-	outfmt(dy_logchn,dy_gtxecho,
-	       ", last piv #%d, %s (%d) = %g",lastpivcand,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,lastpivinf) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    ", last piv #%d, %s (%d) = %g",lastpivcand,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j,lastpivinf) ; }
       if (bestflipcand < 0 && bestpivcand < 0 && lastpivcand < 0)
-      { outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
-      outchr(dy_logchn,dy_gtxecho,'.') ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
+      dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 #   endif
   }
 
@@ -1246,7 +1254,8 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.pivoting >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,"\n      starting inf<%d> = %g",i,startinf) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n      starting inf<%d> = %g",i,startinf) ; }
 # endif
 /*
   # ifdef PARANOIA
@@ -1341,18 +1350,19 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
     { jndx = ndx-1 ; }
     lastdegen = jndx ;
     if (jndx > 0)
-    { outfmt(dy_logchn,dy_gtxecho,"\n      after %d degen",jndx) ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n      after %d degen",jndx) ;
       if (lastflipcand > 0)
       { j = incands[lastflipcand].ndx ;
-	outfmt(dy_logchn,dy_gtxecho,", last flip #%d, %s (%d)",lastflipcand,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    ", last flip #%d, %s (%d)",lastflipcand,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
       if (lastpivcand > 0)
       { j = incands[lastpivcand].ndx ;
-	outfmt(dy_logchn,dy_gtxecho,", last piv #%d, %s (%d)",lastpivcand,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,", last piv #%d, %s (%d)",
+		    lastpivcand,consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
       if (lastflipcand < 0 && lastpivcand < 0)
-      { outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
-      outchr(dy_logchn,dy_gtxecho,'.') ; } }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
+      dyio_outchr(dy_logchn,dy_gtxecho,'.') ; } }
 # endif
 
 /*
@@ -1388,18 +1398,20 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
       { jndx = ndx ; }
       else
       { jndx = ndx-1 ; }
-      outfmt(dy_logchn,dy_gtxecho,"\n      after %d nondegen",jndx-lastdegen) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n      after %d nondegen",jndx-lastdegen) ;
       if (lastflipcand > 0)
       { j = incands[lastflipcand].ndx ;
-	outfmt(dy_logchn,dy_gtxecho,", last flip #%d, %s (%d)",lastflipcand,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    ", last flip #%d, %s (%d)",lastflipcand,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
       if (lastpivcand > 0)
       { j = incands[lastpivcand].ndx ;
-	outfmt(dy_logchn,dy_gtxecho,", last piv #%d, %s (%d)",lastpivcand,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
+	dyio_outfmt(dy_logchn,dy_gtxecho,", last piv #%d, %s (%d)",lastpivcand,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
       if (lastflipcand < 0 && lastpivcand < 0)
-      { outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
-      outchr(dy_logchn,dy_gtxecho,'.') ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", nothing") ; }
+      dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 #   endif
   }
 
@@ -1510,9 +1522,9 @@ dyret_enum dualmultiin (int i, int outdir,
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.pivoting >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n  (%s)%d: selecting entering variable, strategy %d",
-	   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters+1,dpstrat) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n  (%s)%d: selecting entering variable, strategy %d",
+	        dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters+1,dpstrat) ; }
 # endif
 # ifdef DYLP_STATISTICS
   if (dy_stats != NULL) dy_stats->dmulti.cnt++ ;
@@ -1671,11 +1683,11 @@ dyret_enum dualmultiin (int i, int outdir,
 	infj += candk->flip.inf ;
       else
 	infj += candk->piv.inf ; }
-    outfmt(dy_logchn,dy_gtxecho,
-	   "\n  selected %s #%d, %s (%d), est. maxinf =  %g, totinf = %g",
-	   (flipOnly == TRUE)?"flip":"pivot",
-	   bestcand,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-	   bestinf,infj) ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n  selected %s #%d, %s (%d), est. maxinf =  %g, totinf = %g",
+	        (flipOnly == TRUE)?"flip":"pivot",
+	        bestcand,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+	        bestinf,infj) ; }
 # endif
 /*
   # ifdef PARANOIA
@@ -1738,16 +1750,17 @@ dyret_enum dualmultiin (int i, int outdir,
       { 
 #	ifndef DYLP_NDEBUG
 	if (dy_opts->print.pivoting >= 3)
-	{ outfmt(dy_logchn,dy_gtxecho,"\n\tpassing reverse %s (%d) %s = %g.",
-		 consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-		 dy_prtvstat(statj),dy_x[j]) ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "\n\tpassing reverse %s (%d) %s = %g.",
+		      consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		      dy_prtvstat(statj),dy_x[j]) ; }
 #	endif
 	continue ; }
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pivoting >= 3)
-      { outfmt(dy_logchn,dy_gtxecho,"\n\tflipping %s (%d) %s = %g to ",
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-	       dy_prtvstat(statj),dy_x[j]) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\tflipping %s (%d) %s = %g to ",
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		    dy_prtvstat(statj),dy_x[j]) ; }
 #     endif
       comflg(statj,vstatNBUB|vstatNBLB) ;
       if (flgon(statj,vstatNBLB))
@@ -1758,8 +1771,8 @@ dyret_enum dualmultiin (int i, int outdir,
       dy_x[j] = xj ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pivoting >= 3)
-      { outfmt(dy_logchn,dy_gtxecho,"%s = %g.",
-	       dy_prtvstat(dy_status[j]),dy_x[j]) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"%s = %g.",
+		    dy_prtvstat(dy_status[j]),dy_x[j]) ; }
 #     endif
 #     ifdef DYLP_STATISTICS
       if (dy_stats != NULL) dy_stats->dmulti.flips++ ;
@@ -1806,10 +1819,10 @@ dyret_enum dualmultiin (int i, int outdir,
     { flipOnly = TRUE ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pivoting >= 1)
-      { outfmt(dy_logchn,dy_gtxecho,
-	       "\n  whoa! %s (%d) = %g %s after flips; cancelling pivot.",
-	       consys_nme(dy_sys,'v',i,FALSE,NULL),i,dy_x[i],
-	       dy_prtvstat(dy_status[i])) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n  whoa! %s (%d) = %g %s after flips; cancelling pivot.",
+		    consys_nme(dy_sys,'v',i,FALSE,NULL),i,dy_x[i],
+		    dy_prtvstat(dy_status[i])) ; }
 #     endif
     }
     if (retval == dyrFATAL)

@@ -232,11 +232,11 @@ static int scanPrimVarDualInfeas (fdcand_struct **p_fdcands)
 	  fdcands[purgecnt].delta = lbj-ubj ; } }
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 3)
-      { outfmt(dy_logchn,dy_gtxecho,
-	       "\n      queuing %s (%d) for %s, %s, cbar<%d> = %g",
-	       consys_nme(dy_sys,'v',j,TRUE,NULL),j,
-	       (fdcands[purgecnt].flippable == TRUE)?"flip":"deactivation",
-	       dy_prtvstat(statj),j,cbarj) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n      queuing %s (%d) for %s, %s, cbar<%d> = %g",
+		    consys_nme(dy_sys,'v',j,TRUE,NULL),j,
+		    (fdcands[purgecnt].flippable == TRUE)?"flip":"deactivation",
+		    dy_prtvstat(statj),j,cbarj) ; }
 #     endif
     } }
 /*
@@ -257,9 +257,9 @@ static int scanPrimVarDualInfeas (fdcand_struct **p_fdcands)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n    queued %d variables, %d deactivate, %d flip.",
-	   purgecnt,purgecnt-flipcnt,flipcnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n    queued %d variables, %d deactivate, %d flip.",
+	        purgecnt,purgecnt-flipcnt,flipcnt) ; }
 # endif
 
   return (purgecnt) ; }
@@ -431,8 +431,8 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
     { varcnt++ ; 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-      { outfmt(dy_logchn,dy_gtxecho,"\n    flipping variable %s (%d)",
-	       consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    flipping variable %s (%d)",
+		    consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; }
 #     endif
       upd_retval = dy_updateprimals(j,candidates[ndx].delta,NULL) ;
       if (upd_retval == dyrFATAL)
@@ -453,8 +453,8 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
     { varcnt++ ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-      { outfmt(dy_logchn,dy_gtxecho,"\n    deactivating variable %s (%d)",
-	       consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    deactivating variable %s (%d)",
+		    consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; }
 #     endif
       retval = dy_deactNBPrimArch(orig_sys,j) ;
       if (retval == FALSE)
@@ -473,8 +473,9 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
     { concnt++ ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-      { outfmt(dy_logchn,dy_gtxecho,"\n    deactivating constraint %s (%d)",
-	       consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n    deactivating constraint %s (%d)",
+		    consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; }
 #     endif
       retval = dy_deactNBLogPrimCon(orig_sys,j) ;
       if (retval == FALSE)
@@ -490,12 +491,13 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 1)
-  { if (dy_opts->print.force >= 2) outfmt(dy_logchn,dy_gtxecho,"\n    ") ;
-    outfmt(dy_logchn,dy_gtxecho," %d+%d deletions.",concnt,varcnt) ;
-    outfmt(dy_logchn,dy_gtxecho,
-	   "\n  constraint system %s now %d x %d (%d + %d).",
-	   dy_sys->nme,dy_sys->concnt,dy_sys->varcnt,dy_sys->archvcnt,
-	   dy_sys->logvcnt) ; }
+  { if (dy_opts->print.force >= 2)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    ") ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho," %d+%d deletions.",concnt,varcnt) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n  constraint system %s now %d x %d (%d + %d).",
+		dy_sys->nme,dy_sys->concnt,dy_sys->varcnt,dy_sys->archvcnt,
+		dy_sys->logvcnt) ; }
 # endif
 
 # ifdef PARANOIA
@@ -509,8 +511,8 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 */
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n      factoring, checking accuracy and feasibility ...") ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n      factoring, checking accuracy and feasibility ...") ; }
 # endif
   calcflgs = ladFACTOR|ladPRIMALCHK|ladDUALCHK|
 	     ladPRIMFEAS|ladPFQUIET|ladDUALFEAS|ladDFQUIET ;
@@ -522,23 +524,23 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
       { if (factorresult == dyrOK)
-	  outfmt(dy_logchn,dy_gtxecho,"\n    done.") ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n    done.") ;
 	else
-	  outfmt(dy_logchn,dy_gtxecho,"\n    patched.") ;
-	outfmt(dy_logchn,dy_gtxecho," Feasibility:") ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n    patched.") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," Feasibility:") ;
 	if (flgoff(calcflgs,ladPRIMFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," primal") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," primal") ; }
 	if (flgoff(calcflgs,ladDUALFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," dual") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," dual") ; }
 	if (flgall(calcflgs,ladPRIMFEAS|ladDUALFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," none") ; } }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," none") ; } }
 #     endif
       break ; }
     default:
     { next_phase = dyINV ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-	outfmt(dy_logchn,dy_gtxecho,"\n    failed.") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"\n    failed.") ;
 #     endif
       break ; } }
 
@@ -603,9 +605,9 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,"\n   next phase %s, next simplex %s.",
-	   dy_prtlpphase(next_phase,FALSE),
-	   dy_prtlpphase(dy_lp->simplex.next,FALSE)) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n   next phase %s, next simplex %s.",
+	        dy_prtlpphase(next_phase,FALSE),
+	        dy_prtlpphase(dy_lp->simplex.next,FALSE)) ; }
 # endif
 
   return (next_phase) ; }
@@ -663,20 +665,20 @@ static int scanPrimConForceDeact (int **p_acndxs)
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 3)
       { if (j <= m)
-	{ outfmt(dy_logchn,dy_gtxecho,
-		 "\n    queued %s %s (%d) for deactivation, ",
-		 consys_prtcontyp(dy_sys->ctyp[j]),
-		 consys_nme(dy_sys,'c',j,TRUE,NULL),j) ;
-	  outfmt(dy_logchn,dy_gtxecho,
-		 "%s (%d) = %g, status %s, basis pos'n %d.",
-		 consys_nme(dy_sys,'v',j,TRUE,NULL),j,
-		 dy_x[j],dy_prtvstat(statj),bpos) ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "\n    queued %s %s (%d) for deactivation, ",
+		      consys_prtcontyp(dy_sys->ctyp[j]),
+		      consys_nme(dy_sys,'c',j,TRUE,NULL),j) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "%s (%d) = %g, status %s, basis pos'n %d.",
+		      consys_nme(dy_sys,'v',j,TRUE,NULL),j,
+		      dy_x[j],dy_prtvstat(statj),bpos) ; }
 	else
-	{ outfmt(dy_logchn,dy_gtxecho,
-		 "\n    queued %s (%d) = %g for deactivation, ",
-		 consys_nme(dy_sys,'v',j,TRUE,NULL),j,dy_x[j]) ;
-	  outfmt(dy_logchn,dy_gtxecho,"status %s, basis pos'n %d.",
-		 dy_prtvstat(statj),bpos) ; } }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "\n    queued %s (%d) = %g for deactivation, ",
+		      consys_nme(dy_sys,'v',j,TRUE,NULL),j,dy_x[j]) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"status %s, basis pos'n %d.",
+		      dy_prtvstat(statj),bpos) ; } }
 #     endif
 
     } }
@@ -689,8 +691,8 @@ static int scanPrimConForceDeact (int **p_acndxs)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n    queued %d constraints for deactivation.",purgecnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n    queued %d constraints for deactivation.",purgecnt) ; }
 # endif
 
   return (purgecnt) ; }
@@ -819,8 +821,9 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
     { concnt++ ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-      { outfmt(dy_logchn,dy_gtxecho,"\n    deactivating constraint %s (%d)",
-	       consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n    deactivating constraint %s (%d)",
+		    consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; }
 #     endif
       retval = dy_deactBLogPrimCon(orig_sys,j) ;
       if (retval == FALSE)
@@ -837,8 +840,8 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
     { varcnt++ ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-      { outfmt(dy_logchn,dy_gtxecho,"\n    deactivating variable %s (%d)",
-	       consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    deactivating variable %s (%d)",
+		    consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; }
 #     endif
       retval = dy_deactBPrimArch(orig_sys,j) ;
       if (retval == FALSE)
@@ -854,12 +857,13 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 1)
-  { if (dy_opts->print.conmgmt >= 2) outfmt(dy_logchn,dy_gtxecho,"\n    ") ;
-    outfmt(dy_logchn,dy_gtxecho," %d+%d deletions.",concnt,varcnt) ;
-    outfmt(dy_logchn,dy_gtxecho,
-	   "\n  constraint system %s now %d x %d (%d + %d).",
-	   dy_sys->nme,dy_sys->concnt,dy_sys->varcnt,dy_sys->archvcnt,
-	   dy_sys->logvcnt) ; }
+  { if (dy_opts->print.conmgmt >= 2)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    ") ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho," %d+%d deletions.",concnt,varcnt) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n  constraint system %s now %d x %d (%d + %d).",
+		dy_sys->nme,dy_sys->concnt,dy_sys->varcnt,dy_sys->archvcnt,
+		dy_sys->logvcnt) ; }
 # endif
 
 # ifdef PARANOIA
@@ -873,8 +877,8 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 */
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n      factoring, checking accuracy and feasibility.") ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n      factoring, checking accuracy and feasibility.") ; }
 # endif
   calcflgs = ladFACTOR|ladPRIMALCHK|ladDUALCHK|
 	     ladPRIMFEAS|ladPFQUIET|ladDUALFEAS|ladDFQUIET ;
@@ -886,23 +890,23 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
       { if (factorresult == dyrOK)
-	  outfmt(dy_logchn,dy_gtxecho,"\n    done.") ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n    done.") ;
 	else
-	  outfmt(dy_logchn,dy_gtxecho,"\n    patched.") ;
-	outfmt(dy_logchn,dy_gtxecho," Feasibility:") ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n    patched.") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," Feasibility:") ;
 	if (flgoff(calcflgs,ladPRIMFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," primal") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," primal") ; }
 	if (flgoff(calcflgs,ladDUALFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," dual") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," dual") ; }
 	if (flgall(calcflgs,ladPRIMFEAS|ladDUALFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," none") ; } }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," none") ; } }
 #     endif
       break ; }
     default:
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-	outfmt(dy_logchn,dy_gtxecho,"\n    failed.") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"\n    failed.") ;
 #     endif
       return (dyINV) ; } }
 /*
@@ -942,9 +946,9 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,"\n   next phase %s, next simplex %s.",
-	   dy_prtlpphase(next_phase,FALSE),
-	   dy_prtlpphase(dy_lp->simplex.next,FALSE)) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n   next phase %s, next simplex %s.",
+	        dy_prtlpphase(next_phase,FALSE),
+	        dy_prtlpphase(dy_lp->simplex.next,FALSE)) ; }
 # endif
 
   return (next_phase) ; }
@@ -1008,9 +1012,9 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
     ovndxs[actcnt++] = j ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.force >= 3)
-    { outfmt(dy_logchn,dy_gtxecho,"\n    queued %s variable %s (%d),",
-	     consys_prtvartyp(orig_sys->vtyp[j]),
-	     consys_nme(orig_sys,'v',j,FALSE,NULL),j) ; }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    queued %s variable %s (%d),",
+		  consys_prtvartyp(orig_sys->vtyp[j]),
+		  consys_nme(orig_sys,'v',j,FALSE,NULL),j) ; }
 #   endif
   }
 /*
@@ -1024,8 +1028,8 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n  queued %d variables for activation.",actcnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n  queued %d variables for activation.",actcnt) ; }
 # endif
 
   return (actcnt) ; }
@@ -1083,9 +1087,9 @@ static int scanPrimConForceAct (consys_struct *orig_sys, int **p_ocndxs)
     ocndxs[actcnt++] = i ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.force >= 3)
-    { outfmt(dy_logchn,dy_gtxecho,"\n    queued %s constraint %s (%d),",
-	     consys_prtcontyp(orig_sys->ctyp[i]),
-	     consys_nme(orig_sys,'c',i,FALSE,NULL),i) ; }
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    queued %s constraint %s (%d),",
+		  consys_prtcontyp(orig_sys->ctyp[i]),
+		  consys_nme(orig_sys,'c',i,FALSE,NULL),i) ; }
 #   endif
      }
 /*
@@ -1099,8 +1103,8 @@ static int scanPrimConForceAct (consys_struct *orig_sys, int **p_ocndxs)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n  queued %d constraints for activation.",actcnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n  queued %d constraints for activation.",actcnt) ; }
 # endif
 
   return (actcnt) ; }
@@ -1185,11 +1189,11 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,"\n  %d+%d activations.",concnt,varcnt) ;
-    outfmt(dy_logchn,dy_gtxecho,
-	   "\n  constraint system %s now %d x %d (%d + %d).",
-	   dy_sys->nme,dy_sys->concnt,dy_sys->varcnt,dy_sys->archvcnt,
-	   dy_sys->logvcnt) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  %d+%d activations.",concnt,varcnt) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n  constraint system %s now %d x %d (%d + %d).",
+	        dy_sys->nme,dy_sys->concnt,dy_sys->varcnt,dy_sys->archvcnt,
+	        dy_sys->logvcnt) ; }
 # endif
 
 /*
@@ -1198,8 +1202,8 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
 */
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 2)
-  { outfmt(dy_logchn,dy_gtxecho,
-	   "\n      factoring, checking accuracy and feasibility ...") ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	        "\n      factoring, checking accuracy and feasibility ...") ; }
 # endif
   calcflgs = ladFACTOR|ladPRIMALCHK|ladDUALCHK|
 	     ladPRIMFEAS|ladPFQUIET|ladDUALFEAS|ladDFQUIET ;
@@ -1211,23 +1215,23 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
       { if (factorresult == dyrOK)
-	  outfmt(dy_logchn,dy_gtxecho,"\n    done.") ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n    done.") ;
 	else
-	  outfmt(dy_logchn,dy_gtxecho,"\n    patched.") ;
-	outfmt(dy_logchn,dy_gtxecho," Feasibility:") ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n    patched.") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," Feasibility:") ;
 	if (flgoff(calcflgs,ladPRIMFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," primal") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," primal") ; }
 	if (flgoff(calcflgs,ladDUALFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," dual") ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," dual") ; }
 	if (flgall(calcflgs,ladPRIMFEAS|ladDUALFEAS))
-	{ outfmt(dy_logchn,dy_gtxecho," none") ; } }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," none") ; } }
 #     endif
       break ; }
     default:
     { next_phase = dyINV ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.force >= 2)
-	outfmt(dy_logchn,dy_gtxecho,"\n    failed.") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"\n    failed.") ;
 #     endif
       break ; } }
 /*
@@ -1251,9 +1255,9 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.force >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,"\n   next phase %s, next simplex %s.",
-	   dy_prtlpphase(next_phase,FALSE),
-	   dy_prtlpphase(dy_lp->simplex.next,FALSE)) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n   next phase %s, next simplex %s.",
+	        dy_prtlpphase(next_phase,FALSE),
+	        dy_prtlpphase(dy_lp->simplex.next,FALSE)) ; }
 # endif
 
   return (next_phase) ; }

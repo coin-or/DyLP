@@ -12,7 +12,7 @@ AUTOMAKE_OPTIONS = foreign
 #                          Subdirectories                              #
 ########################################################################
 
-SUBDIRS = src/DylpStdLib src/Dylp
+SUBDIRS = src/DylpStdLib src/Dylp examples
 
 ########################################################################
 #             Additional files to be included in tarball               #
@@ -21,7 +21,6 @@ SUBDIRS = src/DylpStdLib src/Dylp
 # Here we need include all files that are not mentioned in other Makefiles
 
 EXTRA_DIST = \
-	fpchecks.c \
 	doc/dylp.pdf \
 	doc/dylp.ps \
 	examples/generic.spc \

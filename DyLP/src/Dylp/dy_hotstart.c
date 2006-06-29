@@ -100,7 +100,7 @@ void dy_setfinalstatus (void)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.crash >= 2)
-    outfmt(dy_logchn,dy_gtxecho,"\n\testablishing final status ...") ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,"\n\testablishing final status ...") ;
 # endif
 
   dy_lp->infeas = 0.0 ;
@@ -155,21 +155,21 @@ void dy_setfinalstatus (void)
 	break ; } }
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.crash >= 4)
-    { outfmt(dy_logchn,dy_gtxecho,"\n\t  %s (%d) %s",
-	     consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,
-	     dy_prtvstat(dy_status[xkndx])) ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t  %s (%d) %s",
+		  consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,
+		  dy_prtvstat(dy_status[xkndx])) ;
       if (lbk > -dy_tols->inf)
-	outfmt(dy_logchn,dy_gtxecho,", lb = %g",lbk) ;
-      outfmt(dy_logchn,dy_gtxecho,", val = %g",xk) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,", lb = %g",lbk) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,", val = %g",xk) ;
       if (ubk < dy_tols->inf)
-	outfmt(dy_logchn,dy_gtxecho,", ub = %g",ubk) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,", ub = %g",ubk) ;
       if (flgon(dy_status[xkndx],vstatBLLB|vstatBUUB))
-      { outfmt(dy_logchn,dy_gtxecho,", infeasibility = ") ;
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", infeasibility = ") ;
 	if (flgon(dy_status[xkndx],vstatBLLB))
-	  outfmt(dy_logchn,dy_gtxecho,"%g",lbk-xk) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"%g",lbk-xk) ;
 	else
-	  outfmt(dy_logchn,dy_gtxecho,"%g",xk-ubk) ; }
-      outchr(dy_logchn,dy_gtxecho,'.') ; }
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"%g",xk-ubk) ; }
+      dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 #   endif
   }
   setcleanzero(dy_lp->infeas,dy_tols->zero) ;
@@ -318,19 +318,19 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.crash >= 4)
-  { outfmt(dy_logchn,dy_gtxecho,"\n\t  %s (%d) %s inactive with value ",
-	   consys_nme(orig_sys,'v',oxkndx,FALSE,NULL),oxkndx,
-	   dy_prtvstat(xkstatus)) ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t  %s (%d) %s inactive with value ",
+	        consys_nme(orig_sys,'v',oxkndx,FALSE,NULL),oxkndx,
+	        dy_prtvstat(xkstatus)) ;
     switch (xkstatus)
     { case vstatNBFX:
       case vstatNBLB:
-      { outfmt(dy_logchn,dy_gtxecho,"%g.",orig_sys->vlb[oxkndx]) ;
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"%g.",orig_sys->vlb[oxkndx]) ;
 	break ; }
       case vstatNBUB:
-      { outfmt(dy_logchn,dy_gtxecho,"%g.",orig_sys->vub[oxkndx]) ;
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"%g.",orig_sys->vub[oxkndx]) ;
 	break ; }
       default:
-      { outfmt(dy_logchn,dy_gtxecho,"??.") ;
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"??.") ;
 	break ; } } }
 # endif
 
@@ -448,13 +448,13 @@ static void process_active (lpprob_struct *orig_lp, int oxkndx)
 */
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.crash >= 4)
-  { outfmt(dy_logchn,dy_gtxecho,"\n\t  %s (%d) %s active",
-	   consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,
-	   dy_prtvstat(dy_status[xkndx])) ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t  %s (%d) %s active",
+		consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,
+		dy_prtvstat(dy_status[xkndx])) ;
     if (flgon(xkstatus,vstatNONBASIC|vstatNBFR))
-      outfmt(dy_logchn,dy_gtxecho," with value %g.",dy_x[xkndx]) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho," with value %g.",dy_x[xkndx]) ;
     else
-      outchr(dy_logchn,dy_gtxecho,'.') ; }
+      dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 # endif
 
   return ; }
@@ -517,7 +517,8 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
   {
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.crash >= 1)
-      outfmt(dy_logchn,dy_gtxecho,"\n  no data structure changes at hot start.") ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n  no data structure changes at hot start.") ;
 #   endif
     hot_updateMiscState(lpINV) ;
     return (dyrOK) ; }
@@ -526,18 +527,19 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
 */
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.crash >= 1)
-  { outfmt(dy_logchn,dy_gtxecho,"\n  updating data structures at hot start ...") ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n  updating data structures at hot start ...") ;
     if (dy_opts->print.crash >= 2)
-    { outfmt(dy_logchn,dy_gtxecho,"\n    scanning changes to") ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    scanning changes to") ;
       if (flgon(orig_lp->ctlopts,lpctlRHSCHG))
-	outfmt(dy_logchn,dy_gtxecho," rhs") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," rhs") ;
       if (flgon(orig_lp->ctlopts,lpctlLBNDCHG))
-	outfmt(dy_logchn,dy_gtxecho," vlb") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," vlb") ;
       if (flgon(orig_lp->ctlopts,lpctlUBNDCHG))
-	outfmt(dy_logchn,dy_gtxecho," vub") ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," vub") ;
       if (flgon(orig_lp->ctlopts,lpctlOBJCHG))
-	outfmt(dy_logchn,dy_gtxecho," obj") ;
-      outfmt(dy_logchn,dy_gtxecho," ...") ; } }
+	dyio_outfmt(dy_logchn,dy_gtxecho," obj") ;
+      dyio_outfmt(dy_logchn,dy_gtxecho," ...") ; } }
 #   endif
 
 /*
@@ -597,13 +599,14 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.setup >= 3)
-      { outfmt(dy_logchn,dy_gtxecho,"\n\tForcing equal bound %g for %s (%d)",
-	       (ogvlb[oxkndx]+ogvub[oxkndx])/2,
-	       consys_nme(orig_sys,'v',oxkndx,0,0),oxkndx) ;
-	outfmt(dy_logchn,dy_gtxecho,
-	       "\n\t  original lb = %g, ub = %g, diff = %g, tol = %g",
-	       ogvlb[oxkndx],ogvub[oxkndx],ogvub[oxkndx]-ogvlb[oxkndx],
-	       dy_tols->pfeas) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\tForcing equal bound %g for %s (%d)",
+		    (ogvlb[oxkndx]+ogvub[oxkndx])/2,
+		    consys_nme(orig_sys,'v',oxkndx,0,0),oxkndx) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\t  original lb = %g, ub = %g, diff = %g, tol = %g",
+		    ogvlb[oxkndx],ogvub[oxkndx],ogvub[oxkndx]-ogvlb[oxkndx],
+		    dy_tols->pfeas) ; }
 #     endif
       ogvlb[oxkndx] = (ogvlb[oxkndx]+ogvub[oxkndx])/2 ;
       ogvub[oxkndx] = ogvlb[oxkndx] ; }
@@ -611,10 +614,10 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
     { lpret = lpINFEAS ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.setup >= 1)
-      { outfmt(dy_logchn,dy_gtxecho,
-	       "\n\tTrivial infeasibility for %s (%d), lb = %g > ub = %g.",
-	       consys_nme(orig_sys,'v',oxkndx,0,0),oxkndx,
-	       ogvlb[oxkndx],ogvub[oxkndx]) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		 "\n\tTrivial infeasibility for %s (%d), lb = %g > ub = %g.",
+		 consys_nme(orig_sys,'v',oxkndx,0,0),oxkndx,
+		 ogvlb[oxkndx],ogvub[oxkndx]) ; }
 #     endif
     }
 /*

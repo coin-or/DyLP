@@ -1659,7 +1659,7 @@ bool consys_addcol_pk (consys_struct *consys,
   colndx = consys->varcnt+1 ;
   pkcol->ndx = colndx ;
   if (pkcol->nme == NULL)
-  { outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"var<%d>",colndx) ;
+  { dyio_outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"var<%d>",colndx) ;
     pkcol->nme = nmebuf ; }
 # ifdef PARANOIA
 /*
@@ -1831,7 +1831,7 @@ bool consys_addcol_ex (consys_struct *consys,
   colndx = consys->varcnt+1 ;
   excol[0] = colndx ;
   if (nme == NULL)
-  { outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"var<%d>",colndx) ;
+  { dyio_outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"var<%d>",colndx) ;
     *nme = nmebuf ; }
   if (flgon(consys->opts,CONSYS_LVARS))
     avail = consys->colsze-consys->rowsze ;
@@ -2004,8 +2004,8 @@ bool consys_addrow_pk (consys_struct *consys, char class,
     rowndx = consys->concnt+1 ;
   pkrow->ndx = rowndx ;
   if (pkrow->nme == NULL)
-  { outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"%s<%d>",
-	   (class == 'a')?"con":"cut",rowndx) ;
+  { dyio_outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"%s<%d>",
+	        (class == 'a')?"con":"cut",rowndx) ;
     pkrow->nme = nmebuf ; }
 # ifdef PARANOIA
 /*

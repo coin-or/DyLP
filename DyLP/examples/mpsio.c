@@ -206,11 +206,11 @@ static lex_struct *getmpsline (ioid mpschn)
   Returns: a pointer to a lex_struct; on normal return, the type will be LCQS;
 	   other possibilities are LCEOF (end-of-file) and LCERR (i/o error)
 
-  NOTE: The lex_struct returned by getmpsline is owned by scanstr. The string
-	buffer it contains is allocated by scanstr and will be freed by scanstr
-	on the next call unless lex.string is set to NULL. The mps input
-	routines make copies of the pieces they need and allow scanstr to
-	handle allocating and freeing the buffer.
+  NOTE: The lex_struct returned by getmpsline is owned by dyio_scanstr. The
+	string buffer it contains is allocated by scanstr and will be freed
+	by scanstr on the next call unless lex.string is set to NULL. The mps
+	input routines make copies of the pieces they need and allow scanstr
+	to handle allocating and freeing the buffer.
 */
 
 { lex_struct *lex ;
@@ -219,13 +219,13 @@ static lex_struct *getmpsline (ioid mpschn)
 
 /*
   Fire up a loop to read lines. A line that's all white space will come back
-  from scanstr as LCNIL. If there's something in the line, check for comments.
-  If there's still a line left after peeling off the comment, we've got
-  something.
+  from dyio_scanstr as LCNIL. If there's something in the line, check for
+  comments.  If there's still a line left after peeling off the comment,
+  we've got something.
 */
   empty = TRUE ;
   while (empty == TRUE)
-  { lex = scanstr(mpschn,LCQS,0,'\0','\n') ;
+  { lex = dyio_scanstr(mpschn,LCQS,0,'\0','\n') ;
     if (lex->class == LCEOF || lex->class == LCERR) break ;
     if (lex->class == LCNIL) continue ;
 /*
@@ -1283,7 +1283,7 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
   constraint. We convert all >= constraints to <= constraints (this results
   in considerable simplification at various places further along in the
   code).  Finally, we free the hash tables and the string buffer used by
-  scanstr.
+  dyio_scanstr.
 
   Parameters:
     consys:	(i) complete constraint system
@@ -1456,9 +1456,9 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
       (void) FREE((char *) entry) ; }
   (void) FREE((char *) varhash) ;
 /*
-  Clean up after scanstr.
+  Clean up after dyio_scanstr.
 */
-  lex = scanstr(mpschn,LCQS,0,'\0','\0') ;
+  lex = dyio_scanstr(mpschn,LCQS,0,'\0','\0') ;
   if (lex->class == LCQS && lex->string != NULL)
   { FREE(lex->string) ;
     lex->string = NULL ; }
@@ -1597,7 +1597,7 @@ bool mpsin (const char *mpspath, consys_struct **consys,
 /*
   Open the MPS input file. 
 */
-  mpschn = openfile(mpspath,"r") ;
+  mpschn = dyio_openfile(mpspath,"r") ;
   if (mpschn == IOID_INV) return (FALSE) ;
 /*
   The main state machine for working through the file. Legal transitions are
@@ -1637,7 +1637,7 @@ bool mpsin (const char *mpspath, consys_struct **consys,
 	break ; }
       case mpsinENDDATA:
       { nxtstate = mpsin_enddata(mpschn,*consys,mipopts) ;
-	(void) closefile(mpschn) ;
+	(void) dyio_closefile(mpschn) ;
 	if (nxtstate == mpsinENDDATA)
 	{ if (mipopts->objnme == NULL)
 	    mipopts->objnme = STRALLOC((*consys)->objnme) ;

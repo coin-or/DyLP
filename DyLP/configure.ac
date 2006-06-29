@@ -76,30 +76,32 @@ AC_DYLP_EQUIV_FOR_CPP_BOOL
 
 # The floating point functions we'll be looking for seem to live in one of
 # the following headers: math.h, ieeefp.h, float.h, and sunmath.h. Check
-# for presence. We'll use the results to limit the work below. 
+# for presence. We'll use the results to limit the work below. The coin
+# macro COIN_PROJECTDIR_INIT should deal with presence/absence of -lm
+# (for libmath) in ADDLIBS. Don't overrule it here.
 
 AC_CHECK_HEADER([math.h],
     [AC_DEFINE([HAVE_MATH_H],[1],[Define to 1 if math.h exists.])
      fp_header_list="math.h" 
-     AC_C_ADD_TO_INCLUDES([math.h])
-     LIBS="-lm $LIBS"],
+     AC_C_ADD_TO_INCLUDES([math.h])],
     [AC_MSG_WARN([It appears that math.h is missing.])
      AC_MSG_WARN([There is no hope of building dylp on this system.])])
 AC_CHECK_HEADER([ieeefp.h],
-    [AC_DEFINE([HAVE_IEEEFP_H],[1],[Define to 1 if math.h exists.])
+    [AC_DEFINE([HAVE_IEEEFP_H],[1],[Define to 1 if ieeefp.h exists.])
      fp_header_list="ieeefp.h $fp_header_list"
      AC_C_ADD_TO_INCLUDES([ieeefp.h])],
     [])
 AC_CHECK_HEADER([float.h],
-    [AC_DEFINE([HAVE_FLOAT_H],[1],[Define to 1 if math.h exists.])
+    [AC_DEFINE([HAVE_FLOAT_H],[1],[Define to 1 if float.h exists.])
      fp_header_list="float.h $fp_header_list"
      AC_C_ADD_TO_INCLUDES([float.h])],
     [])
 AC_CHECK_HEADER([sunmath.h],
-    [AC_DEFINE([HAVE_SUNMATH_H],[1],[Define to 1 if math.h exists.])
+    [AC_DEFINE([HAVE_SUNMATH_H],[1],[Define to 1 if sunmath.h exists.])
      fp_header_list="sunmath.h $fp_header_list"
      AC_C_ADD_TO_INCLUDES([sunmath.h])
-     LIBS="-lsunmath $LIBS"],
+     LIBS="-lsunmath $LIBS"
+     ADDLIBS="-lsunmath $ADDLIBS"],
     [])
 
 AC_MSG_NOTICE([Found floating point header files $fp_header_list.])

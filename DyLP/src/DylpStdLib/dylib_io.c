@@ -50,9 +50,10 @@ static char svnid[] UNUSED = "$Id$" ;
 
 
 /*
-  These declarations are used only by outfmt_, the version of outfmt that's
-  designed to be called from Fortran. Unless you're the proud possessor of
-  some ancient LP software, you likely don't want to know about xmp.h.
+  These declarations are used only by dyio_outfmt_, the version of dyio_outfmt
+  that's designed to be called from Fortran. Unless you're the proud
+  possessor of some ancient LP software, you likely don't want to know about
+  xmp.h.
 */
 
 #ifdef _DYLIB_FORTRAN
@@ -71,12 +72,13 @@ static char svnid[] UNUSED = "$Id$" ;
   The structure filblks keeps track of open files. In addition to the FILE
   structure, a filblks entry stores the channel modes and the full path
   (directory path plus file name) of the file. The i/o id used by the client
-  is the index in this array. The size of this array is set in ioinit to be 2
-  less than the number of file descriptors available to the process.  The -2
-  accounts for two files used in the error reporting/logging package (the
-  error message text file, and the error message log file). They are handled
-  without reference to this package to allow these routines to use the error
-  reporting/logging package without creating a potential infinite recursion.
+  is the index in this array. The size of this array is set in dyio_ioinit
+  to be 2 less than the number of file descriptors available to the process.
+  The -2 accounts for two files used in the error reporting/logging package
+  (the error message text file, and the error message log file). They are
+  handled without reference to this package to allow these routines to use
+  the error reporting/logging package without creating a potential infinite
+  recursion.
 
   Field		Content
   -----		-------
@@ -311,7 +313,7 @@ static lex_struct lex_eof = {LCEOF,"end-of-file"},
  
 
 
-bool ioinit (void)
+bool dyio_ioinit (void)
 
 /*
   This routine initialises the i/o data structures. It should be called only
@@ -321,11 +323,11 @@ bool ioinit (void)
     table and acquire space for filblks. The first three entries are set up
     for stdin, stdout, and stderr, the streams opened by default under Unix.
 
-  * A possible fourth entry is made if the user has opened an error log file.
-    We need this entry here so that a later call to openfile can find it (the
-    particular case of interest would be a desire to log normal and error
-    messages to the same file). To maintain information hiding, there is a
-    routine, errlogq, which returns the required information.
+  * A possible fourth entry is made if the user has opened an error log
+    file.  We need this entry here so that a later call to dyio_openfile can
+    find it (the particular case of interest would be a desire to log normal
+    and error messages to the same file). To maintain information hiding,
+    there is a routine, errlogq, which returns the required information.
 
   Parameters:
     errlogpath:	the path name of the error log file; used only if errlogq
@@ -337,7 +339,7 @@ bool ioinit (void)
 { int len ;
   filblk_struct *filblk ;
   char *fname,*errlogpath,*tmp ;
-  const char *rtnnme = "ioinit" ;
+  const char *rtnnme = "dyio_ioinit" ;
 
   extern FILE *errlogq(char **elogpath) ;
 
@@ -398,7 +400,7 @@ bool ioinit (void)
   return(TRUE) ; }
 
 
-void ioterm (void)
+void dyio_ioterm (void)
 
 /*
   This routine cleans up file management data structures allocated by the
@@ -412,7 +414,7 @@ void ioterm (void)
 { int id ;
 
 /*
-  Data structures allocated by ioinit to track open files.
+  Data structures allocated by dyio_ioinit to track open files.
 */
   for (id = 4 ; id <= maxfiles ; id++)
   { if (filblks[id].dname != NULL) FREE(filblks[id].dname) ;
@@ -509,7 +511,7 @@ static bool setrwmode (filblk_struct *filblk, char *mode)
 
 
 
-bool DyLPsetmode (ioid id, char mode)
+bool dyio_setmode (ioid id, char mode)
 
 /*
   This routine is provided as an information-hiding function so that the
@@ -523,7 +525,7 @@ bool DyLPsetmode (ioid id, char mode)
 */
 
 { filblk_struct *filblk ;
-  const char *rtnnme = "DyLPsetmode" ;
+  const char *rtnnme = "dyio_setmode" ;
 /*
   Check to make sure the stream ID is OK.
 */
@@ -535,7 +537,7 @@ bool DyLPsetmode (ioid id, char mode)
   { errmsg(15,rtnnme,id) ;
     return (FALSE) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,idtopath(id)) ;
+  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (FALSE) ; }
 /*
   Now set the mode.
@@ -559,7 +561,7 @@ bool DyLPsetmode (ioid id, char mode)
 
 
 
-const char *idtopath (ioid id)
+const char *dyio_idtopath (ioid id)
 
 /*
   This routine returns the file name associated with the specified stream.
@@ -574,7 +576,7 @@ const char *idtopath (ioid id)
 { static char fullpath[MAXPATH] ;
   static const char *badid = "!invalid id!" ;
   filblk_struct *filblk ;
-  const char *rtnnme = "idtopath" ;
+  const char *rtnnme = "dyio_idtopath" ;
 /*
   Check to make sure the stream ID is OK.
 */
@@ -598,7 +600,7 @@ const char *idtopath (ioid id)
 
 
 
-ioid pathtoid (const char *path, const char *mode)
+ioid dyio_pathtoid (const char *path, const char *mode)
 
 /*
   This routine searches the filblks array and returns the stream ID associated
@@ -616,7 +618,7 @@ ioid pathtoid (const char *path, const char *mode)
 { const char *fname ;
   int ndx,dlen ;
   filblk_struct *filblk ;
-  const char *rtnnme = "pathtoid" ;
+  const char *rtnnme = "dyio_pathtoid" ;
 
   if (path == NULL)
   { errmsg(2,rtnnme,"path") ;
@@ -646,7 +648,7 @@ ioid pathtoid (const char *path, const char *mode)
 
 
 
-bool ttyq (ioid id)
+bool dyio_ttyq (ioid id)
 
 /*
   This routine answers the question of whether or not the stream specified by
@@ -663,7 +665,7 @@ bool ttyq (ioid id)
 */
 
 { filblk_struct *filblk ;
-  const char *rtnnme = "ttyq" ;
+  const char *rtnnme = "dyio_ttyq" ;
 
   extern int isatty(int fildes) ;
   /*extern int fileno(FILE *stream) ;*/
@@ -688,14 +690,14 @@ bool ttyq (ioid id)
 
 
 
-ioid openfile (const char *path, const char *mode)
+ioid dyio_openfile (const char *path, const char *mode)
 
 /*
   This routine sets up the file specified in path for i/o. It acts as the
   interface between the client and the C stdio library. The major differences
   from the standard fopen function are
   
-    1): openfile looks to see if the specified file is already opened with
+    1): dyio_openfile looks to see if the specified file is already opened with
 	compatible r/w mode (see below for 'compatible') and if so it returns
 	the ID for the preexisting stream, with no further actions.
     2): Six additional modes "R","R+","W","W+","A","A+" are provided to
@@ -725,7 +727,7 @@ ioid openfile (const char *path, const char *mode)
   int len ;
   ioid id ;
   bool mustexist,totop ;
-  const char *rtnnme = "openfile" ;
+  const char *rtnnme = "dyio_openfile" ;
 /*
   Make sure the parameters are ok.
 */
@@ -780,12 +782,12 @@ ioid openfile (const char *path, const char *mode)
 
 /*
   First check if the file is already open with compatible (lower case
-  equivalent) mode. Note that pathtoid() checks modes. If the file is
+  equivalent) mode. Note that dyio_pathtoid() checks modes. If the file is
   already open, return with the stream id. If additionally the rewind
   flag totop is true, take appropriate action. The rewind flag and/or
   uppercase mode mean nothing if the file is not already open.
 */
-  id = pathtoid(path,mode_var) ; 
+  id = dyio_pathtoid(path,mode_var) ; 
   if (id != IOID_INV)
   { if (totop == TRUE) 
     { switch (mode_var[0])
@@ -796,7 +798,7 @@ ioid openfile (const char *path, const char *mode)
 	{ fclose(filblks[id].stream) ;
 	  filblks[id].stream = fopen(path,mode_var) ; 
 	  if (filblks[id].stream == NULL) 
-	  { errmsg(10,rtnnme,idtopath(id),mode_var) ;
+	  { errmsg(10,rtnnme,dyio_idtopath(id),mode_var) ;
 	    perror(rtnnme) ;
 	    return (IOID_INV) ; }
 	  break ; }
@@ -852,18 +854,18 @@ ioid openfile (const char *path, const char *mode)
 
 
 
-bool isactive (ioid id)
+bool dyio_isactive (ioid id)
 
 /*
   This routine checks to see if id corresponds to an active stream.
 
   Parameter:
-    id: stream ID obtained from openfile
+    id: stream ID obtained from dyio_openfile
   
   Returns: TRUE if the stream is active, FALSE otherwise
 */
 
-{ const char *rtnnme = "isactive" ;
+{ const char *rtnnme = "dyio_isactive" ;
 /*
   We'll still complain if the id isn't valid.
 */
@@ -877,21 +879,21 @@ bool isactive (ioid id)
 
 
 
-bool closefile (ioid id)
+bool dyio_closefile (ioid id)
 
 /*
   This routine closes a stream and cleans up the filblks entry, iff the
   reference count for the stream has dropped to 0.
 
   Parameter:
-    id:	stream ID obtained from openfile
+    id:	stream ID obtained from dyio_openfile
 
   Returns: TRUE if the stream is closed without error, FALSE otherwise.
 */
 
 { filblk_struct *filblk ;
   bool retval ;
-  const char *rtnnme = "closefile" ;
+  const char *rtnnme = "dyio_closefile" ;
 /*
   Make sure the id is valid.
 */
@@ -911,7 +913,7 @@ bool closefile (ioid id)
   Reference count is 0, so close the stream.
 */
   if (fclose(filblk->stream) == EOF)
-  { errmsg(11,rtnnme,idtopath(id)) ;
+  { errmsg(11,rtnnme,dyio_idtopath(id)) ;
     perror(rtnnme) ;
     retval = FALSE ; }
   else
@@ -919,7 +921,7 @@ bool closefile (ioid id)
 /*
   Mark the filblk entry as inactive and free the directory path and file
   name space. We can close the three standard streams (stdin, stdout, stderr)
-  but the name strings are static (vid. ioinit) and should not be freed.
+  but the name strings are static (vid. dyio_ioinit) and should not be freed.
 */
   clrflg(filblk->modes,io_active) ;
   if (id > 3)
@@ -933,7 +935,7 @@ bool closefile (ioid id)
 
 
 
-bool chgerrlog (const char *newerrpath, bool echo)
+bool dyio_chgerrlog (const char *newerrpath, bool echo)
 
 /*
   This routine allows for manipulation of the error logging channel via the
@@ -959,7 +961,7 @@ bool chgerrlog (const char *newerrpath, bool echo)
   char *olderrpath ;
   FILE *newerrchn ;
 
-  const char *rtnnme = "chgerrlog" ;
+  const char *rtnnme = "dyio_chgerrlog" ;
 
   extern FILE *errlogq(char **elogpath) ;
   extern bool reseterrlogchn(const char *elogpath, FILE *elogchn,
@@ -982,7 +984,7 @@ bool chgerrlog (const char *newerrpath, bool echo)
   { close = FALSE ;
     olderrid = IOID_INV ; }
   else
-  { olderrid = pathtoid(olderrpath,NULL) ;
+  { olderrid = dyio_pathtoid(olderrpath,NULL) ;
     if (olderrid == IOID_INV)
     { close = TRUE ; }
     else
@@ -990,9 +992,9 @@ bool chgerrlog (const char *newerrpath, bool echo)
 /*
   Now see if the new file is already open. If not, open it.
 */
-  newerrid = pathtoid(newerrpath,"w") ;
+  newerrid = dyio_pathtoid(newerrpath,"w") ;
   if (newerrid == IOID_INV)
-  { newerrid = openfile(newerrpath,"w") ;
+  { newerrid = dyio_openfile(newerrpath,"w") ;
     if (newerrid == IOID_INV)
     { errmsg(10,rtnnme,newerrpath,"w") ;
       return (FALSE) ; } }
@@ -1005,15 +1007,15 @@ bool chgerrlog (const char *newerrpath, bool echo)
   { errmsg(18,rtnnme,olderrpath,newerrpath) ;
     return (FALSE) ; }
 /*
-  Did we have a record for this file? If so, call closefile to tidy up.
+  Did we have a record for this file? If so, call dyio_closefile to tidy up.
 */
-  if (olderrid != IOID_INV) (void) closefile(olderrid) ;
+  if (olderrid != IOID_INV) (void) dyio_closefile(olderrid) ;
   
   return (TRUE) ; }
 
 
 
-long mark (ioid id)
+long dyio_mark (ioid id)
 
 /*
   This routine marks the current place in the input stream. It uses ftell to
@@ -1021,14 +1023,14 @@ long mark (ioid id)
   positive integer, at least on Unix, so the error return here is -1.
 
   Parameter:
-    id: Stream ID from openfile.
+    id: Stream ID from dyio_openfile.
 
   Returns: A "mark", or -1 in the event of any bogosity.
 */
 
 { filblk_struct *filblk ;
   long here ;
-  const char *rtnnme = "mark" ;
+  const char *rtnnme = "dyio_mark" ;
 /*
   Check to make sure the stream ID is OK.
 */
@@ -1044,28 +1046,28 @@ long mark (ioid id)
 */
   here = ftell(filblk->stream) ;
   if (here < 0)
-  { errmsg(23,rtnnme,idtopath(id)) ;
+  { errmsg(23,rtnnme,dyio_idtopath(id)) ;
     perror(rtnnme) ; }
 
   return (here) ; }
 
 
 
-bool backup (ioid id, long there)
+bool dyio_backup (ioid id, long there)
 
 /*
   This routine moves the position of the next i/o operation on this stream to
   there.
 
   Parameters:
-    id:		Stream ID from openfile.
-    there:	Mark supplied by mark.
+    id:		Stream ID from dyio_openfile.
+    there:	Mark supplied by dyio_mark.
 
   Returns: TRUE if the position is successfully set, FALSE otherwise.
 */
 
 { filblk_struct *filblk ;
-  const char *rtnnme = "backup" ;
+  const char *rtnnme = "dyio_backup" ;
 /*
   Check to make sure the stream ID is OK.
 */
@@ -1080,7 +1082,7 @@ bool backup (ioid id, long there)
   Call fseek to position the file pointer to there.
 */
   if (fseek(filblk->stream,there,SEEK_SET) < 0)
-  { errmsg(24,rtnnme,idtopath(id),there) ;
+  { errmsg(24,rtnnme,dyio_idtopath(id),there) ;
     perror(rtnnme) ;
     return (FALSE) ; }
   
@@ -1117,7 +1119,7 @@ static chartab_struct *nxtchar (FILE *stream, flags modes)
   { if (ferror(stream) != 0)
     { for (id = 1 ; id <= maxfiles && filblks[id].stream != stream ; id++) ;
       if (id <= maxfiles)
-      { errmsg(12,rtnnme,idtopath(id)) ; }
+      { errmsg(12,rtnnme,dyio_idtopath(id)) ; }
       else
       { errmsg(12,rtnnme,"unknown") ;
 	errmsg(1,rtnnme,__LINE__) ; }
@@ -1134,7 +1136,7 @@ static chartab_struct *nxtchar (FILE *stream, flags modes)
 
 
 
-bool scan (ioid id, const char pattern[], bool rwnd, bool wrap)
+bool dyio_scan (ioid id, const char pattern[], bool rwnd, bool wrap)
 
 /*
   This routine scans the input stream specified by id for the string specified
@@ -1177,7 +1179,7 @@ bool scan (ioid id, const char pattern[], bool rwnd, bool wrap)
   filblk_struct *filblk ;
   FILE *stream ;
   flags mode ;
-  const char *rtnnme = "scan" ;
+  const char *rtnnme = "dyio_scan" ;
 /*
   Check to make sure the stream ID is OK and lex points to a string.
 */
@@ -1189,7 +1191,7 @@ bool scan (ioid id, const char pattern[], bool rwnd, bool wrap)
   { errmsg(15,rtnnme,id) ;
     return (FALSE) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,idtopath(id)) ;
+  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (FALSE) ; }
   if (pattern == NULL)
   { errmsg(2,rtnnme,"pattern") ;
@@ -1275,7 +1277,7 @@ bool scan (ioid id, const char pattern[], bool rwnd, bool wrap)
 
 
 
-lex_struct *scanlex (ioid id)
+lex_struct *dyio_scanlex (ioid id)
 
 /*
   This routine is a general lexical scanner. It recognizes three classes of 
@@ -1289,7 +1291,7 @@ lex_struct *scanlex (ioid id)
   of Gries, "Compiler Construction for Digital Computers".
 
   Parameters:
-    id:	stream id from openfile.
+    id:	stream id from dyio_openfile.
 
   Returns: A lex_struct reflecting the result of the scan. This will be a
 	   normal lex_struct or a lex_struct reflecting an exception (EOF or
@@ -1306,7 +1308,7 @@ lex_struct *scanlex (ioid id)
   flags mode ;
   static char stringspace[MAXLEXLEN+1] ;
   static lex_struct lex = {LCNIL,stringspace} ;
-  const char *rtnnme = "scanlex" ;
+  const char *rtnnme = "dyio_scanlex" ;
 /*
   Check to make sure that the stream id is OK.
 */
@@ -1318,7 +1320,7 @@ lex_struct *scanlex (ioid id)
   { errmsg(15,rtnnme,id) ;
     return (&lex_err) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,idtopath(id)) ;
+  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (&lex_err) ; }
   stream = filblk->stream ;
   mode = filblk->modes ;
@@ -1397,8 +1399,8 @@ lex_struct *scanlex (ioid id)
 
 
 
-lex_struct *scanstr (ioid id,
-		     lexclass stype, int fslen, char qschr, char qechr)
+lex_struct *dyio_scanstr (ioid id,
+			  lexclass stype, int fslen, char qschr, char qechr)
 
 /*
   This routine is a string scanner. It scans two types of strings, fixed length
@@ -1437,11 +1439,11 @@ lex_struct *scanstr (ioid id,
 	parse.
 
 	Finally, to avoid leaking the buffer allocated for the last non-null
-	string, use call of scanstr(ioid,LCQS,0,'\0','\0') and free lex.string
-	iff lex.class == LCQS.
+	string, use a call of dyio_scanstr(ioid,LCQS,0,'\0','\0') and free
+	lex.string iff lex.class == LCQS.
 
   Parameters:
-    id:		i/o ID from openfile.
+    id:		i/o ID from dyio_openfile.
     stype:	String type, allowable values are LCFS and LCQS.
     fslen:	String length (fixed-length strings only).
     qschr:	Start character (quoted strings only).
@@ -1462,7 +1464,7 @@ lex_struct *scanstr (ioid id,
   FILE *stream ;
   flags mode ;
   static lex_struct lex = {LCNIL,NULL} ;
-  const char *rtnnme = "scanstr" ;
+  const char *rtnnme = "dyio_scanstr" ;
 /*
   Release the previous lex space, if necessary.
 */
@@ -1480,7 +1482,7 @@ lex_struct *scanstr (ioid id,
   { errmsg(15,rtnnme,id) ;
     return (&lex_err) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,idtopath(id)) ;
+  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (&lex_err) ; }
   stream = filblk->stream ;
   mode = filblk->modes ;
@@ -1612,7 +1614,7 @@ lex_struct *scanstr (ioid id,
   but their major function in life is to localize echoing control.
 */
 
-void flushio (ioid id, bool echo)
+void dyio_flushio (ioid id, bool echo)
 
 /*
   This routine flushes buffered output. It is strictly an interface routine,
@@ -1624,7 +1626,7 @@ void flushio (ioid id, bool echo)
                   (etc.)
 
   Parameters:
-    id:		stream id from openfile
+    id:		stream id from dyio_openfile
     echo:	specifies if we're echoing to stdout, and hence should flush
 		it
 
@@ -1633,7 +1635,7 @@ void flushio (ioid id, bool echo)
 
 { FILE *strmid ;
   filblk_struct *filblk ;
-  const char *rtnnme = "flushio" ;
+  const char *rtnnme = "dyio_flushio" ;
 
 /*
   Check for sane id.
@@ -1650,7 +1652,7 @@ void flushio (ioid id, bool echo)
     { errmsg(15,rtnnme,id) ; }
     else
     if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,idtopath(id)) ; }
+    { errmsg(17,rtnnme,dyio_idtopath(id)) ; }
     else
     { strmid = filblk->stream ;
       if (fflush(strmid) != 0) perror(rtnnme) ; } }
@@ -1664,21 +1666,21 @@ void flushio (ioid id, bool echo)
 
 
 
-void outfmt (ioid id, bool echo, const char *pattern, ... )
+void dyio_outfmt (ioid id, bool echo, const char *pattern, ... )
 
 /*
   This routine provides the client with an interface to the vfprintf routine,
   while maintaining a logging facility.
 
   The form of the call should be
-    outfmt(id,echo,pattern,parm1, ... ,parmn)
+    dyio_outfmt(id,echo,pattern,parm1, ... ,parmn)
 
   If id == 0 and echo == FALSE, nothing happens.
   If id == 0 and echo == TRUE, only stdout is affected.
                     (etc.)
 
   Parameters:
-    id:		stream id from openfile
+    id:		stream id from dyio_openfile
     echo:	TRUE to echo to user's tty, FALSE otherwise
     pattern:	output pattern, passed to printf
     parmi:	the parameters for the pattern
@@ -1689,7 +1691,7 @@ void outfmt (ioid id, bool echo, const char *pattern, ... )
 { va_list parms ;
 
   filblk_struct *filblk ;
-  const char *rtnnme = "outfmt" ;
+  const char *rtnnme = "dyio_outfmt" ;
 /*
   Sanity checks on i/o id and pattern.
 */
@@ -1710,14 +1712,14 @@ void outfmt (ioid id, bool echo, const char *pattern, ... )
     { errmsg(15,rtnnme,id) ; }
     else
     if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,idtopath(id)) ; }
+    { errmsg(17,rtnnme,dyio_idtopath(id)) ; }
     else
     { (void) vfprintf(filblk->stream,pattern,parms) ; } }
 /*
   Print to stdout if echo is TRUE and the stream id is not stdout.
   stdout is assumed active and writeable.
 */
-  if (echo == TRUE && id != pathtoid("stdout",NULL)) 
+  if (echo == TRUE && id != dyio_pathtoid("stdout",NULL)) 
     (void) vfprintf(stdout,pattern,parms) ;
 
   va_end(parms) ;
@@ -1726,7 +1728,7 @@ void outfmt (ioid id, bool echo, const char *pattern, ... )
 
 
 
-void outchr (ioid id, bool echo, char chr)
+void dyio_outchr (ioid id, bool echo, char chr)
 
 /*
   This routine interfaces to the fputc function. Note that it traps chr == '\0'
@@ -1736,7 +1738,7 @@ void outchr (ioid id, bool echo, char chr)
   If id == 0 and echo == TRUE, only stdout is affected.
 
   Parameters:
-    id:		stream id from openfile
+    id:		stream id from dyio_openfile
     echo:	TRUE to echo to user's tty, FALSE otherwise
     chr:	character to be output
 
@@ -1745,7 +1747,7 @@ void outchr (ioid id, bool echo, char chr)
 
 { FILE *strmid ;
   filblk_struct *filblk ;
-  const char *rtnnme = "outchr" ;
+  const char *rtnnme = "dyio_outchr" ;
 
 /*
   Sanity checks on the parameters.
@@ -1765,7 +1767,7 @@ void outchr (ioid id, bool echo, char chr)
     { errmsg(15,rtnnme,id) ; }
     else
     if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,idtopath(id)) ; }
+    { errmsg(17,rtnnme,dyio_idtopath(id)) ; }
     else
     { strmid = filblk->stream ;
       putc(chr,filblks[id].stream) ; } }
@@ -1773,17 +1775,17 @@ void outchr (ioid id, bool echo, char chr)
   Write the character to stdout, if echo is TRUE and the stream id is not
   stdout. stdout is assumed to be active and writeable.
 */
-    if (echo == TRUE && id != pathtoid("stdout",NULL)) putc(chr,stdout) ;
+    if (echo == TRUE && id != dyio_pathtoid("stdout",NULL)) putc(chr,stdout) ;
 
   return ; }
 
 
 
-int outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
+int dyio_outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
 
 /*
   The form of the call should be
-    outfxd (buffer,fldsze,lcr,pattern,parms1, ... parmn)
+    dyio_outfxd (buffer,fldsze,lcr,pattern,parms1, ... parmn)
 
   The input to this routine is a varargs list comprising the name of a buffer,
   a field size, an 'lcr' (left/centre/right) character, and finally a pattern
@@ -1816,7 +1818,7 @@ int outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
   int tlen,hlen ;
   bool pad ;
   static bool frstflg = TRUE ;
-  const char *rtnnme = "outfxd" ;
+  const char *rtnnme = "dyio_outfxd" ;
 
 /*
   Load the spaces array just once.
@@ -1888,7 +1890,7 @@ int outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
 
 #ifdef _DYLIB_FORTRAN
 
-void outfmt_ (integer *ftnid, logical *ftnecho, char *pattern, ... )
+void dyio_outfmt_ (integer *ftnid, logical *ftnecho, char *pattern, ... )
 
 /*
   This routine provides a Fortran client with an interface to the vfprintf
@@ -1902,7 +1904,8 @@ void outfmt_ (integer *ftnid, logical *ftnecho, char *pattern, ... )
   extensive comments with errmsg_ and warn_ in errs.c.
 
   The call over in Fortran will look like
-    outfmt(id,echo,pattern,ftnargtype1,arg1, ... ,ftnargtypen,argn,ftnargEND)
+    dyio_outfmt(id,echo,pattern,ftnargtype1,arg1, ... ,
+		ftnargtypen,argn,ftnargEND)
 
   The routine deals with a limited set of argument types: the Fortran types
   integer, double_precision, and character, and the special categories of
@@ -1935,7 +1938,7 @@ void outfmt_ (integer *ftnid, logical *ftnecho, char *pattern, ... )
   double dblarg ;
   char *chararg ;
 
-  const char *rtnnme = "outfmt_" ;
+  const char *rtnnme = "dyio_outfmt_" ;
 
 /*
   Convert the stream id and echo values.
@@ -1954,7 +1957,7 @@ void outfmt_ (integer *ftnid, logical *ftnecho, char *pattern, ... )
     { errmsg(15,rtnnme,id) ;
       return ; }
     if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,idtopath(id)) ;
+    { errmsg(17,rtnnme,dyio_idtopath(id)) ;
       return ; } }
   if (pattern == NULL)
   { errmsg(2,rtnnme,"pattern") ;

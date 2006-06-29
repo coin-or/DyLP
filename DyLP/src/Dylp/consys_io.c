@@ -118,7 +118,7 @@ char *consys_assocnme (consys_struct *consys, flags which)
 
   if (consys != NULL)
   { nmlen = sizeof(nmbuf)/2 ;
-    (void) outfxd(nmbuf,-nmlen,'l',"%s",consys->nme) ;
+    (void) dyio_outfxd(nmbuf,-nmlen,'l',"%s",consys->nme) ;
     strcat(nmbuf,".") ; }
   else
   { nmbuf[0] = '\0' ; }
@@ -174,7 +174,7 @@ char *consys_assocnme (consys_struct *consys, flags which)
     { strcat(nmbuf,(consys == NULL)?"generic row":"row") ;
       break ; }
     default:
-    { outfxd(&nmbuf[nmlen],-26,'l',"<<type error: %#08x>>",(int) which) ;
+    { dyio_outfxd(&nmbuf[nmlen],-26,'l',"<<type error: %#08x>>",(int) which) ;
       break ; } }
 
   return (nmbuf) ; }
@@ -458,12 +458,12 @@ char *consys_conbndnme (char bndlett, int cndx, conbnd_struct *bnd)
   char *bufptr ;
 
   bufptr = &buf[0] ;
-  bufptr += outfxd(bufptr,
-		   -((int) (sizeof(buf)/2-1)),'l',"%cB(%d",bndlett,cndx) ;
+  bufptr += dyio_outfxd(bufptr,-((int) (sizeof(buf)/2-1)),
+			'l',"%cB(%d",bndlett,cndx) ;
   if (bnd->inf < 0)
-    outfxd(bufptr,-((int) (sizeof(buf)/2-1)),'l',"\\%d)",-bnd->inf) ;
+    dyio_outfxd(bufptr,-((int) (sizeof(buf)/2-1)),'l',"\\%d)",-bnd->inf) ;
   else
-    outfxd(bufptr,-1,'l',")") ;
+    dyio_outfxd(bufptr,-1,'l',")") ;
   
   return (&buf[0]) ; }
 
@@ -489,13 +489,13 @@ char *consys_conbndval (conbnd_struct *bnd)
 
   bufptr = &buf[0] ;
   if (bnd->inf > 0)
-    bufptr += outfxd(bufptr,
-		     -((int) (sizeof(buf)/2-1)),'l',"%d*inf+",bnd->inf) ;
+    bufptr += dyio_outfxd(bufptr,-((int) (sizeof(buf)/2-1)),
+			  'l',"%d*inf+",bnd->inf) ;
   else
   if (bnd->inf < 0)
-    bufptr += outfxd(bufptr,-((int) (sizeof(buf)/2-1)),'l',"inf+") ;
+    bufptr += dyio_outfxd(bufptr,-((int) (sizeof(buf)/2-1)),'l',"inf+") ;
   
-  outfxd(bufptr,-((int) (sizeof(buf)/2-1)),'l',"%g",bnd->bnd) ;
+  dyio_outfxd(bufptr,-((int) (sizeof(buf)/2-1)),'l',"%g",bnd->bnd) ;
 
   return (&buf[0]) ; }
 
@@ -538,11 +538,11 @@ void consys_prtcon (ioid chn, bool echo,
 # ifdef PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
-    outfmt(chn,echo,errstring) ;
+    dyio_outfmt(chn,echo,errstring) ;
     return ; }
   if (i < 0 || i > consys->concnt)
   { errmsg(102,rtnnme,consys->nme,"constraint",i,1,consys->concnt) ;
-    outfmt(chn,echo,errstring) ;
+    dyio_outfmt(chn,echo,errstring) ;
     return ; }
 # endif
 
@@ -551,10 +551,10 @@ void consys_prtcon (ioid chn, bool echo,
   The basics: name, index, constraint type, rhs (and rhslow, if needed).
 */
   ctypi = consys->ctyp[i] ;
-  outfmt(chn,echo,"\n%s",pfx) ;
+  dyio_outfmt(chn,echo,"\n%s",pfx) ;
   if (ctypi == contypRNG)
-  { outfmt(chn,echo,"%g <= ",consys->rhslow[i]) ; }
-  outfmt(chn,echo,"%s (%d) %s %g",consys_nme(consys,'c',i,FALSE,NULL),i,
+  { dyio_outfmt(chn,echo,"%g <= ",consys->rhslow[i]) ; }
+  dyio_outfmt(chn,echo,"%s (%d) %s %g",consys_nme(consys,'c',i,FALSE,NULL),i,
 	 consys_prtcontyp(ctypi),consys->rhs[i]) ;
 /*
   Now the coefficients, limiting each line to 80 characters. The initial
@@ -568,7 +568,7 @@ void consys_prtcon (ioid chn, bool echo,
   if (consys_getrow_pk(consys,i,&coni) == FALSE)
   { errmsg(122,rtnnme,consys->nme,
 	   "constraint",consys_nme(consys,'c',i,FALSE,NULL),i) ;
-    outfmt(chn,echo,errstring) ;
+    dyio_outfmt(chn,echo,errstring) ;
     if (coni != NULL) pkvec_free(coni) ;
     return ; }
 
@@ -576,15 +576,15 @@ void consys_prtcon (ioid chn, bool echo,
   linecnt = 0 ;
   for (ndx = 0 ; ndx < coni->cnt ; ndx++)
   { if (linecnt == 0)
-    { charcnt = outfxd(&buf[0],-60,'l',"\n%s  % g %s(%d)",pfx,ai[ndx].val,
-		       consys_nme(consys,'v',ai[ndx].ndx,FALSE,NULL),
-		       ai[ndx].ndx) ; }
+    { charcnt = dyio_outfxd(&buf[0],-60,'l',"\n%s  % g %s(%d)",pfx,ai[ndx].val,
+			    consys_nme(consys,'v',ai[ndx].ndx,FALSE,NULL),
+			    ai[ndx].ndx) ; }
     else
-    { charcnt = outfxd(&buf[0],-60,'l'," %+g %s(%d)",ai[ndx].val,
-		       consys_nme(consys,'v',ai[ndx].ndx,FALSE,NULL),
-		       ai[ndx].ndx) ; }
+    { charcnt = dyio_outfxd(&buf[0],-60,'l'," %+g %s(%d)",ai[ndx].val,
+			    consys_nme(consys,'v',ai[ndx].ndx,FALSE,NULL),
+			    ai[ndx].ndx) ; }
     if (linecnt+charcnt < 70)
-    { outfmt(chn,echo,"%s",&buf[0]) ;
+    { dyio_outfmt(chn,echo,"%s",&buf[0]) ;
       linecnt += charcnt ; }
     else
     { ndx-- ;

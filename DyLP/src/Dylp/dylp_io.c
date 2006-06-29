@@ -386,48 +386,50 @@ void dy_logpivot (dyret_enum result, int xjndx, int indir, double cbarj,
     { resstr = "(huh?)" ;
       result = dyrINV ;
       break ; } }
-  outfmt(dy_logchn,dy_gtxecho,"\n%s%6d %-7s ",dy_prtlpphase(dy_lp->phase,TRUE),
-	 dy_lp->tot.iters+1,resstr) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,
+	      "\n%s%6d %-7s ",dy_prtlpphase(dy_lp->phase,TRUE),
+	      dy_lp->tot.iters+1,resstr) ;
 
   if (result == dyrINV) return ;
 
   if (validin == TRUE && xjndx > 0)
-  { outfmt(dy_logchn,dy_gtxecho,"In: %s (%d) %s cbarj = %g ;",
-	   consys_nme(dy_sys,'v',xjndx,FALSE,NULL),xjndx,
-	   (indir == 1)?"inc":"dec",cbarj) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"In: %s (%d) %s cbarj = %g ;",
+	        consys_nme(dy_sys,'v',xjndx,FALSE,NULL),xjndx,
+	        (indir == 1)?"inc":"dec",cbarj) ; }
   else
-  { outfmt(dy_logchn,dy_gtxecho,"In: <not selected>") ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"In: <not selected>") ; }
   
   if (result == dyrFATAL) return ;
 
   if (result == dyrLOSTPFEAS)
-  { outfmt(dy_logchn,dy_gtxecho," Infeas: %s (%d) = %g, lb = %g, ub = %g",
-	   consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
-	   dy_xbasic[dy_var2basis[xindx]],
-	   dy_sys->vlb[xindx],dy_sys->vub[xindx]) ;
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		" Infeas: %s (%d) = %g, lb = %g, ub = %g",
+	        consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
+	        dy_xbasic[dy_var2basis[xindx]],
+	        dy_sys->vlb[xindx],dy_sys->vub[xindx]) ;
     return ; }
 
   if (validout == TRUE && xindx > 0)
-  { outfmt(dy_logchn,dy_gtxecho," Out: %s (%d) %s",
-	   consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
-	   (outdir == 1)?"inc":"dec") ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho," Out: %s (%d) %s",
+	        consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
+	        (outdir == 1)?"inc":"dec") ; }
   else
-  { outfmt(dy_logchn,dy_gtxecho," Out: <not selected>") ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho," Out: <not selected>") ; }
   
   if (validin == TRUE && validout == TRUE)
-  { outfmt(dy_logchn,dy_gtxecho,", abarij = %g, delta = %g",
-	   abarij,(indir == 1)?delta:-delta) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,", abarij = %g, delta = %g",
+	        abarij,(indir == 1)?delta:-delta) ; }
 
   if (dy_lp->phase == dyDUAL)
-  { outfmt(dy_logchn,dy_gtxecho,", yb = %g.",dy_calcdualobj()) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,", yb = %g.",dy_calcdualobj()) ; }
   else
   if (dy_lp->phase == dyPRIMAL1)
-  { outfmt(dy_logchn,dy_gtxecho,", infeas = %g.",dy_calcpinfeas()) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,", infeas = %g.",dy_calcpinfeas()) ; }
   else
   if (dy_lp->phase == dyPRIMAL2)
-  { outfmt(dy_logchn,dy_gtxecho,", cx = %g.",dy_calcobj()) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,", cx = %g.",dy_calcobj()) ; }
   else
-  { outchr(dy_logchn,dy_gtxecho,'.') ; }
+  { dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 
   return ; }
 
@@ -488,22 +490,23 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
   Begin by printing identifying information about the system and the solution.
   If the phase is anything but dyDONE, we're done too.
 */
-  outfmt(chn,echo,"\n\nSystem: %s\t\t\tfinal status: %s after %d iterations.",
-	 sys->nme,dy_prtlpphase(soln->phase,FALSE),soln->iters) ;
+  dyio_outfmt(chn,echo,
+	      "\n\nSystem: %s\t\t\tfinal status: %s after %d iterations.",
+	      sys->nme,dy_prtlpphase(soln->phase,FALSE),soln->iters) ;
   if (soln->phase != dyDONE)
-  { outchr(chn,echo,'\n') ;
+  { dyio_outchr(chn,echo,'\n') ;
     return (TRUE) ; }
 /*
   Consider the lp return code. If it's optimal, infeasible, or unbounded, we'll
   continue on to print the solution, otherwise we're done.
 */
-  outfmt(chn,echo,"\n    lp status: %s",dy_prtlpret(soln->lpret)) ;
+  dyio_outfmt(chn,echo,"\n    lp status: %s",dy_prtlpret(soln->lpret)) ;
   switch (soln->lpret)
   { case lpOPTIMAL:
-    { outfmt(chn,echo,"\t\tobjective: %.9g",soln->obj) ;
+    { dyio_outfmt(chn,echo,"\t\tobjective: %.9g",soln->obj) ;
       break ; }
     case lpINFEAS:
-    { outfmt(chn,echo,"\t\tinfeasibility: %.9g",soln->obj) ;
+    { dyio_outfmt(chn,echo,"\t\tinfeasibility: %.9g",soln->obj) ;
       break ; }
     case lpUNBOUNDED:
     { if (soln->obj != 0)
@@ -513,26 +516,26 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
 	else
 	{ vndx = (int) soln->obj ;
 	  bpos = 1 ; }
-	outfmt(chn,echo,"\t\tunbounded variable %s (%d) (%s)",
-	       consys_nme(sys,'v',vndx,FALSE,NULL),vndx,
-	       (bpos < 0)?"decreasing":"increasing") ; }
+	dyio_outfmt(chn,echo,"\t\tunbounded variable %s (%d) (%s)",
+		    consys_nme(sys,'v',vndx,FALSE,NULL),vndx,
+		    (bpos < 0)?"decreasing":"increasing") ; }
       break ; }
     default:
-    { outchr(chn,echo,'\n') ;
+    { dyio_outchr(chn,echo,'\n') ;
       return (TRUE) ; } }
 /*
   There's a solution to be dumped. Do the basis, duals, and basic variables
   first.
 */
-  outfmt(chn,echo,"\n\nPosn\tConstraint\tDual\t\tPrimal\n") ;
+  dyio_outfmt(chn,echo,"\n\nPosn\tConstraint\tDual\t\tPrimal\n") ;
   basis = soln->basis ;
   for (bpos = 1 ; bpos <= basis->len ; bpos++)
   { cndx = basis->el[bpos].cndx ;
     vndx = basis->el[bpos].vndx ;
     if (vndx < 0) vndx = sys->varcnt-vndx ;
-    outfmt(chn,echo,"\n%5d\t(%4d) %-8s\t%12.4g\t(%4d) %-8s %12.7g",
-	   bpos,cndx,consys_nme(sys,'c',cndx,FALSE,NULL),soln->y[bpos],
-	   vndx,consys_nme(sys,'v',vndx,FALSE,NULL),soln->x[bpos]) ; }
+    dyio_outfmt(chn,echo,"\n%5d\t(%4d) %-8s\t%12.4g\t(%4d) %-8s %12.7g",
+	        bpos,cndx,consys_nme(sys,'c',cndx,FALSE,NULL),soln->y[bpos],
+	        vndx,consys_nme(sys,'v',vndx,FALSE,NULL),soln->x[bpos]) ; }
 /*
   Now the nonbasic variables. Nonzero values only.
 */
@@ -540,7 +543,7 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
   for (vndx = 1 ; vndx <= sys->varcnt ; vndx++)
     if ((int) soln->status[vndx] > 0)
     { if (nononbasic == TRUE)
-      { outfmt(chn,echo,"\n\nNonbasic Primal\n") ;
+      { dyio_outfmt(chn,echo,"\n\nNonbasic Primal\n") ;
 	nononbasic = FALSE ; }
       switch (soln->status[vndx])
       { case vstatNBLB:
@@ -560,14 +563,14 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
 	{ val = quiet_nan(0) ;
 	  errmsg(1,rtnnme,__LINE__) ;
 	  break ; } }
-      outfmt(chn,echo,"\n(%4d) %-8s %3s %12.7g",vndx,
-	     consys_nme(sys,'v',vndx,FALSE,NULL),
-	     dy_prtvstat(soln->status[vndx]),val) ; }
+      dyio_outfmt(chn,echo,"\n(%4d) %-8s %3s %12.7g",vndx,
+		  consys_nme(sys,'v',vndx,FALSE,NULL),
+		  dy_prtvstat(soln->status[vndx]),val) ; }
   
   if (nononbasic == TRUE)
-    outfmt(chn,echo,"\n\nNo nonbasic architectural variables.\n") ;
+    dyio_outfmt(chn,echo,"\n\nNo nonbasic architectural variables.\n") ;
   else
-    outchr(chn,echo,'\n') ;
+    dyio_outchr(chn,echo,'\n') ;
 
   return (TRUE) ; }
 
