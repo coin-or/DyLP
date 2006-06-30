@@ -114,7 +114,11 @@ INCL =  -I`$(CYGPATH_W) $(COININCDIR)` $(ADDINCFLAGS)
 # The following is necessary under cygwin, if native compilers are used
 CYGPATH_W = @CYGPATH_W@
 
-all: $(EXE_CXX) $(EXE_C)
+# check and installcheck are standard automake targets. These sample main
+# programs are included as a simple check for the package, so it makes some
+# sense to build them under these rules.
+
+all check installcheck: $(EXE_CXX) $(EXE_C)
 
 .SUFFIXES: .cpp .c .o .obj
 
@@ -128,8 +132,15 @@ $(EXE_C): $(OBJS_C)
 	for file in $(OBJS_C); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
 	$(CC) $(CXXLINKFLAGS) $(CFLAGS) -o $@ $$bla $(ADDLIBS) $(LIBS_C)
 
-clean:
+# Standard automake clean targets, so that this directory gets properly
+# cleaned.
+
+mostlyclean clean: 
 	rm -rf $(EXE_CXX) $(EXE_C) $(OBJS_CXX) $(OBJS_C)
+	rm -rf afiro.log afiro.out greenbeb.log greenbeb.out
+
+distclean maintainer-clean: clean
+	rm -rf Makefile
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(INCL) -c -o $@ `test -f '$<' || echo '$(SRCDIR)/'`$<
@@ -144,3 +155,13 @@ clean:
 
 .c.obj:
 	$(CC) $(CFLAGS) $(INCL) -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(SRCDIR)/$<'; fi`
+
+# These are standard automake targets that are not implemented. As per
+# recommendation in the automake manual for third-party makefiles.
+
+EMPTY_AUTOMAKE_TARGETS = \
+  install install-data install-exec uninstall install-info installdirs \
+  dvi pdf ps info html tags ctags
+.PHONY: $(EMPTY_AUTOMAKE_TARGETS)
+$(EMPTY_AUTOMAKE_TARGETS):
+
