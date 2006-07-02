@@ -52,7 +52,7 @@
   -E <errlog-file>	A logging file for error messages (default is to
 			  direct error messages to stderr and the log file).
   -o <option-file>	Control ('.spc') options for dylp. Default is to not
-			look for an options file.
+			look for an options file. Disabled on Windows.
   -m <problem-file>	The problem ('.mps') specification. Defaults to stdin.
   -L <log-file>		A log of dylp's execution (default is no execution
 			  logging).
@@ -71,8 +71,21 @@
 */
 
 #include <string.h>
+
+/*
+  We're getting close to the O/S here. Microsoft does it differently, of
+  course. There's some disagreement in the unix community about what goes
+  where, but I'm hoping that sys/time.h and sys/resource.h together will
+  cover it.
+*/
 #include <time.h>
-#include <sys/resource.h>
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+  /* Nothing to do here. */
+#else
+# include <sys/time.h>
+# include <sys/resource.h>
+#endif
+
 #include "dy_cmdint.h"
 #include "dylp.h"
 
@@ -185,7 +198,11 @@ static void print_help (ioid chn, bool echo)
 	      "\n\t\t\t%s","direct error messages to the log file).") ;
 
   dyio_outfmt(chn,echo,"\n  %s\t%s","-o <option-file>",
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+	      "Disabled on Windows.") ;
+#else
 	      "Control ('.spc') options file for dylp (default is no file).") ;
+#endif
 
   dyio_outfmt(chn,echo,"\n  %s\t%s","-m <problem-file>",
 	      "The problem ('.mps') specification (no default).") ;
@@ -219,16 +236,53 @@ static void print_help (ioid chn, bool echo)
 
 
 /*
-  A few utility routines to produce run time information.
+  A few utility routines to produce run time information. We're close to the
+  O/S here, everyone has their own idea. `struct timeval' is the unix side of
+  life. Microsoft just uses ticks. Microsecond timing is questionable at best,
+  so maybe Microsoft has it right here. Easiest way to finesse this (coming
+  from the Linux side) is to define a timeval structure. Then the only routine
+  we need is get_timeval.
 */
 
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+
+typedef long int __time_t ;
+typedef long int __suseconds_t ;
+
+struct timeval
+{ __time_t tv_sec ;
+  __suseconds_t tv_usec ; } ;
+
+static void get_timeval (struct timeval *tv)
+/*
+  Call the clock function to get time in ticks, and convert to seconds and
+  microseconds.
+
+  Parameter:
+    tv:	(i/o) timeval structure, will be filled with the current time
+
+  Returns: undefined
+*/
+
+{ double temp ;
+
+  temp = (double) clock() ;
+  temp /= CLOCKS_PER_SEC ;
+  tv->tv_sec = (__time_t) temp ;
+  temp -= tv->tv_sec ;
+  tv->tv_usec = (__suseconds_t) (temp*(1e6)) ;
+
+  return ; }
+
+#else	/* end Microsoft (_MSC_VER, __MSVCRT__), start Linux version */
+  
 static void get_timeval (struct timeval *tv)
 
 /*
   Call getrusage to retrieve the user and system time, sum them, and return
   the lot as a timeval.
 
-  Parameters:
+  Parameter:
     tv:	(i/o) timeval structure, will be filled with the current time
   
   Returns: undefined
@@ -264,6 +318,7 @@ static void get_timeval (struct timeval *tv)
 
   return ; }
 
+# endif		/* Microsoft/Linux time function */
 
 
 static void sub_timevals (struct timeval *diff,
@@ -527,7 +582,7 @@ static lpret_enum do_lp_all (struct timeval *elapsed, int printlvl)
 int main (int argc, char *argv[])
 
 { time_t timeval ;
-  struct tm tm ;
+  struct tm *tm ;
   char runtime[50] ;
   ioid ttyin,ttyout,outchn ;
   int optlett,printlvl ;
@@ -548,7 +603,7 @@ int main (int argc, char *argv[])
 
   const char *optstring = "e:stp:E:o:m:L:O:hv";
 
-  extern struct tm *localtime_r(const time_t *clock, struct tm *res) ;
+  extern struct tm *localtime(const time_t *clock) ;
 
   /* mpsio.c */
 
@@ -663,9 +718,12 @@ int main (int argc, char *argv[])
   { warn(19,rtnnme) ;
     osidylp_time = "n/a" ; }
   else
-  { (void) localtime_r(&timeval,&tm) ;
-    strftime(runtime,sizeof(runtime),"%A, %B %d, %Y,  %I:%M:%S %p",&tm) ;
-    osidylp_time = runtime ; }
+  { tm = localtime(&timeval) ;
+    if (tm != NULL)
+    { strftime(runtime,sizeof(runtime),"%A, %B %d, %Y,  %I:%M:%S %p",tm) ;
+      osidylp_time = runtime ; }
+    else
+    { osidylp_time = "n/a" ; } }
 /*
   Figure out the appropriate settings for silent and terse.
   silent is set to (silent || terse), and is passed to process_cmds so that
@@ -762,11 +820,16 @@ int main (int argc, char *argv[])
   shell, doing a one-time solution for an LP, set up a default of cold start
   using the full system and a logical basis. This can be overridden in a .spc
   file if desired.
+
+  For reasons that escape me at the moment, the parser fails on Windows. This
+  may get fixed eventually. For now, disabled by the simple expedient of
+  forcing optpath to NULL.
 */
   dy_defaults(&main_lpopts,&main_lptols) ;
   main_lpopts->forcecold = TRUE ;
   main_lpopts->fullsys = TRUE ;
   main_lpopts->coldbasis = ibLOGICAL ;
+  optpath = NULL ;
   if (optpath != NULL)
   { dy_cmdchn = dyio_openfile(optpath,"r") ;
     if (dy_cmdchn == IOID_INV) exit (1) ;

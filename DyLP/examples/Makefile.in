@@ -79,9 +79,10 @@ CXX = @CXX@
 
 # C++ Compiler options
 CXXFLAGS = @CXXFLAGS@
+CPPFLAGS = @CPPFLAGS@
 
 # additional C++ Compiler options for linking
-CXXLINKFLAGS = @RPATH_FLAGS@
+CXXLINKFLAGS = @LDFLAGS@ @RPATH_FLAGS@
 
 # C Compiler command
 CC = @CC@
@@ -95,8 +96,8 @@ COININCDIR = @abs_include_dir@
 # Directory with COIN libraries
 COINLIBDIR = @abs_lib_dir@
 
-# Libraries necessary to link with odsi+dylp
-LIBS_CXX = -L$(COINLIBDIR) -lDylp -lOsiDylp -lOsi -lCoinUtils \
+# Libraries necessary to link with odsi+dylp. Order is important.
+LIBS_CXX = -L$(COINLIBDIR) -lOsiDylp -lDylp -lOsi -lCoinUtils \
 	@ADDLIBS@ \
 	`cat $(COINLIBDIR)/dylp_addlibs.txt` \
 	`cat $(COINLIBDIR)/coinutils_addlibs.txt`
@@ -125,12 +126,14 @@ all check installcheck: $(EXE_CXX) $(EXE_C)
 $(EXE_CXX): $(OBJS_CXX)
 	bla=;\
 	for file in $(OBJS_CXX); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
-	$(CXX) $(CXXLINKFLAGS) $(CXXFLAGS) -o $@ $$bla $(ADDLIBS) $(LIBS_CXX)
+	$(CXX) $(CXXLINKFLAGS) $(CXXFLAGS) \
+	  -o $@ $$bla $(ADDLIBS) $(LIBS_CXX)
 
 $(EXE_C): $(OBJS_C)
 	bla=;\
 	for file in $(OBJS_C); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
-	$(CC) $(CXXLINKFLAGS) $(CFLAGS) -o $@ $$bla $(ADDLIBS) $(LIBS_C)
+	$(CC) $(CXXLINKFLAGS) $(CFLAGS) \
+	  -o $@ $$bla $(ADDLIBS) $(LIBS_C)
 
 # Standard automake clean targets, so that this directory gets properly
 # cleaned.
@@ -143,18 +146,18 @@ distclean maintainer-clean: clean
 	rm -rf Makefile
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) $(INCL) -c -o $@ `test -f '$<' || echo '$(SRCDIR)/'`$<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(INCL) -c -o $@ `test -f '$<' || echo '$(SRCDIR)/'`$<
 
 
 .cpp.obj:
-	$(CXX) $(CXXFLAGS) $(INCL) -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(SRCDIR)/$<'; fi`
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(INCL) -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(SRCDIR)/$<'; fi`
 
 .c.o:
-	$(CC) $(CFLAGS) $(INCL) -c -o $@ `test -f '$<' || echo '$(SRCDIR)/'`$<
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCL) -c -o $@ `test -f '$<' || echo '$(SRCDIR)/'`$<
 
 
 .c.obj:
-	$(CC) $(CFLAGS) $(INCL) -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(SRCDIR)/$<'; fi`
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCL) -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(SRCDIR)/$<'; fi`
 
 # These are standard automake targets that are not implemented. As per
 # recommendation in the automake manual for third-party makefiles.

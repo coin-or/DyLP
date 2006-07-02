@@ -46,7 +46,8 @@
 			  but allows an opening title and closing message
 			  giving the result of the LP.
   -p <num>		Set overall print level to <num>, [0..5].
-  -o <option-file>	Control ('.spc') options for dylp.
+  -o <option-file>	Control ('.spc') options for dylp. Disabled on
+  			Windows.
   -m <problem-file>	The problem ('.mps') specification.
   -L <log-file>		A log of dylp's execution (default is no execution
 			  logging).
@@ -143,9 +144,13 @@ void print_help (const char *pgm)
   	<< "Set overall print level to <num>, [0..5]." ;
 
   std::cout << "\n  -o <option-file>\t"
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+	<< "Disabled on Windows." ;
+#else
 	<< "Control ('.spc') options file for dylp (default is"
 	<< "\n\t\t\t"
 	<< "no file)." ;
+#endif
 
   std::cout << "\n  -m <problem-file>\t"
 	<< "The problem ('.mps') specification (no default)." ;
@@ -411,7 +416,12 @@ int main (int argc, const char* argv[])
 
     switch (argLett)
     { case 'o':
-      { optpath = argv[++argNum] ;
+      { 
+        optpath = argv[++argNum] ;
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+/* Disabled on Windows --- parser fails. */
+	optpath = NULL ;
+#endif
 	break ; }
       case 'm':
       { mpspath = argv[++argNum] ;
