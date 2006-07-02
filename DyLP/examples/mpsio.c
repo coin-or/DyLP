@@ -305,7 +305,7 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
   { errmsg(152,rtnnme,tok) ;
     return (mpsinINV) ; }
 # ifndef NDEBUG
-  outfmt(dy_logchn,dy_gtxecho,"\n\treading model %s.\n",(*consys)->nme) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,"\n\treading model %s.\n",(*consys)->nme) ;
 # endif
 /*
   Check for the keyword "free", which should follow the name, and issue a
@@ -477,8 +477,9 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
   pkrow->nme = NULL ;
   pkvec_free(pkrow) ;
 # ifndef NDEBUG
-  outfmt(dy_logchn,dy_gtxecho,"\n\t(%s) read %d constraints from the MPS file.",
-	 rtnnme,consys->archccnt) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,
+  	      "\n\t(%s) read %d constraints from the MPS file.",
+	      rtnnme,consys->archccnt) ;
 # endif
   if (seen_cols == FALSE)
   { if (lex->class == LCERR)
@@ -1465,23 +1466,24 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
   
 
 # ifndef NDEBUG
-  outfmt(dy_logchn,dy_gtxecho,"\n\t(%s) read %d variables",
-	 rtnnme,consys->archvcnt) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t(%s) read %d variables",
+	      rtnnme,consys->archvcnt) ;
   if (consys->intvcnt > 0 || consys->binvcnt > 0)
-    outfmt(dy_logchn,dy_gtxecho," (%d continuous, %d integer, %d binary)",
-	   consys->archvcnt-(consys->intvcnt+consys->binvcnt),
-	   consys->intvcnt,consys->binvcnt) ;
-  outfmt(dy_logchn,dy_gtxecho,
-	 ".\n\t\tread %d non-zero coefficients from the MPS file.",
-	 consys->mtx.coeffcnt) ;
-  outfmt(dy_logchn,dy_gtxecho,
-	 "\n\t\tthe longest column is %s, with %d entries.",
-	 consys_nme(consys,'v',consys->maxcolndx,FALSE,NULL),
-	 consys->maxcollen) ;
-  outfmt(dy_logchn,dy_gtxecho,
-	 "\n\t\tthe longest row is %s, with %d entries.\n",
-	 consys_nme(consys,'c',consys->maxrowndx,FALSE,NULL),
-	 consys->maxrowlen) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+    		" (%d continuous, %d integer, %d binary)",
+	        consys->archvcnt-(consys->intvcnt+consys->binvcnt),
+	        consys->intvcnt,consys->binvcnt) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,
+	      ".\n\t\tread %d non-zero coefficients from the MPS file.",
+	      consys->mtx.coeffcnt) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,
+	      "\n\t\tthe longest column is %s, with %d entries.",
+	      consys_nme(consys,'v',consys->maxcolndx,FALSE,NULL),
+	      consys->maxcollen) ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,
+	      "\n\t\tthe longest row is %s, with %d entries.\n",
+	      consys_nme(consys,'c',consys->maxrowndx,FALSE,NULL),
+	      consys->maxrowlen) ;
 # endif
 
   return (mpsinENDDATA) ; }
