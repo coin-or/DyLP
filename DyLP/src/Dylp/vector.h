@@ -31,7 +31,7 @@
   svn/cvs: $Id$
 */
 
-#include <config_dylp.h>
+#include <DylpConfig.h>
  
 /*
   Why, you might ask, are we including ctype.h? Well, it's required by the
