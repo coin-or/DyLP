@@ -115,11 +115,13 @@ INCL =  -I`$(CYGPATH_W) $(COININCDIR)` $(ADDINCFLAGS)
 # The following is necessary under cygwin, if native compilers are used
 CYGPATH_W = @CYGPATH_W@
 
-# check and installcheck are standard automake targets. These sample main
-# programs are included as a simple check for the package, so it makes some
-# sense to build them under these rules.
+# check and installcheck are standard automake targets. The sample main
+# programs osi_dylp and odsi+dylp are included as simple checks for the
+# package, so it makes some sense to build them under these rules. But the
+# main test for dylp is to build and run the OSI unitTest with ODSI in the
+# build.
 
-all check installcheck: $(EXE_CXX) $(EXE_C)
+examples: $(EXE_C) $(EXE_CXX)
 
 .SUFFIXES: .cpp .c .o .obj
 
@@ -163,8 +165,8 @@ distclean maintainer-clean: clean
 # recommendation in the automake manual for third-party makefiles.
 
 EMPTY_AUTOMAKE_TARGETS = \
-  install install-data install-exec uninstall install-info installdirs \
-  dvi pdf ps info html tags ctags
+  all install install-data install-exec uninstall install-info installdirs \
+  check installcheck dvi pdf ps info html tags ctags
 .PHONY: $(EMPTY_AUTOMAKE_TARGETS)
 $(EMPTY_AUTOMAKE_TARGETS):
 
