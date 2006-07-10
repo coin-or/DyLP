@@ -51,7 +51,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-LIBOBJDIR =
 DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/../BuildTools/Makemain.inc $(srcdir)/../config.guess \
 	$(srcdir)/../config.sub $(srcdir)/../install-sh \
@@ -119,8 +118,6 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CDEFS = @CDEFS@
 CFLAGS = @CFLAGS@
-COIN_DEBUG_FALSE = @COIN_DEBUG_FALSE@
-COIN_DEBUG_TRUE = @COIN_DEBUG_TRUE@
 COIN_HAS_DYLP_FALSE = @COIN_HAS_DYLP_FALSE@
 COIN_HAS_DYLP_TRUE = @COIN_HAS_DYLP_TRUE@
 CPP = @CPP@
@@ -131,6 +128,8 @@ CXXDEFS = @CXXDEFS@
 CXXDEPMODE = @CXXDEPMODE@
 CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
+DBG_CFLAGS = @DBG_CFLAGS@
+DBG_CXXFLAGS = @DBG_CXXFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DYLPOBJDIR = @DYLPOBJDIR@
@@ -167,6 +166,8 @@ MAKEINFO = @MAKEINFO@
 MPICC = @MPICC@
 MPICXX = @MPICXX@
 OBJEXT = @OBJEXT@
+OPT_CFLAGS = @OPT_CFLAGS@
+OPT_CXXFLAGS = @OPT_CXXFLAGS@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -257,6 +258,9 @@ addlibsfile = dylp_addlibs.txt
 ########################################################################
 #                         Maintainer Stuff                             #
 ########################################################################
+
+# So aclocal will find the local macros in the m4 directory
+ACLOCAL_AMFLAGS = -I m4
 
 # Files that are generated and should be cleaned with make distclean
 DISTCLEANFILES = $(am__append_2) $(VPATH_DISTCLEANFILES)
