@@ -7,10 +7,10 @@
 # will look for a dylp options (.spc) file and add it to the osi_dylp command
 # line.
 
-# Edit here to choose the C interface (osi_dylp) or
-# the OSI interface (odsi+dylp) as the default.
+# Edit here to choose the C interface (osi_dylp) or the OSI interface
+# (odsi+dylp) as the default.
 
-#set wrapper = (./osi_dylp -e ../Dylp/dy_errmsgs.txt)
+#set wrapper = (./osi_dylp)
 set wrapper = (./odsi+dylp)
 
 # Usage message
@@ -34,7 +34,7 @@ switch ($argv[1])
     shift
     breaksw
   case -dylp:
-    set wrapper = "./osi_dylp -e ../src/Dylp/dy_errmsgs.txt"
+    set wrapper = "./osi_dylp"
     shift
     breaksw
 endsw
