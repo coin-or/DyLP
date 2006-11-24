@@ -7,6 +7,9 @@
 #   -mno-cygwin	Sort of a special case, needs to be in preprocess, compile,
 #		and link.
 
+# Additions:
+#   -wd4996	Suppress warning C4996 (deprecated function) for MSVC cl.
+
 AC_DEFUN([AC_DYLP_FIX_CPPFLAGS],
 [ case "$CXXFLAGS $CFLAGS" in
     *-mno-cygwin*)
@@ -15,5 +18,17 @@ AC_DEFUN([AC_DYLP_FIX_CPPFLAGS],
       CPPFLAGS="-mno-cygwin $CPPFLAGS"
       LDFLAGS="-mno-cygwin $LDFLAGS"
       ;;
+  esac
+  case "$CXX" in
+    cl* | */cl*)
+      CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-wd4996//'`
+      CXXFLAGS="$CXXFLAGS -wd4996"
+      ;;
+  esac
+  case "$CC" in
+    cl* | */cl*)
+      CFLAGS=`echo $CFLAGS | sed -e 's/-wd4996//'`
+      CFLAGS="$CFLAGS -wd4996"
+    ;;
   esac
 ])
