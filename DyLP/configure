@@ -1094,10 +1094,10 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --with-dylp-paranoia    Enable dylp's paranoid checks (default=no)
-  --with-dylp-stats       Enable dylp's statistics collection features
+  --enable-dylp-paranoia  Enable dylp's paranoid checks (default=no)
+  --enable-dylp-stats     Enable dylp's statistics collection features
                           (default=no)
-  --with-dylp-info        Enable dylp's informational printing features
+  --enable-dylp-info      Enable dylp's informational printing features
                           (default=yes)
 
 Optional Packages:
