@@ -37,7 +37,13 @@ static char svnid[] UNUSED = "$Id$" ;
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#ifndef __CYGWIN__
+/*
+  With --pedantic-errors, cygwin won't compile its own signal.h, which is
+  included from time.h
+*/
+# include <time.h>
+#endif
 #include "glplib.h"
 
 /*----------------------------------------------------------------------
@@ -144,10 +150,15 @@ void _insist(const char *expr, const char *file, int line)
 -- *Returns*
 --
 -- The routine watch returns the processor time in seconds. */
-
+#ifndef __CYGWIN__
+/*
+  As mentioned above, we get in trouble if we include time.h, so this
+  function has to go.
+*/
 double watch(void)
 {     return
          (double)clock() / (double)CLOCKS_PER_SEC;
 }
+#endif
 
 /* eof */
