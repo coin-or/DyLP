@@ -9,12 +9,21 @@
 # ------------------------------------------------------------------------
 AC_DEFUN([AC_DYLP_EQUIV_FOR_CPP_BOOL],
 [ AC_MSG_NOTICE([Determining C type equivalent for C++ bool.])
-  AC_LANG_PUSH(C++)
-  _AC_COMPUTE_INT([(long) (sizeof (bool))],
-      [ac_cv_sizeof_cpp_bool],
-      [AC_INCLUDES_DEFAULT([$3])],
-      [AC_MSG_FAILURE([cannot compute sizeof (bool) for C++])])
-  AC_LANG_POP(C++)
+
+# Autoconf 2.59 has issues with the MSVC cl compiler which are fixed in 2.61.
+# Until we upgrade, just force sizeof(bool) to 1.
+  case $CXX in
+    cl* | */cl*)
+      ac_cv_sizeof_cpp_bool="1" ;;
+    *)
+      AC_LANG_PUSH(C++)
+      _AC_COMPUTE_INT([(long) (sizeof (bool))],
+	  [ac_cv_sizeof_cpp_bool],
+	  [AC_INCLUDES_DEFAULT([$3])],
+	  [AC_MSG_FAILURE([cannot compute sizeof (bool) for C++])])
+      AC_LANG_POP(C++)
+      ;;
+  esac
 # Force a particular value to test the code below.
 # ac_cv_sizeof_cpp_bool=8
   AC_MSG_NOTICE([C++ bool is $ac_cv_sizeof_cpp_bool bytes.])
