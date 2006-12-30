@@ -29,7 +29,7 @@
   keep.
   
   The module is a standalone unit. I/O is handled entirely by stdio
-  facilities unless the malloc debugging macros (loustd.h) are compiled in,
+  facilities unless the malloc debugging macros (dylib_std.h) are compiled in,
   in which case the io library is needed.
 */
 

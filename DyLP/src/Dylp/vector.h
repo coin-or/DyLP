@@ -221,23 +221,23 @@
  
   pkcoeff_struct
  
-  Field                  Description
-  -----                  -----------
-  ndx                  the column/row index for the coefficient
-  val                  the value of the coefficient
+  Field		Description
+  -----         -----------
+  ndx           the column/row index for the coefficient
+  val           the value of the coefficient
  
   pkvec_struct
  
-  Field                  Description
-  -----                  -----------
-  ndx                  the common index for all coefficients when the vector is a
-                  row or column from a matrix
-  nme                  name associated with this vector, if any
-  dim                  length of the vector when unpacked
-  dflt                  the default value of coefficients not in coeffs
-  cnt                  number of non-default coefficients in the coeffs array
-  sze                  allocated capacity (in pkcoeff_struct's) of the coeffs array
-  coeffs         the array of (column/row index, coefficient) pairs
+  Field		Description
+  -----         -----------
+  ndx           the common index for all coefficients when the vector is a
+  		row or column from a matrix
+  nme           name associated with this vector, if any
+  dim           length of the vector when unpacked
+  dflt          the default value of coefficients not in coeffs
+  cnt           number of non-default coefficients in the coeffs array
+  sze           allocated capacity (in pkcoeff_struct's) of the coeffs array
+  coeffs	the array of (column/row index, coefficient) pairs
  
   NOTE: pkvec_struct->coeffs is indexed from 0 and sized accordingly.
 */
