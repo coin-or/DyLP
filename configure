@@ -478,7 +478,7 @@ ac_subdirs_all="$ac_subdirs_all CoinUtils"
 ac_subdirs_all="$ac_subdirs_all Osi"
 ac_subdirs_all="$ac_subdirs_all Data/Netlib"
 ac_subdirs_all="$ac_subdirs_all Data/Sample"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CDEFS ADD_CFLAGS DBG_CFLAGS OPT_CFLAGS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT MPICC CXXDEFS ADD_CXXFLAGS DBG_CXXFLAGS OPT_CXXFLAGS CXX CXXFLAGS ac_ct_CXX MPICXX ADD_FFLAGS DBG_FFLAGS OPT_FFLAGS F77 FFLAGS ac_ct_F77 MPIF77 EGREP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LIBTOOLM4 have_autoconf have_automake have_svn BUILDTOOLSDIR AUX_DIR abs_source_dir abs_lib_dir abs_include_dir abs_bin_dir HAVE_EXTERNALS_TRUE HAVE_EXTERNALS_FALSE host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP LIBTOOL RPATH_FLAGS LT_LDFLAGS COIN_SKIP_PROJECTS subdirs LIBEXT VPATH_DISTCLEANFILES LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CDEFS ADD_CFLAGS DBG_CFLAGS OPT_CFLAGS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT MPICC CXXDEFS ADD_CXXFLAGS DBG_CXXFLAGS OPT_CXXFLAGS CXX CXXFLAGS ac_ct_CXX MPICXX ADD_FFLAGS DBG_FFLAGS OPT_FFLAGS F77 FFLAGS ac_ct_F77 MPIF77 EGREP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LIBTOOLM4 have_autoconf have_automake have_svn BUILDTOOLSDIR AUX_DIR abs_source_dir abs_lib_dir abs_include_dir abs_bin_dir HAVE_EXTERNALS_TRUE HAVE_EXTERNALS_FALSE host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP LIBTOOL ac_c_preproc_warn_flag ac_cxx_preproc_warn_flag RPATH_FLAGS LT_LDFLAGS COIN_SKIP_PROJECTS subdirs LIBEXT VPATH_DISTCLEANFILES LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1765,9 +1765,9 @@ fi;
    msvc|mingw|no) ;;
    yes) enable_doscompile=mingw ;;
    *) { { echo "$as_me:$LINENO: error: Invalid value $enable_doscompile for --enable-doscompile.
-Try configure --help=recursive." >&5
+		    Try configure --help=recursive." >&5
 echo "$as_me: error: Invalid value $enable_doscompile for --enable-doscompile.
-Try configure --help=recursive." >&2;}
+		    Try configure --help=recursive." >&2;}
    { (exit 1); exit 1; }; }
       ;;
   esac
@@ -1790,7 +1790,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # compiler, if the C++ is set, but the C compiler isn't (only for CXX=cl)
 if test x"$CXX" != x; then
   case "$CXX" in
-    cl* | */cl*)
+    cl* | */cl* | CL* | */CL*)
       if test x"$CC" = x; then
         CC="$CXX"
         { echo "$as_me:$LINENO: WARNING: C++ compiler name provided as $CXX, but CC is unset. Setting CC to $CXX" >&5
@@ -1809,6 +1809,9 @@ coin_has_cc=yes
 
 save_cflags="$CFLAGS"
 # For sparc-sun-solaris, promote Studio/Workshop compiler to front of list.
+# ToDo: If Studio/Workshop cc is not present, we may find /usr/ucb/cc, which
+# is likely to be a non-functional shell. But many installations will have
+# both cc and gcc, so promoting gcc isn't good either. How to test reliably?
 case $build in
   *-cygwin* | *-mingw*)
   	     if test "$enable_doscompile" = msvc ; then
@@ -1825,8 +1828,7 @@ esac
 # We delete the cached value, since the test might not have been
 # performed with our choice of compilers earlier
 $as_unset ac_cv_prog_CC || test "${ac_cv_prog_CC+set}" != set || { ac_cv_prog_CC=; export ac_cv_prog_CC; }
-{ echo "$as_me:$LINENO: C compiler candidates: $comps" >&5
-echo "$as_me: C compiler candidates: $comps" >&6;}
+# AC_MSG_NOTICE([C compiler candidates: $comps])
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2547,7 +2549,7 @@ echo "$as_me: error: Failed to find a C compiler!" >&2;}
 fi
 # Autoconf incorrectly concludes that cl recognises -g. It doesn't.
 case "$CC" in
-  cl* | */cl*)
+  cl* | */cl* | CL* | */CL* )
     if test "$ac_cv_prog_cc_g" = yes ; then
       ac_cv_prog_cc_g=no
       { echo "$as_me:$LINENO: Overruling autoconf; cl does not recognise -g." >&5
@@ -2637,7 +2639,7 @@ rm -f conftest.err conftest.$ac_objext \
     case $build in
       *-cygwin* | *-mingw*)
         case "$CC" in
-          cl* | */cl*)
+          cl* | */cl* | CL* | */CL*)
             coin_opt_cflags='-MT -O2'
             coin_add_cflags='-nologo -wd4996'
             coin_dbg_cflags='-MTd'
@@ -2948,7 +2950,7 @@ fi
 
 # Correct ADDLIBS initialization if we are using the MS compiler
 case "$CC" in
-  cl* | */cl*)
+  cl* | */cl* | CL* | */CL*)
     ADDLIBS=
     case $build in
   *-mingw*)
@@ -3012,8 +3014,7 @@ esac
 # We delete the cached value, since the test might not have been
 # performed with our choice of compilers earlier
 $as_unset ac_cv_prog_CXX || test "${ac_cv_prog_CXX+set}" != set || { ac_cv_prog_CXX=; export ac_cv_prog_CXX; }
-{ echo "$as_me:$LINENO: C++ compiler candidates: $comps" >&5
-echo "$as_me: C++ compiler candidates: $comps" >&6;}
+# AC_MSG_NOTICE([C++ compiler candidates: $comps])
 ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3377,7 +3378,7 @@ fi
 
 # Autoconf incorrectly concludes that cl recognises -g. It doesn't.
 case "$CXX" in
-  cl* | */cl*)
+  cl* | */cl* | CL* | */CL* )
     if test "$ac_cv_prog_cxx_g" = yes ; then
       ac_cv_prog_cxx_g=no
       { echo "$as_me:$LINENO: Overruling autoconf; cl does not recognise -g." >&5
@@ -3472,7 +3473,7 @@ rm -f conftest.err conftest.$ac_objext \
     case $build in
       *-cygwin* | *-mingw*)
         case "$CXX" in
-          cl* | */cl*)
+          cl* | */cl* | CL* | */CL*)
 	    # The MT and MTd options are mutually exclusive
             coin_opt_cxxflags='-MT -O2'
             coin_add_cxxflags='-nologo -EHsc -GR -wd4996'
@@ -3789,7 +3790,7 @@ echo "$as_me: Will use MPI C++ compiler $MPICXX" >&6;}
 fi
 
 case "$CXX" in
-  cl* | */cl*)
+  cl* | */cl* | CL* | */CL* )
     case $build in
   *-mingw*)
     if test "${LD+set}" = set; then :; else
@@ -3847,13 +3848,17 @@ ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 coin_has_f77=yes
 
 save_fflags="$FFLAGS"
-comps="$coin_f77_comps" #This comes from AC_COIN_F77_COMPS
 
 # We delete the cached value, since the test might not have been
 # performed with our choice of compilers earlier
 $as_unset ac_cv_prog_F77 || test "${ac_cv_prog_F77+set}" != set || { ac_cv_prog_F77=; export ac_cv_prog_F77; }
-{ echo "$as_me:$LINENO: Fortran compiler candidates: $comps" >&5
-echo "$as_me: Fortran compiler candidates: $comps" >&6;}
+
+# This is a real belt-and-suspenders approach. AC_COIN_FIND_F77 will use
+# coin_f77_comps to see if there's a program that matches one of the names.
+# If there's no such program, F77 = unavailable. If we match the name,
+# feed AC_PROG_F77 the same search list, just to be sure it's a functioning
+# compiler.
+# AC_MSG_NOTICE([Fortran compiler candidates: $coin_f77_comps])
 
 
 { echo "$as_me:$LINENO: Trying to determine Fortran compiler name" >&5
@@ -3906,7 +3911,7 @@ ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 if test -n "$ac_tool_prefix"; then
-  for ac_prog in $F77
+  for ac_prog in $coin_f77_comps
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -3948,7 +3953,7 @@ fi
 fi
 if test -z "$F77"; then
   ac_ct_F77=$F77
-  for ac_prog in $F77
+  for ac_prog in $coin_f77_comps
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -3993,7 +3998,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3996:" \
+echo "$as_me:4001:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4207,7 +4212,7 @@ rm -f conftest.err conftest.$ac_objext \
     case $build in
       *-cygwin* | *-mingw*)
         case $F77 in
-          ifort* | */ifort*)
+          ifort* | */ifort* | IFORT* | */IFORT* )
             coin_opt_fflags='-O3'
             coin_add_fflags='-nologo -MT'
             coin_dbg_fflags='-debug'
@@ -4477,7 +4482,7 @@ echo "$as_me: Will use MPI Fortran compiler $MPIF77" >&6;}
 fi
 
 case "$F77" in
-  ifort*)
+  ifort* | */ifort* | IFORT* | */IFORT*)
     case $build in
   *-mingw*)
     if test "${LD+set}" = set; then :; else
@@ -4505,6 +4510,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 # Initialize automake and libtool
+# AC_MSG_NOTICE([Calling INIT_AUTO_TOOLS from CREATE_LIBTOOL.])
 {
 
 
@@ -4908,8 +4914,7 @@ fi
 
 
 
-{ echo "$as_me:$LINENO: Beginning automake initialisation." >&5
-echo "$as_me: Beginning automake initialisation." >&6;}
+# AC_MSG_NOTICE([Beginning automake initialisation.])
 # Stuff for automake
 # test to see if srcdir already configured
 if test "`cd $srcdir && pwd`" != "`pwd`" &&
@@ -5698,8 +5703,7 @@ else
 fi
 
 
-{ echo "$as_me:$LINENO: End automake initialisation." >&5
-echo "$as_me: End automake initialisation." >&6;}
+# AC_MSG_NOTICE([End automake initialisation.])
 
 
 
@@ -5754,34 +5758,14 @@ if test $ac_cv_file_______libtool = yes; then
 fi
 
 fi
-if test "x$LIBTOOL" = x; then
-  echo "$as_me:$LINENO: checking for ../../../libtool" >&5
-echo $ECHO_N "checking for ../../../libtool... $ECHO_C" >&6
-if test "${ac_cv_file__________libtool+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "../../../libtool"; then
-  ac_cv_file__________libtool=yes
-else
-  ac_cv_file__________libtool=no
-fi
-fi
-echo "$as_me:$LINENO: result: $ac_cv_file__________libtool" >&5
-echo "${ECHO_T}$ac_cv_file__________libtool" >&6
-if test $ac_cv_file__________libtool = yes; then
-  coin_config_dir=../../..
-                 LIBTOOL='$(SHELL) $(top_builddir)/../../../libtool'
-fi
-
-fi
+# if test "x$LIBTOOL" = x; then
+#   AC_CHECK_FILE([../../../libtool],
+#                 [coin_config_dir=../../..
+#                  LIBTOOL='$(SHELL) $(top_builddir)/../../../libtool'])
+# fi
 
 if test "x$LIBTOOL" = x; then
-  { echo "$as_me:$LINENO: Creating libtool script." >&5
-echo "$as_me: Creating libtool script." >&6;}
+# AC_MSG_NOTICE([Creating libtool script (calling COIN_PROG_LIBTOOL).])
   # Stuff for libtool
   # Check whether --enable-shared or --disable-shared was given.
 if test "${enable_shared+set}" = set; then
@@ -6331,7 +6315,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6334 "configure"' > conftest.$ac_ext
+  echo '#line 6318 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -8295,11 +8279,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8298: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8282: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8302: \$? = $ac_status" >&5
+   echo "$as_me:8286: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8563,11 +8547,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8566: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8550: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8570: \$? = $ac_status" >&5
+   echo "$as_me:8554: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8667,11 +8651,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8670: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8654: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8674: \$? = $ac_status" >&5
+   echo "$as_me:8658: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11012,7 +10996,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 11015 "configure"
+#line 10999 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11112,7 +11096,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 11115 "configure"
+#line 11099 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13456,11 +13440,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13459: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13443: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13463: \$? = $ac_status" >&5
+   echo "$as_me:13447: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13560,11 +13544,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13563: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13547: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13567: \$? = $ac_status" >&5
+   echo "$as_me:13551: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15130,11 +15114,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15133: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15117: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15137: \$? = $ac_status" >&5
+   echo "$as_me:15121: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15234,11 +15218,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15237: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15221: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15241: \$? = $ac_status" >&5
+   echo "$as_me:15225: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17441,11 +17425,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17444: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17428: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17448: \$? = $ac_status" >&5
+   echo "$as_me:17432: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17709,11 +17693,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17712: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17696: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17716: \$? = $ac_status" >&5
+   echo "$as_me:17700: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17813,11 +17797,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17816: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17800: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17820: \$? = $ac_status" >&5
+   echo "$as_me:17804: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -20476,18 +20460,16 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 # NEW: If libtool exists in the directory higher up, we use that one
 #      instead of creating a new one
-# Ok, it turns out that the code for AC_PROG_LIBTOOL must be AC_REQUIRED out
-# in front of this macro body. You'll notice that LIBTOOL is already defined.
-# We'll have to count on this macro not being called if libtool already
-# exists, or at least move the libtool fixes outside the conditional.
+
+# It turns out that the code for AC_PROG_LIBTOOL is somehow AC_REQUIRED
+# out in front of this macro body. You'll notice that LIBTOOL is already
+# defined here.  We'll have to count on this macro not being called if libtool
+# already exists, or at least move the libtool fixes outside the conditional.
 # AC_MSG_NOTICE([Entering coin_prog_libtool, LIBTOOL = "$LIBTOOL".])
 # This test is therefore removed.  -- lh, 061214 --
 # if test "x$LIBTOOL" = x; then
 
-  # We check for this header here in a non-standard way to avoid warning
-  # messages
-  { echo "$as_me:$LINENO: Begin libtool initialisation." >&5
-echo "$as_me: Begin libtool initialisation." >&6;}
+# AC_MSG_NOTICE([Calling PROG_LIBTOOL.])
 
 
 
@@ -20497,8 +20479,9 @@ echo "$as_me: Begin libtool initialisation." >&6;}
 
 
 
-  { echo "$as_me:$LINENO: Complete prog_libtool." >&5
-echo "$as_me: Complete prog_libtool." >&6;}
+# AC_MSG_NOTICE([Finished PROG_LIBTOOL.])
+
+
 
 # Fix bugs in libtool script for Windows native compilation:
 # - cygpath is not correctly quoted in fix_srcfile_path
@@ -20530,7 +20513,7 @@ echo "$as_me: Build is \"$build\"." >&6;}
   case $build in
     *-cygwin* | *-mingw*)
     case "$CXX" in
-      cl* | */cl*)
+      cl* | */cl* | CL* | */CL*)
         { echo "$as_me:$LINENO: Applying patches to libtool for cl compiler" >&5
 echo "$as_me: Applying patches to libtool for cl compiler" >&6;}
         sed -e 's|fix_srcfile_path=\"`cygpath -w \"\$srcfile\"`\"|fix_srcfile_path=\"\\\`'"$CYGPATH_W"' \\\"\\$srcfile\\\"\\\`\"|' \
@@ -20561,13 +20544,13 @@ echo "$as_me: Applying patches to libtool for GNU compiler" >&6;}
         ;;
     esac
   esac
-# This fi matches the commented if up at the head. -- lh, 061214 --
+# This fi matches the commented `if test "x$LIBTOOL" = x;' up at the head of
+# the macro. -- lh, 061214 --
 # fi
 
-{ echo "$as_me:$LINENO: End libtool initialisation." >&5
-echo "$as_me: End libtool initialisation." >&6;}
+# AC_MSG_NOTICE([End libtool initialisation.])
 
-
+# AC_MSG_NOTICE([Finished COIN_PROG_LIBTOOL.])
   # set RPATH_FLAGS to the compiler link flags required to hardcode location
   # of the shared objects
   RPATH_FLAGS=
@@ -20626,7 +20609,8 @@ echo "$as_me: Using libtool script in directory $coin_config_dir" >&6;}
          # First some automake conditionals
       s,@am__fastdep* | s,@AR@* | s,@CPP@*  | s,@CPPFLAGS@* | s,@CXXCPP@*  | \
       s,@RANLIB@* | s,@STRIP@* | s,@ac_ct_AR@* | s,@ac_ct_RANLIB@* | \
-      s,@ac_ct_STRIP@* | s,@host* | s,@LN_S@* | s,@RPATH_FLAGS@* )
+      s,@ac_ct_STRIP@* | s,@host* | s,@LN_S@* | s,@RPATH_FLAGS@* | \
+      s,@ac_c_preproc_warn_flag@* |  s,@ac_cxx_preproc_warn_flag@* )
         command=`echo $oneline | sed -e 's/^s,@//' -e 's/@,/="/' -e 's/,;t t/"/'`
 #        echo "$command"
         eval "$command"
@@ -20654,6 +20638,8 @@ echo "$as_me: Using libtool script in directory $coin_config_dir" >&6;}
   done
 fi
 
+# AC_MSG_NOTICE([End of INIT_AUTO_TOOLS.])
+
 # ToDo
 # For now, don't use the -no-undefined flag, since the Makefiles are
 # not yet set up that way.  But we need to fix this, when we want
@@ -20663,6 +20649,7 @@ LT_LDFLAGS=
 
 #END
 }
+# AC_MSG_NOTICE([Finished INIT_AUTO_TOOLS from CREATE_LIBTOOL.])
 
 
 #############################################################################
@@ -20879,7 +20866,7 @@ fi
 # library extension
 
 case "$CC" in
-  cl* | */cl*)
+  cl* | */cl* | CL* | */CL*)
        LIBEXT=lib ;;
     *) LIBEXT=a ;;
 esac
@@ -21665,6 +21652,8 @@ s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@CPP@,$CPP,;t t
 s,@CXXCPP@,$CXXCPP,;t t
 s,@LIBTOOL@,$LIBTOOL,;t t
+s,@ac_c_preproc_warn_flag@,$ac_c_preproc_warn_flag,;t t
+s,@ac_cxx_preproc_warn_flag@,$ac_cxx_preproc_warn_flag,;t t
 s,@RPATH_FLAGS@,$RPATH_FLAGS,;t t
 s,@LT_LDFLAGS@,$LT_LDFLAGS,;t t
 s,@COIN_SKIP_PROJECTS@,$COIN_SKIP_PROJECTS,;t t
@@ -22327,7 +22316,7 @@ if test x"$coin_vpath_link_files" = x; then : ; else
     lnkcmd=cp
   fi
   case "$CC" in
-    cl* | */cl*)
+    cl* | */cl* | CL* | */CL*)
       lnkcmd=cp ;;
   esac
   if test "$lnkcmd" = cp; then
