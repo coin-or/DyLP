@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------
 AC_DEFUN([AC_DYLP_PARANOIA],
 [ AC_ARG_ENABLE([dylp-paranoia],
-      AS_HELP_STRING([--with-dylp-paranoia],
+      AS_HELP_STRING([--enable-dylp-paranoia],
           [Enable dylp's paranoid checks (default=$1)]),
       [dylp_paranoia=$enableval],
       [dylp_paranoia=$1])
@@ -24,7 +24,7 @@ AC_DEFUN([AC_DYLP_PARANOIA],
 # ------------------------------------------------------------------
 AC_DEFUN([AC_DYLP_STATISTICS],
 [ AC_ARG_ENABLE([dylp-stats],
-      AS_HELP_STRING([--with-dylp-stats],
+      AS_HELP_STRING([--enable-dylp-stats],
           [Enable dylp's statistics collection features (default=$1)]),
       [dylp_stats=$enableval],
       [dylp_stats=$1])
@@ -44,7 +44,7 @@ AC_DEFUN([AC_DYLP_STATISTICS],
 # ------------------------------------------------------------------
 AC_DEFUN([AC_DYLP_INFO],
 [ AC_ARG_ENABLE([dylp-info],
-      AS_HELP_STRING([--with-dylp-info],
+      AS_HELP_STRING([--enable-dylp-info],
           [Enable dylp's informational printing features (default=$1)]),
       [dylp_info=$enableval],
       [dylp_info=$1])
