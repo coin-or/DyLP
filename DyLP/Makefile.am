@@ -40,7 +40,7 @@ EXTRA_DIST = \
 test: all
 	if test -r ../Osi/test/Makefile; then \
 	  cd ../Osi/test; \
-	  make test; \
+	  $(MAKE) test; \
 	else \
 	  echo "We don't have Osi to run the test"; \
 	fi
