@@ -27,7 +27,7 @@
 */
 
 /*
-  @(#)loustd.h	1.5	09/25/04
+  @(#)dylib_std.h	1.5	09/25/04
   svn/cvs: $Id$
 */
 
@@ -88,7 +88,7 @@
   build booltype, run it, and edit in the appropriate definition. If you're
   not worried about C++ compatibility, int is a good as anything.
 */
-# warning The compile-time symbol BOOL is not defined (loustd.h)
+# warning The compile-time symbol BOOL is not defined (dylib_std.h)
   typedef int bool ;
 # endif
 #endif

@@ -253,13 +253,13 @@ static bool real_opt (float *rloc)
 static bool bool_opt (bool *bloc)
 
 /*
-  Generic (and fairly trivial) routine to parse a boolean. But ... we have to
-  take some care here because of the way bool is handled. If you look at the
-  typedef for bool in loustd.h, you'll see that it can change in size --- this
-  is necessary for C++ compatibility in the COIN OSI layer implementation. But
-  a bnfIdef_struct (an immediate) holds its value as an int, and when
-  doimmediate tries to load a field, it casts to an int. To make a long
-  story short, the val field in a boolopt_struct must be an int.
+  Generic (and fairly trivial) routine to parse a boolean. But ... we have
+  to take some care here because of the way bool is handled. If you look
+  at the typedef for bool in dylib_std.h, you'll see that it can change in
+  size --- this is necessary for C++ compatibility in the COIN OSI layer
+  implementation. But a bnfIdef_struct (an immediate) holds its value as an
+  int, and when doimmediate tries to load a field, it casts to an int. To
+  make a long story short, the val field in a boolopt_struct must be an int.
 
   Parameters:
     bloc: address where the boolean is to be placed.

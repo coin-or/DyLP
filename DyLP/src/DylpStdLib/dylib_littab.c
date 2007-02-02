@@ -31,7 +31,7 @@
   inserting strings and strfree for releasing them.
 
   I/O is handled entirely by stdio facilities unless the malloc debugging
-  macros (loustd.h) are compiled in, in which case the io library is needed.
+  macros (dylib_std.h) are compiled in, in which case the io library is needed.
 */
 
 #include "dylib_std.h"

@@ -862,13 +862,16 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 
   If the caller is trying for a hot start, do some quick checks --- there
   should be a status flag, the previous run should have ended cleanly (i.e.,
-  with a result of optimal, unbounded, or infeasible), and we should have
-  retained data structures.  Admittedly these checks are not foolproof (the
-  status flag and return code are accessible to the client, and we could be
-  retaining structures based on a call from some other client), but one would
-  like to hope the client knows what it's doing and is not arbitrarily
-  interleaving calls from different objects. If we're paranoid, we'll check
-  for consistency.
+  with a result of optimal, unbounded, infeasible, or iteration limit), and
+  we should have retained data structures.  Iteration limit is (sort of)
+  a special case -- this arises frequently when a B&C code is using dylp
+  for strong branching; the iteration limit will be deliberately inadequate.
+
+  Admittedly these checks are not foolproof (the status flag and return
+  code are accessible to the client, and we could be retaining structures
+  based on a call from some other client), but one would like to hope the
+  client knows what it's doing and is not arbitrarily interleaving calls
+  from different objects. If we're paranoid, we'll check for consistency.
 */
 # ifdef PARANOIA
   if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_retained == TRUE) ||
@@ -889,7 +892,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
     { errmsg(396,rtnnme,orig_sys->nme,"hot start") ;
       return (lpINV) ; }
     if (!(orig_lp->lpret == lpOPTIMAL || orig_lp->lpret == lpUNBOUNDED ||
-	  orig_lp->lpret == lpINFEAS))
+	  orig_lp->lpret == lpINFEAS || orig_lp->lpret == lpITERLIM))
     { errmsg(395,rtnnme,orig_sys->nme,dy_prtlpret(orig_lp->lpret)) ;
       return (lpINV) ; } }
 

@@ -23,12 +23,12 @@ SUBDIRS = $(subdirs)
 ########################################################################
 
 test: all
-	cd DyLP; make test
+	cd DyLP; $(MAKE) test
 
 tests: all
 	for dir in $(subdirs); do \
 	  if test -r $$dir/test/Makefile; then \
-	    (cd $$dir; make test) \
+	    (cd $$dir; $(MAKE) test) \
 	  fi; \
 	done
 

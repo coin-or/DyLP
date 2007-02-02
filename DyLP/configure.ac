@@ -55,9 +55,6 @@ AC_COIN_PROG_CC
 # Get the name of the C++ compiler and appropriate compiler options
 AC_COIN_PROG_CXX
 
-# Check for settings in CXXFLAGS that should move to CPPFLAGS
-AC_DYLP_FIX_CPPFLAGS
-
 # Initialize automake and libtool
 AC_COIN_INIT_AUTO_TOOLS
 
@@ -70,6 +67,9 @@ AC_COIN_HAS_PROJECT(DyLP)
 #############################################################################
 #                       Doing project specific tests                        #
 #############################################################################
+
+# Tweak compilation flags.
+AC_DYLP_FIX_CPPFLAGS
 
 # Determine the C type that corresponds to the C++ bool type in size
 
