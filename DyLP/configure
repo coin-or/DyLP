@@ -20326,24 +20326,34 @@ echo "${ECHO_T}$coin_has_dylp" >&6
 #############################################################################
 
 # Tweak compilation flags.
- case "$CXXFLAGS $CFLAGS" in
+
+# Transfer flags from CFLAGS/CXXFLAGS to CPPFLAGS.
+  case "$CXXFLAGS $CFLAGS" in
     *-mno-cygwin*)
-      CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-mno-cygwin//'`
-      CFLAGS=`echo $CFLAGS | sed -e 's/-mno-cygwin//'`
+      CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-mno-cygwin//g'`
+      CFLAGS=`echo $CFLAGS | sed -e 's/-mno-cygwin//g'`
       CPPFLAGS="-mno-cygwin $CPPFLAGS"
       LDFLAGS="-mno-cygwin $LDFLAGS"
       ;;
   esac
+# Add flags. Strip the option first, then add once, to avoid repetition.
   case "$CXX" in
     cl* | */cl*)
-      CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-wd4996//'`
+      CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-wd4996//g'`
       CXXFLAGS="$CXXFLAGS -wd4996"
       ;;
   esac
   case "$CC" in
     cl* | */cl*)
-      CFLAGS=`echo $CFLAGS | sed -e 's/-wd4996//'`
+      CFLAGS=`echo $CFLAGS | sed -e 's/-wd4996//g'`
       CFLAGS="$CFLAGS -wd4996"
+    ;;
+  esac
+# Deletions.
+  case "$build" in
+    *-darwin*)
+      CXXFLAGS=`echo $CXXFLAGS | sed -e 's/--*pedantic-errors//g'`
+      CFLAGS=`echo $CFLAGS | sed -e 's/--*pedantic-errors//g'`
     ;;
   esac
 
