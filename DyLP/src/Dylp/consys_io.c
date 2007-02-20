@@ -33,6 +33,7 @@
 #include "dylib_errs.h"
 #include "dylib_io.h"
 #include "dylib_std.h"
+#include "dylib_strrtns.h"
 #include "consys.h"
 
 static char sccsid[] UNUSED = "@(#)consys_io.c	4.6	11/11/04" ;
@@ -180,6 +181,99 @@ char *consys_assocnme (consys_struct *consys, flags which)
   return (nmbuf) ; }
 
 
+
+void consys_chgnme (consys_struct *consys, char cv,
+		    int ndx, const char *newnme)
+/*
+  This routine replaces the existing name of the constraint or variable with
+  newnme.
+
+  Parameters:
+    consys:	constraint system
+    cv:		'c' for constraint, 'v' for variable
+    ndx:	constraint/variable (row/column) index
+    newnme:	the new name
+
+  Returns: undefined; will complain and fail to set the name if the parameters
+	are invalid or some other problem is detected.
+*/
+
+{ rowhdr_struct *rowhdr ;
+  colhdr_struct *colhdr ;
+  int varcnt ;
+
+# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+  const char *rtnnme = "consys_chgnme" ;
+# endif
+
+# ifdef PARANOIA
+  if (consys == NULL)
+  { errmsg(2,rtnnme,"consys") ;
+    return ; }
+
+  switch (cv)
+  { case 'c':
+    { if (consys->mtx.rows == NULL)
+      { errmsg(101,rtnnme,consys->nme,"row header") ;
+	return ; }
+      if (ndx <= 0 || ndx > consys->concnt)
+      { errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->concnt) ;
+	return ; }
+      if (consys->mtx.rows[ndx] == NULL)
+      { errmsg(103,rtnnme,consys->nme,"row",ndx) ;
+	return ; }
+      break ; }
+    case 'v':
+    { if (consys->mtx.cols == NULL)
+      { errmsg(101,rtnnme,consys->nme,"column header") ;
+	return ; }
+      if (flgon(consys->opts,CONSYS_LVARS))
+	varcnt = consys->varcnt ;
+      else
+	varcnt = consys->varcnt+consys->concnt ;
+      if (ndx <= 0 || ndx > varcnt)
+      { errmsg(102,rtnnme,consys->nme,"variable",ndx,1,varcnt) ;
+	return ; }
+      if (consys->mtx.cols[ndx] == NULL)
+      { errmsg(103,rtnnme,consys->nme,"column",ndx) ;
+	return ; }
+      break ; }
+    default:
+    { errmsg(3,rtnnme,"cv",cv) ;
+      return (errname) ; } }
+
+  if (newnme == NULL)
+  { errmsg(2,rtnnme,"newnme") ;
+    return ; }
+  if (strlen(newnme) == 0)
+  { errmsg(4,rtnnme,"newnme","<null string>") ;
+    return ; }
+# endif
+
+/*
+  We know that ndx is valid, the row/column header exists, and we have a
+  non-null name to insert. Go to it. Remember that these strings are managed
+  through the literal table. (STRALLOC/STRFREE)
+*/
+  switch (cv)
+  { case 'c':
+    { rowhdr = consys->mtx.rows[ndx] ;
+      if (rowhdr->nme != NULL)
+      { STRFREE(rowhdr->nme) ; }
+      rowhdr->nme = STRALLOC(newnme) ;
+      break ; }
+    case 'v':
+    { colhdr = consys->mtx.cols[ndx] ;
+      if (colhdr->nme != NULL)
+      { STRFREE(colhdr->nme) ; }
+      colhdr->nme = STRALLOC(newnme) ;
+      break ; }
+    default:
+    { errmsg(1,rtnnme,__LINE__) ;
+      return ; } }
+
+  return ; }
+
 
 char *consys_lognme (consys_struct *consys, int rowndx, char *clientbuf)
 

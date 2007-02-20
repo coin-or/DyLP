@@ -597,14 +597,22 @@ extern char *consys_assocnme(consys_struct *consys, flags which),
 	    *consys_conbndnme(char bndlett, int cndx, conbnd_struct *bnd),
 	    *consys_conbndval(conbnd_struct *bnd) ;
 
-# ifndef DYLP_NDEBUG
+#ifndef DYLP_NDEBUG
 
 #include "dylib_io.h"
 #include "dylib_std.h"
 
 extern void consys_prtcon(ioid chn, bool echo,
 			  consys_struct *consys, int i, const char *pfx) ;
-# endif
+#endif
+
+/*
+  A routine to set (change, really) the name of an existing constraint or
+  variable.
+*/
+
+extern void consys_chgnme(consys_struct *consys, char cv,
+			  int ndx, const char *newnme) ;
 
 /*
   consys_nme returns a string containing the name of the specified constraint
