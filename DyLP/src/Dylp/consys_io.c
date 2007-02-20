@@ -185,12 +185,13 @@ char *consys_assocnme (consys_struct *consys, flags which)
 void consys_chgnme (consys_struct *consys, char cv,
 		    int ndx, const char *newnme)
 /*
-  This routine replaces the existing name of the constraint or variable with
-  newnme.
+  This routine replaces the existing name of the constraint system, objective,
+  constraint or variable with newnme.
 
   Parameters:
     consys:	constraint system
-    cv:		'c' for constraint, 'v' for variable
+    cv:		'c' for constraint, 'v' for variable, 'o' for objective,
+		's' for the constraint system
     ndx:	constraint/variable (row/column) index
     newnme:	the new name
 
@@ -238,6 +239,9 @@ void consys_chgnme (consys_struct *consys, char cv,
       { errmsg(103,rtnnme,consys->nme,"column",ndx) ;
 	return ; }
       break ; }
+    case 'o':
+    case 's':
+    { break ; }
     default:
     { errmsg(3,rtnnme,"cv",cv) ;
       return (errname) ; } }
@@ -252,8 +256,9 @@ void consys_chgnme (consys_struct *consys, char cv,
 
 /*
   We know that ndx is valid, the row/column header exists, and we have a
-  non-null name to insert. Go to it. Remember that these strings are managed
-  through the literal table. (STRALLOC/STRFREE)
+  non-null name to insert. (In the case of the objective or constraint system
+  name, we only care about a non-null name.) Go to it. Remember that these
+  strings are managed through the literal table. (STRALLOC/STRFREE)
 */
   switch (cv)
   { case 'c':
@@ -267,6 +272,16 @@ void consys_chgnme (consys_struct *consys, char cv,
       if (colhdr->nme != NULL)
       { STRFREE(colhdr->nme) ; }
       colhdr->nme = STRALLOC(newnme) ;
+      break ; }
+    case 'o':
+    { if (consys->objnme != NULL)
+      { STRFREE(consys->objnme) ; }
+      consys->objnme = STRALLOC(newnme) ;
+      break ; }
+    case 's':
+    { if (consys->nme != NULL)
+      { STRFREE(consys->nme) ; }
+      consys->nme = STRALLOC(newnme) ;
       break ; }
     default:
     { errmsg(1,rtnnme,__LINE__) ;
