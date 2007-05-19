@@ -181,10 +181,8 @@
 #endif 
 
 /*
-  On some machines, HUGE_VAL isn't actually IEEE infinity. Fix that if
-  necessary.
-  AW: I just overwrite this now everytime, since the result should be
-	  the same.
+  On some machines, HUGE_VAL isn't actually IEEE infinity. Make sure that
+  it really is IEEE infinity.
 */
  
 #undef HUGE_VAL

@@ -1,29 +1,27 @@
 /*
- * Include file for the configuration of Vol.
- *
- * On systems where the code is configured with the configure script
- * (i.e., compilation is always done with HAVE_CONFIG_H defined), this
- * header file includes the automatically generated header file, and
- * undefines macros that might configure with other Config.h files.
- *
- * On systems that are compiled in other ways (e.g., with the
- * Developer Studio), a header files is included to define those
- * macros that depend on the operating system and the compiler.  The
- * macros that define the configuration of the particular user setting
- * (e.g., presence of other COIN packages or third party code) are set
- * here.  The project maintainer needs to remember to update this file
- * and choose reasonable defines.  A user can modify the default
- * setting by editing this file here.
- *
- */
+   Include file for the configuration of Dylp.
+
+   On systems where the code is configured with the configure script (i.e.,
+   compilation is always done with HAVE_CONFIG_H defined), this header file
+   includes the automatically generated header file config_dylp.h, then
+   undefines macros that might configure with other ProjConfig.h files.
+
+   On systems that are compiled in other ways (e.g., with the Developer
+   Studio), the header file configall_system.h is included to define those
+   macros that depend on the operating system and the compiler, followed by
+   the defines used for configuration of dylp. A user can modify the default
+   settings by editing this file.
+*/
 
 #ifndef __DYLPCONFIG_H__
 
 #ifdef HAVE_CONFIG_H
 #include "config_dylp.h"
 
-/* undefine macros that could conflict with those in other config.h
-   files */
+/*
+  Undefine macros that could conflict with those in other config.h files
+*/
+
 #undef PACKAGE
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
@@ -34,52 +32,99 @@
 
 #else /* HAVE_CONFIG_H */
 
-/* include the COIN-wide system specific configure header */
+/*
+  Include the COIN-wide system specific configure header (usually in
+  BuildTools/inc).
+*/
+
 #include "configall_system.h"
 
-/***************************************************************************/
-/*             HERE DEFINE THE CONFIGURATION SPECIFIC MACROS               */
-/***************************************************************************/
+/*
+  Defines specific to dylp.
+*/
 
-/* Define to the C type corresponding to the C++ bool type */
+/*
+  Define to the C type corresponding to the C++ bool type. `char' is
+  correct on many systems. The next most likely choice is int.
+*/
 #define BOOL char
 
-/* Define to the debug sanity check level (0 is no test) */
+/*
+  Define to the debug sanity check level (0 is no test)
+*/
 #define COIN_DYLP_CHECKLEVEL 0
 
-/* Define to the debug verbosity level (0 is no output) */
+/*
+  But dylp was developed long before COIN came into being, so if you really
+  want the paranoid checks, define PARANOIA. The value isn't important.
+*/
+/* #define PARANOIA 1 */
+
+/*
+  Define to the debug verbosity level (0 is no output)
+*/
 #define COIN_DYLP_VERBOSITY 0
+/*
+  But dylp was developed long before COIN came into being, so if you
+  want informational printing, DO NOT define DYLP_NDEBUG. The value isn't
+  important.
+*/
+/* #undef DYLP_NDEBUG 1 */
 
-/* Define to 1 if the Osi package is used */
-/* #define COIN_HAS_OSI 1 */
+/*
+  Define this variable to enable dylp's statistics collection features.
+*/
+#define DYLP_STATISTICS 1
 
-/* Define to 1 if the DyLP package is used */
+/*
+  Define to 1 if the DyLP package is available.
+*/
 #define COIN_HAS_DYLP 1
 
-/* Set to the full path directory name for the location of the error text
-   message file dy_errmsgs.txt */
-#define DYLP_ERRMSGDIR "/usr/local/share"
+/*
+  Set to the full path directory name for the location of the error text
+   message file dy_errmsgs.txt. This file is distributed with dylp source and
+   not normally installed elsewhere. An absolute path to DyLP/src/Dylp/ is
+   appropriate. The string should end with a directory separator ("/" or "\",
+   depending on your system). The surrounding quotes are part of the
+   definition. There is no good default; the value given here will work from
+   the examples directory, on a windows system, which seems the most likely
+   environment to be using this part of DylpConfig.h.
+*/
+/* #define DYLP_ERRMSGDIR "..\\src\\Dylp\\" */
 
-/* Define to 1 if DyLP's fpchecks outputs -D_GNU_SOURCE */
-/* #define _GNU_SOURCE 1 */
+/*
+  Define this symbol if your system is `big-endian', i.e., the most significant
+  byte of a multibyte quantity is stored in the lowest byte address. Intel x86
+  systems are little-endian. SPARC and Motorola are big-endian.
+*/
+/* #define WORDS_BIGENDIAN 1 */
 
-/* Define to 4321 if DyLP's fpchecks outputs -D__BIG_ENDIAN=4321 */
-/* #define __BIG_ENDIAN */
+/*
+  Define this symbol if the quiet_nan function exists. This function should
+  return the bit pattern for IEEE quiet NaN.
+*/
+/* #define DYLP_HAS_QUIET_NAN 1 */
 
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_BROKEN_FPCLASS */
-#define __DYLP_BROKEN_FPCLASS
+/*
+  Define to be the name of the C function used to check that an IEEE floating
+  point value is finite. Common possibilities are finite, _finite, and
+  isfinite.
+*/
+#define DYLP_ISFINITE finite
 
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_FIX_HUGE_VAL */
-/* #define __DYLP_FIX_HUGE_VAL */
+/*
+  Define to be the name of the C function used to check that an IEEE floating
+  point value is NaN. Common possibilities are isnan and _isnan.
+*/
+#define DYLP_ISNAN isnan
 
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_SUN */
-/* #define __DYLP_SUN */
-
-/* Define to 1 if DyLP's fpchecks outputs -D__DYLP_SUNWspro */
-/* #define __DYLP_SUNWspro */
-
-/* Define to 1234 if DyLP's fpchecks outputs -D__LITTLE_ENDIAN=1234 */
-/* #define __LITTLE_ENDIAN */
+/*
+  Define to 1 if sunmath.h exists. As you might guess, define this only on a
+  Sun/Solaris system. And really, if you're building on Sun, why are you
+  using this part of the configuration file? Run configure!
+*/
+/* #define HAVE_SUNMATH_H 1 */
 
 #endif /* HAVE_CONFIG_H */
 

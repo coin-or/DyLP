@@ -98,11 +98,12 @@ const char *osidylp_time ;
 /*
   Macro cleverness to specify a default error message file. Depends on ANSI
   C merge of consecutive string constants. DYLP_ERRMSGDIR should have the
-  form "path/to/distribution/Dylp/Dylp", including the quotes.
+  form "path/to/distribution/DyLP/src/Dylp/", including the quotes. See
+  DyLP/src/DylpStdLib/DylpConfig.h for further information.
 */
 
 #ifdef DYLP_ERRMSGDIR
-# define DYLP_ERRMSGPATH DYLP_ERRMSGDIR "/dy_errmsgs.txt"
+# define DYLP_ERRMSGPATH DYLP_ERRMSGDIR "dy_errmsgs.txt"
 #else
 # define DYLP_ERRMSGPATH "dy_errmsgs.txt"
 #endif

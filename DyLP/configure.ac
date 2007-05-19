@@ -134,7 +134,7 @@ AC_CHECK_FUNC([quiet_nan],
 
 AC_C_BIGENDIAN
 
-# Finally, dylp needs to know where it's error message text file is located.
+# Finally, dylp needs to know where its error message text file is located.
 # This is made horribly complicated by Windows, which insists on backslash
 # as the path separator. Keep in mind the sed expression is interpreted by the
 # shell and then by sed; the backslashes are halved each time. In the end
@@ -144,10 +144,10 @@ AC_C_BIGENDIAN
 
 AC_ARG_VAR(DYLP_ERRMSGDIR,
     [Directory containing the DyLP error message text file (dy_errmsgs.txt).
-     Default is srcdir/src/Dylp])
+     Default is /absolute/path/to/srcdir/DyLP/src/Dylp])
 AC_SUBST(DYLP_ERRMSGDIR)
 if test x"$DYLP_ERRMSGDIR" = x; then
-  DYLP_ERRMSGDIR=`$CYGPATH_W $abs_source_dir/src/Dylp`
+  DYLP_ERRMSGDIR=`$CYGPATH_W $abs_source_dir/src/Dylp/`
   DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,\\\\,\\\\\\\\,g'`
 fi
 AC_DEFINE_UNQUOTED([DYLP_ERRMSGDIR],
