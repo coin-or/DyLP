@@ -20074,6 +20074,11 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 #          -e 'sYcompile_command=`\$echo "X\$compile_command" | \$Xsed -e '"'"'s%@OUTPUT@%'"'"'"\$output"'"'"'%g'"'"'`Ycompile_command=`\$echo "X\$compile_command" | \$Xsed -e '"'"'s%@OUTPUT@%'"'"'"\$output"'"'"'%g'"'"' | \$Xsed -e '"'"'s%@BACKSLASH@%\\\\\\\\\\\\\\\\%g'"'"'`Y' \
 
   # Correct cygpath for minGW (ToDo!)
+  # Arguably echo is correct. Mingw/Msys handle normal unix paths from the
+  # command line, so nothing need be done in, for example, Makefiles. But
+  # file names imbedded in programs need to be expressed in Windows syntax.
+  # Unfortunately, there's nothing available to match `cygpath tgtdir`. The
+  # best that can be done is a construct of the form `(cd tgtdir ; pwd -W)`.
   { echo "$as_me:$LINENO: Build is \"$build\"." >&5
 echo "$as_me: Build is \"$build\"." >&6;}
   case $build in
@@ -23585,18 +23590,34 @@ esac
 
 
 # Finally, dylp needs to know where its error message text file is located.
-# This is made horribly complicated by Windows, which insists on backslash
-# as the path separator. Keep in mind the sed expression is interpreted by the
-# shell and then by sed; the backslashes are halved each time. In the end
-# we're left with s,\,\\,g as the actual substitution. This gets us a double
+# This is made horribly complicated by Windows, which uses drive letters and
+# backslash in the native path format, and by the variation between faked unix
+# environments on Windows. Cygwin isn't too bad --- it provides cygpath to
+# translate a unix path into native Windows format. Mingw/Msys can't be
+# bothered, so we need to work harder.
+
+# Keep in mind the sed expressions are interpreted by the shell and then by
+# sed; the backslashes are halved each time. In the end we're left with
+# s,/,\\,g or s,\,\\,g as the actual substitutions. This gets us a double
 # backslash in DYLP_ERRMSGDIR, which the various compilers can strip down to
 # one. Sheesh.
 
 
 
 if test x"$DYLP_ERRMSGDIR" = x; then
-  DYLP_ERRMSGDIR=`$CYGPATH_W $abs_source_dir/src/Dylp/`
-  DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,\\\\,\\\\\\\\,g'`
+  case $build in
+    *-mingw*|*-msys*)
+      DYLP_ERRMSGDIR="`(cd "$abs_source_dir";pwd -W)`/src/Dylp/"
+      DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,/,\\\\\\\\,g'`
+      ;;
+    *-cygwin*)
+      DYLP_ERRMSGDIR="`$CYGPATH_W $abs_source_dir/src/Dylp/`"
+      DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,\\\\,\\\\\\\\,g'`
+      ;;
+    *)
+      DYLP_ERRMSGDIR="$abs_source_dir/src/Dylp/"
+      ;;
+  esac
 fi
 
 cat >>confdefs.h <<_ACEOF
