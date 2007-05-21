@@ -20074,11 +20074,6 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 #          -e 'sYcompile_command=`\$echo "X\$compile_command" | \$Xsed -e '"'"'s%@OUTPUT@%'"'"'"\$output"'"'"'%g'"'"'`Ycompile_command=`\$echo "X\$compile_command" | \$Xsed -e '"'"'s%@OUTPUT@%'"'"'"\$output"'"'"'%g'"'"' | \$Xsed -e '"'"'s%@BACKSLASH@%\\\\\\\\\\\\\\\\%g'"'"'`Y' \
 
   # Correct cygpath for minGW (ToDo!)
-  # Arguably echo is correct. Mingw/Msys handle normal unix paths from the
-  # command line, so nothing need be done in, for example, Makefiles. But
-  # file names imbedded in programs need to be expressed in Windows syntax.
-  # Unfortunately, there's nothing available to match `cygpath tgtdir`. The
-  # best that can be done is a construct of the form `(cd tgtdir ; pwd -W)`.
   { echo "$as_me:$LINENO: Build is \"$build\"." >&5
 echo "$as_me: Build is \"$build\"." >&6;}
   case $build in
