@@ -149,8 +149,8 @@ AC_C_BIGENDIAN
 
 AC_ARG_VAR(DYLP_ERRMSGDIR,
     [Directory containing the DyLP error message text file (dy_errmsgs.txt).
-     Default is /absolute/path/to/srcdir/DyLP/src/Dylp])
-AC_SUBST(DYLP_ERRMSGDIR)
+     Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native
+     path syntax (i.e., drive letters and backslashes on Windows).])
 if test x"$DYLP_ERRMSGDIR" = x; then
   case $build in
     *-mingw*|*-msys*)
@@ -168,8 +168,9 @@ if test x"$DYLP_ERRMSGDIR" = x; then
 fi
 AC_DEFINE_UNQUOTED([DYLP_ERRMSGDIR],
     ["$DYLP_ERRMSGDIR"],
-    [Set to the full path directory name for the location of the error text
-     message file dy_errmsgs.txt])
+    [Directory containing the DyLP error message text file (dy_errmsgs.txt).
+     Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native
+     path syntax (i.e., drive letters and backslashes on Windows).])
 
 ##############################################################################
 #		Dylp configuration options				     #
