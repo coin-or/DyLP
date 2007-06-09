@@ -1,16 +1,27 @@
 /*
-   Include file for the configuration of Dylp.
+  This file is part of the support library for the Dylp LP distribution.
 
-   On systems where the code is configured with the configure script (i.e.,
-   compilation is always done with HAVE_CONFIG_H defined), this header file
-   includes the automatically generated header file config_dylp.h, then
-   undefines macros that might configure with other ProjConfig.h files.
+        Copyright (C) 2005 -- 2007 Lou Hafer
 
-   On systems that are compiled in other ways (e.g., with the Developer
-   Studio), the header file configall_system.h is included to define those
-   macros that depend on the operating system and the compiler, followed by
-   the defines used for configuration of dylp. A user can modify the default
-   settings by editing this file.
+        School of Computing Science
+        Simon Fraser University
+        Burnaby, B.C., V5A 1S6, Canada
+        lou@cs.sfu.ca
+
+  This code is licensed under the terms of the Common Public License (CPL).
+
+  Include file for the configuration of Dylp.
+
+  On systems where the code is configured with the configure script (i.e.,
+  compilation is always done with HAVE_CONFIG_H defined), this header file
+  includes the automatically generated header file config_dylp.h, then
+  undefines macros that might configure with other ProjConfig.h files.
+
+  On systems that are compiled in other ways (e.g., with the Developer
+  Studio), the header file configall_system.h is included to define those
+  macros that depend on the operating system and the compiler, followed by
+  the defines used for configuration of dylp. A user can modify the default
+  settings by editing this file.
 */
 
 #ifndef __DYLPCONFIG_H__
