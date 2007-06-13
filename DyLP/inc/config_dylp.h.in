@@ -13,8 +13,9 @@
 /* Define to 1 if the DyLP package is used */
 #undef COIN_HAS_DYLP
 
-/* Set to the full path directory name for the location of the error text
-   message file dy_errmsgs.txt */
+/* Directory containing the DyLP error message text file (dy_errmsgs.txt).
+   Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native path
+   syntax (i.e., drive letters and backslashes on Windows). */
 #undef DYLP_ERRMSGDIR
 
 /* Define this symbol if the quiet_nan function exists. This function should

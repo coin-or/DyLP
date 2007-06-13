@@ -1,26 +1,14 @@
 /*
-  This file is a portion of the OsiDylp LP distribution.
+  This file is a portion of the Dylp LP distribution.
 
-        Copyright (C) 2004 Lou Hafer
+        Copyright (C) 2004 -- 2007 Lou Hafer
 
         School of Computing Science
         Simon Fraser University
         Burnaby, B.C., V5A 1S6, Canada
         lou@cs.sfu.ca
 
-  This program is free software; you can redistribute it and/or modify it
-  under the terms of the GNU General Public License as published by the Free
-  Software Foundation; either version 2 of the License, or (at your option)
-  any later version.
-
-  This program is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-  more details.
-
-  You should have received a copy of the GNU General Public License along
-  with this program; if not, write to the Free Software Foundation, Inc., 59
-  Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  This code is licensed under the terms of the Common Public License (CPL).
 */
 
 /*
@@ -33,6 +21,7 @@
 #include "dylib_errs.h"
 #include "dylib_io.h"
 #include "dylib_std.h"
+#include "dylib_strrtns.h"
 #include "consys.h"
 
 static char sccsid[] UNUSED = "@(#)consys_io.c	4.6	11/11/04" ;
@@ -180,6 +169,113 @@ char *consys_assocnme (consys_struct *consys, flags which)
   return (nmbuf) ; }
 
 
+
+void consys_chgnme (consys_struct *consys, char cv,
+		    int ndx, const char *newnme)
+/*
+  This routine replaces the existing name of the constraint system, objective,
+  constraint or variable with newnme.
+
+  Parameters:
+    consys:	constraint system
+    cv:		'c' for constraint, 'v' for variable, 'o' for objective,
+		's' for the constraint system
+    ndx:	constraint/variable (row/column) index
+    newnme:	the new name
+
+  Returns: undefined; will complain and fail to set the name if the parameters
+	are invalid or some other problem is detected.
+*/
+
+{ rowhdr_struct *rowhdr ;
+  colhdr_struct *colhdr ;
+  int varcnt ;
+
+# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+  const char *rtnnme = "consys_chgnme" ;
+# endif
+
+# ifdef PARANOIA
+  if (consys == NULL)
+  { errmsg(2,rtnnme,"consys") ;
+    return ; }
+
+  switch (cv)
+  { case 'c':
+    { if (consys->mtx.rows == NULL)
+      { errmsg(101,rtnnme,consys->nme,"row header") ;
+	return ; }
+      if (ndx <= 0 || ndx > consys->concnt)
+      { errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->concnt) ;
+	return ; }
+      if (consys->mtx.rows[ndx] == NULL)
+      { errmsg(103,rtnnme,consys->nme,"row",ndx) ;
+	return ; }
+      break ; }
+    case 'v':
+    { if (consys->mtx.cols == NULL)
+      { errmsg(101,rtnnme,consys->nme,"column header") ;
+	return ; }
+      if (flgon(consys->opts,CONSYS_LVARS))
+	varcnt = consys->varcnt ;
+      else
+	varcnt = consys->varcnt+consys->concnt ;
+      if (ndx <= 0 || ndx > varcnt)
+      { errmsg(102,rtnnme,consys->nme,"variable",ndx,1,varcnt) ;
+	return ; }
+      if (consys->mtx.cols[ndx] == NULL)
+      { errmsg(103,rtnnme,consys->nme,"column",ndx) ;
+	return ; }
+      break ; }
+    case 'o':
+    case 's':
+    { break ; }
+    default:
+    { errmsg(3,rtnnme,"cv",cv) ;
+      return (errname) ; } }
+
+  if (newnme == NULL)
+  { errmsg(2,rtnnme,"newnme") ;
+    return ; }
+  if (strlen(newnme) == 0)
+  { errmsg(4,rtnnme,"newnme","<null string>") ;
+    return ; }
+# endif
+
+/*
+  We know that ndx is valid, the row/column header exists, and we have a
+  non-null name to insert. (In the case of the objective or constraint system
+  name, we only care about a non-null name.) Go to it. Remember that these
+  strings are managed through the literal table. (STRALLOC/STRFREE)
+*/
+  switch (cv)
+  { case 'c':
+    { rowhdr = consys->mtx.rows[ndx] ;
+      if (rowhdr->nme != NULL)
+      { STRFREE(rowhdr->nme) ; }
+      rowhdr->nme = STRALLOC(newnme) ;
+      break ; }
+    case 'v':
+    { colhdr = consys->mtx.cols[ndx] ;
+      if (colhdr->nme != NULL)
+      { STRFREE(colhdr->nme) ; }
+      colhdr->nme = STRALLOC(newnme) ;
+      break ; }
+    case 'o':
+    { if (consys->objnme != NULL)
+      { STRFREE(consys->objnme) ; }
+      consys->objnme = STRALLOC(newnme) ;
+      break ; }
+    case 's':
+    { if (consys->nme != NULL)
+      { STRFREE(consys->nme) ; }
+      consys->nme = STRALLOC(newnme) ;
+      break ; }
+    default:
+    { errmsg(1,rtnnme,__LINE__) ;
+      return ; } }
+
+  return ; }
 
 char *consys_lognme (consys_struct *consys, int rowndx, char *clientbuf)
 

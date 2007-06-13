@@ -1,26 +1,14 @@
 /*
-  This file is a part of the OsiDylp LP distribution.
+  This file is a part of the Dylp LP distribution.
  
-        Copyright (C) 2005 Lou Hafer
+        Copyright (C) 2005 -- 2007 Lou Hafer
  
         School of Computing Science
         Simon Fraser University
         Burnaby, B.C., V5A 1S6, Canada
         lou@cs.sfu.ca
  
-  This program is free software; you can redistribute it and/or modify it
-  under the terms of the GNU General Public License as published by the Free
-  Software Foundation; either version 2 of the License, or (at your option)
-  any later version.
- 
-  This program is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-  more details.
- 
-  You should have received a copy of the GNU General Public License along
-  with this program; if not, write to the Free Software Foundation, Inc.,
-  51 Franklin St., Fifth Floor, Boston, MA  02110-1301  USA
+  This code is licensed under the terms of the Common Public License (CPL).
 */
  
 #ifndef _DYLP_VECTOR_H
@@ -181,10 +169,8 @@
 #endif 
 
 /*
-  On some machines, HUGE_VAL isn't actually IEEE infinity. Fix that if
-  necessary.
-  AW: I just overwrite this now everytime, since the result should be
-	  the same.
+  On some machines, HUGE_VAL isn't actually IEEE infinity. Make sure that
+  it really is IEEE infinity.
 */
  
 #undef HUGE_VAL

@@ -1,26 +1,14 @@
 /*
-  This file is a portion of the OsiDylp LP distribution.
+  This file is a portion of the Dylp LP distribution.
 
-        Copyright (C) 2005 Lou Hafer
+        Copyright (C) 2005 -- 2007 Lou Hafer
 
         School of Computing Science
         Simon Fraser University
         Burnaby, B.C., V5A 1S6, Canada
         lou@cs.sfu.ca
 
-  This program is free software; you can redistribute it and/or modify it
-  under the terms of the GNU General Public License as published by the Free
-  Software Foundation; either version 2 of the License, or (at your option)
-  any later version.
-
-  This program is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-  more details.
-
-  You should have received a copy of the GNU General Public License along
-  with this program; if not, write to the Free Software Foundation, Inc.,
-  51 Franklin St., Fifth Floor, Boston, MA  02110-1301  USA
+  This code is licensed under the terms of the Common Public License (CPL).
 */
 
 #ifndef _CONSYS_H
@@ -597,14 +585,22 @@ extern char *consys_assocnme(consys_struct *consys, flags which),
 	    *consys_conbndnme(char bndlett, int cndx, conbnd_struct *bnd),
 	    *consys_conbndval(conbnd_struct *bnd) ;
 
-# ifndef DYLP_NDEBUG
+#ifndef DYLP_NDEBUG
 
 #include "dylib_io.h"
 #include "dylib_std.h"
 
 extern void consys_prtcon(ioid chn, bool echo,
 			  consys_struct *consys, int i, const char *pfx) ;
-# endif
+#endif
+
+/*
+  A routine to set (change, really) the name of an existing constraint or
+  variable.
+*/
+
+extern void consys_chgnme(consys_struct *consys, char cv,
+			  int ndx, const char *newnme) ;
 
 /*
   consys_nme returns a string containing the name of the specified constraint
