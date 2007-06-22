@@ -1,5 +1,5 @@
 BuildTools    https://projects.coin-or.org/svn/BuildTools/stable/0.5
 Data/Netlib   https://projects.coin-or.org/svn/Data/stable/1.0/Netlib
 Data/Sample   https://projects.coin-or.org/svn/Data/stable/1.0/Sample
-CoinUtils     https://projects.coin-or.org/svn/CoinUtils/trunk/CoinUtils
+CoinUtils     https://projects.coin-or.org/svn/CoinUtils/stable/2.0/CoinUtils
 Osi	      https://projects.coin-or.org/svn/Osi/trunk/Osi
