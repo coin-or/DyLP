@@ -18,28 +18,28 @@
 #ifndef _GLPLIB_H
 #define _GLPLIB_H
 
-#define save_pointer          _glp_save_pointer
-#define read_pointer          _glp_read_pointer
+#define save_pointer          dy_glp_save_pointer
+#define read_pointer          dy_glp_read_pointer
 
-#define init_lib_env          _glp_init_lib_env
-#define get_env_ptr           _glp_get_env_ptr
-#define free_lib_env          _glp_free_lib_env
+#define init_lib_env          dy_glp_init_lib_env
+#define get_env_ptr           dy_glp_get_env_ptr
+#define free_lib_env          dy_glp_free_lib_env
 
-#define print                 _glp_print
-#define fault                 _glp_fault
-#define _insist               _glp_insist
-#define watch                 _glp_watch
+#define print                 dy_glp_print
+#define fault                 dy_glp_fault
+#define _insist               dy_glp_insist
+#define watch                 dy_glp_watch
 
-#define umalloc               _glp_umalloc
-#define ucalloc               _glp_ucalloc
-#define ufree                 _glp_ufree
+#define umalloc               dy_glp_umalloc
+#define ucalloc               dy_glp_ucalloc
+#define ufree                 dy_glp_ufree
 
-#define create_pool           _glp_create_pool
-#define get_atom              _glp_get_atom
-#define free_atom             _glp_free_atom
-#define get_atomv             _glp_get_atomv
-#define clear_pool            _glp_clear_pool
-#define delete_pool           _glp_delete_pool
+#define create_pool           dy_glp_create_pool
+#define get_atom              dy_glp_get_atom
+#define free_atom             dy_glp_free_atom
+#define get_atomv             dy_glp_get_atomv
+#define clear_pool            dy_glp_clear_pool
+#define delete_pool           dy_glp_delete_pool
 
 extern void save_pointer(void *ptr);
 /* save a pointer */

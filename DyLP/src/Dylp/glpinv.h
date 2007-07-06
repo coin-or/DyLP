@@ -22,13 +22,13 @@
 
 #include "glpluf.h"
 
-#define inv_create            glp_inv_create
-#define inv_decomp            glp_inv_decomp
-#define inv_h_solve           glp_inv_h_solve
-#define inv_ftran             glp_inv_ftran
-#define inv_btran             glp_inv_btran
-#define inv_update            glp_inv_update
-#define inv_delete            glp_inv_delete
+#define inv_create            dy_glp_inv_create
+#define inv_decomp            dy_glp_inv_decomp
+#define inv_h_solve           dy_glp_inv_h_solve
+#define inv_ftran             dy_glp_inv_ftran
+#define inv_btran             dy_glp_inv_btran
+#define inv_update            dy_glp_inv_update
+#define inv_delete            dy_glp_inv_delete
 
 /*----------------------------------------------------------------------
 -- The structure INV defines an invertable form of the basis matrix B,
