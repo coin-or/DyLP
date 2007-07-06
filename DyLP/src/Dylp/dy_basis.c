@@ -432,14 +432,14 @@ void dy_freebasis (void)
 {
 
   /* glplib2.c */
-  extern int _glp_free_lib_env(void) ;
+  extern int dy_glp_free_lib_env(void) ;
 
 
   if (luf_basis != NULL)
   { inv_delete(luf_basis) ;
     luf_basis = NULL ; }
   
-  (void) _glp_free_lib_env() ;
+  (void) dy_glp_free_lib_env() ;
 
   return ; }
 

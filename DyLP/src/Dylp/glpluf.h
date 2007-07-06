@@ -19,17 +19,17 @@
 #ifndef _GLPLUF_H
 #define _GLPLUF_H
 
-#define luf_create            _glp_luf_create
-#define luf_defrag_sva        _glp_luf_defrag_sva
-#define luf_enlarge_row       _glp_luf_enlarge_row
-#define luf_enlarge_col       _glp_luf_enlarge_col
-#define luf_alloc_wa          _glp_luf_alloc_wa
-#define luf_free_wa           _glp_luf_free_wa
-#define luf_decomp            _glp_luf_decomp
-#define luf_f_solve           _glp_luf_f_solve
-#define luf_v_solve           _glp_luf_v_solve
-#define luf_solve             _glp_luf_solve
-#define luf_delete            _glp_luf_delete
+#define luf_create            dy_glp_luf_create
+#define luf_defrag_sva        dy_glp_luf_defrag_sva
+#define luf_enlarge_row       dy_glp_luf_enlarge_row
+#define luf_enlarge_col       dy_glp_luf_enlarge_col
+#define luf_alloc_wa          dy_glp_luf_alloc_wa
+#define luf_free_wa           dy_glp_luf_free_wa
+#define luf_decomp            dy_glp_luf_decomp
+#define luf_f_solve           dy_glp_luf_f_solve
+#define luf_v_solve           dy_glp_luf_v_solve
+#define luf_solve             dy_glp_luf_solve
+#define luf_delete            dy_glp_luf_delete
 
 /*----------------------------------------------------------------------
 -- The structure LUF defines LU-factorization of a square matrix A,
