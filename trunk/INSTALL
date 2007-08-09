@@ -1,0 +1,200 @@
+These instructions are for UNIX-like systems (including Linux, Cygwin
+and MSys) only.  If Microsoft Developer Studio projects are
+maintained for this package, you can find instructions at
+
+  https://projects.coin-or.org/MSDevStudio
+
+**********************************************************************
+***                         DOWNLOAD                               ***
+**********************************************************************
+
+You can obtain the source code for the DyLP package in two ways:
+
+1. Obtain the source directly from the COIN-OR subversion repository
+   (recommended).  For this you needs the program 'svn' installed on
+   your machine, and output of "svn --version" must contain 
+   "handles 'https' scheme".
+
+   Assuming that you want to download the code into a subdirectory
+   "COIN-DyLP", you type
+
+   svn co https://projects.coin-or.org/svn/DyLP/trunk Coin-DyLP
+
+2. Download the tarball from http://www.coin-or.org/Tarballs/DyLP and
+   extract it, for example, with
+
+   gunzip DyLP_2006Jun07.tgz
+   tar xvf DyLP_2006Jun07.tar
+
+   (Here "2006Jun07" is of course replaced by the string in the
+   tarball you downloaded.)
+
+   More detailed download instructions can be found at
+
+   https://projects.coin-or.org/BuildTools/wiki/user-download
+
+**********************************************************************
+***                        CONFIGURATION                           ***
+**********************************************************************
+
+Go into the directory that you just downloaded or extracted (e.g.,
+Coin-DyLP or DyLP_2006Jun07).  Then you type
+
+   ./configure
+
+Note that you might have to specify additional options, in case you
+don't want to use the default choices that configure makes (e.g.,
+compilers).  Please visit
+
+   https://projects.coin-or.org/BuildTools/wiki/user-configure
+
+and the DyLP Trac page
+
+   https://projects.coin-or.org/DyLP
+
+for more information.
+
+If everything went fine, you will see at the end of the output
+
+   "Main configuration of DyLP successful"
+
+**********************************************************************
+***                COMPILATION AND INSTALLATION                    ***
+**********************************************************************
+
+In the directory where you ran the configure script:
+
+1. Compile the code by typing
+
+   make
+
+2. To test if the code works, you can type
+
+   make test
+
+3. To install the code, you type
+
+   make install
+
+   After this, you will find the executables, libraries and header
+   files in the "bin", "lib" and "include" subdirectory, respectively.
+
+More information on the compilation and installation can be found at
+
+   https://projects.coin-or.org/BuildTools/wiki/user-compile
+
+**********************************************************************
+***                     USING THE LIBRARIES                        ***
+**********************************************************************
+
+Now you can link your own code with the installed libraries.  You can
+find examples in the
+
+   DyLP/examples/
+
+subdirectory, see also the information at
+
+   https://projects.coin-or.org/BuildTools/wiki/user-examples
+
+
+
+==== 8< ======================================================
+
+From here on you find the original installation instructions for the
+previous GNU Makefile build system.  Most details have changed, but
+for now we keep it here so that possibly missing items might be found
+here.
+
+
+  Context
+  -------
+
+  This distribution of Dylp is packaged to be installed as part of the
+  COIN-OR software library. If COIN is the top-level directory for your
+  collection of COIN software, dylp expects to find itself in COIN/Dylp.
+  Something like this:
+
+  COIN
+    Makefiles	COIN makefiles (required to build dylp)
+    lib		COIN makefiles put component libraries here
+    include	COIN makefiles put component include files here
+    Dylp	the dylp distribution top-level directory
+      Dylp	main code for dylp
+      Lib	dylp's support library
+      Utils	configuration utilities
+      Samples	A few simple main programs
+      Doc	documentation
+    Coin	other COIN components
+    Osi		 . 
+    Clp		 . 
+    Cbc		 . 
+
+  Should you want an OsiDylp distribution that does not assume it's embedded
+  in COIN, check http://www.cs.sfu.ca/~lou/OsiDylp.
+
+
+  Installation
+  ------------
+
+  Assuming you've unpacked the dylp distribution as indicated above, simply
+  change directories to COIN/Dylp and execute a make command:
+
+    * `make' will build and install the dylp library, but will not build the
+       simple main programs in the Samples directory.
+
+    * `make library' will build the dylp library but will not install it in
+      COIN/lib
+
+    * `make install' builds the dylp library, if needed, and installs it in
+      COIN/lib
+
+    * `make samples' will build and install the dylp library, if needed, then
+       build the sample main programs.
+
+  To test that dylp is working correctly, run the osi_dylp main program in
+  the Samples directory. The script `plain' provides a convenient wrapper.
+  See the README in the Samples directory for more information. If you're
+  planning on using dylp through the OsiDylp interface layer, you should
+  build and run the OSI unitTest.
+
+  Optional Features
+  -----------------
+
+  You should examine the top level Makefile and edit it to suit your needs.
+  Options you can control from Makefile are:
+
+    * library type (LibType). Shared is the better choice. Think
+      hard before changing to static.
+
+    * optimisation level (OptLevel). Controls the level of compiler
+      optimisation. See the comments in the makefile.
+
+    * dylp compile-time options (DYLP_OPTIONS). Dylp has three capabilities,
+      statistics, informational messages, and paranoid checks, which are
+      enabled/disabled at compile time. Have a read through Sections 16 and
+      18 of Doc/dylp.[ps,pdf] to gain an understanding of what each
+      capability provides.
+
+  By default, the makefiles in the subdirectory will inherit the settings
+  from the top level makefile. You can edit them to override the top level
+  settings.
+
+  Documentation
+  -------------
+
+  In the Doc directory, you'll find a longish (about 80 pages) tech report
+  which explains the algorithms used in dylp and the options and interfaces
+  that are available. The code itself is heavily commented. Section 11 of
+  the documentation (in particular, Fig. 3) is your best bet for a high-level
+  overview of the dynamic simplex algorithm.
+
+  OsiDylp, the OSI interface layer for dylp, is commented using doxygen
+  conventions, but dylp is not (yet).
+
+  LaTeX source for the tech report is available for the asking, and may well
+  be included in a future distribution. But it's unlikely to give you a lot
+  of satisfaction. You'll need to be a fairly sophisticated LaTeX user to
+  build it --- either to merge my LaTeX environment into yours, or to hack my
+  environment out of the source for the tech report. To manipulate the
+  figures, you'll need a (not free software) package called Island Draw, from
+  Island Software.
