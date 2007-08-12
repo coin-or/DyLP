@@ -392,7 +392,9 @@ static bool cold_createdysys (consys_struct *orig_sys, int eqcnt, int ineqcnt)
 { int j,m_sze,n_sze,flippable ;
   double vlbj,vubj ;
   double *vlb,*vub,*obj ;
+/* unused variable
   bool infeas ;
+*/
   char nmebuf[50] ;
 
   flags parts = CONSYS_OBJ|CONSYS_VUB|CONSYS_VLB|CONSYS_RHS|CONSYS_RHSLOW|
