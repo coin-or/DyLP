@@ -781,7 +781,9 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 */
 
 { int cnt ;
+/* unused variable
   dyret_enum retval ;
+*/
   dyphase_enum phase ;
   double tol ;
   lpret_enum lpresult ;

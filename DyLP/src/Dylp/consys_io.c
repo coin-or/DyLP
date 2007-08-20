@@ -189,7 +189,9 @@ void consys_chgnme (consys_struct *consys, char cv,
 
 { rowhdr_struct *rowhdr ;
   colhdr_struct *colhdr ;
+# ifdef PARANOIA
   int varcnt ;
+# endif
 
 # if defined(PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_chgnme" ;
