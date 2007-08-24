@@ -188,11 +188,11 @@ static void print_help (ioid chn, bool echo)
 	      "\n\t\t\t%s","direct error messages to the log file).") ;
 
   dyio_outfmt(chn,echo,"\n  %s\t%s","-o <option-file>",
-#if defined(_MSC_VER) || defined(__MSVCRT__)
+# if defined(_MSC_VER) || defined(__MSVCRT__)
 	      "Disabled on Windows.") ;
-#else
+# else
 	      "Control ('.spc') options file for dylp (default is no file).") ;
-#endif
+# endif
 
   dyio_outfmt(chn,echo,"\n  %s\t%s","-m <problem-file>",
 	      "The problem ('.mps') specification (no default).") ;
@@ -819,7 +819,9 @@ int main (int argc, char *argv[])
   main_lpopts->forcecold = TRUE ;
   main_lpopts->fullsys = TRUE ;
   main_lpopts->coldbasis = ibLOGICAL ;
+# if defined(_MSC_VER) || defined(__MSVCRT__)
   optpath = NULL ;
+# endif
   if (optpath != NULL)
   { dy_cmdchn = dyio_openfile(optpath,"r") ;
     if (dy_cmdchn == IOID_INV) exit (1) ;

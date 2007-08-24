@@ -38,12 +38,11 @@
 			  giving the result of the LP.
   -p <num>		Set overall print level to <num>, [0..5].
   -e <errmsg-file>	Source text for error messages (defaults to
-			  bonsaierrs.txt).
+			  dy_errmsgs.txt).
   -E <errlog-file>	A logging file for error messages (default is to
 			  direct error messages to stderr and the log file).
-  -o <option-file>	Control ('.spc') options for dylp. Defaults to stdin,
-                          which is not recommended since control entries may
-                          be processed in ways unfriendly to terminal entry.
+  -o <option-file>	Control ('.spc') options for dylp. Default is to not
+			look for an options file. Disabled on Windows.
   -m <problem-file>	The problem ('.mps') specification. Defaults to stdin.
   -L <log-file>		A log of dylp's execution (default is no execution
 			  logging).
@@ -161,11 +160,11 @@ void print_help (ioid chn, bool echo)
   outfmt(chn,echo,"\n\nThe options presently in place are:\n") ;
 
   outfmt(chn,echo,"\n  %s\t\t\t%s","-s",
-	   "Run silent: turns off echo of all generated text to") ;
+	 "Run silent: turns off echo of all generated text to") ;
   outfmt(chn,echo,"\n\t\t\t%s",
-	   "stdout. The default output-file path is changed") ;
+	 "stdout. The default output-file path is changed") ;
   outfmt(chn,echo,"\n\t\t\t%s",
-	   "from stdout to NULL. Silent overpowers terse, in") ;
+	 "from stdout to NULL. Silent overpowers terse, in") ;
   outfmt(chn,echo,"\n\t\t\t%s","the event both are specified.") ;
 
   outfmt(chn,echo,"\n  %s\t\t\t%s","-t",
@@ -179,18 +178,18 @@ void print_help (ioid chn, bool echo)
 
   outfmt(chn,echo,"\n  %s\t%s","-e <errmsg-file>",
 	 "Source text for error messages (defaults to") ;
-  outfmt(chn,echo,"\n\t\t\t%s","bonsaierrs.txt).") ;
+  outfmt(chn,echo,"\n\t\t\t%s","dy_errmsgs.txt).") ;
 
   outfmt(chn,echo,"\n  %s\t%s","-E <errlog-file>",
-	  "A logging file for error messages (default is to") ;
+	 "A logging file for error messages (default is to") ;
   outfmt(chn,echo,"\n\t\t\t%s","direct error messages to the log file).") ;
 
   outfmt(chn,echo,"\n  %s\t%s","-o <option-file>",
-	 "Control ('.spc') options for dylp. Defaults to stdin,") ;
-  outfmt(chn,echo,"\n\t\t\t%s",
-	 "which is not recommended since control commands may") ;
-  outfmt(chn,echo,"\n\t\t\t%s",
-	 "be processed in ways unfriendly to terminal entry.") ;
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+	 "Disabled on Windows.") ;
+# else
+	 "Control ('.spc') options file for dylp (default is no file).") ;
+# endif
 
   outfmt(chn,echo,"\n  %s\t%s","-m <problem-file>",
 	 "The problem ('.mps') specification. Defaults to stdin.") ;
@@ -580,7 +579,7 @@ int main (int argc, char *argv[])
   Set up some defaults, then process the command line options. This is all very
   specific to Unix and SunOS.
 */
-  errmsgpath = "bonsaierrs.txt" ;
+  errmsgpath = "dy_errmsgs.txt" ;
   errlogpath = NULL ;
   optpath = NULL ;
   mpspath = NULL ;
@@ -774,8 +773,15 @@ int main (int argc, char *argv[])
 /*
   Time to set up the lp options. Establish a set of defaults, then read the
   options file to see what the user has in mind.
+
+  For reasons that escape me at the moment, the parser fails on Windows. This
+  may get fixed eventually. For now, disabled by the simple expedient of
+  forcing optpath to NULL.
 */
   dy_defaults(&main_lpopts,&main_lptols) ;
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+  optpath = NULL ;
+# endif
   if (optpath != NULL)
   { dy_cmdchn = openfile(optpath,"r") ;
     if (dy_cmdchn == IOID_INV) exit (1) ;
@@ -809,8 +815,7 @@ int main (int argc, char *argv[])
 */
   dy_initbasis(2*main_sys->concnt,main_lpopts->factor+5,0) ;
 /*
-  Run the lp. (Call a stub of the equivalent routine in the MIP solver
-  bonsaiG.)
+  Run the lp.
 */
   if (do_lp_all(&lptime) == FALSE)
   { errmsg(202,rtnnme,main_sys->nme) ;
