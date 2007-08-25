@@ -483,8 +483,12 @@ static bool pricexk (int k,
     * the sign of cbar<k> is wrong for minimisation, given stat<k>
     * x<j> is NBLB or NBUB and cbar<k> == 0
     * x<k> is flagged as NOPIVOT
-  SB and NBFR variables get past the cbar<k> == 0 test because we want them
-  to be basic in the final answer, so that we have a valid basic solution.
+
+  SB variables get past the cbar<k> == 0 test because we want them to be
+  basic in the final answer, so that we have a valid basic solution. NBFR
+  variables are preferentially pivoted into the basis (where they will never
+  leave) but in order to handle pathological examples with more free variables
+  than constraints, we can't force this.
 
   Given that x<k> passes the above tests and is thus a feasible candidate,
   we're interested in whether it's the best candidate. The tests are
@@ -540,8 +544,8 @@ static bool pricexk (int k,
 /*
   Price x<k> as ncbar<k> = dot(c,h<k>)/||h<k>||, where dot(c,h<k>) is held in
   cbar<k> and ||h<k>||^2 is held in gamma<k>. Check that cbar<k> has the
-  right sign and that ncbar<k> is big enough to consider. For SB and NBFR
-  variables, we're potentially interested even if ncbar<k> is 0.
+  right sign and that ncbar<k> is big enough to consider. For SB variables,
+  we're potentially interested even if ncbar<k> is 0.
 */
   cbark = dy_cbar[k] ;
   if ((cbark < 0 && flgon(statk,vstatNBUB)) ||
@@ -552,7 +556,7 @@ static bool pricexk (int k,
       dyio_outfmt(dy_logchn,dy_gtxecho," << reject (incompatible status) >>") ;
 #   endif
     return (FALSE) ; }
-  if (flgoff(statk,vstatSB|vstatNBFR))
+  if (flgoff(statk,vstatSB))
   { if (withintol(cbark,0,dy_tols->dfeas))
     {
 #     ifndef DYLP_NDEBUG

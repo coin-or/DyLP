@@ -900,7 +900,8 @@ dyret_enum dy_accchk (flags *checks)
 	  dy_cbar[xkndx] = cbarj ; }
 	if ((flgon(vstat,vstatNBLB) && cbarj < -dy_tols->dfeas) ||
 	    (flgon(vstat,vstatNBUB) && cbarj > dy_tols->dfeas) ||
-	    flgon(vstat,vstatNBFR|vstatSB))
+	    flgon(vstat,vstatNBFR) && cbarj != 0 ||
+	    flgon(vstat,vstatSB))
 	{ if (flgoff(*checks,ladDFQUIET))
 	    warn(347,rtnnme,dy_sys->nme,
 		 dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
