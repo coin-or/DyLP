@@ -191,7 +191,7 @@ static bool double_opt (double *rloc)
 
 
 
-static bool real_opt (float *rloc)
+static UNUSED bool real_opt (float *rloc)
 
 /*
   Generic (and fairly trivial) routine to parse a real as a float. A float

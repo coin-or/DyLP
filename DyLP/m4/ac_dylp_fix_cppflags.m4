@@ -41,11 +41,26 @@ AC_DEFUN([AC_DYLP_FIX_CPPFLAGS],
       CFLAGS="$CFLAGS -wd4996"
     ;;
   esac
-# Deletions.
+# Darwin will refuse to compile it's own standard headers if pedantic-errors is
+# requested.
   case "$build" in
     *-darwin*)
       CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-[-]*pedantic-errors//g'`
       CFLAGS=`echo $CFLAGS | sed -e 's/-[-]*pedantic-errors//g'`
     ;;
   esac
+
+# # DyLP's command parser (bnfrdr) makes heavy use of type-punning. We cannot #
+# allow GCC to enforce strict-aliasing. And we can't simply test to see if it's
+# present; specifying -O2, -O3, or -Os also enables it. As above, strip
+# anything already present and insert one -fno-strict-aliasing.
+
+  if test x"$ac_cv_c_compiler_gnu" = xyes ; then
+    CFLAGS=`echo $CFLAGS | sed -e 's/-[-]*fn*o*-*strict-aliasing//g'`
+    CFLAGS="$CFLAGS -fno-strict-aliasing"
+  fi
+  if test x"$ac_cv_cxx_compiler_gnu" = xyes ; then
+    CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-[-]*fn*o*-*strict-aliasing//g'`
+    CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+  fi
 ])
