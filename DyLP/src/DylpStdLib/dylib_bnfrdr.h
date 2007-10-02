@@ -217,10 +217,22 @@ typedef enum {bnfncBNF,bnfncS,bnfncC,bnfncN} bnflblsrc_enum ;
 
 
 /*
+  Bnfrdr regularly uses the first ([0]) entry of an array of addresses to hold
+  the number of addresses in the array. In order to convert this back to an
+  integer without triggering compiler warnings, the code uses this macro.
+*/
+
+# define addrToInt(zz_addr_zz) \
+  ((int) (((char *)(zz_addr_zz)) - ((char *)(0))))
+
+/*
   Data structures used for bnf definitions. There are three types of things
   here: individual structures for the various definition types, a common
   structure which consists only of the fields common to all of the individual
   structures, and a pointer union which is handy when walking around in a bnf.
+
+  For C++ fans: really, what we're doing here is faking a base class and
+  derived classes, with early 1980's technology.
 
   Just to keep the explanation in hand a bit, let's define components and
   alternatives. The body of a bnf definition consists of alternatives
@@ -231,9 +243,11 @@ typedef enum {bnfncBNF,bnfncS,bnfncC,bnfncN} bnflblsrc_enum ;
   dereferencing but it seems to be the only way to handle the variable lengths
   involved. 
 
-  NOTE: To keep things from getting completely out of hand, the first entry in
-	a component or alternative array specifies the number of pointers that
-	follow. This is one of the (ab)uses of the int - pointer - int cast.
+  NOTE: To keep things from getting completely out of hand, the first entry
+	in a component or alternative array specifies the number of pointers
+	that follow. This is an abuse of type and casting. Bad when the world
+	was 32-bit architectures. Worse now that it's a mix of 32- and 64-bit
+	architectures. See the addrToInt macro above.
 */
 
 /*

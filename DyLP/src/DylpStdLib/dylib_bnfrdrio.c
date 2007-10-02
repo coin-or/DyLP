@@ -39,6 +39,7 @@ static const char *prtbnftype (bnftype_enum type)
 */
 
 { static char badtype[30] ;
+  int fldsze ;
 
   switch (type)
   { case bnfG:
@@ -62,7 +63,8 @@ static const char *prtbnftype (bnftype_enum type)
     case bnfL:
       return ("L") ;
     default:
-    { dyio_outfxd(badtype,-(sizeof(badtype)-1),'l',"bad bnf type (%d)",type) ;
+    { fldsze = sizeof(badtype)-1 ;
+      dyio_outfxd(badtype,-fldsze,'l',"bad bnf type (%d)",type) ;
       return (badtype) ; } } }
 
 
@@ -79,6 +81,7 @@ static const char *prtbnfttype (bnfttype_enum ttype)
 */
 
 { static char badtype[40] ;
+  int fldsze ;
 
   switch (ttype)
   { case bnfttNIL:
@@ -94,8 +97,8 @@ static const char *prtbnfttype (bnfttype_enum ttype)
     case bnfttQ:
       return ("Q") ;
     default:
-    { dyio_outfxd(badtype,-(sizeof(badtype)-1),
-		  'l',"bad terminal type (%d)",ttype) ;
+    { fldsze = sizeof(badtype)-1 ;
+      dyio_outfxd(badtype,-fldsze,'l',"bad terminal type (%d)",ttype) ;
       return (badtype) ; } } }
 
 
@@ -231,7 +234,7 @@ static void prtlbl (ioid chn, bool echo,
     { prtrefname(chn,echo,src) ;
       break ; }
     case bnfncS:
-    { dyio_outfmt(chn,echo,"%%%d",(int) src) ;
+    { dyio_outfmt(chn,echo,"%%%d",addrToInt(src)) ;
       break ; }
     case bnfncC:
     { dyio_outchr(chn,echo,'c') ;
@@ -401,7 +404,7 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
   { case bnfG:
     { comprefs = def.G->comps ;
       if (comprefs != NULL)
-        compnum = (int) *comprefs++ ;
+        compnum = addrToInt(*comprefs++) ;
       else
 	compnum = 0 ;
       for (compndx = 0 ; compndx < compnum ; compndx++)
@@ -410,13 +413,13 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
     case bnfNP:
     { altrefs = def.NP->alts ;
       if (altrefs != NULL)
-      { altnum = (int) *altrefs++ ;
+      { altnum = addrToInt(*altrefs++) ;
 	comprefs = *altrefs++ ; }
       else
 	altnum = 0 ;
       for (altndx = 0 ; altndx < altnum ; altndx++, comprefs = *altrefs++)
       { if (comprefs != NULL)
-	{ compnum = (int) *comprefs++ ;
+	{ compnum = addrToInt(*comprefs++) ;
 	  for (compndx = 0 ; compndx < compnum ; compndx++)
 	    prtbnfref(chn,echo,*comprefs++) ; }
 	else
@@ -426,13 +429,13 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
     case bnfP:
     { altrefs = def.P->alts ;
       if (altrefs != NULL)
-      { altnum = (int) *altrefs++ ;
+      { altnum = addrToInt(*altrefs++) ;
 	comprefs = *altrefs++ ; }
       else
 	altnum = 0 ;
       for (altndx = 0 ; altndx < altnum ; altndx++, comprefs = *altrefs++)
       { if (comprefs != NULL)
-	{ compnum = (int) *comprefs++ ;
+	{ compnum = addrToInt(*comprefs++) ;
 	  for (compndx = 0 ; compndx < compnum ; compndx++)
 	    prtbnfref(chn,echo,*comprefs++) ; }
 	else
@@ -515,7 +518,7 @@ void prtbnfdef (ioid chn, bool echo, bnfdef_struct *bnfdef)
     case bnfL:
     { dyio_outchr(chn,echo,'<') ;
       if (flgon(def.L->dflgs,bnfsvnm) == TRUE)
-	dyio_outfmt(chn,echo,"%%%d",(int) def.L->txt) ;
+	dyio_outfmt(chn,echo,"%%%d",addrToInt(def.L->txt)) ;
       else
 	prtstring(chn,echo,def.L->txt) ;
       dyio_outchr(chn,echo,'>') ;

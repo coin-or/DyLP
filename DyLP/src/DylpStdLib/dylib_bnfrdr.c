@@ -500,7 +500,7 @@ static bool dogenerator (bnfGref_struct *ref)
 */
   comprefs = def->comps ;
   if (comprefs != NULL)
-  { compnum = (int) *comprefs++ ;
+  { compnum = addrToInt(*comprefs++) ;
     compref.com = *comprefs++ ; }
   else
     compnum = 0 ;
@@ -653,7 +653,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
 */
   altrefs = def->alts ;
   if (altrefs != NULL)
-  { altnum = (int) *altrefs++ ;
+  { altnum = addrToInt(*altrefs++) ;
     comprefs = *altrefs++ ; }
   else
   { altnum = 0 ;
@@ -681,7 +681,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
     { errmsg(37,rtnnme,altndx+1,altnum) ;
       break ; }
     else
-    { compnum = (int) *comprefs++ ;
+    { compnum = addrToInt(*comprefs++) ;
       compref.com = *comprefs++ ; }
 /*
   The inner loop to handle the components of an alternative. 
@@ -861,7 +861,7 @@ static bool doprimitive (bnfNPref_struct *ref)
 */
   altrefs = def->alts ;
   if (altrefs != NULL)
-  { altnum = (int) *altrefs++ ;
+  { altnum = addrToInt(*altrefs++) ;
     comprefs = *altrefs++ ; }
   else
   { altnum = 0 ;
@@ -889,7 +889,7 @@ static bool doprimitive (bnfNPref_struct *ref)
     { errmsg(37,rtnnme,altndx+1,altnum) ;
       break ; }
     else
-    { compnum = (int) *comprefs++ ;
+    { compnum = addrToInt(*comprefs++) ;
       compref.com = *comprefs++ ; }
 /*
   The inner loop to handle the components of an alternative. 
@@ -1228,9 +1228,9 @@ bool doterminal (bnfTref_struct *ref)
 		break ; }
 	      case 8:
 	      { if (*lex->string == '#')
-		  cnt = sscanf(lex->string+1,"%o",(int *) socket) ;
+		  cnt = sscanf(lex->string+1,"%o",(unsigned int *) socket) ;
 		else
-		  cnt = sscanf(lex->string,"%o",(int *) socket) ;
+		  cnt = sscanf(lex->string,"%o",(unsigned int *) socket) ;
 		break ; }
 	      case 2:
 	      { cnt = scanbinary(lex->string,(int *) socket) ;
@@ -1393,7 +1393,7 @@ bool doliteral (bnfLref_struct *ref)
 # endif
 
   if (flgon(def->dflgs,bnfsvnm) == TRUE)
-    txt = strretrv((int) def->txt) ;
+    txt = strretrv(addrToInt(def->txt)) ;
   else
     txt = def->txt ;
 
@@ -1501,7 +1501,7 @@ bool dolabel (bnfLBref_struct *ref)
       if (flgon(def->dflgs,bnfsvnm) == TRUE) strenter(def->savnm,nmtxt) ;
       break ; }
     case bnfncS:
-    { nmtxt = strretrv((int) def->nmsrc) ;
+    { nmtxt = strretrv(addrToInt(def->nmsrc)) ;
       break ; }
     default:
     { errmsg(55,rtnnme,def->nmcd,"name") ;
@@ -1552,7 +1552,7 @@ bool dolabel (bnfLBref_struct *ref)
     { lblval = newnde ;
       break ; }
     case bnfncS:
-    { ndtxt = strretrv((int) def->ndsrc) ;
+    { ndtxt = strretrv(addrToInt(def->ndsrc)) ;
       lblnde = finddlbl(&blbllst,ndtxt) ;
       if (lblnde == NULL)
       { if (ndtxt == NULL)
@@ -1714,7 +1714,7 @@ bool doreference (bnfLBref_struct *ref)
     { socket = make_socket(newnde,def->offset) ;
       break ; }
     case bnfncS:
-    { nmtxt = strretrv((int) def->nmsrc) ;
+    { nmtxt = strretrv(addrToInt(def->nmsrc)) ;
       if (nmtxt == NULL)
       { errmsg(61,rtnnme,"socket") ;
 	return (FALSE) ; }
@@ -1773,7 +1773,7 @@ bool doreference (bnfLBref_struct *ref)
     { val = make_label(newnde,def->offset2) ;
       break ; }
     case bnfncS:
-    { ndtxt = strretrv((int) def->ndsrc) ;
+    { ndtxt = strretrv(addrToInt(def->ndsrc)) ;
       if (ndtxt == NULL)
       { errmsg(61,rtnnme,"value") ;
 	return (FALSE) ; }

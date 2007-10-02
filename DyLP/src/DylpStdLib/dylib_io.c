@@ -83,8 +83,8 @@ static char svnid[] UNUSED = "$Id$" ;
 typedef struct { FILE *stream ;
                  flags modes ;
 		 int refcnt ;
-                 const char *dname ;
-                 const char *fname ; } filblk_struct ;
+                 char *dname ;
+                 char *fname ; } filblk_struct ;
 
 static filblk_struct *filblks ;
 static ioid maxfiles ;
@@ -1773,7 +1773,7 @@ int dyio_outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
 
 /*
   The form of the call should be
-    dyio_outfxd (buffer,fldsze,lcr,pattern,parms1, ... parmn)
+    dyio_outfxd (buffer,fldsze,lcr,pattern,parm1, ... parmn)
 
   The input to this routine is a varargs list comprising the name of a buffer,
   a field size, an 'lcr' (left/centre/right) character, and finally a pattern
