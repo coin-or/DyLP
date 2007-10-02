@@ -1889,7 +1889,7 @@ fi
 coin_has_cc=yes
 
 save_cflags="$CFLAGS"
-# For sparc-sun-solaris, promote Studio/Workshop compiler to front of list.
+# For *-*-solaris*, promote Studio/Workshop compiler to front of list.
 # ToDo: If Studio/Workshop cc is not present, we may find /usr/ucb/cc, which
 # is likely to be a non-functional shell. But many installations will have
 # both cc and gcc, so promoting gcc isn't good either. How to test reliably?
@@ -1900,7 +1900,7 @@ case $build in
 	     else
 	       comps="gcc cl"
 	     fi ;;
-  sparc-sun-solaris*)
+  *-*-solaris*)
   	     comps="cc xlc gcc pgcc icc" ;;
   *-linux-*) comps="xlc gcc cc pgcc icc" ;;
   *)         comps="xlc_r xlc cc gcc pgcc icc" ;;
@@ -2803,7 +2803,7 @@ rm -f conftest.err conftest.$ac_objext \
         coin_add_cflags="-Ae"
         coin_dbg_cflags="-g"
         ;;
-      *-sun-*)
+      *-*-solaris*)
         coin_opt_cflags="-xO4"
         coin_dbg_cflags="-g"
         ;;
@@ -3078,7 +3078,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 coin_has_cxx=yes
 
 save_cxxflags="$CXXFLAGS"
-# For sparc-sun-solaris, promote Studio/Workshop compiler to front of list.
+# For *-*-solaris*, promote Studio/Workshop compiler to front of list.
 case $build in
   *-cygwin* | *-mingw*)
   	     if test "$enable_doscompile" = msvc ; then
@@ -3086,7 +3086,7 @@ case $build in
 	     else
 	       comps="g++ cl"
 	     fi ;;
-  sparc-sun-solaris*)
+  *-*-solaris*)
   	     comps="CC xlC aCC g++ c++ pgCC icpc gpp cxx cc++ cl FCC KCC RCC" ;;
   *-darwin*) comps="g++ c++ CC" ;;
           *) comps="xlC aCC CC g++ c++ pgCC icpc gpp cxx cc++ cl FCC KCC RCC" ;;
@@ -3650,7 +3650,7 @@ rm -f conftest.err conftest.$ac_objext \
             ;;
         esac
         ;;
-      *-sun-*)
+      *-*-solaris*)
           coin_opt_cxxflags="-O4"
           coin_dbg_cxxflags="-g"
         ;;
@@ -20154,7 +20154,7 @@ if test $enable_shared = yes; then
         RPATH_FLAGS=nothing ;;
     *-mingw32)
         RPATH_FLAGS=nothing ;;
-    *-sun-*)
+    *-*-solaris*)
         RPATH_FLAGS=
         for dir in $abs_lib_dir; do
           RPATH_FLAGS="$RPATH_FLAGS -R$dir"
@@ -20318,13 +20318,28 @@ echo "${ECHO_T}$coin_has_dylp" >&6
       CFLAGS="$CFLAGS -wd4996"
     ;;
   esac
-# Deletions.
+# Darwin will refuse to compile it's own standard headers if pedantic-errors is
+# requested.
   case "$build" in
     *-darwin*)
       CXXFLAGS=`echo $CXXFLAGS | sed -e 's/--*pedantic-errors//g'`
       CFLAGS=`echo $CFLAGS | sed -e 's/--*pedantic-errors//g'`
     ;;
   esac
+
+# # DyLP's command parser (bnfrdr) makes heavy use of type-punning. We cannot #
+# allow GCC to enforce strict-aliasing. And we can't simply test to see if it's
+# present; specifying -O2, -O3, or -Os also enables it. As above, strip
+# anything already present and insert one -fno-strict-aliasing.
+
+  if test x"$ac_cv_c_compiler_gnu" = xyes ; then
+    CFLAGS=`echo $CFLAGS | sed -e 's/--*fn*o*-*strict-aliasing//g'`
+    CFLAGS="$CFLAGS -fno-strict-aliasing"
+  fi
+  if test x"$ac_cv_cxx_compiler_gnu" = xyes ; then
+    CXXFLAGS=`echo $CXXFLAGS | sed -e 's/--*fn*o*-*strict-aliasing//g'`
+    CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+  fi
 
 
 # Determine the C type that corresponds to the C++ bool type in size
