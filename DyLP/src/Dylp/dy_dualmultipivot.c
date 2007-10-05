@@ -1215,6 +1215,7 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
 
 # ifndef DYLP_NDEBUG
   int j,jndx,lastdegen ;
+  lastdegen = 0 ;
 # endif
 /*
   # ifdef PARANOIA

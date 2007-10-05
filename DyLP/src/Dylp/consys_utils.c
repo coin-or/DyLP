@@ -1887,7 +1887,8 @@ bool consys_addcol_ex (consys_struct *consys,
 #   ifndef DYLP_NDEBUG
     else
     if (excol[rowndx] != 0.0)
-    { warn(130,rtnnme,consys->nme,rowndx,colndx,excol[rowndx],
+    { rowhdr = consys->mtx.rows[rowndx] ;
+      warn(130,rtnnme,consys->nme,rowndx,colndx,excol[rowndx],
 	   consys->tiny,"row",rowhdr->nme) ; }
 #   endif
   }

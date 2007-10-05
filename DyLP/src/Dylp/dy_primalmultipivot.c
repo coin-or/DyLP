@@ -310,6 +310,8 @@ static dyret_enum scanForPrimOutCands (primcand_struct *outcands,
 
   retval = dyrFATAL ;
 
+  memset(&best,0,sizeof(primcand_struct)) ;
+
   m = dy_sys->concnt ;
   vub = dy_sys->vub ;
   vlb = dy_sys->vlb ;

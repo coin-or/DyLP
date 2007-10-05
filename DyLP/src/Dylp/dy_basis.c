@@ -1104,6 +1104,8 @@ dyret_enum dy_factor (flags *calcflgs)
 # endif
 
   retcode = dyrINV ;
+  patchcnt = 0 ;
+  patches = NULL ;
 
 /*
   Call luf_adjustsize to set the actual size of the basis. If the allocated

@@ -1519,6 +1519,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
   const char *rtnnme = "dy_dualaddvars" ;
 
   retval = -1 ;
+  dir2 = 0 ;
 
 # ifdef PARANOIA
   if (orig_sys == NULL)
