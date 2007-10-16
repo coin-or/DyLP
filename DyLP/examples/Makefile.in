@@ -98,9 +98,8 @@ COINLIBDIR = @abs_lib_dir@
 
 # Libraries necessary to link with odsi+dylp. Order is important.
 LIBS_CXX = -L$(COINLIBDIR) -lOsiDylp -lDylp -lOsi -lCoinUtils \
-	@ADDLIBS@ \
-	`cat $(COINLIBDIR)/dylp_addlibs.txt` \
 	`cat $(COINLIBDIR)/coinutils_addlibs.txt` \
+	`cat $(COINLIBDIR)/dylp_addlibs.txt` \
 	`cat $(COINLIBDIR)/osi_addlibs.txt`
 
 # Libraries necessary to link with osi_dylp
