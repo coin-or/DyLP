@@ -103,7 +103,8 @@ AC_CHECK_HEADER([sunmath.h],
     [AC_DEFINE([HAVE_SUNMATH_H],[1],[Define to 1 if sunmath.h exists.])
      fp_header_list="sunmath.h $fp_header_list"
      AC_C_ADD_TO_INCLUDES([sunmath.h])
-     LIBS="-lsunmath $LIBS"
+     AC_DYLP_GET_SUNSTUDIO_LIBDIRS
+     LIBS="$SUNSTUDIO_LIBDIRS -lsunmath $LIBS"
      ADDLIBS="-lsunmath $ADDLIBS"],
     [])
 

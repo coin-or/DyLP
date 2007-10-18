@@ -22716,7 +22716,27 @@ _ACEOF
 $ac_includes_default
 #include <sunmath.h>"
 
-     LIBS="-lsunmath $LIBS"
+      { echo "$as_me:$LINENO: Determining Sun Studio library directories ... " >&5
+echo "$as_me: Determining Sun Studio library directories ... " >&6;}
+  cat /dev/null > dylp_ac_studiodirs.c
+
+# The autoconf convention seems to be to put output in a file. Avoids problems
+# stuffing too-long strings into variables, I suppose.
+
+  $CC -xdryrun $CFLAGS $CPPFLAGS dylp_ac_studiodirs.c 2> dylp_ac_studiodirs.c
+
+# Now find the -YP option. Remember that autoconf does not take kindly to [] in
+# macros, so we need to use quadrigraphs.
+
+  SUNSTUDIO_LIBDIRS=`cat dylp_ac_studiodirs.c | \
+	 sed -n -e 's/.*-Y[^,]*,\([^ "]*\).*/-L\1/p' | \
+	 sed -n -e 's/:/ -L/gp'`
+  rm -f dylp_ac_studiodirs.c
+
+  { echo "$as_me:$LINENO: \"$SUNSTUDIO_LIBDIRS\"" >&5
+echo "$as_me: \"$SUNSTUDIO_LIBDIRS\"" >&6;}
+
+     LIBS="$SUNSTUDIO_LIBDIRS -lsunmath $LIBS"
      ADDLIBS="-lsunmath $ADDLIBS"
 fi
 

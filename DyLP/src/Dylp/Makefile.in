@@ -48,6 +48,7 @@ DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
+	$(top_srcdir)/m4/ac_c_get_sunpro_libs.m4 \
 	$(top_srcdir)/m4/ac_dylp_equiv_for_cpp_bool.m4 \
 	$(top_srcdir)/m4/ac_dylp_find_fp_funcs.m4 \
 	$(top_srcdir)/m4/ac_dylp_fix_cppflags.m4 \
