@@ -51,12 +51,9 @@ DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = \
 	../../inc/config_dylp.h \
-	dylib_bnfrdr.h \
 	dylib_errs.h \
-	dylib_fortran.h \
 	dylib_hash.h \
 	dylib_io.h \
-	dylib_keytab.h \
 	dylib_std.h \
 	dylib_strrtns.h
 

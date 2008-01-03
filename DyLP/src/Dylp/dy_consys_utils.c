@@ -157,9 +157,9 @@
 #include "dylib_io.h"
 #include "dylib_std.h"
 #include "dylib_strrtns.h"
-#include "consys.h"
+#include "dy_consys.h"
 
-static char sccsid[] UNUSED = "@(#)consys_utils.c	4.7	10/15/05" ;
+static char sccsid[] UNUSED = "@(#)dy_consys_utils.c	4.7	10/15/05" ;
 static char svnid[] UNUSED = "$Id$" ;
 
 /*

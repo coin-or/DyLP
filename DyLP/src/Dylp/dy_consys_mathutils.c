@@ -20,9 +20,9 @@
 
 #include "dylib_errs.h"
 #include "dylib_std.h"
-#include "consys.h"
+#include "dy_consys.h"
 
-static char sccsid[] UNUSED = "@(#)consys_mathutils.c	4.5	11/11/04" ;
+static char sccsid[] UNUSED = "@(#)dy_consys_mathutils.c	4.5	11/11/04" ;
 static char svnid[] UNUSED = "$Id$" ;
 
 

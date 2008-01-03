@@ -40,7 +40,7 @@
 
 #include "dylib_errs.h"
 #include "dylib_std.h"
-#include "consys.h"
+#include "dy_consys.h"
 
 #define CONSYS_SCALING_DEBUG 0
 
@@ -49,7 +49,7 @@
   extern bool dy_gtxecho ;
 #endif
 
-static char sccsid[] UNUSED = "@(#)consys_scaling.c	4.8	10/15/05" ;
+static char sccsid[] UNUSED = "@(#)dy_consys_scaling.c	4.8	10/15/05" ;
 static char svnid[] UNUSED = "$Id$" ;
 
 

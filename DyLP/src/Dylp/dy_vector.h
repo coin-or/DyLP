@@ -15,7 +15,7 @@
 #define _DYLP_VECTOR_H
  
 /*
-  @(#)vector.h         4.5         11/06/04
+  @(#)dy_vector.h         4.5         11/06/04
   svn/cvs: $Id$
 */
 

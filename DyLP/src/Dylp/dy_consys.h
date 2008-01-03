@@ -15,7 +15,7 @@
 #define _CONSYS_H
 
 /*
-  @(#)consys.h	4.4	11/11/04
+  @(#)dy_consys.h	4.4	11/11/04
   svn/cvs: $Id$
 
   This header file contains declarations for a constraint system data
@@ -75,7 +75,7 @@
 	consys_create). It may change if there's a need.
 */
 
-#include "vector.h"
+#include "dy_vector.h"
 
 
 

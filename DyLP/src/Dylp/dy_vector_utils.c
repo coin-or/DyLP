@@ -21,7 +21,7 @@
 #include "dylib_errs.h"
 #include "dylib_std.h"
 #include "dylib_strrtns.h"
-#include "vector.h"
+#include "dy_vector.h"
 
 static char sccsid[] UNUSED = "@(#)vector_utils.c	4.5	11/06/04" ;
 static char svnid[] UNUSED = "$Id$" ;

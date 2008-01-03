@@ -20,11 +20,11 @@ lib_LTLIBRARIES = libDylp.la
 
 # List all source files for this library, including headers
 libDylp_la_SOURCES = \
-	consys.h \
-	consys_io.c \
-	consys_mathutils.c \
-	consys_scaling.c \
-	consys_utils.c \
+	dy_consys.h \
+	dy_consys_io.c \
+	dy_consys_mathutils.c \
+	dy_consys_scaling.c \
+	dy_consys_utils.c \
 	dy_basis.c \
 	dy_bound.c \
 	dy_cmdint.c dy_cmdint.h \
@@ -57,8 +57,8 @@ libDylp_la_SOURCES = \
 	glplib4.c \
 	glplib.h \
 	glpluf.c glpluf.h \
-	vector.h \
-	vector_utils.c
+	dy_vector.h \
+	dy_vector_utils.c
 
 # This is for libtool (on Windows)
 libDylp_la_LDFLAGS = $(LT_LDFLAGS)
@@ -86,10 +86,7 @@ DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 # and that therefore should be installed in 'install/coin'
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = \
-	consys.h \
 	dy_cmdint.h \
+	dy_consys.h \
 	dylp.h \
-	glpinv.h \
-	glplib.h \
-	glpluf.h \
-	vector.h
+	dy_vector.h

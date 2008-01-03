@@ -22,7 +22,7 @@
 #include "dylib_io.h"
 #include "dylib_std.h"
 #include "dylib_strrtns.h"
-#include "consys.h"
+#include "dy_consys.h"
 
 static char sccsid[] UNUSED = "@(#)consys_io.c	4.6	11/11/04" ;
 static char svnid[] UNUSED = "$Id$" ;
@@ -97,7 +97,7 @@ char *consys_assocnme (consys_struct *consys, flags which)
 
   Parameters:
     consys:	constraint system
-    which:	associated vector type (from codes in consys.h)
+    which:	associated vector type (from codes in dy_consys.h)
   
   Returns: a name string for the vector, or a string indicating error.
 */

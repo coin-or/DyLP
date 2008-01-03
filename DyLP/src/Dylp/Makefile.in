@@ -68,16 +68,16 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includecoindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-am_libDylp_la_OBJECTS = consys_io.lo consys_mathutils.lo \
-	consys_scaling.lo consys_utils.lo dy_basis.lo dy_bound.lo \
-	dy_cmdint.lo dy_coldstart.lo dy_conmgmt.lo dy_dual.lo \
-	dy_dualmultipivot.lo dy_dualpivot.lo dy_duenna.lo dy_force.lo \
-	dy_hotstart.lo dylp.lo dylp_io.lo dylp_utils.lo dy_options.lo \
-	dy_penalty.lo dy_pivreject.lo dy_primal.lo \
+am_libDylp_la_OBJECTS = dy_consys_io.lo dy_consys_mathutils.lo \
+	dy_consys_scaling.lo dy_consys_utils.lo dy_basis.lo \
+	dy_bound.lo dy_cmdint.lo dy_coldstart.lo dy_conmgmt.lo \
+	dy_dual.lo dy_dualmultipivot.lo dy_dualpivot.lo dy_duenna.lo \
+	dy_force.lo dy_hotstart.lo dylp.lo dylp_io.lo dylp_utils.lo \
+	dy_options.lo dy_penalty.lo dy_pivreject.lo dy_primal.lo \
 	dy_primalmultipivot.lo dy_primalpivot.lo dy_scaling.lo \
 	dy_setup.lo dy_statistics.lo dy_varmgmt.lo dy_warmstart.lo \
 	glpinv.lo glplib1.lo glplib2.lo glplib3.lo glplib4.lo \
-	glpluf.lo vector_utils.lo
+	glpluf.lo dy_vector_utils.lo
 libDylp_la_OBJECTS = $(am_libDylp_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -246,11 +246,11 @@ lib_LTLIBRARIES = libDylp.la
 
 # List all source files for this library, including headers
 libDylp_la_SOURCES = \
-	consys.h \
-	consys_io.c \
-	consys_mathutils.c \
-	consys_scaling.c \
-	consys_utils.c \
+	dy_consys.h \
+	dy_consys_io.c \
+	dy_consys_mathutils.c \
+	dy_consys_scaling.c \
+	dy_consys_utils.c \
 	dy_basis.c \
 	dy_bound.c \
 	dy_cmdint.c dy_cmdint.h \
@@ -283,8 +283,8 @@ libDylp_la_SOURCES = \
 	glplib4.c \
 	glplib.h \
 	glpluf.c glpluf.h \
-	vector.h \
-	vector_utils.c
+	dy_vector.h \
+	dy_vector_utils.c
 
 
 # This is for libtool (on Windows)
@@ -313,13 +313,10 @@ DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 # and that therefore should be installed in 'install/coin'
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = \
-	consys.h \
 	dy_cmdint.h \
+	dy_consys.h \
 	dylp.h \
-	glpinv.h \
-	glplib.h \
-	glpluf.h \
-	vector.h
+	dy_vector.h
 
 all: all-am
 
@@ -390,15 +387,15 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/consys_io.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/consys_mathutils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/consys_scaling.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/consys_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_basis.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_bound.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_cmdint.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_coldstart.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_conmgmt.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_io.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_mathutils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_scaling.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_dual.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_dualmultipivot.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_dualpivot.Plo@am__quote@
@@ -415,6 +412,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_setup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_statistics.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_varmgmt.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_vector_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_warmstart.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylp_io.Plo@am__quote@
@@ -425,7 +423,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glplib3.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glplib4.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glpluf.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vector_utils.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

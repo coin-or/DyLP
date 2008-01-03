@@ -25,7 +25,7 @@ AC_REVISION(0.9)
 
 # List one file in the package so that the configure script can test
 # whether the package is actually there
-AC_CONFIG_SRCDIR(src/Dylp/vector.h)
+AC_CONFIG_SRCDIR(src/Dylp/dy_vector.h)
 
 # Where should everything be installed by default?  Here, we want it
 # to be installed directly in 'bin', 'lib', 'include' subdirectories

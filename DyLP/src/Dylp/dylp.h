@@ -49,7 +49,7 @@
 
 #include "dylib_errs.h"
 #include "dylib_io.h"
-#include "consys.h"
+#include "dy_consys.h"
 
 /*
   A few words on notation. Traditional matrix and vector notation for LP
@@ -78,7 +78,7 @@
   primal variables, and b is the right-hand-side (rhs).  NOTE that the
   convention for indices is NOT the usual one. Logical variables are assigned
   indices 1..m and architectural variables are assigned indices m+1..m+n. It
-  makes for more efficient addition/deletion of variables; see consys.h for a
+  makes for more efficient addition/deletion of variables; see dy_consys.h for a
   little more explanation.
 
   There is an objective function z = cx, where z is the objective value and c
