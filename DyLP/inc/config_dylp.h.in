@@ -10,8 +10,14 @@
 /* Define to the debug verbosity level (0 is no output) */
 #undef COIN_DYLP_VERBOSITY
 
+/* Define to 1 if the CoinUtils package is used */
+#undef COIN_HAS_COINUTILS
+
 /* Define to 1 if the DyLP package is used */
 #undef COIN_HAS_DYLP
+
+/* Define to 1 if the Osi package is used */
+#undef COIN_HAS_OSI
 
 /* Directory containing the DyLP error message text file (dy_errmsgs.txt).
    Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native path

@@ -63,6 +63,8 @@ AC_COIN_INIT_AUTO_TOOLS
 #############################################################################
 
 AC_COIN_HAS_PROJECT(DyLP)
+AC_COIN_HAS_PROJECT(CoinUtils)
+AC_COIN_HAS_PROJECT(Osi)
 
 #############################################################################
 #                       Doing project specific tests                        #
