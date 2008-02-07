@@ -23938,7 +23938,7 @@ fi
 
 # Here list all the files that configure should create (except for the
 # configuration header file)
-                                                  ac_config_files="$ac_config_files Makefile examples/Makefile src/DylpStdLib/Makefile src/Dylp/Makefile dylp_addlibs.txt"
+                                                            ac_config_files="$ac_config_files Makefile doc/Makefile examples/Makefile src/DylpStdLib/Makefile src/Dylp/Makefile dylp_addlibs.txt"
 
 
 # Here put the location and name of the configuration header file
@@ -24602,6 +24602,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+  "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "examples/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
   "src/DylpStdLib/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/DylpStdLib/Makefile" ;;
   "src/Dylp/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Dylp/Makefile" ;;
