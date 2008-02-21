@@ -358,9 +358,10 @@ void dy_initbasis (int concnt, int factor, double zero_tol)
   const char *rtnnme = "dy_initbasis" ;
 
 /*
-  Create the basis.
+  Create the basis. Allow for at least five constraints (also handles
+  pathological examples with no explicit constraints).
 */
-  luf_capacity = concnt ;
+  luf_capacity = maxx(concnt,5) ;
   luf_basis = inv_create(luf_capacity,factor) ;
   if (luf_basis == NULL)
   { if (dy_lp == NULL)

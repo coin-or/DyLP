@@ -1463,14 +1463,16 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
   dyio_outfmt(dy_logchn,dy_gtxecho,
 	      ".\n\t\tread %d non-zero coefficients from the MPS file.",
 	      consys->mtx.coeffcnt) ;
-  dyio_outfmt(dy_logchn,dy_gtxecho,
-	      "\n\t\tthe longest column is %s, with %d entries.",
-	      consys_nme(consys,'v',consys->maxcolndx,FALSE,NULL),
-	      consys->maxcollen) ;
-  dyio_outfmt(dy_logchn,dy_gtxecho,
-	      "\n\t\tthe longest row is %s, with %d entries.\n",
-	      consys_nme(consys,'c',consys->maxrowndx,FALSE,NULL),
-	      consys->maxrowlen) ;
+  if (consys->maxcolndx > 0)
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n\t\tthe longest column is %s, with %d entries.",
+		consys_nme(consys,'v',consys->maxcolndx,FALSE,NULL),
+		consys->maxcollen) ;
+  if (consys->maxrowndx > 0)
+    dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n\t\tthe longest row is %s, with %d entries.\n",
+		consys_nme(consys,'c',consys->maxrowndx,FALSE,NULL),
+		consys->maxrowlen) ;
 # endif
 
   return (mpsinENDDATA) ; }
