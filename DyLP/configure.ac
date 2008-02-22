@@ -63,6 +63,8 @@ AC_COIN_INIT_AUTO_TOOLS
 #############################################################################
 
 AC_COIN_HAS_PROJECT(DyLP)
+AC_COIN_HAS_PROJECT(CoinUtils)
+AC_COIN_HAS_PROJECT(Osi)
 
 #############################################################################
 #                       Doing project specific tests                        #
@@ -197,6 +199,7 @@ AC_COIN_VPATH_LINK(examples/plain)
 # Here list all the files that configure should create (except for the
 # configuration header file)
 AC_CONFIG_FILES([Makefile
+		 doc/Makefile
                  examples/Makefile
                  src/DylpStdLib/Makefile
                  src/Dylp/Makefile

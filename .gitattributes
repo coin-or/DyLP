@@ -3,6 +3,8 @@ DyLP/Makefile.am -text
 DyLP/Makefile.in -text
 DyLP/configure -text
 DyLP/configure.ac -text
+DyLP/doc/Makefile.am -text
+DyLP/doc/Makefile.in -text
 DyLP/doc/dylp.pdf -text svneol=unset#application/pdf
 DyLP/doc/dylp.ps -text svneol=unset#application/postscript
 DyLP/dylp_addlibs.txt.in -text

@@ -2175,10 +2175,18 @@ static void build_soln (lpprob_struct *orig_lp)
 /*
   Now fill in the answer. First we walk dy_origvars. For each nonbasic
   architectural variable (active and inactive), we fill in the status entry.
+  NBFR variables (active or inactive) are uncommon but correct: by
+  convention, the value is zero, and dylp will not force them into the basis
+  unless the reduced cost is nonzero. SB variables are a different story. We
+  should never see an inactive SB variable. Dylp will force SB variables to
+  bound or into the basis, and they will only be seen here if dylp could not
+  solve the problem to optimality.
+
   For each active basic architectural variable, we place the negative of the
   basis position in the status entry and fill in the basis information, then
-  fill in the x and y values. Remember that there are no logicals in orig_sys.
-  If the user is asking for an active variables vector, fill that in too.
+  fill in the x and y values. Remember that there are no logicals in
+  orig_sys.  If the user is asking for an active variables vector, fill that
+  in too.
 */
   for (ovndx = 1 ; ovndx <= orig_sys->varcnt ; ovndx++)
   { if (dy_origvars[ovndx] < 0)
@@ -2192,7 +2200,7 @@ static void build_soln (lpprob_struct *orig_lp)
       xjndx = dy_origvars[ovndx] ;
       xjstatus = dy_status[xjndx] ;
       if (flgon(xjstatus,vstatNONBASIC|vstatEXOTIC))
-      { if (flgon(xjstatus,vstatNBFR|vstatSB))
+      { if (flgon(xjstatus,vstatSB))
 	{ if (dy_lp->lpret == lpOPTIMAL)
 	    errmsg(359,rtnnme,dy_sys->nme,
 		   consys_nme(dy_sys,'v',xjndx,FALSE,NULL),xjndx,

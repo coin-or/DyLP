@@ -352,10 +352,11 @@ typedef enum { dyrFATAL = -10, dyrITERLIM, dyrSTALLED,
   dylp ensures that superbasic variables are, in fact, always strictly within
   bounds.
 
-  Inactive NBFR variables can be created at startup if there are free
-  variables that are not selected by the basis crash to be in the initial
-  basis. They can also be forced inactive by error recovery. By convention,
-  NBFR variables always have a value of zero.
+  Inactive NBFR variables can be created at startup if dylp is working with a
+  partial system and there are free variables that are not selected to be in
+  the initial basis. If the client is forcing a full system, these will be
+  active NBFR variables.  Error recovery may also create active NBFR
+  variables. By convention, NBFR variables always have a value of zero.
 
   Inactive SB variables should not occur. SB status occurs only as the result
   of error recovery and is only valid in primal simplex.

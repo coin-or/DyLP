@@ -12,7 +12,7 @@ AUTOMAKE_OPTIONS = foreign
 #                          Subdirectories                              #
 ########################################################################
 
-SUBDIRS = src/DylpStdLib src/Dylp examples
+SUBDIRS = src/DylpStdLib src/Dylp examples doc
 
 ########################################################################
 #             Additional files to be included in tarball               #
@@ -21,8 +21,6 @@ SUBDIRS = src/DylpStdLib src/Dylp examples
 # Here we need include all files that are not mentioned in other Makefiles
 
 EXTRA_DIST = \
-	doc/dylp.pdf \
-	doc/dylp.ps \
 	examples/generic.spc \
 	examples/greenbeb.spc \
 	examples/Makefile.in \
@@ -50,12 +48,13 @@ test: all
 ########################################################################
 
 addlibsfile = dylp_addlibs.txt
+addlibsdir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)/
 
 install-exec-local: install-doc
-	$(install_sh_DATA) $(addlibsfile) $(DESTDIR)$(libdir)/$(addlibsfile)
+	$(install_sh_DATA) $(addlibsfile) $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 uninstall-local: uninstall-doc
-	rm -f $(DESTDIR)$(libdir)/$(addlibsfile)
+	rm -f $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 ########################################################################
 #                         Maintainer Stuff                             #

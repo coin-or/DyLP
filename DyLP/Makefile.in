@@ -119,8 +119,15 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CDEFS = @CDEFS@
 CFLAGS = @CFLAGS@
+COINUTILSDOCDIR = @COINUTILSDOCDIR@
+COINUTILSOBJDIR = @COINUTILSOBJDIR@
+COINUTILSSRCDIR = @COINUTILSSRCDIR@
+COIN_HAS_COINUTILS_FALSE = @COIN_HAS_COINUTILS_FALSE@
+COIN_HAS_COINUTILS_TRUE = @COIN_HAS_COINUTILS_TRUE@
 COIN_HAS_DYLP_FALSE = @COIN_HAS_DYLP_FALSE@
 COIN_HAS_DYLP_TRUE = @COIN_HAS_DYLP_TRUE@
+COIN_HAS_OSI_FALSE = @COIN_HAS_OSI_FALSE@
+COIN_HAS_OSI_TRUE = @COIN_HAS_OSI_TRUE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -133,6 +140,7 @@ DBG_CFLAGS = @DBG_CFLAGS@
 DBG_CXXFLAGS = @DBG_CXXFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DYLPDOCDIR = @DYLPDOCDIR@
 DYLPOBJDIR = @DYLPOBJDIR@
 DYLPSRCDIR = @DYLPSRCDIR@
 DYLP_ERRMSGDIR = @DYLP_ERRMSGDIR@
@@ -169,6 +177,9 @@ MPICXX = @MPICXX@
 OBJEXT = @OBJEXT@
 OPT_CFLAGS = @OPT_CFLAGS@
 OPT_CXXFLAGS = @OPT_CXXFLAGS@
+OSIDOCDIR = @OSIDOCDIR@
+OSIOBJDIR = @OSIOBJDIR@
+OSISRCDIR = @OSISRCDIR@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -241,23 +252,23 @@ AUTOMAKE_OPTIONS = foreign
 ########################################################################
 #                          Subdirectories                              #
 ########################################################################
-SUBDIRS = src/DylpStdLib src/Dylp examples
+SUBDIRS = src/DylpStdLib src/Dylp examples doc
 
 ########################################################################
 #             Additional files to be included in tarball               #
 ########################################################################
 
 # Here we need include all files that are not mentioned in other Makefiles
-EXTRA_DIST = doc/dylp.pdf doc/dylp.ps examples/generic.spc \
-	examples/greenbeb.spc examples/Makefile.in examples/mpsio.c \
-	examples/odsi+dylp.cpp examples/osi_dylp.c \
-	examples/osi+dylp.cpp examples/plain examples/README \
-	$(am__append_1)
+EXTRA_DIST = examples/generic.spc examples/greenbeb.spc \
+	examples/Makefile.in examples/mpsio.c examples/odsi+dylp.cpp \
+	examples/osi_dylp.c examples/osi+dylp.cpp examples/plain \
+	examples/README $(am__append_1)
 
 ########################################################################
 #                  Installation of the addlibs file                    #
 ########################################################################
 addlibsfile = dylp_addlibs.txt
+addlibsdir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)/
 
 ########################################################################
 #                         Maintainer Stuff                             #
@@ -473,7 +484,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/../BuildTools $(distdir)/doc $(distdir)/examples $(distdir)/inc $(distdir)/m4
+	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/../BuildTools $(distdir)/examples $(distdir)/inc $(distdir)/m4
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -724,10 +735,10 @@ test: all
 	fi
 
 install-exec-local: install-doc
-	$(install_sh_DATA) $(addlibsfile) $(DESTDIR)$(libdir)/$(addlibsfile)
+	$(install_sh_DATA) $(addlibsfile) $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 uninstall-local: uninstall-doc
-	rm -f $(DESTDIR)$(libdir)/$(addlibsfile)
+	rm -f $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 install-doc: $(DocFiles)
 	test -z "$(DocInstallDir)" || $(mkdir_p) "$(DESTDIR)$(DocInstallDir)"
