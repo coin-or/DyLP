@@ -45,9 +45,9 @@ static char svnid[] UNUSED = "$Id$" ;
   <= constraints. Also recall that we're minimising. Then the normals a<i> to
   the inequality constraints point out of the feasible region, and at optimum
   the normal c to the objective will point into the feasible region. Hence
-  ideal `alignment' with the objective occurs when angle between a<i> and c is
-  180 degrees. When the angle is 0 degrees, the constraint is forming the far
-  side of the polytope.
+  ideal `alignment' with the objective occurs when the angle between a<i> and
+  c is 180 degrees. When the angle is 0 degrees, the constraint is forming
+  the far side of the polytope.
 
   For convenience, call the inequalities with 180 <= angle(a<i>,c) < 90 the
   `near' group, those with angle(a<i>,c) = 90 the `perp' group, and those
@@ -128,8 +128,8 @@ static bool cold_sortcons (consys_struct *orig_sys,
 
 /*
   This routine separates the constraints into equalities and inequalities,
-  dropping empty constraints. Depending on options, various additional work is
-  performed:
+  dropping empty and nonbinding constraints. Depending on options, various
+  additional work is performed:
     * If fullsys is not specified, the inequalities are sorted according to
       their angle from the objective function.
     * If full statistics are enabled, constraint angles are loaded into the
@@ -207,7 +207,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
   retval = TRUE ;
 /*
   Scan orig_sys, sorting the constraints into eqs and ineqs->angles and
-  discarding empty constraints.
+  discarding empty and nonbinding constraints.
 */
   aj = pkvec_new(0) ;
   eqcnt = 0 ;
@@ -215,7 +215,8 @@ static bool cold_sortcons (consys_struct *orig_sys,
   ctyp = orig_sys->ctyp ;
 
   for (i = 1 ; i <= m ; i++)
-  { if (consys_getrow_pk(orig_sys,i,&aj) == FALSE)
+  { if (ctyp[i] == contypNB) continue ;
+    if (consys_getrow_pk(orig_sys,i,&aj) == FALSE)
     { errmsg(122,rtnnme,orig_sys->nme,"row",
 	     consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
       retval = FALSE ;
