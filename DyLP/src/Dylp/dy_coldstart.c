@@ -128,8 +128,9 @@ static bool cold_sortcons (consys_struct *orig_sys,
 
 /*
   This routine separates the constraints into equalities and inequalities,
-  dropping empty and nonbinding constraints. Depending on options, various
-  additional work is performed:
+  dropping empty and nonbinding constraints. It also checks the bounds of
+  ranged constraints for prima facie infeasibility. Depending on options,
+  various additional work is performed:
     * If fullsys is not specified, the inequalities are sorted according to
       their angle from the objective function.
     * If full statistics are enabled, constraint angles are loaded into the
@@ -149,6 +150,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
 		    comments at head of file
 
   Return value: TRUE if all goes as planned, FALSE on error.
+		dy_lp->lpret is set to lpINFEAS for prima facie infeasibility
 */
 
 { int i,ndx,m,n,eqcnt,ineqcnt,nearcnt,perpcnt,farcnt ;
@@ -158,6 +160,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
   ineq_struct *ineqs ;
   angle_struct *angles ;
   contyp_enum *ctyp ;
+  double *rhs,*rhslow ;
 
   bool retval,need_angles ;
 
@@ -207,15 +210,30 @@ static bool cold_sortcons (consys_struct *orig_sys,
   retval = TRUE ;
 /*
   Scan orig_sys, sorting the constraints into eqs and ineqs->angles and
-  discarding empty and nonbinding constraints.
+  discarding empty and nonbinding constraints and checking range constraints
+  for prima facie infeasibility.
 */
   aj = pkvec_new(0) ;
   eqcnt = 0 ;
   ineqcnt = 0 ;
   ctyp = orig_sys->ctyp ;
+  rhs = orig_sys->rhs ;
+  rhslow = orig_sys->rhslow ;
 
   for (i = 1 ; i <= m ; i++)
   { if (ctyp[i] == contypNB) continue ;
+    if (ctyp[i] == contypRNG)
+    { if (rhs[i] < rhslow[i])
+      { 
+#	ifndef DYLP_NDEBUG
+	if (dy_opts->print.setup >= 1)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "\n\tTrivial infeasibility for %s (%d),",
+		      consys_nme(orig_sys,'c',i,0,0),i) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho," rhslow = %g > rhs = %g.",
+		      rhslow[i],rhs[i]) ; }
+#	endif
+	dy_lp->lpret = lpINFEAS ; } }
     if (consys_getrow_pk(orig_sys,i,&aj) == FALSE)
     { errmsg(122,rtnnme,orig_sys->nme,"row",
 	     consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
@@ -362,7 +380,8 @@ static bool cold_createdysys (consys_struct *orig_sys, int eqcnt, int ineqcnt)
   While unrelated to creating dy_sys, it turns out that this routine is a
   convenient place for another pre-loading activity, grooming the bounds on
   variables in orig_sys and assigning an initial status to the inactive
-  variables. Where |ub<j> - lb<j>| < dy_tols->pfeas, the bounds are forced to
+  variables. Where lb<j> > ub<j>, indicate prima facie infeasibility.
+  Where |ub<j> - lb<j>| < dy_tols->pfeas, the bounds are forced to
   equality and the variable is marked as fixed (NBFX). (This sort of thing
   can happen when a client program is tweaking the bounds on variables.) This
   may or may not be visible to the client --- depends on whether dylp has
@@ -388,14 +407,14 @@ static bool cold_createdysys (consys_struct *orig_sys, int eqcnt, int ineqcnt)
     ineqcnt:	the number of inequalities in orig_sys
 
   Returns: TRUE if the system is created without error, FALSE otherwise.
+	   If prima facie infeasibility is detected, dy_lp->lpret is set to
+	   lpINFEAS.
 */
 
 { int j,m_sze,n_sze,flippable ;
   double vlbj,vubj ;
   double *vlb,*vub,*obj ;
-/* unused variable
-  bool infeas ;
-*/
+
   char nmebuf[50] ;
 
   flags parts = CONSYS_OBJ|CONSYS_VUB|CONSYS_VLB|CONSYS_RHS|CONSYS_RHSLOW|
@@ -561,7 +580,7 @@ static bool cold_loadfull (consys_struct *orig_sys,
   Returns: TRUE if all constraints are loaded successfully, FALSE otherwise.
 */
 
-{ int j,ndx,eqcnt,ineqcnt ;
+{ int i,act_i,ndx,eqcnt,ineqcnt ;
   bool retval ;
 
   angle_struct *angles ;
@@ -576,21 +595,21 @@ static bool cold_loadfull (consys_struct *orig_sys,
 */
   if (eqcnt > 0)
   { for (ndx = 1 ; ndx <= eqcnt ; ndx++)
-    { j = eqs[ndx] ;
+    { i = eqs[ndx] ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.setup >= 3)
       { dyio_outfmt(dy_logchn,dy_gtxecho, "\n    activating %s %s (%d) ...",
-		    consys_prtcontyp(orig_sys->ctyp[j]),
-		    consys_nme(orig_sys,'c',j,FALSE,NULL),j) ; }
+		    consys_prtcontyp(orig_sys->ctyp[i]),
+		    consys_nme(orig_sys,'c',i,FALSE,NULL),i) ; }
 #     endif
 #     ifdef DYLP_STATISTICS
-      if (dy_stats != NULL) dy_stats->cons.init[j] = TRUE ;
+      if (dy_stats != NULL) dy_stats->cons.init[i] = TRUE ;
 #     endif
-      if (dy_loadcon(orig_sys,j,TRUE,NULL) == FALSE)
+      if (dy_loadcon(orig_sys,i,TRUE,NULL) == FALSE)
       { errmsg(430,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "activate","constraint",
-	       consys_nme(orig_sys,'c',j,TRUE,NULL),j) ;
+	       consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
 	retval = FALSE ;
 	break ; } }
 #   ifndef DYLP_NDEBUG
@@ -611,21 +630,21 @@ static bool cold_loadfull (consys_struct *orig_sys,
 		  "\n    transferred %d inequalities ...",ineqcnt) ; }
 #   endif
     for (ndx = 0 ; ndx < ineqcnt ; ndx++)
-    { j = angles[ndx].ndx ;
+    { i = angles[ndx].ndx ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.setup >= 3)
       { dyio_outfmt(dy_logchn,dy_gtxecho, "\n    activating %s %s (%d) ...",
-		    consys_prtcontyp(orig_sys->ctyp[j]),
-		    consys_nme(orig_sys,'c',j,FALSE,NULL),j) ; }
+		    consys_prtcontyp(orig_sys->ctyp[i]),
+		    consys_nme(orig_sys,'c',i,FALSE,NULL),i) ; }
 #     endif
 #     ifdef DYLP_STATISTICS
-      if (dy_stats != NULL) dy_stats->cons.init[j] = TRUE ;
+      if (dy_stats != NULL) dy_stats->cons.init[i] = TRUE ;
 #     endif
-      if (dy_loadcon(orig_sys,j,TRUE,NULL) == FALSE)
+      if (dy_loadcon(orig_sys,i,TRUE,NULL) == FALSE)
       { errmsg(430,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "activate","constraint",
-	       consys_nme(orig_sys,'c',j,TRUE,NULL),j) ;
+	       consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
 	retval = FALSE ;
 	break ; } } }
 
@@ -652,7 +671,7 @@ static bool cold_loadpartial (consys_struct *orig_sys,
   Returns: TRUE if all constraints are loaded successfully, FALSE otherwise.
 */
 
-{ int j,ndx,eqcnt,ineqcnt,ineq_actvcnt ;
+{ int i,ndx,eqcnt,ineqcnt,ineq_actvcnt ;
   bool retval ;
   angle_struct *angles ;
 
@@ -669,21 +688,21 @@ static bool cold_loadpartial (consys_struct *orig_sys,
 */
   if (eqcnt > 0)
   { for (ndx = 1 ; ndx <= eqcnt ; ndx++)
-    { j = eqs[ndx] ;
+    { i = eqs[ndx] ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.setup >= 3)
       { dyio_outfmt(dy_logchn,dy_gtxecho, "\n    activating %s %s (%d) ...",
-		    consys_prtcontyp(orig_sys->ctyp[j]),
-		    consys_nme(orig_sys,'c',j,FALSE,NULL),j) ; }
+		    consys_prtcontyp(orig_sys->ctyp[i]),
+		    consys_nme(orig_sys,'c',i,FALSE,NULL),i) ; }
 #     endif
 #     ifdef DYLP_STATISTICS
-      if (dy_stats != NULL) dy_stats->cons.init[j] = TRUE ;
+      if (dy_stats != NULL) dy_stats->cons.init[i] = TRUE ;
 #     endif
-      if (dy_loadcon(orig_sys,j,TRUE,NULL) == FALSE)
+      if (dy_loadcon(orig_sys,i,TRUE,NULL) == FALSE)
       { errmsg(430,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "activate","constraint",
-	       consys_nme(orig_sys,'c',j,TRUE,NULL),j) ;
+	       consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
 	retval = FALSE ;
 	break ; } }
 #   ifndef DYLP_NDEBUG
@@ -763,23 +782,23 @@ static bool cold_loadpartial (consys_struct *orig_sys,
   next value according to the sampling fraction.
 */
     while (ndx < ineqcnt && angles[ndx].angle > alb) 
-    { j = angles[ndx].ndx ;
+    { i = angles[ndx].ndx ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.setup >= 3)
       { dyio_outfmt(dy_logchn,dy_gtxecho,
 		    "\n    activating %s %s (%d) %g off 90 ...",
-		    consys_prtcontyp(orig_sys->ctyp[j]),
-		    consys_nme(orig_sys,'c',j,FALSE,NULL),j,
+		    consys_prtcontyp(orig_sys->ctyp[i]),
+		    consys_nme(orig_sys,'c',i,FALSE,NULL),i,
 		    (angles[ndx].angle-90)) ; }
 #     endif
 #     ifdef DYLP_STATISTICS
-      if (dy_stats != NULL) dy_stats->cons.init[j] = TRUE ;
+      if (dy_stats != NULL) dy_stats->cons.init[i] = TRUE ;
 #     endif
-      if (dy_loadcon(orig_sys,j,TRUE,NULL) == FALSE)
+      if (dy_loadcon(orig_sys,i,TRUE,NULL) == FALSE)
       { errmsg(430,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "activate","constraint",
-	       consys_nme(orig_sys,'c',j,TRUE,NULL),j) ;
+	       consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
 	retval = FALSE ;
 	break ; }
       ineq_actvcnt++ ;

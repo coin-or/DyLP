@@ -25,6 +25,7 @@
 */
 
 #ifndef __DYLPCONFIG_H__
+#define __DYLPCONFIG_H__
 
 #ifdef HAVE_CONFIG_H
 #include "config_dylp.h"
