@@ -1023,6 +1023,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   { orig_lp->lpret = dy_lp->lpret ;
     if (orig_lp->lpret == lpINFEAS)
     { dy_lp->phase = dyDONE ;
+      orig_lp->phase = dyDONE ;
 #ifndef DYLP_NDEBUG
       if (dy_opts->print.major >= 1)
       { dyio_outfmt(dy_logchn,dy_gtxecho,
