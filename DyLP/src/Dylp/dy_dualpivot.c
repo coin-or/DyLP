@@ -2300,7 +2300,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
   well, let's not, eh?
 */
   if (swing == TRUE)
-  { if (dy_lp->sys.loadablecons == TRUE || dy_lp->sys.loadablevars == TRUE)
+  { if (dy_lp->sys.cons.loadable > 0 || dy_lp->sys.vars.loadable > 0)
     { retval = dyrSWING ; }
     dy_lp->ubnd.ndx = swingndx ;
     dy_lp->ubnd.ratio = maxswing ;

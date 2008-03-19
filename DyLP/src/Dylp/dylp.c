@@ -244,7 +244,10 @@ static dyphase_enum addcon_nextphase (int actcnt)
 	  break ; }
 	case lpUNBOUNDED:
 	{ if (actcnt == 0)
-	  { retval = dyFORCEFULL ; }
+	  { if (dy_lp->sys.cons.loadable > 0)
+	    { retval = dyFORCEFULL ; }
+	    else
+	    { retval = dyDONE ; } }
 	  else
 	  { retval = dy_lp->simplex.next ; }
 	  break ; }
@@ -307,7 +310,7 @@ static dyphase_enum addcon_nextphase (int actcnt)
 	  break ; }
 	case lpSWING:
 	{ if (actcnt == 0)
-	  { if (dy_lp->sys.loadablevars == FALSE)
+	  { if (dy_lp->sys.vars.loadable <= 0)
 	    { retval = dyPRIMAL1 ;
 	      dy_lp->simplex.next = dyPRIMAL1 ; }
 	    else
@@ -387,7 +390,7 @@ static dyphase_enum addvar_nextphase (int actcnt)
         case lpPUNT:
         case lpSTALLED:
 	{ if (actcnt == 0)
-	  { if (dy_lp->sys.loadablecons == TRUE)
+	  { if (dy_lp->sys.cons.loadable > 0)
 	    { retval = dyGENCON ; }
 	    else
 	    { retval = dyFORCEDUAL ; } }
@@ -578,93 +581,6 @@ static dyphase_enum initial_activation (lpprob_struct *orig_lp)
     return (dyINV) ;
   else
     return (dy_lp->simplex.next) ; }
-
-
-
-static void determineLoadable (consys_struct *orig_sys)
-
-/*
-  This routine does a final scan of orig_sys to determine the maximum number of
-  loadable constraints and variables, setting dy_lp.sys accordingly. At
-  present it's rudimentary: dylp has no constraint preprocessing, and the only
-  criteria we look for is fixed variables. This routine will serve as a handy
-  hook for the future.
-
-  Parameters:
-    orig_sys:	the original constraint system
-
-  Returns: undefined
-*/
-
-{ int j,fixcnt ;
-  flags statj ;
-
-# ifdef PARANOIA
-  const char *rtnnme = "determineLoadable" ;
-# endif
-
-/*
-  If the fullsys option is specified, this is all trivial. Note that forcedfull
-  should still be FALSE here --- it indicates traversal of the dyFORCEFULL
-  state.
-*/
-  if (dy_opts->fullsys == TRUE)
-  { dy_lp->sys.forcedfull = FALSE ;
-    dy_lp->sys.maxcons = dy_sys->concnt ;
-    dy_lp->sys.loadablecons = FALSE ;
-    dy_lp->sys.maxvars = dy_sys->archvcnt ;
-    dy_lp->sys.loadablevars = FALSE ;
-#   ifndef DYLP_NDEBUG
-    if (dy_opts->print.setup >= 2)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
-		  "\n    Full system activated at startup.") ; }
-#   endif
-    return ; }
-/*
-  We're not starting with the full constraint system. Scan for fixed variables.
-*/
-  fixcnt = 0 ;
-  for (j = 1 ; j <= orig_sys->varcnt ; j++)
-  { if (dy_origvars[j] > 0) continue ;
-#   ifdef PARANOIA
-    if (dy_origvars[j] == 0)
-    { errmsg(1,rtnnme,__LINE__) ;
-      return ; }
-#   endif
-    statj = (flags) (-dy_origvars[j]) ;
-    if (flgon(statj,vstatNBFX)) fixcnt++ ; }
-# ifndef DYLP_NDEBUG
-  if (dy_opts->print.setup >= 2 || dy_opts->print.varmgmt >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
-	        "\n    %d fixed variables excluded from activation.",
-		fixcnt) ; }
-# endif
-/*
-  Set the dy_lp.sys structure.
-*/
-  dy_lp->sys.forcedfull = FALSE ;
-  dy_lp->sys.maxcons = orig_sys->concnt ;
-  if (dy_sys->concnt < dy_lp->sys.maxcons)
-    dy_lp->sys.loadablecons = TRUE ;
-  else
-    dy_lp->sys.loadablecons = FALSE ;
-  dy_lp->sys.maxvars = orig_sys->varcnt-fixcnt ;
-  if (dy_sys->archvcnt < dy_lp->sys.maxvars)
-    dy_lp->sys.loadablevars = TRUE ;
-  else
-    dy_lp->sys.loadablevars = FALSE ;
-# ifndef DYLP_NDEBUG
-  if (dy_opts->print.setup >= 2 || dy_opts->print.varmgmt >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
-	        "\n    %d loadable variables remain inactive at startup.",
-	        dy_lp->sys.maxvars-dy_sys->archvcnt) ; }
-  if (dy_opts->print.setup >= 2 || dy_opts->print.conmgmt >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
-	        "\n    %d loadable constraints remain inactive at startup.",
-	        dy_lp->sys.maxcons-dy_sys->concnt) ; }
-# endif
-
-  return ; }
 
 
 
@@ -991,9 +907,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   will be valid, and values of the primal and dual variables and reduced costs
   will be valid.
 
-  If the problem is prima facie infeasibile (lower and upper bounds cross for
-  some variable) this is reported via dy_lp->lpret, and we are immediately
-  done.
+  If the problem is prima facie infeasible (lower and upper bounds cross for
+  some variable or constraint) this is reported via dy_lp->lpret, and we are
+  immediately done. Similarly for unboundedness (an unconstrained variable
+  with nonzero objective coefficient).
 */
   switch (start)
   { case startHOT:
@@ -1021,23 +938,18 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
       break ; } }
   if (dy_lp->lpret != lpINV)
   { orig_lp->lpret = dy_lp->lpret ;
-    if (orig_lp->lpret == lpINFEAS)
+    if (orig_lp->lpret == lpINFEAS || orig_lp->lpret == lpUNBOUNDED)
     { dy_lp->phase = dyDONE ;
       orig_lp->phase = dyDONE ;
 #ifndef DYLP_NDEBUG
       if (dy_opts->print.major >= 1)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n\n%s (%s): prima facie infeasibility.",
-		    rtnnme,dy_sys->nme) ; }
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\n%s (%s): prima facie %s.",
+	    rtnnme,dy_sys->nme,
+	    ((orig_lp->lpret == lpINFEAS)?"infeasibility":"unboundedness")) ; }
 #   endif
     }
     dy_finishup(orig_lp,dy_lp->phase) ;
     return (orig_lp->lpret) ; }
-/*
-  Make a final scan of orig_sys to determine the maximum number of loadable
-  constraints and variables and set up dy_lp.sys.
-*/
-  determineLoadable(orig_sys) ;
 /*
   Do a little more setup prior to invoking a simplex. commonstart handles
   initial setup for the antidegeneracy and pivot rejection algorithms,
@@ -1069,15 +981,14 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   to be checked in the order given.
 
   Is this one of those pathological cases with no constraints? If so, make it
-  look like we're optimal and just finished with dyADDVAR without finding
-  any variables to activate. Set the initial phase to dyGENCON, and bet we
-  won't need to do anything at all.
+  look like we're optimal. No constraints doesn't mean no variables, so
+  head for dyGENVAR. 
 */
   if (dy_sys->concnt == 0)
-  { dy_lp->simplex.active = dyDUAL ;
-    dy_lp->simplex.next = dyDUAL ;
+  { dy_lp->simplex.active = dyPRIMAL2 ;
+    dy_lp->simplex.next = dyPRIMAL2 ;
     dy_lp->lpret = lpOPTIMAL ;
-    phase = dyGENCON ; }
+    phase = dyGENVAR ; }
 /*
   Do we want to do an initial variable purge, to try and cut down the number
   of variables? (This is particularly aimed at large set covering problems
@@ -1304,7 +1215,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   comments with addvar_nextphase.
 */
       case dyADDVAR:
-      { if (dy_lp->sys.loadablevars == FALSE)
+      { if (dy_lp->sys.vars.loadable <= 0)
 	{ 
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.varmgmt >= 1)
@@ -1432,7 +1343,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   cannot be lost).
 */
       case dyADDCON:
-      { if (dy_lp->sys.loadablecons == FALSE)
+      { if (dy_lp->sys.cons.loadable <= 0)
 	{ phase = addcon_nextphase(0) ;
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.conmgmt >= 1)
@@ -1547,8 +1458,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	break ; }
       case dyFORCEFULL:
       { if (dy_lp->sys.forcedfull == TRUE ||
-	    (dy_lp->sys.loadablecons == FALSE &&
-	     dy_lp->sys.loadablevars == FALSE))
+	    (dy_lp->sys.cons.loadable <= 0 && dy_lp->sys.vars.loadable <= 0))
 	{ dy_lp->lpret = lpFORCEFULL ;
 	  phase = dyDONE ; }
 	else

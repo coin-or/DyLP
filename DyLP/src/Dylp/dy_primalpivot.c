@@ -1983,7 +1983,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
   not, eh?)
 */
   if (swing == TRUE)
-  { if (dy_lp->sys.loadablecons == TRUE)
+  { if (dy_lp->sys.cons.loadable > 0)
     { retval = dyrSWING ; }
     dy_lp->ubnd.ndx = swingndx ;
     dy_lp->ubnd.ratio = maxswing ;

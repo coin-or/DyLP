@@ -173,6 +173,14 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
   { orig_actvars = NULL ;
     noactvarspec = TRUE ; }
 /*
+  Initialise the statistics on loadable/unloadable variables and constraints.
+*/
+  dy_lp->sys.forcedfull = FALSE ;
+  dy_lp->sys.vars.loadable = orig_sys->varcnt ;
+  dy_lp->sys.vars.unloadable = 0 ;
+  dy_lp->sys.cons.loadable = orig_sys->concnt ;
+  dy_lp->sys.cons.unloadable = 0 ;
+/*
   Create the dy_sys constraint system to match the user's basis and active
   variables (if specified). We'll create the system with logicals enabled.
   
@@ -369,7 +377,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	vstat = orig_status[vndx] ;
       else
 	vstat = vstatSB ;
-      dy_origvars[vndx] = -((int) vstat) ; } }
+      MARK_INACTIVE_VAR(vndx,-((int) vstat)) ; } }
 /*
   Walk the basis and install the constraints in order. When we're finished
   with this, the active system will be up and about. In the case where
@@ -439,9 +447,9 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
     if (dy_opts->print.setup >= 4)
     { nbfxcnt = 0 ;
       for (vndx = 1 ; vndx <= orig_sys->varcnt ; vndx++)
-      { if (dy_origvars[vndx] < 0)
+      { if (INACTIVE_VAR(vndx))
 	{ vstat = (flags) (-dy_origvars[vndx]) ;
-	  switch (vstat)
+	  switch (getflg(vstat,vstatSTATUS))
 	  { case vstatNBUB:
 	    { xi = orig_sys->vub[vndx] ;
 	      break ; }

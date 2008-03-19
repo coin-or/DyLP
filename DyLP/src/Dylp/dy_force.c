@@ -962,7 +962,6 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
 */
 
 { int j,n,actcnt ;
-  flags statj ;
   int *ovndxs ;
 
 
@@ -994,9 +993,7 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
 */
   actcnt = 0 ;
   for (j = 1 ; j <= n ; j++)
-  { if (dy_origvars[j] > 0) continue ;
-    statj = (flags) (-dy_origvars[j]) ;
-    if (flgon(statj,vstatNBFX)) continue ;
+  { if (!LOADABLE_VAR(j)) continue ;
     ovndxs[actcnt++] = j ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.force >= 3)
@@ -1067,11 +1064,11 @@ static int scanPrimConForceAct (consys_struct *orig_sys, int **p_ocndxs)
   else
   { ocndxs = *p_ocndxs ; }
 /*
-  Now step through the constraints, remembering the inactive ones.
+  Now step through the constraints, remembering the loadable ones.
 */
   actcnt = 0 ;
   for (i = 1 ; i <= m ; i++)
-  { if (dy_origcons[i] > 0) continue ;
+  { if (!LOADABLE_CON(i)) continue ;
     ocndxs[actcnt++] = i ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.force >= 3)

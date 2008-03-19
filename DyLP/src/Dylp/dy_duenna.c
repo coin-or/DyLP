@@ -559,7 +559,7 @@ dyret_enum dy_accchk (flags *checks)
 /*
   Grab a work vector to do the primal accuracy check, and do a little prep
   work. We need to recalculate the primal variables if the antidegeneracy
-  mechanism is active.
+  mechanism is active; refactoring will do that.
 */
   primalerrs = (double *) MALLOC((dy_sys->concnt+1)*sizeof(double)) ;
   tryagain = TRUE ;
@@ -569,7 +569,7 @@ dyret_enum dy_accchk (flags *checks)
   refactorcnt = 0 ;
 
   factorresult = dyrINV ;
-  if (flgon(*checks,ladFACTOR))
+  if (flgon(*checks,ladFACTOR) && dy_sys->concnt > 0)
   { dorefactor = TRUE ; }
   else
   { if (dy_lp->degen > 0 &&

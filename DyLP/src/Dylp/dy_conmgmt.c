@@ -21,8 +21,12 @@ static char svnid[] UNUSED = "$Id$" ;
 
 /*
   This file contains routines for primal constraint management. It provides
-  for the activation and deactivation of primal constraints with basic
-  logical variables. The logical may be feasible or infeasible.
+  routines to handle the the activation and deactivation of a primal
+  constraint with a basic logical variable, and deactivation of a primal
+  constraint with a nonbasic logical variable.  There are also routines to
+  scan for candidates for activation and deactivation. The normal top-level
+  routines for bulk activation and deactivation are dy_activateCons and
+  dy_deactivateCons, respectively.
 
   In terms of the dual problem, we're activating or deactivating a dual
   architectural variable.
@@ -43,14 +47,30 @@ static char svnid[] UNUSED = "$Id$" ;
   Activating or deactivating a constraint with a nonbasic logical is
   problematic. Viewed from a primal perspective, activation requires we find
   a variable to occupy the basis position, and deactivation requires we deal
-  with the variable that's basic for the constraint. Implementation
-  (particularly deactivation) is nontrivial, and both actions can have
-  serious side effects. This package does not support them.
+  with the variable that's basic for the constraint.
 
-  Completely distinct from the above is a routine (dy_loadcon) used during
-  cold and warm starts. dy_loadcon loads an arbitrary constraint as part of
-  the initialization of the active constraint system.
+  When attempting to regain dual feasibility, dylp may request deactivation
+  of a constraint with a nonbasic logical because the logical is dual
+  infeasible.  This case is handled by forcing the current occupant of the
+  basis position into the nonbasic partition and replacing it with the
+  logical for the constraint.  From there, it's a matter of deactivating a
+  constraint with a basic logical.
+
+  Activation of a constraint using a nonbasic logical isn't an issue in dylp.
+  Should the need ever arise, the appropriate strategy would be to convert some
+  nonbasic variable to basic at bound and add the logical as nonbasic at bound
+  or superbasic.
+
+  The bottom routine for constraint activation is dy_loadcon, which handles
+  the business of translating a constraint from the original system frame of
+  reference and installing it in the active system.  This is used bare during
+  initialisation.  Immediately above is dy_actBLogPrimCon, which deals with
+  basis and status issues once dylp has finished initialisation and into
+  simplex.
+
+  For deactivation, the bottom routine is deactBLogPrimCon.
 */
+
 /*
   A few words about the algebra of constraint addition and deletion, as it
   relates to the PSE and DSE variables.
@@ -200,20 +220,33 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
-  if (i <= 0 || i > orig_sys->concnt)
-  { errmsg(102,rtnnme,orig_sys->nme,"constraint",i,1,orig_sys->concnt) ;
-    return (FALSE) ; }
   if (genvars == TRUE && dy_lp->phase != dyINIT)
   { errmsg(1,rtnnme,__LINE__) ;
     return (FALSE) ; }
-  act_j = dy_origcons[i] ;
-  if (act_j > 0)
+  if (i <= 0 || i > orig_sys->concnt)
+  { errmsg(102,rtnnme,orig_sys->nme,"constraint",i,1,orig_sys->concnt) ;
+    return (FALSE) ; }
+  ndx = (orig_sys->concnt-dy_lp->sys.cons.unloadable) -
+	(dy_lp->sys.cons.loadable+dy_sys->concnt) ;
+  if (ndx != 0)
+  { errmsg(444,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "constraint",orig_sys->concnt,dy_lp->sys.cons.unloadable,
+	   dy_lp->sys.cons.loadable,dy_sys->concnt,ndx) ;
+    return (FALSE) ; }
+  if (ACTIVE_CON(i))
   { char onmbuf[128] ;
+    act_j = dy_origcons[i] ;
     (void) consys_nme(orig_sys,'c',i,TRUE,onmbuf) ;
     errmsg(431,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   "constraint",onmbuf,i,
 	   consys_nme(dy_sys,'c',act_j,TRUE,NULL),act_j) ;
+    return (FALSE) ; }
+  if (!LOADABLE_CON(i))
+  { errmsg(445,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "constraint",consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
     return (FALSE) ; }
 # endif
 
@@ -263,19 +296,27 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
   in the opening comments, for activation we simply create an empty column.
   Fixed variables are never activated. All variables are continuous, as far
   as dylp is concerned.
+
+  In spite of what error message 433 says, we need to allow for inactive SB
+  variables here. The source is a warm start. During initialisation, all
+  variables start out as inactive, hence nonbasic. The variables that the
+  warm start thinks should be basic are assigned SB status.
 */
-    if (dy_origvars[j] < 0)
+    if (INACTIVE_VAR(j))
     { statj = (flags) (-dy_origvars[j]) ;
 #     ifdef PARANOIA
-      if (flgoff(statj,vstatNONBASIC|vstatEXOTIC))
+      if (dy_lp->phase == dyINIT)
+      { retval = flgon(statj,vstatNONBASIC|vstatEXOTIC) ; }
+      else
+      { retval = flgon(statj,vstatNONBASIC|vstatNBFR) ; }
+      if (retval == FALSE)
       { errmsg(433,rtnnme,dy_sys->nme,
 	       dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),
 	       j,dy_prtvstat(statj)) ;
-	retval = FALSE ;
 	break ; }
 #     endif
-      if (genvars == TRUE && flgoff(statj,vstatNBFX))
+      if (genvars == TRUE && LOADABLE_VAR(j))
       { retval = consys_getcol_pk(orig_sys,j,&aj) ;
 	if (retval == FALSE)
 	{ errmsg(122,rtnnme,orig_sys->nme,"variable",
@@ -297,14 +338,15 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
 	     (statj == 0)?"unspecified":dy_prtvstat(statj)) ; }
 #       endif
 	dy_origvars[j] = act_j ;
-	dy_actvars[act_j] = j ; }
+	dy_actvars[act_j] = j ;
+	dy_lp->sys.vars.loadable-- ; }
 /*
   If activation is disallowed, note the contribution to the right-hand-side,
   record the index in inactndxs, and move on to the next variable.
 */
       else
       { if (inactndxs != NULL) inactndxs[++inact_ndx] = j ;
-	switch (statj)
+	switch (getflg(statj,vstatSTATUS))
 	{ case vstatNBLB:
 	  { rhscorr = aij->val*orig_sys->vlb[j] ;
 	    break ; }
@@ -401,6 +443,11 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
 	        consys_prtcontyp(dy_sys->ctyp[act_i]),
 	        consys_nme(dy_sys,'c',act_i,FALSE,NULL),i,act_i) ; }
 # endif
+/*
+  Bookkeeping.
+*/
+  dy_lp->sys.cons.loadable-- ;
+
 # ifdef DYLP_STATISTICS
   if (dy_stats != NULL) dy_stats->cons.actcnt[i]++ ;
 # endif
@@ -438,7 +485,7 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
   double lhsi,rhsi,rhslowi ;
   contyp_enum ctypi ;
 
-  const char *rtnnme = "actBLogPrimCon" ;
+  const char *rtnnme = "dy_actBLogPrimCon" ;
 
 # ifdef PARANOIA
 /*
@@ -517,21 +564,24 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
     if (belowbnd(lhsi,rhslowi))
     { dy_status[i] = vstatBUUB ; }
     else
-    if (atbnd(lhsi,rhsi))
+    if (atbnd(lhsi,rhslowi))
     { dy_status[i] = vstatBUB ; }
     else
     { dy_status[i] = vstatB ; } }
 /*
-  And finally, a little bookkeeping.
+  And finally, a little paranoia. Generally, we should only be activating
+  violated or tight constraints, so the logical should be at or outside its
+  bounds. There are two exceptions: If we're trying to bound an unbounded
+  primal, or we're forcing a full system.
 */
-  if (dy_sys->concnt >= dy_lp->sys.maxcons)
-    dy_lp->sys.loadablecons = FALSE ;
-
-
 # ifdef PARANOIA
-  if (dy_lp->phase != dyFORCEFULL)
-  { if (flgon(dy_status[i],vstatB) ||
-	(dy_opts->con.actlvl = 0 && flgon(dy_status[i],vstatBLLB|vstatBUUB)))
+  if (flgon(dy_status[i],vstatB) ||
+      (dy_opts->con.actlvl = 0 && flgon(dy_status[i],vstatBLLB|vstatBUUB)))
+  { if (dy_lp->phase == dyFORCEFULL ||
+	(dy_lp->phase == dyADDCON &&
+	 (dy_lp->lpret == lpSWING || dy_lp->lpret == lpUNBOUNDED)))
+    { /* ok */ }
+    else
     { warn(442,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   consys_nme(dy_sys,'c',i,FALSE,NULL),i,dy_prtvstat(dy_status[i]),
@@ -585,7 +635,7 @@ bool dy_actBLogPrimConList (consys_struct *orig_sys,
   if (ocndxs == NULL)
   { errmsg(2,rtnnme,"ocndxs") ;
     return (FALSE) ; }
-  if (cnt <= 0 || cnt >= orig_sys->concnt)
+  if (cnt <= 0 || cnt > orig_sys->concnt)
   { errmsg(5,rtnnme,"cnt",cnt) ;
     return (FALSE) ; }
 # endif
@@ -874,17 +924,21 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 
 /*
   A little paranoia, mixed with prep. Check that i is valid, that we can locate
-  a<i> in the original system, and that the logical is basic.
+  a<i> in the original system, and that the logical is basic. Also check the
+  constraint invariant.
 */
   m = dy_sys->concnt ;
   n = dy_sys->varcnt ;
+
 # ifdef PARANOIA
   if (i <= 0 || i > m)
   { errmsg(102,rtnnme,"constraint",i,1,m) ;
     return (FALSE) ; }
 # endif
+
   stati = dy_status[i] ;
   bposi = dy_var2basis[i] ;
+
 # ifdef PARANOIA
   if (flgoff(stati,vstatBASIC))
   { errmsg(436,rtnnme,
@@ -898,7 +952,9 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 	   bposi,dy_basis[bposi]) ;
     return (FALSE) ; }
 # endif
+
   origi = dy_actcons[i] ;
+
 # ifdef PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
@@ -906,7 +962,16 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
   if (origi <= 0 || origi > orig_sys->concnt)
   { errmsg(102,rtnnme,"original constraint",origi,1,orig_sys->concnt) ;
     return (FALSE) ; }
+  k = (orig_sys->concnt-dy_lp->sys.cons.unloadable) -
+	(dy_lp->sys.cons.loadable+dy_sys->concnt) ;
+  if (k != 0)
+  { errmsg(444,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "constraint",orig_sys->concnt,dy_lp->sys.cons.unloadable,
+	   dy_lp->sys.cons.loadable,dy_sys->concnt,k) ;
+    return (FALSE) ; }
 # endif
+
 # ifdef DYLP_STATISTICS
   if (dy_stats != NULL) dy_stats->cons.deactcnt[origi]++ ;
 # endif
@@ -964,7 +1029,7 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
       pos'n n will be moved to pos'n m.
 */
   k = dy_actcons[i] ;
-  dy_origcons[k] = 0 ;
+  MARK_INACTIVE_CON(k) ;
   if (consys_delrow(dy_sys,i) == FALSE)
   { errmsg(112,rtnnme,dy_sys->nme,"delete","constraint",
 	   consys_nme(dy_sys,'c',i,FALSE,NULL),i) ;
@@ -1028,7 +1093,7 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 /*
   And finally, a little bookkeeping.
 */
-  dy_lp->sys.loadablecons = TRUE ;
+  dy_lp->sys.cons.loadable++ ;
 
 /*
   We're done. Do some printing, if requested, then return.
@@ -1177,8 +1242,16 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
 
 /*
   Did the client supply a vector for candidate indices? If not, make one.
+
+  We shouldn't be here if there's no room to activate. Check this if we're
+  paranoid.
 */
-  cand_limit = m-dy_sys->concnt ;
+  cand_limit = dy_lp->sys.cons.loadable ;
+# ifdef PARANOIA
+  if (cand_limit == 0)
+  { errmsg(1,rtnnme,__LINE__) ;
+    return (-1) ; }
+# endif
   if (dy_opts->con.actlim > 0)
   { cand_limit = minn(dy_opts->con.actlim,cand_limit) ; }
   if (*p_ocndxs == NULL)
@@ -1214,15 +1287,16 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
       if (flgon(statj,vstatNBLB|vstatNBFX))
       { orig_x[j] = orig_vlb[j] ; } } }
 /*
-  Now we can step through the constraints. Evaluate each inactive constraint
-  and check to see if it's violated.
+  Now we can step through the constraints. Evaluate each loadable inactive
+  constraint and check to see if it's violated.
 */
   orig_ctyp = orig_sys->ctyp ;
   orig_rhs = orig_sys->rhs ;
   orig_rhslow = orig_sys->rhslow ;
   actcnt = 0 ;
   for (i = 1 ; i <= m && actcnt < cand_limit ; i++)
-  { if (dy_origcons[i] > 0) continue ;
+  { if (!LOADABLE_CON(i)) continue ;
+    ctypi = orig_ctyp[i] ;
     lhsi = consys_dotrow(orig_sys,i,orig_x) ;
     setcleanzero(lhsi,dy_tols->zero) ;
 /*
@@ -1231,7 +1305,6 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
     * strict (0) activates only when lhs < rhslow or lhs > rhs
     * tight (1) activates when lhs <= rhslow or lhs >= rhs
 */
-    ctypi = orig_ctyp[i] ;
     rhsi = orig_rhs[i] ;
     if (ctypi == contypRNG)
     { rhslowi = orig_rhslow[i] ; }

@@ -42,9 +42,9 @@
   variables (put a little differently, a basis, the values of the basic
   variables, and the dual variables associated with the active constraints).
 
-  The conditional compilation flag DYLP_INTERNAL is used to delimit definitions
-  that should be considered internal to dylp. Don't define this flag in a
-  client.
+  The conditional compilation symbol DYLP_INTERNAL is used to delimit
+  definitions that should be considered internal to dylp. Don't define this
+  symbol in a client.
 */
 
 #include "dylib_errs.h"
@@ -370,6 +370,8 @@ typedef enum { dyrFATAL = -10, dyrITERLIM, dyrSTALLED,
 		for pivoting; used by the pivot rejection machinery.
   vstatNOPER	Prevents the variable from being perturbed during the
 		formation of a restricted subproblem.
+  vstatNOLOAD	Prevents the variable from being considered for activation;
+		used by startup and variable activation/deactivation routines.
 */
 
 #define vstatINV     0
@@ -386,8 +388,14 @@ typedef enum { dyrFATAL = -10, dyrITERLIM, dyrSTALLED,
 #define vstatBUUB  1<<10
 #define vstatBLLB  1<<11
 
-#define vstatNOPIVOT ((flags) 1<<(sizeof(flags)*8-1))
-#define vstatNOPER ((flags) 1<<(sizeof(flags)*8-2))
+/*
+  TAKE NOTE: Do not use the msb as a qualifier! The status value, with or
+  without qualifiers, must be a positive value when cast to a signed integer.
+*/
+
+#define vstatNOPIVOT ((flags) 1<<(sizeof(flags)*8-2))
+#define vstatNOPER ((flags) 1<<(sizeof(flags)*8-3))
+#define vstatNOLOAD ((flags) 1<<(sizeof(flags)*8-4))
 
 #define vstatBASIC \
 	(vstatBFX|vstatBUUB|vstatBUB|vstatB|vstatBLB|vstatBLLB|vstatBFR)
@@ -395,7 +403,7 @@ typedef enum { dyrFATAL = -10, dyrITERLIM, dyrSTALLED,
 #define vstatEXOTIC (vstatSB|vstatNBFR)
 
 #define vstatSTATUS (vstatBASIC|vstatNONBASIC|vstatEXOTIC)
-#define vstatQUALS (vstatNOPIVOT|vstatNOPER)
+#define vstatQUALS (vstatNOPIVOT|vstatNOPER|vstatNOLOAD)
 
 /*
   This macro checks (in a simplistic way) that its parameter encodes one and
@@ -1323,6 +1331,29 @@ typedef struct {
 #ifdef DYLP_INTERNAL
 
 /*
+  Macros to determine whether a constraint or variable is active, and whether
+  it's eligible for activation. Coding is explained below for dy_origcons and
+  dy_origvars. The main purpose served by these macros is to make it easy to
+  find activiation/deactivation points in the code, should the conventions ever
+  change.
+*/
+
+#define ACTIVE_CON(zz_cndx_zz) (dy_origcons[(zz_cndx_zz)] > 0)
+#define INACTIVE_CON(zz_cndx_zz) (dy_origcons[(zz_cndx_zz)] <= 0)
+#define LOADABLE_CON(zz_cndx_zz) (dy_origcons[(zz_cndx_zz)] == 0)
+#define MARK_UNLOADABLE_CON(zz_cndx_zz) (dy_origcons[(zz_cndx_zz)] = -1)
+#define MARK_INACTIVE_CON(zz_cndx_zz) (dy_origcons[(zz_cndx_zz)] = 0)
+
+#define ACTIVE_VAR(zz_vndx_zz) (dy_origvars[(zz_vndx_zz)] > 0)
+#define INACTIVE_VAR(zz_vndx_zz) (dy_origvars[(zz_vndx_zz)] <= 0)
+#define LOADABLE_VAR(zz_vndx_zz) \
+  ((dy_origvars[(zz_vndx_zz)] < 0) && \
+   flgoff(((flags) -dy_origvars[(zz_vndx_zz)]),vstatNOLOAD|vstatNBFX))
+#define MARK_INACTIVE_VAR(zz_vndx_zz,zz_val_zz) \
+  (dy_origvars[(zz_vndx_zz)] = (zz_val_zz))
+
+
+/*
   dy_logchn		i/o id for the execution log file
   dy_gtxecho		controls echoing of generated text to stdout
 */
@@ -1392,17 +1423,18 @@ extern bool dy_gtxecho ;
 		entirely different function -- it's tracking the accumulation
 		of eta matrices in the basis representation.
 
-  sys		Substructure for dynamic system modification status. maxcons
-		and maxvars exist so that dylp can easily incorporate future
-		preprocessing. loadablecons and loadablevars are the booleans
-		consulted by constraint and variable activation routines.
+  sys		Substructure for dynamic system modification status.
     forcedfull	  Set to TRUE if the full system has been forced in state
 		  dyFORCEFULL. This should happen at most once, so if we
 		  enter dyFORCEFULL and forcedfull == TRUE, it's fatal.
-    maxcons	  Maximum possible number of constraints that can be activated.
-    loadablecons  If FALSE, there are no constraints to activate.
-    maxvars	  Maximum possible number of variables that can be activated.
-    loadablevars  If FALSE, there are no constraints to activate.
+    cons
+      loadable	  Count of constraints which could be activated
+      unloadable  Count of constraints which are ineligible for activation
+		  (empty constraints and nonbinding rows)
+    vars
+      loadable	  Count of variables which could be activated
+      unloadable  Count of variables which are ineligible for activation
+		  (nonbasic fixed)
 
   tot		Total simplex iterations and pivots, all phases
     iters
@@ -1494,10 +1526,10 @@ typedef struct
 	   int *infvars ;
 	   double *p1obj ;
 	   double *p2obj ; } p1obj ;
-  struct { int maxcons ;
-	   bool loadablecons ;
-	   int maxvars ;
-	   bool loadablevars ;
+  struct { struct { int loadable ;
+		    int unloadable ; } cons ;
+	   struct { int loadable ;
+		    int unloadable ; } vars ;
 	   bool forcedfull ; } sys ;
   struct { int iters ;
 	   int pivs ; } tot ;
@@ -1556,15 +1588,26 @@ typedef struct
 		meaningless.
   dy_actcons:	The active constraints. Indexed in dy_sys frame, contains
 		indices in orig_sys frame. Attached to dy_sys.
-  dy_origvars:  Status of the original architectural variables. If the
-		variable is active, the entry contains the index of the
-		variable in the dy_sys frame. If the variable is inactive,
-		the coding is the negative of the vstat flags, limited to
-		the nonbasic status values vstatNBFR, vstatNBFX, vstatNBLB,
-		or vstatNBUB.  Indexed in orig_sys frame. Attached to orig_sys.
-  dy_origcons:	Status of the original constraints; contains 0 if inactive,
-		otherwise the index of the constraint in the dy_sys frame.
+  dy_origvars:  Status of the original architectural variables.
+		 * A value of 0 indicates the entry hasn't been processed.
+		   Should never happen.
+		 * If the variable is active, the entry contains the index
+		   of the variable in the dy_sys frame.
+		 * If the variable is inactive, the coding is the negative of
+		   the vstat flags, limited to the nonbasic status values
+		   vstatNBFR, vstatNBFX, vstatNBLB, or vstatNBUB, and the
+		   qualifier vstatNOLOAD.
 		Indexed in orig_sys frame. Attached to orig_sys.
+  dy_origcons:	Status of the original constraints.
+		 * If the constraint is active, the entry contains the index
+		   of the constraint in the dy_sys frame.
+		 * If the constraint is inactive, contains 0.
+		 * If the constraint cannot be activated, contains a negative
+		   value.
+		Indexed in orig_sys frame. Attached to orig_sys.
+
+  Note that there are macros defined to test whether a variable or constraint
+  is inactive, and whether it's eligible for activation. Use them!
   
   Basis Management
   ----------------

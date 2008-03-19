@@ -647,7 +647,7 @@ bool dy_unscale_betai (consys_struct *orig_sys, int j_orig,
   The math associated with unscaling a basis inverse row isn't really any
   uglier than the math associated with unscaling variables or reduced costs,
   but it's much harder to explain. See the accompanying documentation for
-  the linear algebra in all it's gory detail. For here, the following will
+  the linear algebra in all its gory detail. For here, the following will
   suffice. First, we only need to unscale the elements beta_scaled<ik> where
   x<B(k)> is an architectural variable. Let k_orig be the index of x<B(k)>
   in the original system.
@@ -704,11 +704,11 @@ bool dy_unscale_betai (consys_struct *orig_sys, int j_orig,
 */
   inbasis = TRUE ;
   if (j_orig > 0)
-  { j = dy_origvars[j_orig] ;
-    if (j <= 0)
+  { if (INACTIVE_VAR(j_orig))
     { errmsg(737,rtnnme,orig_sys->nme,
 	     consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig) ;
       return (FALSE) ; }
+    j = dy_origvars[j_orig] ;
     i = dy_var2basis[j] ;
     if (i <= 0)
     { errmsg(380,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
@@ -718,12 +718,12 @@ bool dy_unscale_betai (consys_struct *orig_sys, int j_orig,
   else
   if (j_orig < 0)
   { i_orig = -j_orig ;
-    i = dy_origcons[i_orig] ;
-    if (i <= 0)
+    if (INACTIVE_CON(i_orig))
     { inbasis = FALSE ;
+      i = 0 ;
       j = 0 ; }
     else
-    { j = i ;
+    { j = dy_origcons[i_orig] ;
       i = dy_var2basis[j] ;
       if (i <= 0)
       { errmsg(380,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
@@ -955,15 +955,15 @@ bool dy_unscaleabarj (consys_struct *orig_sys, int j_orig, double **p_abarj)
   if (lcl_rowscale != NULL)
   { for (k = 0 ; k < aj_pk->cnt ; k++)
     { i_orig = aj_pk->coeffs[k].ndx ;
-      i = dy_origcons[i_orig] ;
-      if (i > 0)
-      { abarj[i] = lcl_rowscale[i_orig]*aj_pk->coeffs[k].val ; } } }
+      if (ACTIVE_CON(i_orig))
+      { i = dy_origcons[i_orig] ;
+	abarj[i] = lcl_rowscale[i_orig]*aj_pk->coeffs[k].val ; } } }
   else
   { for (k = 0 ; k < aj_pk->cnt ; k++)
     { i_orig = aj_pk->coeffs[k].ndx ;
-      i = dy_origcons[i_orig] ;
-      if (i > 0)
-      { abarj[i] = aj_pk->coeffs[k].val ; } } }
+      if (ACTIVE_CON(i_orig))
+      { i = dy_origcons[i_orig] ;
+	abarj[i] = aj_pk->coeffs[k].val ; } } }
   pkvec_free(aj_pk) ;
 /*
   Do the ftran.
