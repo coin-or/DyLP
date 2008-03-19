@@ -153,11 +153,11 @@ static void print_version (ioid chn, bool echo,
 
   return ; }
 
-static void print_help (ioid chn, bool echo)
+static void print_help (ioid chn, bool echo, const char *name)
 /*
   Print help message.
 */
-{ dyio_outfmt(chn,echo,"\nusage: dylp [<options>] [<problem-file>]") ;
+{ dyio_outfmt(chn,echo,"\nusage: %s [<options>] [<problem-file>]",name) ;
 
   dyio_outfmt(chn,echo,"\n\nThe options presently in place are:\n") ;
 
@@ -175,7 +175,7 @@ static void print_help (ioid chn, bool echo)
 	      "but allows an opening title and closing message") ;
   dyio_outfmt(chn,echo,"\n\t\t\t%s","giving the result of the LP.") ;
 
-  dyio_outfmt(chn,echo,"\n  %s\t\t\t%s","-p <num>",
+  dyio_outfmt(chn,echo,"\n  %s\t\t%s","-p <num>",
   	      "Set overall print level to <num>, [0..5].") ;
 
   dyio_outfmt(chn,echo,"\n  %s\t%s","-e <errmsg-file>",
@@ -191,14 +191,14 @@ static void print_help (ioid chn, bool echo)
 # if defined(_MSC_VER) || defined(__MSVCRT__)
 	      "Disabled on Windows.") ;
 # else
-	      "Control ('.spc') options file for dylp (default is no file).") ;
+	      "Control ('.spc') options file (default is no file).") ;
 # endif
 
   dyio_outfmt(chn,echo,"\n  %s\t%s","-m <problem-file>",
 	      "The problem ('.mps') specification (no default).") ;
 
   dyio_outfmt(chn,echo,"\n  %s\t\t%s","-L <log-file>",
-	      "A log of dylp's execution (default is no execution") ;
+	      "A log of execution (default is no execution") ;
   dyio_outfmt(chn,echo,"\n\t\t\t%s","logging).") ;
 
   dyio_outfmt(chn,echo,"\n  %s\t%s","-O <output-file>",
@@ -581,7 +581,7 @@ int main (int argc, char *argv[])
 
   struct timeval lptime ;
   
-  const char *rtnnme = "dylp" ;
+  const char *rtnnme = argv[0] ;
 
 /*
   getopt() --- we need explicit declarations under strict ANSI compliance
@@ -787,7 +787,7 @@ int main (int argc, char *argv[])
   { print_version(dy_logchn,dy_gtxecho,argv[0],rtnnme,osidylp_version) ;
     goto NOOUTFILE_CLEANUP ; }
   if (dohelp == TRUE)
-  { print_help(dy_logchn,dy_gtxecho) ;
+  { print_help(dy_logchn,dy_gtxecho,argv[0]) ;
     goto NOOUTFILE_CLEANUP ; }
 /*
   We're up! Banners to the appropriate places.

@@ -151,11 +151,11 @@ void print_version (ioid chn, bool echo, const char *cmd,
   return ; }
 
 
-void print_help (ioid chn, bool echo)
+void print_help (ioid chn, bool echo, const char *name)
 /*
   Print help message.
 */
-{ outfmt(chn,echo,"\nusage: dylp [<options>] [<problem-file>]") ;
+{ outfmt(chn,echo,"\nusage: %s [<options>] [<problem-file>]",name) ;
 
   outfmt(chn,echo,"\n\nThe options presently in place are:\n") ;
 
@@ -188,14 +188,14 @@ void print_help (ioid chn, bool echo)
 # if defined(_MSC_VER) || defined(__MSVCRT__)
 	 "Disabled on Windows.") ;
 # else
-	 "Control ('.spc') options file for dylp (default is no file).") ;
+	 "Control ('.spc') options file (default is no file).") ;
 # endif
 
   outfmt(chn,echo,"\n  %s\t%s","-m <problem-file>",
 	 "The problem ('.mps') specification. Defaults to stdin.") ;
 
   outfmt(chn,echo,"\n  %s\t\t%s","-L <log-file>",
-	 "A log of dylp's execution (default is no execution") ;
+	 "A log of execution (default is no execution") ;
   outfmt(chn,echo,"\n\t\t\t%s","logging).") ;
 
   outfmt(chn,echo,"\n  %s\t%s","-O <output-file>",
@@ -569,7 +569,7 @@ int main (int argc, char *argv[])
 
   struct timeval lptime ;
   
-  const char *rtnnme = "dylp" ;
+  const char *rtnnme = argv[0] ;
 
   /* For getopt() */
 
@@ -753,7 +753,7 @@ int main (int argc, char *argv[])
   { print_version(dy_logchn,dy_gtxecho,argv[0],rtnnme,osidylp_version) ;
     goto NOOUTFILE_CLEANUP ; }
   if (dohelp == TRUE)
-  { print_help(dy_logchn,dy_gtxecho) ;
+  { print_help(dy_logchn,dy_gtxecho,argv[0]) ;
     goto NOOUTFILE_CLEANUP ; }
 /*
   We're up! Banners to the appropriate places.
