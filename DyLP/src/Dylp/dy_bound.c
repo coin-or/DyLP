@@ -73,7 +73,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   flags statj ;
   bool activate ;
 
-  const char *rtnnme = "dgb_scanPrimConBndAct" ;
+  const char *rtnnme = "dbg_scanPrimConBndAct" ;
 
 # ifdef PARANOIA
   if (orig_sys == NULL)
@@ -167,7 +167,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   orig_x = (double *) CALLOC((n+1),sizeof(double)) ;
   for (j = 1 ; j <= n ; j++)
   { k = dy_origvars[j] ;
-    if (k > 0)
+    if (ACTIVE_VAR(j))
     { 
 #     ifdef PARANOIA
       if (k <= act_m || k > dy_sys->varcnt)
@@ -218,9 +218,9 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   orig_rhslow = orig_sys->rhslow ;
   actcnt = 0 ;
   for (i = 1 ; i <= m && actcnt <= cand_limit ; i++)
-  { 
-    idotj = consys_dotrow(orig_sys,i,orig_etaj) ;
+  { if (!LOADABLE_CON(i)) continue ;
     ctypi = orig_ctyp[i] ;
+    idotj = consys_dotrow(orig_sys,i,orig_etaj) ;
     setcleanzero(idotj,dy_tols->zero) ;
     if (idotj == 0 || (ctypi == contypLE && idotj < 0))
     {
@@ -501,9 +501,9 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
   orig_rhslow = orig_sys->rhslow ;
   actcnt = 0 ;
   for (i = 1 ; i <= m && actcnt <= cand_limit ; i++)
-  { if (dy_origcons[i] > 0) continue ;
-    idotj = consys_dotrow(orig_sys,i,orig_etaj) ;
+  { if (!LOADABLE_CON(i)) continue ;
     ctypi = orig_ctyp[i] ;
+    idotj = consys_dotrow(orig_sys,i,orig_etaj) ;
     setcleanzero(idotj,dy_tols->zero) ;
     if (idotj == 0 || (ctypi == contypLE && idotj < 0))
     {
@@ -1366,12 +1366,8 @@ static int type3activate (consys_struct *orig_sys, double *betai,
     abarij = 0.0 ;
     fatal = FALSE ;
     for (oxkndx = 1 ; oxkndx <= orig_sys->varcnt ; oxkndx++)
-    { if (dy_origvars[oxkndx] > 0) continue ;
-/*
-  Status check. We never activate fixed variables.
-*/
-      xkstatus = (flags) -dy_origvars[oxkndx] ;
-      if (flgon(xkstatus,vstatNBFX))
+    { xkstatus = (flags) -dy_origvars[oxkndx] ;
+      if (!LOADABLE_VAR(oxkndx))
       {
 #       ifndef DYLP_NDEBUG
 	if (dy_opts->print.varmgmt >= 3)
@@ -1379,8 +1375,7 @@ static int type3activate (consys_struct *orig_sys, double *betai,
 		      "\n      skipping %s %s (%d).",dy_prtvstat(xkstatus),
 		      consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
 #       endif
-	continue ;
-      }
+	continue ; }
 /*
   Fetch the column for x<k> and calculate abar<ik> = beta<i>a<k> and
   cbar<k> = c<k> - ya<k>. We use only the active elements of a<k>. If
@@ -1394,7 +1389,7 @@ static int type3activate (consys_struct *orig_sys, double *betai,
       abarik = 0.0 ;
       cbark = orig_sys->obj[oxkndx] ;
       for (pkndx = 0,aqk = ak->coeffs ; pkndx < ak->cnt ; pkndx++,aqk++)
-      { if (dy_origcons[aqk->ndx] > 0)
+      { if (ACTIVE_CON(aqk->ndx))
 	{ xqndx = dy_origcons[aqk->ndx] ;
 	  abarik += betai[xqndx]*aqk->val ;
 	  cbark -= dy_y[xqndx]*aqk->val ; } }
@@ -1588,13 +1583,18 @@ int dy_dualaddvars (consys_struct *orig_sys)
   abari3 = 0 ;
   fatal = FALSE ;
   for (oxkndx = 1 ; oxkndx <= orig_sys->varcnt ; oxkndx++)
-  { if (dy_origvars[oxkndx] > 0) continue ;
-/*
-  Status check. We never activate fixed variables.
-*/
-    xkstatus = (flags) -dy_origvars[oxkndx] ;
+  { xkstatus = (flags) -dy_origvars[oxkndx] ;
+    if (!LOADABLE_VAR(oxkndx))
+    { 
+#     ifndef DYLP_NDEBUG
+      if (dy_opts->print.varmgmt >= 3)
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n      skipping %s %s (%d).",dy_prtvstat(xkstatus),
+		    consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
+#     endif
+      continue ; }
 #   ifdef PARANOIA
-    if (flgoff(xkstatus,vstatNBFX|vstatNBUB|vstatNBLB|vstatNBFR))
+    if (flgoff(xkstatus,vstatNBUB|vstatNBLB|vstatNBFR))
     { errmsg(433,rtnnme,
 	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	     "inactive",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),
@@ -1602,16 +1602,6 @@ int dy_dualaddvars (consys_struct *orig_sys)
       fatal = TRUE ;
       break ; }
 #   endif
-    if (flgon(xkstatus,vstatNBFX))
-    {
-#     ifndef DYLP_NDEBUG
-      if (dy_opts->print.varmgmt >= 3)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n      skipping %s %s (%d).",dy_prtvstat(xkstatus),
-		    consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
-#     endif
-      continue ;
-    }
 /*
   Fetch the column for x<k> and calculate abar<ik> = beta<i>a<k> and
   cbar<k> = c<k> - ya<k>. We use only the active elements of a<k>. If
@@ -1625,7 +1615,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
     abarik = 0.0 ;
     cbark = orig_sys->obj[oxkndx] ;
     for (pkndx = 0,aqk = ak->coeffs ; pkndx < ak->cnt ; pkndx++,aqk++)
-    { if (dy_origcons[aqk->ndx] > 0)
+    { if (ACTIVE_CON(aqk->ndx))
       { xqndx = dy_origcons[aqk->ndx] ;
 	abarik += betai[xqndx]*aqk->val ;
 	cbark -= dy_y[xqndx]*aqk->val ; } }

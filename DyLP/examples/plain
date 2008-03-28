@@ -13,6 +13,17 @@
 set wrapper = (./osi_dylp)
 # set wrapper = (./odsi+dylp)
 
+# Check for MPS file directories under ../../Data
+
+set mpsSearchDirs
+foreach dir (`ls ../../Data`)
+  set dir = "../../Data/$dir"
+  if (-d $dir && -x $dir) then
+    set mpsSearchDirs = ($mpsSearchDirs $dir)
+  endif
+end
+set mpsSearchDirs = (. $mpsSearchDirs)
+
 # Usage message
 
 set usage =  "plain [-odsi|-dylp] [additional parameters] <mps file>"
@@ -21,10 +32,30 @@ set usage2 = "        -dylp selects the osi_dylp (native/C) wrapper"
 set usage3 = "        and [additional parameters] should be appropriate"
 set usage4 = "        for the specified wrapper."
 set usage5 = "        The default wrapper is $wrapper[1]"
+set usage5 = "        The default wrapper is $wrapper[1]"
 set usage6 = "        -h anywhere in the command line gets this help message."
+set usage7 = "        MPS file search directories are $mpsSearchDirs"
 
 if ($#argv < 1) then
   set argv = "--help"
+endif
+
+# Does the user want help?
+
+if ("$argv[*]" =~ *-h*) then
+  echo "Usage: $usage"
+  echo $usage1:q
+  echo $usage2:q
+  echo $usage3:q
+  echo $usage4:q
+  echo $usage5:q
+  echo $usage6:q
+  echo $usage7:q
+  if (-x $wrapper) then
+    $wrapper -h
+  else
+    echo "Execute $wrapper -h to see the help text for $wrapper."
+  exit
 endif
 
 # See if the user has specified a front-end on the command line.
@@ -40,41 +71,30 @@ switch ($argv[1])
     breaksw
 endsw
 
-# Does the user want help?
-
-if ("$argv[*]" =~ *-h*) then
- echo "Usage: $usage"
- echo $usage1:q
- echo $usage2:q
- echo $usage3:q
- echo $usage4:q
- echo $usage5:q
- echo $usage6:q
- $wrapper -h
- exit
-endif
-
-set netlib = "../../Data/Netlib"
-
 # MPS file should be the last parameter
 
 set example = $argv[$#argv]
+set mpsdir
+set mpsfile
+set mpsext
 
-# Search the current directory for example or example.mps, $netlib for
-# example.gz, example.mps.gz
+# Search for an mps file. The reason for putting the loop with suffixes on the
+# outside is so that we'll find the shortest suffix, whereever it might reside.
 
-if (-e ${example}) then
-  set mpsfile = ${example}
-else if (-e ${example}.mps) then
-  set mpsfile = ${example}.mps
-else if (-e ${netlib}/${example}.gz) then
-  gunzip -c ${netlib}/${example}.gz > ${example}
-  set mpsfile = ${example}
-else if (-e ${netlib}/${example}.mps.gz) then
-  gunzip -c ${netlib}/${example}.mps.gz > ${example}.mps
-  set mpsfile = ${example}.mps
-else
- echo "Can't locate mps file for $example."
+foreach ext ("" ".mps" ".gz" ".mps.gz")
+  set candidate = ${example}${ext}
+  foreach dir ($mpsSearchDirs)
+    if (-e $dir/$candidate) then
+      set mpsfile = $dir/$candidate
+      set mpsdir = $dir
+      set mpsext = $ext
+      break ; break
+    endif
+  end
+end
+
+if ("$mpsfile" == "") then
+ echo "Can't"' locate mps file for "'$example'".'
  echo "Usage: $usage"
  echo $usage1:q
  echo $usage2:q
@@ -86,12 +106,28 @@ else
  exit
 endif
 
-# Check for example.spc in current directory and $netlib
+# Dylp's native mps reader does not read from compressed files. Unzip if
+# necessary.
 
-if (-e ${example}.spc) then
+if ($wrapper =~ *osi_dylp && $mpsfile =~ *.gz) then
+  set lclext = `echo $mpsext | sed -e 's/\.gz//'`
+  set unzipmpsfile = ./${example}${lclext}
+  gunzip -c $mpsfile > $unzipmpsfile
+  echo "Created uncompressed copy of $mpsfile as $unzipmpsfile."
+else
+  set unzipmpsfile = $mpsfile
+endif
+
+# Check for example.spc in the directory whee the mps file was located, and in
+# the current directory. Failing that, look for generic.spc in the same
+# places.
+
+if (-e $mpsdir/${example}.spc) then
+  set spcfile = "-o $mpsdir/${example}.spc"
+else if (-e ${example}.spc) then
   set spcfile = "-o ${example}.spc"
-else if (-e ${netlib}/${example}.spc) then
-  set spcfile = "-o ${netlib}/${example}.spc"
+else if (-e $mpsdir/generic.spc) then
+  set spcfile = "-o generic.spc"
 else if (-e generic.spc) then
   set spcfile = "-o generic.spc"
 else
@@ -99,14 +135,12 @@ else
 endif
 
 # If there are two or more arguments, the rest are assumed to be
-# command line parameters. In the absence of user preferences, set "-t"
-# for terse output.
+# command line parameters.
 
 if ($#argv > 1) then
   @ flagcnt = $#argv - 1
   set flags = "$argv[1-$flagcnt]"
 else
-# set flags = "-t"
   set flags = ""
 endif
 
@@ -121,9 +155,9 @@ if ("$flags" != "") then
 endif
 echo "."
 
-echo "$wrapper $spcfile -m ${mpsfile} -L ${example}.log -O ${example}.out $flags"
+echo "$wrapper $spcfile -m ${unzipmpsfile} -L ${example}.log -O ${example}.out $flags"
 
 $wrapper $spcfile \
-      -m ${mpsfile} -L ${example}.log \
+      -m ${unzipmpsfile} -L ${example}.log \
       -O ${example}.out $flags
 

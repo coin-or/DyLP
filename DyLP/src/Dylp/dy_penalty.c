@@ -156,7 +156,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
   aj = NULL ;
   nbcnt = 0 ;
   for (oxjndx = 1 ; oxjndx <= orig_sys->varcnt ; oxjndx++)
-  { if (dy_origvars[oxjndx] > 0)
+  { if (ACTIVE_VAR(oxjndx))
     { xjndx = dy_origvars[oxjndx] ;
       statj = dy_status[xjndx] ;
       if (flgon(statj,priceme))
@@ -177,7 +177,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
   Inactive variables have the negative of their status (nonbasic at upper or
   lower bound, or fixed) in dy_origvars. We have to price the column in this
   case. Calculate cbar<j> = c<j> - y<i>a<i,j>, using only the active rows of
-  the column (as indicated by dy_origcons[ocndx] > 0).
+  the column.
 */
     else
     { statj = (flags) -dy_origvars[oxjndx] ;
@@ -198,8 +198,9 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 	  retval = FALSE ;
 	  break ; }
 	for (pkndx = 0,aij = aj->coeffs ; pkndx < aj->cnt ; pkndx++,aij++)
-	{ cndx = dy_origcons[aij->ndx] ;
-	  if (cndx > 0) cbarj -= dy_y[cndx]*aij->val ; }
+	{ if (ACTIVE_CON(aij->ndx))
+	  { cndx = dy_origcons[aij->ndx] ;
+	    cbarj -= dy_y[cndx]*aij->val ; } }
 	setcleanzero(cbarj,dy_tols->dfeas) ;
 #       ifdef PARANOIA
 	if ((flgon(statj,vstatNBUB) && cbarj > 0) ||
@@ -353,9 +354,9 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
   { activexi = FALSE ; }
   else
   if (oxindx < 0)
-  { if (dy_origcons[-oxindx] <= 0) activexi = FALSE ; }
+  { if (INACTIVE_CON(-oxindx)) activexi = FALSE ; }
   else
-  { if (dy_origvars[oxindx] <= 0)
+  { if (INACTIVE_VAR(oxindx))
     { errmsg(737,rtnnme,orig_sys->nme,
 	     consys_nme(orig_sys,'v',oxindx,FALSE,NULL),oxindx) ;
       return (FALSE) ; } }
@@ -404,8 +405,9 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 	break ; }
       abarij = 0 ;
       for (pkndx = 0,aij = aj->coeffs ; pkndx < aj->cnt ; pkndx++,aij++)
-      { cndx = dy_origcons[aij->ndx] ;
-	if (cndx > 0) abarij += betai[cndx]*aij->val ; }
+      { if (ACTIVE_CON(aij->ndx))
+	{ cndx = dy_origcons[aij->ndx] ;
+	  abarij += betai[cndx]*aij->val ; } }
       vndx = dy_origvars[oxjndx] ;
       if (vndx > 0)
       { statj = dy_status[vndx] ; }

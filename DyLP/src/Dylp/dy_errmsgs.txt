@@ -431,7 +431,10 @@
 @442@[%s]: (%s)%d: logical for newly activated constraint %s (%d) has
 	status %s but constraint should be %s.@
 @443@[%s]: (%s)%d: failed to solve lp relaxation, return code %s.@
-@444:449@<<open>>@
+@444@[%s]: (%s)%d: %s invariant failure; should be zero.
+	((orig %d)-(ineligible %d))-((eligible %d)+(active %d)) = %d.@
+@445@[%s]: (%s)%d: %s %s (%d) marked as ineligible for activation.@
+@446:449@<<open>>@
 
   Error messages from the arc consistency package.
 

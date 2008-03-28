@@ -124,7 +124,7 @@ static int near_perp_far (const void *elem1, const void *elem2)
 
 
 static bool cold_sortcons (consys_struct *orig_sys,
-			   int **p_eqs, ineq_struct **p_ineqs)
+			   int **p_eqs, ineq_struct **p_ineqs, int **p_noload)
 
 /*
   This routine separates the constraints into equalities and inequalities,
@@ -148,15 +148,20 @@ static bool cold_sortcons (consys_struct *orig_sys,
 		    allocated if NULL
 		(o) filled in with inequality information as described in
 		    comments at head of file
+    p_noload	(i) empty array of int; assumed to be sufficiently large;
+		    allocated if NULL
+		(o) noload[0] set to number of constraints ineligible for
+		    activation; noload[1 .. noload[0]] set to indices of
+		    ineligible constraints
 
   Return value: TRUE if all goes as planned, FALSE on error.
 		dy_lp->lpret is set to lpINFEAS for prima facie infeasibility
 */
 
-{ int i,ndx,m,n,eqcnt,ineqcnt,nearcnt,perpcnt,farcnt ;
+{ int i,ndx,m,n,eqcnt,ineqcnt,noloadcnt,nearcnt,perpcnt,farcnt ;
   double cnorm,ainorm,aidotc,pi180,anglei ;
   double *c ;
-  int *eqs ;
+  int *eqs,*noload ;
   ineq_struct *ineqs ;
   angle_struct *angles ;
   contyp_enum *ctyp ;
@@ -164,7 +169,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
 
   bool retval,need_angles ;
 
-  pkvec_struct *aj ;
+  pkvec_struct *ai ;
 
   const char *rtnnme = "cold_sortcons" ;
 
@@ -182,11 +187,14 @@ static bool cold_sortcons (consys_struct *orig_sys,
   if (p_ineqs == NULL)
   { errmsg(2,rtnnme,"&ineqs") ;
     return (FALSE) ; }
+  if (p_noload == NULL)
+  { errmsg(2,rtnnme,"&noload") ;
+    return (FALSE) ; }
 # endif
 
 /*
-  Allocate the equality and inequality data structures, if the client didn't
-  supply them.
+  Allocate the equality, inequality, and noload data structures, if the
+  client didn't supply them.
 */
   if (*p_eqs == NULL)
   { eqs = (int *) MALLOC((orig_sys->concnt+1)*sizeof(int)) ; }
@@ -198,6 +206,10 @@ static bool cold_sortcons (consys_struct *orig_sys,
 	(angle_struct *) MALLOC(orig_sys->concnt*sizeof(angle_struct)) ; }
   else
   { ineqs = *p_ineqs ; }
+  if (*p_noload == NULL)
+  { noload = (int *) MALLOC((orig_sys->concnt+1)*sizeof(int)) ; }
+  else
+  { noload = *p_noload ; }
 # ifdef PARANOIA
   if (ineqs->angles == NULL)
   { errmsg(2,rtnnme,"angle array") ;
@@ -213,57 +225,88 @@ static bool cold_sortcons (consys_struct *orig_sys,
   discarding empty and nonbinding constraints and checking range constraints
   for prima facie infeasibility.
 */
-  aj = pkvec_new(0) ;
+  ai = pkvec_new(0) ;
   eqcnt = 0 ;
   ineqcnt = 0 ;
+  noloadcnt = 0 ;
   ctyp = orig_sys->ctyp ;
   rhs = orig_sys->rhs ;
   rhslow = orig_sys->rhslow ;
 
   for (i = 1 ; i <= m ; i++)
-  { if (ctyp[i] == contypNB) continue ;
+  { if (ctyp[i] == contypNB)
+    { dy_lp->sys.cons.unloadable++ ;
+      dy_lp->sys.cons.loadable-- ;
+      noload[++noloadcnt] = i ;
+#     ifndef DYLP_NDEBUG
+      if (dy_opts->print.setup >= 4)
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\tskipping nonbinding constraint %s (%d).",
+		    consys_nme(orig_sys,'c',i,FALSE,NULL),i) ; }
+#     endif
+      continue ; }
     if (ctyp[i] == contypRNG)
     { if (rhs[i] < rhslow[i])
       { 
 #	ifndef DYLP_NDEBUG
 	if (dy_opts->print.setup >= 1)
 	{ dyio_outfmt(dy_logchn,dy_gtxecho,
-		      "\n\tTrivial infeasibility for %s (%d),",
-		      consys_nme(orig_sys,'c',i,0,0),i) ;
+		      "\n  Prima facie infeasibility for %s (%d),",
+		      consys_nme(orig_sys,'c',i,FALSE,NULL),i) ;
 	  dyio_outfmt(dy_logchn,dy_gtxecho," rhslow = %g > rhs = %g.",
 		      rhslow[i],rhs[i]) ; }
 #	endif
 	dy_lp->lpret = lpINFEAS ; } }
-    if (consys_getrow_pk(orig_sys,i,&aj) == FALSE)
+    if (consys_getrow_pk(orig_sys,i,&ai) == FALSE)
     { errmsg(122,rtnnme,orig_sys->nme,"row",
 	     consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
       retval = FALSE ;
       break ; }
-    if (aj->cnt != 0)
+    if (ai->cnt == 0)
+    { dy_lp->sys.cons.unloadable++ ;
+      dy_lp->sys.cons.loadable-- ;
+      noload[++noloadcnt] = i ;
+#     ifndef DYLP_NDEBUG
+      if (dy_opts->print.setup >= 4)
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\tskipping empty constraint %s (%d).",
+		    consys_nme(orig_sys,'c',i,FALSE,NULL),i) ; }
+#     endif
+    }
+    else
     { if (ctyp[i] == contypEQ)
       { eqs[++eqcnt] = i ; }
       else
       { angles[ineqcnt++].ndx = i ; } } }
 
+  if (ai != NULL) pkvec_free(ai) ;
   eqs[0] = eqcnt ;
   ineqs->cnt = ineqcnt ;
-  if (aj != NULL) pkvec_free(aj) ;
-  if (retval == FALSE)
-  { if (*p_eqs == NULL && eqs != NULL) FREE(eqs) ;
-    if (*p_ineqs == NULL && ineqs != NULL)
-    { if (ineqs->angles != NULL) FREE(angles) ;
-      FREE(ineqs) ; }
-    return (FALSE) ; }
+  noload[0] = noloadcnt ;
+
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.setup >= 2)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n    found %d equalities, %d inequalities",
 	        eqcnt,ineqcnt) ;
-    if (eqcnt+ineqcnt < m)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,", discarded %d empty constraints",
-		  (m-eqcnt-ineqcnt)) ; }
+    if (noloadcnt != 0)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,", discarded %d empty/nonbinding rows",
+		  noloadcnt) ; }
     dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 # endif
+# ifdef PARANOIA
+  if (dy_lp->sys.cons.loadable+dy_lp->sys.cons.unloadable != orig_sys->concnt)
+  { errmsg(1,rtnnme,__LINE__) ;
+    retval = FALSE ; }
+# endif
+
+  if (retval == FALSE)
+  { if (*p_eqs == NULL && eqs != NULL) FREE(eqs) ;
+    if (*p_ineqs == NULL && ineqs != NULL)
+    { if (ineqs->angles != NULL) FREE(angles) ;
+      FREE(ineqs) ; }
+    if (*p_noload == NULL && noload != NULL) FREE(noload) ;
+    return (FALSE) ; }
 /*
   Now, how much more work do we need to do? Decide if we need to calculate
   angles.
@@ -366,6 +409,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
 */
   if (*p_eqs == NULL) *p_eqs = eqs ;
   if (*p_ineqs == NULL) *p_ineqs = ineqs ;
+  if (*p_noload == NULL) *p_noload = noload ;
 
   return (TRUE) ; }
 
@@ -407,13 +451,9 @@ static bool cold_createdysys (consys_struct *orig_sys, int eqcnt, int ineqcnt)
     ineqcnt:	the number of inequalities in orig_sys
 
   Returns: TRUE if the system is created without error, FALSE otherwise.
-	   If prima facie infeasibility is detected, dy_lp->lpret is set to
-	   lpINFEAS.
 */
 
-{ int j,m_sze,n_sze,flippable ;
-  double vlbj,vubj ;
-  double *vlb,*vub,*obj ;
+{ int j,m_sze,n_sze ;
 
   char nmebuf[50] ;
 
@@ -474,92 +514,219 @@ static bool cold_createdysys (consys_struct *orig_sys, int eqcnt, int ineqcnt)
 		    sizeof(int),(void **) &dy_origcons) == FALSE)
   { errmsg(100,rtnnme,orig_sys->nme,"original -> active constraint map") ;
     return (FALSE) ; }
+
+  return (TRUE) ; }
+
+
+static bool cold_scanvars (consys_struct *orig_sys)
 /*
   Assign a status to all variables in orig_sys. There are lots of reasons
   for doing this right off the top:
+
+    * We can use origvars == 0 as a paranoid check from here on out.
+
     * It's not uncommon for people to fix variables in an MPS model. This takes
-      them out of consideration right from the start.
+      them out of consideration right from the start. Assign status NBFX and
+      mark them as ineligible for activation.
+
     * dylp's intended use is in branch-and-cut codes, which tend to update
       bounds on a regular basis. This can result in bounds which are not
       precisely equal, but are within the primal feasibility tolerance of one
-      another. This is a bad situation all around, and needs to be fixed on
-      input. Even worse, it's possible we'll be handed bounds which are prima
-      facie infeasible --- lower and upper bounds are crossed. This is really
-      bad, and dylp does not react well. In this case we need to detect
-      infeasibility and report it back to dylp().
-    * We can use origvars == 0 as a paranoid check from here on out.
+      another. The variable is fixed, for all practical purposes, but it's a
+      `dirty' fix. Push it to one bound or another and mark it ineligible for
+      activation.
+
+    * A careless client may hand us a model with prima facie infeasibility,
+      lb<j> > ub<j>. We need to detect this and report it --- the main body
+      of dylp does not react well to this situation.
+
+    * More legitimate (but not by much), the client may hand us a model with
+      variables that are only present in the objective. We can set these to
+      bound based on the objective coefficient and mark them as ineligible
+      for activation. If the appropriate bound is not finite, we can report
+      unboundedness.
+
     * If there are no variables with upper and lower bounds (`flippable', in
       dual multipivot) then we might as well turn multipivot off.
-  This activity doesn't particularly belong with the creation of dy_sys, but
-  this is a convenient place to put it and the information in dy_origvars needs
-  to be valid when we begin loading constraints.
+
+  Parameters:
+    orig_sys:	the original constraint system
+
+  Returns: TRUE if all goes well, FALSE otherwise.
+	   If prima facie infeasibility is detected, dy_lp->lpret is set to
+	   lpINFEAS.
+	   If prima facie unboundedness is detected, dy_lp->lpret is set to
+	   lpUNBOUNDED.
+*/
+
+{ int j,flippable ;
+  flags statj ;
+  double *vlb,*vub,*obj ;
+  double lj,uj,cj ;
+
+  bool retval ;
+
+  pkvec_struct *aj ;
+
+  char *rtnnme = "cold_scanvars" ;
+
+  retval = TRUE ;
+/*
+  Prep, then open up a loop to do the scan.
 */
   vlb = orig_sys->vlb ;
   vub = orig_sys->vub ;
   obj = orig_sys->obj ;
   flippable = 0 ;
+
+  aj = pkvec_new(0) ;
+
   for (j = 1 ; j <= orig_sys->varcnt ; j++)
-  { vlbj = vlb[j] ;
-    vubj = vub[j] ;
-    if (vlbj > -dy_tols->inf && vubj < dy_tols->inf)
-    { if (atbnd(vlbj,vubj) && vlbj != vubj)
-      { 
+  { lj = vlb[j] ;
+    uj = vub[j] ;
+    cj = obj[j] ;
+/*
+  Sort into cases. Variables with two finite bounds first. If we have a
+  `dirty' fix, set the variable to one of the bounds and mark it ineligible
+  for activation. If the bounds are crossed, note prima facie infeasibility.
+  Otherwise, note that the variable is flippable and assign a status based on
+  the objective coefficient.
+*/
+    if (lj > -dy_tols->inf && uj < dy_tols->inf)
+    { if (atbnd(lj,uj) && lj != uj)
+      { if (cj < 0)
+	{ statj = vstatNBUB|vstatNOLOAD ; }
+	else
+	{ statj = vstatNBLB|vstatNOLOAD ; }
+#	ifndef DYLP_NDEBUG
+	if (dy_opts->print.setup >= 3)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n\tDirty fixed variable %s (%d)",
+		      consys_nme(orig_sys,'v',j,0,0),j) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,
+		      " assigned status %s.",dy_prtvstat(statj)) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "\n\t  original lb = %g, ub = %g, diff = %g, tol = %g",
+		      lj,uj,uj-lj,dy_tols->pfeas) ; }
+#	endif
+      }
+      else
+      if (uj < lj)
+      { dy_lp->lpret = lpINFEAS ;
+#       ifndef DYLP_NDEBUG
+	if (dy_opts->print.setup >= 1)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+	      "\n\tPrima facie infeasibility for %s (%d), lb = %g > ub = %g.",
+	      consys_nme(orig_sys,'v',j,0,0),j,lj,uj) ; }
+#       endif
+	statj = vstatNBLB|vstatNOLOAD ; }
+      else
+      if (lj == uj)
+      { statj = vstatNBFX|vstatNOLOAD ;
+#	ifndef DYLP_NDEBUG
+	if (dy_opts->print.setup >= 3)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n\tFixed variable %s (%d) = %g",
+		      consys_nme(orig_sys,'v',j,0,0),j,lj) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,
+		      " assigned status %s.",dy_prtvstat(statj)) ; }
+#	endif
+      }
+      else
+      { flippable++ ;
+	if (cj < 0)
+	{ statj = vstatNBUB ; }
+	else
+	{ statj = vstatNBLB ; } } }
+/*
+  For variables with one finite bound, choose the finite bound as the initial
+  status. If there are no finite bounds, we're left with NBFR.
+*/
+    else
+    if (lj > -dy_tols->inf)
+    { statj = vstatNBLB ; }
+    else
+    if (uj < dy_tols->inf)
+    { statj = vstatNBUB ; }
+    else
+    { statj = vstatNBFR ; }
+/*
+  Check if the variable is not referenced by any constraint. Note that this
+  isn't the definitive test. There's a variation of this pathology in which
+  the client has left a nonbinding row in the system and the variable is
+  referenced only by the nonbinding row.  Doing the necessary work here fails
+  the `make the common case fast' test. Doing the necessary work later is
+  still questionable. See comments in dy_varmgmt::scanPrimVarStdAct.
+
+  If we pass the test for boundedness, the status is already correct.  Just
+  mark it as ineligible for activation.
+*/
+    if (consys_getcol_pk(orig_sys,j,&aj) == FALSE)
+    { errmsg(122,rtnnme,dy_sys->nme,"column",
+	     consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
+      retval = FALSE ;
+      break ; }
+    if (aj->cnt == 0)
+    { if ((cj > 0 && lj <= -dy_tols->inf) || (cj < 0 && uj >= dy_tols->inf))
+      { dy_lp->lpret = lpUNBOUNDED ;
+	dy_lp->z = -j ;
+#       ifndef DYLP_NDEBUG
+	if (dy_opts->print.setup >= 1)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+		      "\n\tPrima facie unboundedness for %s (%d), ",
+		      consys_nme(orig_sys,'v',j,0,0),j) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"c = %g, lb = %g, ub = %g.",
+		      cj,lj,uj) ; }
+#       endif
+      }
+      else
+      { setflg(statj,vstatNOLOAD) ;
 #	ifndef DYLP_NDEBUG
 	if (dy_opts->print.setup >= 3)
 	{ dyio_outfmt(dy_logchn,dy_gtxecho,
-		      "\n\tForcing equal bound %g for %s (%d)",
-		      (vlbj+vubj)/2,consys_nme(orig_sys,'v',j,0,0),j) ;
+		      "\n\tEmpty column for variable %s (%d),",
+		      consys_nme(orig_sys,'v',j,0,0),j,lj) ;
 	  dyio_outfmt(dy_logchn,dy_gtxecho,
-		      "\n\t  original lb = %g, ub = %g, diff = %g, tol = %g",
-		      vlbj,vubj,vubj-vlbj,dy_tols->pfeas) ; }
+		      " assigned status %s,",dy_prtvstat(statj)) ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,
+		      " c = %g, lb = %g, ub = %g.",cj,lj,uj) ; }
 #	endif
-	vlb[j] = (vlbj+vubj)/2 ;
-	vub[j] = vlb[j] ; }
-      if (vlbj == vubj)
-      { dy_origvars[j] = -((int) vstatNBFX) ; }
-      else
-      { flippable++ ;
-	if (obj[j] < 0)
-	{ dy_origvars[j] = -((int) vstatNBUB) ; }
-	else
-	{ dy_origvars[j] = -((int) vstatNBLB) ; } } }
-    else
-    if (vlbj > -dy_tols->inf)
-    { dy_origvars[j] = -((int) vstatNBLB) ; }
-    else
-    if (vubj < dy_tols->inf)
-    { dy_origvars[j] = -((int) vstatNBUB) ; }
-    else
-    { dy_origvars[j] = -((int) vstatNBFR) ; }
-    if (vub[j] < vlb[j])
-    { dy_lp->lpret = lpINFEAS ;
-#     ifndef DYLP_NDEBUG
-      if (dy_opts->print.setup >= 1)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n\tTrivial infeasibility for %s (%d), lb = %g > ub = %g.",
-		    consys_nme(orig_sys,'v',j,0,0),j,vlb[j],vub[j]) ; }
-#     endif
-    } }
+      } }
+
+    dy_origvars[j] = -((int) statj) ;
+    if (flgon(statj,vstatNOLOAD) == TRUE)
+    { dy_lp->sys.vars.unloadable++ ;
+      dy_lp->sys.vars.loadable-- ; }
+  }
+
+  if (aj != NULL) pkvec_free(aj) ;
 /*
+  That's it for the scan loop.
+
   Disable dual multipivoting? Fairly arbitrarily, give 25% flippable variables
-  as the criterion.
+  as the threshold.
 */
 # ifdef DYLP_STATISTICS
   if (dy_stats != NULL) dy_stats->dmulti.flippable = flippable ;
 # endif
-  vubj = ((double) flippable)/orig_sys->varcnt ;
-  if (vubj < .25 && dy_opts->dpsel.flex == TRUE)
+  uj = ((double) flippable)/orig_sys->varcnt ;
+  if (uj < .25 && dy_opts->dpsel.flex == TRUE)
   { dy_opts->dpsel.flex = FALSE ;
     dy_opts->dpsel.strat = 0 ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.setup >= 2 || dy_opts->print.dual >= 2)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
 	    "\n    %d (%g%%) flippable variables; disabling dual multipivot.",
-	    flippable,vubj) ; }
+	    flippable,uj) ; }
 #   endif
   }
+# ifdef PARANOIA
+  if (dy_lp->sys.vars.unloadable+dy_lp->sys.vars.loadable != orig_sys->varcnt)
+  { errmsg(1,rtnnme,__LINE__) ;
+    retval = FALSE ; }
+# endif
 
-  return (TRUE) ; }
+  return (retval) ; }
+
+
 
 
 
@@ -830,11 +997,11 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
   Returns: dyrOK if the setup completes without error, dyrFATAL otherwise.
 */
 
-{ int j,n,eqcnt,ineqcnt ;
+{ int i,j,ndx,n,eqcnt,ineqcnt,noloadcnt ;
   double *vlb,*vub,*obj ;
   double vlbj,vubj,objj ; 
   flags statj ;
-  int *eqs ;
+  int *eqs,*noload ;
   ineq_struct *ineqs ;
 
 # ifndef DYLP_NDEBUG
@@ -846,13 +1013,22 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
   const char *rtnnme = "dy_coldstart" ;
 
 /*
+  Initialise the statistics on loadable/unloadable variables and constraints.
+*/
+  dy_lp->sys.forcedfull = FALSE ;
+  dy_lp->sys.vars.loadable = orig_sys->varcnt ;
+  dy_lp->sys.vars.unloadable = 0 ;
+  dy_lp->sys.cons.loadable = orig_sys->concnt ;
+  dy_lp->sys.cons.unloadable = 0 ;
+/*
   To get started, sort the constraints into equalities and inequalities. If
   we're loading a partial active system, the inequalities will also be sorted
   by angle from the objective function.
 */
   eqs = NULL ;
   ineqs = NULL ;
-  retval = cold_sortcons(orig_sys,&eqs,&ineqs) ;
+  noload = NULL ;
+  retval = cold_sortcons(orig_sys,&eqs,&ineqs,&noload) ;
   if (retval == FALSE)
   { errmsg(312,rtnnme,
 	  orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
@@ -860,6 +1036,7 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
     if (ineqs != NULL)
     { if (ineqs->angles != NULL) FREE(ineqs->angles) ;
       FREE(ineqs) ; }
+    if (noload != NULL) FREE(noload) ;
     return (dyrFATAL) ; }
   eqcnt = eqs[0] ;
   ineqcnt = ineqs->cnt ;
@@ -873,15 +1050,57 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
     if (ineqs != NULL)
     { if (ineqs->angles != NULL) FREE(ineqs->angles) ;
       FREE(ineqs) ; }
+    if (noload != NULL) FREE(noload) ;
     return (dyrFATAL) ; }
+/*
+  Do an initial scan of the variables. Assign initial status, deal with a few
+  pathological cases, and detect prima facie infeasibility and unboundedness.
+*/
+  retval = cold_scanvars(orig_sys) ;
+  if (retval == FALSE)
+  { if (eqs != NULL) FREE(eqs) ;
+    if (ineqs != NULL)
+    { if (ineqs->angles != NULL) FREE(ineqs->angles) ;
+      FREE(ineqs) ; }
+    if (noload != NULL) FREE(noload) ;
+    return (dyrFATAL) ; }
+/*
+  Mark the constraints that are ineligible for loading and dispose of noload.
+*/
+  noloadcnt = noload[0] ;
+  if (noloadcnt > 0)
+  { for (ndx = 1 ; ndx <= noloadcnt ; ndx++)
+    { i = noload[ndx] ;
+      MARK_UNLOADABLE_CON(i) ; } }
+  if (noload != NULL) FREE(noload) ;
 /*
   Transfer the required constraints. Once this is done,  we're finished with
   the lists of equalities and inequalities.
+
+  There's a pathology we may need to deal with here. It can happen that the
+  client is negligent and passes in a constraint system which contains
+  nonbinding rows and variables which are referenced only in the nonbinding
+  rows. If we're running in dynamic mode, these variables will be found during
+  normal variable activation. But it we're running in fullsys mode, there will
+  be no second chance. Check for the situation and deal with it.
 */
   if (dy_opts->fullsys == TRUE)
-  { retval = cold_loadfull(orig_sys,eqs,ineqs) ; }
+  { retval = cold_loadfull(orig_sys,eqs,ineqs) ;
+    dy_lp->sys.forcedfull = TRUE ;
+    if (retval == TRUE &&
+	dy_sys->archvcnt+dy_lp->sys.vars.unloadable < orig_sys->varcnt)
+    { 
+#     ifndef DYLP_NDEBUG
+      if (dy_opts->print.setup >= 1)
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+	  "\n  system %s has %d variables referenced only by nonbinding rows.",
+	  orig_sys->nme,
+	  (orig_sys->varcnt-(dy_sys->archvcnt+dy_lp->sys.vars.unloadable))) ; }
+#     endif
+    } }
   else
-  { retval = cold_loadpartial(orig_sys,eqs,ineqs) ; }
+  { retval = cold_loadpartial(orig_sys,eqs,ineqs) ;
+    dy_lp->sys.forcedfull = FALSE ; }
   if (eqs != NULL) FREE(eqs) ;
   if (ineqs != NULL)
   { if (ineqs->angles != NULL) FREE(ineqs->angles) ;
@@ -894,8 +1113,7 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
 /*
   Scan the variables in orig_sys once again and calculate the correction to
   the objective function. (loadcon handled any rhs adjustments for the
-  constraints it loaded.)  Inactive free variables are assumed to have value
-  0.
+  constraints it loaded.)  Inactive free variables are assumed to be 0.
 */
   n = orig_sys->varcnt ;
   vlb = orig_sys->vlb ;
@@ -903,8 +1121,9 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
   obj = orig_sys->obj ;
   dy_lp->inactzcorr = 0 ;
   for (j = 1 ; j <= n ; j++)
-  { if (dy_origvars[j] < 0)
+  { if (INACTIVE_VAR(j))
     { statj = (flags) (-dy_origvars[j]) ;
+      clrflg(statj,vstatNOLOAD) ;
       vlbj = vlb[j] ;
       vubj = vub[j] ;
       objj = obj[j] ;
@@ -937,12 +1156,16 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
     if (nbfxcnt > 0) dyio_outfmt(dy_logchn,dy_gtxecho," (%d fixed)",nbfxcnt) ;
     dyio_outfmt(dy_logchn,dy_gtxecho,
 		" remain inactive in system %s.",orig_sys->nme) ;
+    if (dy_lp->sys.cons.unloadable > 0 || dy_lp->sys.vars.unloadable > 0)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n  %d constraints, %d variables unloadable.",
+		  dy_lp->sys.cons.unloadable,dy_lp->sys.vars.unloadable) ; }
     if (dy_opts->print.setup >= 6)
     { vubj = 0 ;
       for (j = 1 ; j <= n ; j++)
-      { if (dy_origvars[j] < 0)
+      { if (INACTIVE_VAR(j))
 	{ statj = (flags)(-dy_origvars[j]) ;
-	  switch (statj)
+	  switch (getflg(statj,vstatSTATUS))
 	  { case vstatNBUB:
 	    { vlbj = vub[j] ;
 	      break ; }

@@ -153,8 +153,9 @@ char *dy_prtvstat (flags status)
 */
   if (status != mystatus)
   { strcat(buffer,"(") ;
-    if (flgon(status,vstatNOPIVOT)) strcat(buffer,"r") ;
+    if (flgon(status,vstatNOPIVOT)) strcat(buffer,"v") ;
     if (flgon(status,vstatNOPER)) strcat(buffer,"p") ;
+    if (flgon(status,vstatNOLOAD)) strcat(buffer,"l") ;
     strcat(buffer,")") ; }
 
   return (buffer) ; }

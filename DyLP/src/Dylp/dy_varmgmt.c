@@ -129,7 +129,7 @@ static bool prepcol_pk (consys_struct *orig_sys, int oxjndx,
   if (p_aj == NULL)
   { errmsg(2,rtnnme,"&a<j>") ;
     return (FALSE) ; }
-  if (dy_origvars[oxjndx] > 0)
+  if (ACTIVE_VAR(oxjndx))
   { char onmbuf[128] ;
     (void) consys_nme(orig_sys,'v',oxjndx,TRUE,onmbuf) ;
     errmsg(431,rtnnme,
@@ -155,9 +155,8 @@ static bool prepcol_pk (consys_struct *orig_sys, int oxjndx,
 */
   for (pkndx = 0,aij = aj->coeffs ; pkndx < aj->cnt ; )
   { ocndx = aij->ndx ;
-    cndx = dy_origcons[ocndx] ;
-    if (cndx == 0)
-    {
+    if (INACTIVE_CON(ocndx))
+    { cndx = dy_origcons[ocndx] ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.varmgmt >= 4)
       { dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -171,7 +170,7 @@ static bool prepcol_pk (consys_struct *orig_sys, int oxjndx,
       { aij->ndx = aj->coeffs[aj->cnt].ndx ;
 	aij->val = aj->coeffs[aj->cnt].val ; } }
     else
-    {
+    { cndx = dy_origcons[ocndx] ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.varmgmt >= 4)
       { dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -227,7 +226,15 @@ bool dy_actNBPrimArch (consys_struct *orig_sys, int ovndx)
   if (ovndx <= 0 || ovndx > orig_sys->archvcnt)
   { errmsg(102,rtnnme,"inactive variable",ovndx,1,orig_sys->archvcnt) ;
     return (FALSE) ; }
-  if (dy_origvars[ovndx] > 0)
+  j = (orig_sys->varcnt-dy_lp->sys.vars.unloadable) -
+	(dy_lp->sys.vars.loadable+dy_sys->archvcnt) ;
+  if (j != 0)
+  { errmsg(444,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "variable",orig_sys->varcnt,dy_lp->sys.vars.unloadable,
+	   dy_lp->sys.vars.loadable,dy_sys->archvcnt,j) ;
+    return (FALSE) ; }
+  if (ACTIVE_VAR(ovndx))
   { char onmbuf[128] ;
     j = dy_origvars[ovndx] ;
     (void) consys_nme(orig_sys,'v',ovndx,TRUE,onmbuf) ;
@@ -238,11 +245,17 @@ bool dy_actNBPrimArch (consys_struct *orig_sys, int ovndx)
     return (FALSE) ; }
 # endif
 /*
-  Get the status. If we're paranoid, confirm that it's normal nonbasic.
+  Get the status. If we're paranoid, confirm that it's normal nonbasic and
+  loadable.
 */
   statj = (flags) (-dy_origvars[ovndx]) ;
 # ifdef PARANOIA
-  if (flgoff(statj,vstatNONBASIC|vstatNBFR))
+  if (!LOADABLE_VAR(ovndx))
+  { errmsg(445,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "variable",consys_nme(orig_sys,'v',ovndx,TRUE,NULL),ovndx) ;
+    return (FALSE) ; }
+  if (flgoff(statj,vstatNBLB|vstatNBUB|vstatNBFR))
   { errmsg(433,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   "inactive",consys_nme(orig_sys,'v',ovndx,TRUE,NULL),ovndx,
@@ -283,7 +296,7 @@ bool dy_actNBPrimArch (consys_struct *orig_sys, int ovndx)
   necessary adjustments to rhs and rhslow of affected constraints. Also
   adjust the objective correction.
 */
-  if (flgon(statj,vstatNBLB|vstatNBFX))
+  if (flgon(statj,vstatNBLB))
   { valj = lbj ; }
   else
   if (flgon(statj,vstatNBUB))
@@ -323,8 +336,7 @@ bool dy_actNBPrimArch (consys_struct *orig_sys, int ovndx)
 /*
   And finally, a little bookkeeping.
 */
-  if (dy_sys->archvcnt >= dy_lp->sys.maxvars)
-    dy_lp->sys.loadablevars = FALSE ;
+  dy_lp->sys.vars.loadable-- ;
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.varmgmt >= 3)
@@ -354,7 +366,7 @@ bool dy_actNBPrimArchList (consys_struct *orig_sys, int cnt, int *ovndxs)
   indices in the vector ovndxs. It performs minimal error checking, relying
   on checking in actNBPrimArch.  One thing it does do is check if the
   variable is already active. This can happen when the list passed in avndxs
-  includes duplicate indices.
+  includes duplicate indices, so we don't want it trapped later as an error.
 
   Parameters:
     orig_sys:	The original constraint system.
@@ -375,7 +387,7 @@ bool dy_actNBPrimArchList (consys_struct *orig_sys, int cnt, int *ovndxs)
   if (ovndxs == NULL)
   { errmsg(2,rtnnme,"ovndxs") ;
     return (FALSE) ; }
-  if (cnt <= 0 || cnt >= orig_sys->archvcnt)
+  if (cnt <= 0 || cnt > orig_sys->archvcnt)
   { errmsg(5,rtnnme,"cnt",cnt) ;
     return (FALSE) ; }
 # endif
@@ -383,7 +395,7 @@ bool dy_actNBPrimArchList (consys_struct *orig_sys, int cnt, int *ovndxs)
   retval = TRUE ;
   for (k = 0 ; k < cnt && retval == TRUE ; k++)
   { j = ovndxs[k] ;
-    if (dy_origvars[j] > 0) continue ;
+    if (ACTIVE_VAR(j)) continue ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.varmgmt >= 2)
     { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    activating variable %s (%d)",
@@ -610,6 +622,14 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
   if (ovndx <= 0 || ovndx > orig_sys->varcnt)
   { errmsg(102,rtnnme,"original variable",ovndx,1,orig_sys->varcnt) ;
     return (FALSE) ; }
+  i = (orig_sys->varcnt-dy_lp->sys.vars.unloadable) -
+	(dy_lp->sys.vars.loadable+dy_sys->archvcnt) ;
+  if (i != 0)
+  { errmsg(444,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "variable", orig_sys->varcnt,dy_lp->sys.vars.unloadable,
+	   dy_lp->sys.vars.loadable,dy_sys->archvcnt,i) ;
+    return (FALSE) ; }
 # endif
 
 /*
@@ -630,7 +650,7 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
   values, and adjust the objective correction.
 */
   clrflg(statj,vstatQUALS) ;
-  dy_origvars[ovndx] = -((int) statj) ;
+  MARK_INACTIVE_VAR(ovndx,-((int) statj)) ;
   if (valj != 0)
   { for (pkndx = 0, aij = aj->coeffs ; pkndx < aj->cnt ; pkndx++, aij++)
     { i = aij->ndx ;
@@ -714,13 +734,13 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
       dy_basis[i] = j ; } }
 /*
   And finally ... if the status was anything other than NBFX, we now have a
-  variable we can activate. But if it was NBFX, well, maxvars just got
-  smaller.
+  variable we can activate. But if it was NBFX, well, the number of unloadable
+  variables just increased.
 */
   if (flgon(statj,vstatNBFX))
-  { dy_lp->sys.maxvars-- ; }
+  { dy_lp->sys.vars.unloadable++ ; }
   else
-  { dy_lp->sys.loadablevars = TRUE ; }
+  { dy_lp->sys.vars.loadable++ ; }
 
   return (TRUE) ; }
 
@@ -982,7 +1002,18 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
   fatal = FALSE ;
   orig_obj = orig_sys->obj ;
   actcnt = 0 ;
-  cand_limit = orig_sys->archvcnt-dy_sys->archvcnt ;
+/*
+  Did the client supply a vector for candidates? If not, make one.
+
+  We shouldn't be here if there's no room to activate. If we're paranoid, check
+  this. 
+*/
+  cand_limit = dy_lp->sys.vars.loadable ;
+# ifdef PARANOIA
+  if (cand_limit == 0)
+  { errmsg(1,rtnnme,__LINE__) ;
+    return (-1) ; }
+# endif
   if (dy_opts->addvar > 0)
   { cand_limit = minn(dy_opts->addvar,cand_limit) ; }
   if (*p_ovndxs == NULL)
@@ -999,14 +1030,12 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
     orig_y[k] = dy_y[i] ; }
 /*
   Make the candidate list we'll actually evaluate. If not supplied in preset,
-  scan origvars to make the list.  Active variables have their dy_sys index
-  (> 0) as the contents of the entry. Inactive variables have the negative of
-  their status (nonbasic at upper or lower bound).
+  scan origvars to make the list. If we're scanning here, avoid unloadable
+  variables, but we can't guarantee the contents of preset and will need to
+  screen again in the next loop.
 
-  We never activate fixed variables, but leave that check to the next loop as
-  we can't be sure how well preset has been screened. Even if we're supplied a
-  preset list of variables, we can use only those that are dual feasible if
-  we're in dual simplex.
+  Even if we're supplied a preset list of variables, we can use only those
+  that are dual feasible if we're in dual simplex.
 
   Note that scanvars is set up with 1-based indexing.
 */
@@ -1024,7 +1053,7 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
     scanvars[0] = 0 ;
     scan_cnt = 0 ;
     for (j = 1 ; j <= orig_sys->archvcnt ; j++)
-    { if (dy_origvars[j] > 0) continue ;
+    { if (!LOADABLE_VAR(j)) continue ;
 #     ifdef PARANOIA
       statj = (flags) -dy_origvars[j] ;
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
@@ -1046,11 +1075,11 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
 */
   for (ndx = 1 ; ndx <= scan_cnt && actcnt < cand_limit ; ndx++)
   { j = scanvars[ndx] ;
-    statj = (flags) -dy_origvars[j] ;
 /*
-  We never activate fixed variables so we can skip further work for them.
+  Skip over variables that are ineligible for activation (status NBFX or
+  flagged with vstatNOLOAD).
 */
-    if (flgon(statj,vstatNBFX))
+    if (!LOADABLE_VAR(j))
     { activate = FALSE ; }
 /*
   If the variable x<j> is inactive, price it as cbar<j> = c<j> - y<i>a<i,j>,
@@ -1062,7 +1091,8 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
   the negative of the primal case.
 */
     else
-    { if (dy_lp->simplex.next == dyPRIMAL1)
+    { statj = (flags) -dy_origvars[j] ;
+      if (dy_lp->simplex.next == dyPRIMAL1)
 	cbarj = 0 ;
       else
 	cbarj = orig_obj[j] ;
@@ -1074,6 +1104,14 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
   Now compare the sign of the reduced cost with the status of the variable,
   to decide if we want to bring this variable into the active set. We're
   minimising, eh.
+
+  Arguably, if we want to detect columns with nonzero coefficients only in
+  rows that are ineligible for activation, this is the place. But it's not
+  clear that it's worth the effort. This particular pathology is rare and we
+  would expend a lot of effort prepping columns, even with a filter of
+  cbar<j> = 0. The cost for doing nothing is that we redo consys_dotcol for
+  the pathological columns with each scan. Given that this sort of column is
+  typically rare and sparse, doing nothing special makes sense.
 */
       if (use_all == TRUE)
       { activate = TRUE ; }

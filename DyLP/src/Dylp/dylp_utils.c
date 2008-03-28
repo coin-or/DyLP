@@ -1701,6 +1701,9 @@ bool dy_chkdysys (consys_struct *orig_sys)
   case where the bound is +/-inf. For the objective, clearly the phase I
   objective isn't going to match, so make sure we're looking at the phase II
   objective.
+
+  As far as status of inactive variables, the only qualifier should be NOLOAD.
+  Strip it out and check for valid nonbasic status.
 */
   cnt = 0 ;
   if (dy_lp->p1obj.installed == TRUE)
@@ -1708,14 +1711,15 @@ bool dy_chkdysys (consys_struct *orig_sys)
   else
     obj = dy_sys->obj ;
   for (ovndx = 1 ; ovndx <= orig_sys->varcnt ; ovndx++)
-  { if (dy_origvars[ovndx] <= 0)
+  { if (INACTIVE_VAR(ovndx))
     { vstatus = (flags) -dy_origvars[ovndx] ;
+      clrflg(vstatus,vstatNOLOAD) ;
       if (!(vstatus == vstatNBFR || vstatus == vstatNBFX ||
 	    vstatus == vstatNBUB || vstatus == vstatNBLB))
       { errmsg(433,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "inactive",consys_nme(orig_sys,'v',ovndx,TRUE,NULL),ovndx,
-	       dy_prtvstat(dy_origvars[ovndx])) ; 
+	       dy_prtvstat(((flags) -dy_origvars[ovndx]))) ; 
 	return (FALSE) ; } }
     else
     { cnt++ ;
@@ -1756,7 +1760,7 @@ bool dy_chkdysys (consys_struct *orig_sys)
 
   cnt = 0 ;
   for (ocndx = 1 ; ocndx <= orig_sys->concnt ; ocndx++)
-  { if (dy_origcons[ocndx] > 0)
+  { if (ACTIVE_CON(ocndx))
     { cnt++ ;
       acndx = dy_origcons[ocndx] ;
       if (ocndx != dy_actcons[acndx])
@@ -1792,10 +1796,10 @@ bool dy_chkdysys (consys_struct *orig_sys)
     for (opkndx = 0 ; opkndx < opkcon->cnt ; opkndx++)
     { ovndx = opkcon->coeffs[opkndx].ndx ;
       oaij = opkcon->coeffs[opkndx].val ;
-      if (dy_origvars[ovndx] < 0)
+      if (INACTIVE_VAR(ovndx))
       { cnt++ ;
 	vstatus = (flags) -dy_origvars[ovndx] ;
-	switch (vstatus)
+	switch (getflg(vstatus,vstatSTATUS))
 	{ case vstatNBLB:
 	  { rhscorr += oaij*orig_sys->vlb[ovndx] ;
 	    break ; }
@@ -2189,9 +2193,9 @@ static void build_soln (lpprob_struct *orig_lp)
   in too.
 */
   for (ovndx = 1 ; ovndx <= orig_sys->varcnt ; ovndx++)
-  { if (dy_origvars[ovndx] < 0)
+  { if (INACTIVE_VAR(ovndx))
     { xjstatus = (flags)(-dy_origvars[ovndx]) ;
-      orig_lp->status[ovndx] = xjstatus ;
+      orig_lp->status[ovndx] = getflg(xjstatus,vstatSTATUS) ;
       if (flgon(orig_lp->ctlopts,lpctlACTVARSOUT))
 	orig_lp->actvars[ovndx] = FALSE ; }
     else

@@ -294,9 +294,9 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
       return (FALSE) ; }
     for (ndx = 0, aik = &ak->coeffs[0] ; ndx < ak->cnt ; ndx++, aik++)
     { oaindx = aik->ndx ;
-      aindx = dy_origcons[oaindx] ;
-      if (aindx > 0)
-      { dy_sys->rhs[aindx] -= aik->val*xk ;
+      if (ACTIVE_CON(oaindx))
+      { aindx = dy_origcons[oaindx] ;
+        dy_sys->rhs[aindx] -= aik->val*xk ;
 	if (dy_sys->ctyp[aindx] == contypRNG)
 	  dy_sys->rhslow[aindx] -= aik->val*xk ; } }
     pkvec_free(ak) ; }

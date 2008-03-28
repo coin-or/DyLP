@@ -234,7 +234,7 @@ void consys_chgnme (consys_struct *consys, char cv,
     { break ; }
     default:
     { errmsg(3,rtnnme,"cv",cv) ;
-      return (errname) ; } }
+      return ; } }
 
   if (newnme == NULL)
   { errmsg(2,rtnnme,"newnme") ;
