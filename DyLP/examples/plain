@@ -55,6 +55,7 @@ if ("$argv[*]" =~ *-h*) then
     $wrapper -h
   else
     echo "Execute $wrapper -h to see the help text for $wrapper."
+  endif
   exit
 endif
 
