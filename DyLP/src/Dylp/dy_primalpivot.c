@@ -348,13 +348,15 @@ static void dy_degenin (void)
   double base,perturb,xk,ubk,lbk,toobig ;
   flags xkstatus ;
 
+# ifdef PARANOIA
+  char *rtnnme = "dy_degenin" ;
+# endif
 
 # if defined(PARANOIA) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
   int degencnt ;
 
   degencnt = 0 ;
 
-  char *rtnnme = "dy_degenin" ;
 # endif
 
 /*
