@@ -349,10 +349,12 @@ static void dy_degenin (void)
   flags xkstatus ;
 
 
-# if defined(PARANOID) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
+# if defined(PARANOIA) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
   int degencnt ;
 
   degencnt = 0 ;
+
+  char *rtnnme = "dy_degenin" ;
 # endif
 
 /*
@@ -423,7 +425,7 @@ static void dy_degenin (void)
       { dy_brkout[xkpos] = 0 ;
 	setflg(dy_status[xkndx],vstatNOPER) ;
 	break ; } }
-#   if defined(PARANOID) || defined(DYLP_STATISTICS)
+#   if defined(PARANOIA) || defined(DYLP_STATISTICS)
     degencnt++ ;
 #   endif
 #   ifndef DYLP_NDEBUG
@@ -444,7 +446,7 @@ static void dy_degenin (void)
 #   endif
   }
 
-# ifdef PARANOID
+# ifdef PARANOIA
   if (degencnt <= 0)
   { errmsg(327,rtnnme,dy_sys->nme) ;
     return ; }

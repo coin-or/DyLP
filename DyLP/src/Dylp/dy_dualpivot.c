@@ -592,7 +592,7 @@ static void dualdegenin (void)
   const char *rtnnme = "dualdegenin" ;
 
 
-# if defined(PARANOID) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
+# if defined(PARANOIA) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
   int degencnt = 0 ;
 # endif
 
@@ -613,8 +613,8 @@ static void dualdegenin (void)
 	        "\n    (%s)%d: antidegeneracy increasing to level %d",
 	        dy_prtlpphase(dy_lp->phase,TRUE),
 		dy_lp->tot.iters,dy_lp->degen) ;
-    dyio_outfmt(dy_logchn,dy_gtxecho,", base perturbation %g%s",
-	        base,(dy_opts->print.degen >= 4)?":":".") ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho,", base perturbation %g",base) ;
+    if (dy_opts->print.degen >= 5) dyio_outchr(dy_logchn,dy_gtxecho,':') ; }
 # endif
 # if defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
   if (dy_lp->degen < DYSTATS_MAXDEGEN)
@@ -630,11 +630,12 @@ static void dualdegenin (void)
   Create the perturbed subproblem. We're only interested in variables that
   are participating in the current subproblem, hence the check of ddegenset.
   Further, we're only interested in basic duals that we can drive to bound
-  (0) which amounts to nonbasic primals, except for NBFX. (Put another way,
-  driving the dual to 0 amounts to loosening the primal constraint. For
-  architecturals, the relevant constraint is the upper/lower bound. For
-  logicals, it's the associated architectural constraint. Equalities can't be
-  loosened.) And, of course, we're only interested if the value is 0.
+  (0) which amounts to nonbasic primals, except for NBFX and NBFR. (Put
+  another way, driving the dual to 0 amounts to loosening the primal
+  constraint. For architecturals, the relevant constraint is the upper/lower
+  bound. For logicals, it's the associated architectural constraint.
+  Equalities can't be loosened.) And, of course, we're only interested if the
+  value is 0.
 
   You might think that a toleranced test would work here, and to some extent
   it does, but ... inevitably, we'll suck up a few dual variables that really
@@ -648,7 +649,7 @@ static void dualdegenin (void)
   for (j = 1 ; j <= dy_sys->varcnt ; j++)
   { if (dy_ddegenset[j] != oldlvl) continue ;
     statj = dy_status[j] ;
-    if (flgon(statj,vstatBASIC|vstatNBFX)) continue ;
+    if (flgon(statj,vstatBASIC|vstatNBFX|vstatNBFR)) continue ;
     if (dy_cbar[j] != 0.0) continue ;
 /*
   Make the perturbation. We need to perturb in the correct direction (positive
@@ -676,7 +677,7 @@ static void dualdegenin (void)
       { errmsg(1,rtnnme,__LINE__) ;
 	return ; } }
     dy_cbar[j] = perturb ;
-#   if defined(PARANOID) || defined(DYLP_STATISTICS)
+#   if defined(PARANOIA) || defined(DYLP_STATISTICS)
     degencnt++ ;
 #   endif
 #   ifndef DYLP_NDEBUG
@@ -687,7 +688,7 @@ static void dualdegenin (void)
 #   endif
   }
 
-# ifdef PARANOID
+# ifdef PARANOIA
   if (degencnt <= 0)
   { errmsg(327,rtnnme,dy_sys->nme) ;
     return ; }
@@ -695,7 +696,7 @@ static void dualdegenin (void)
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.degen >= 1)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"%s%d variables.",
-		(dy_opts->print.degen <= 4)?", ":"\n\ttotal ",degencnt) ; }
+		(dy_opts->print.degen < 5)?", ":"\n\ttotal ",degencnt) ; }
 # endif
 # ifdef DYLP_STATISTICS
   if (dy_stats != NULL && dy_lp->degen < DYSTATS_MAXDEGEN)
@@ -1392,10 +1393,16 @@ static dyret_enum dualin (int xindx, int outdir,
   direction of entry and continue.
 */
     if (reject < 0) continue ;
-    if (flgon(xkstatus,vstatNBUB))
-      dirk = -1 ;
+    if (outdir == -1)
+    { if (abarik > 0)
+      { dirk = 1 ; }
+      else
+      { dirk = -1 ; } }
     else
-      dirk = 1 ;
+    { if (abarik > 0)
+      { dirk = -1 ; }
+      else
+      { dirk = 1 ; } }
 /*
   Calculate the limit on the allowable delta for the entering dual imposed
   by this leaving dual.
@@ -1488,10 +1495,7 @@ static dyret_enum dualin (int xindx, int outdir,
     if (newxj == TRUE)
     { deltamax = deltak ;
       *xjndx = xkndx ;
-      if (flgon(dy_status[*xjndx],vstatNBUB))
-	*indir = -1 ;
-      else
-	*indir = 1 ;
+      *indir = dirk ;
       abarij = abarik ;
       ratioij = ratioik ;
       bdotaj = bdotak ;
@@ -1993,8 +1997,8 @@ static dyret_enum dualupdate (int xjndx, int indir,
 
 # ifdef PARANOIA
 /*
-  The incoming variable should have status NBLB or NBUB. The dual simplex
-  isn't prepared to deal with SB or NBFR (not dual feasible) or NBFX
+  The incoming variable should have status NBLB, NBUB, or NBFR. The dual
+  simplex isn't prepared to deal with SB (not dual feasible) or NBFX
   (shouldn't be entering).
 
   The outgoing variable should have status BUUB or BLLB (i.e., it's primal
@@ -2200,32 +2204,33 @@ static dyret_enum dualupdate (int xjndx, int indir,
   { if (flgon(statj,vstatNBLB))
     { xj = lbj+deltaj ; }
     else
+    if (flgon(statj,vstatNBUB))
     { xj = ubj+deltaj ; }
+    else
+    { xj = deltaj ; }
     setcleanzero(xj,dy_tols->zero) ;
 /*
   Choose a new status for x<j>. The tests for abovebnd and belowbnd will use
-  the feasibility tolerance.  If newxk is within the snap tolerance of the
-  bound, force it to be exactly at the bound. If the variable should be
-  fixed, force it to bound even if it's only within feasibility distance.
+  the feasibility tolerance. Check for bogus numbers and excessive swing.
 */
-    if (statj == vstatBFR)
+    if (flgon(statj,vstatNBFR))
     { statj = vstatBFR ; }
     else
-    if (belowbnd(xj,ubj))
-    { if (abovebnd(xj,lbj))
-      { statj = vstatB ; }
+    { if (belowbnd(xj,ubj))
+      { if (abovebnd(xj,lbj))
+	{ statj = vstatB ; }
+	else
+	if (belowbnd(xj,lbj))
+	{ statj = vstatBLLB ; }
+	else
+	{ statj = vstatBLB ; } }
       else
-      if (belowbnd(xj,lbj))
-      { statj = vstatBLLB ; }
-      else
-      { statj = vstatBLB ; } }
-    else
-    { if (abovebnd(xj,ubj))
-      { statj = vstatBUUB ; }
-      else
-      { statj = vstatBUB ; } }
-    if (flgon(statj,vstatBLB|vstatBUB) && lbj == ubj)
-    { statj = vstatBFX ; }
+      { if (abovebnd(xj,ubj))
+	{ statj = vstatBUUB ; }
+	else
+	{ statj = vstatBUB ; } }
+      if (flgon(statj,vstatBLB|vstatBUB) && lbj == ubj)
+      { statj = vstatBFX ; } }
     if (dy_lp->basis.etas > 1 && dy_tols->bogus > 1.0 && xj != 0.0 &&
 	flgoff(statj,vstatBLB|vstatBFX|vstatBUB))
     { if (fabs(xj) < dy_tols->zero*dy_tols->bogus)
@@ -2561,7 +2566,8 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
   it.
 */
 	case dyrDEGEN:
-	{ if (flgon(dy_status[xindx],vstatBFX))
+	{ if (flgon(dy_status[xindx],vstatBFX) ||
+	      flgon(dy_status[xjndx],vstatNBFR))
 	  { reselect = FALSE ;
 #	    ifndef DYLP_NDEBUG
 	    if (dy_opts->print.degen >= 3)
@@ -2571,7 +2577,7 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
 	      dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t%s %s (%d) leaving,",
 			  dy_prtvstat(dy_status[xindx]),
 			  consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx) ;
-	      dyio_outfmt(dy_logchn,dy_gtxecho," %s %s (%d) entering.",
+	      dyio_outfmt(dy_logchn,dy_gtxecho," %s %s (%d) entering %d.",
 			  dy_prtvstat(dy_status[xjndx]),
 			  consys_nme(dy_sys,'v',xjndx,FALSE,NULL),xjndx) ; }
 #	    endif
@@ -2718,7 +2724,9 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
 	        xjndx,consys_nme(dy_sys,'v',xjndx,FALSE,NULL),
 	        dy_prtvstat(dy_status[xjndx]),
 		(indir < 0)?"decreasing":"increasing",
-	        (flgon(dy_status[xjndx],vstatNBUB))?"ub":"lb",dy_x[xjndx]) ; }
+	        ((flgon(dy_status[xjndx],vstatNBUB))?"ub":
+		  ((flgon(dy_status[xjndx],vstatNBLB))?"lb":"x")),
+		dy_x[xjndx]) ; }
 # endif
 
 /*

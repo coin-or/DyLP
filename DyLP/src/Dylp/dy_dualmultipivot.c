@@ -362,7 +362,7 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
 	   dyrFATAL on error (only when we're paranoid)
 */
 
-{ int n,k,reject,candcnt ;
+{ int n,k,reject,candcnt,dirk ;
   double abarik,cbark,deltak,ratioik ;
   double *vub,*vlb ;
   flags statk ;
@@ -527,22 +527,28 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
     else
     { incands[candcnt].rev = FALSE ;
       incands[candcnt].ddelta = deltak ; }
-    if (flgon(statk,vstatNBUB))
-    { if (rev == FALSE)
-      { incands[candcnt].pivdir = -1 ; }
+    if (outdir == -1)
+    { if (abarik > 0)
+      { dirk = 1 ; }
       else
-      { incands[candcnt].pivdir = 1 ; }
-      if (vlb[k] > -dy_tols->inf)
+      { dirk = -1 ; } }
+    else
+    { if (abarik > 0)
+      { dirk = -1 ; }
+      else
+      { dirk = 1 ; } }
+    if (rev == FALSE)
+    { incands[candcnt].pivdir = dirk ; }
+    else
+    { incands[candcnt].pivdir = -dirk ; }
+    if (flgon(statk,vstatNBUB))
+    { if (vlb[k] > -dy_tols->inf)
       { incands[candcnt].flippable = TRUE ;
 	incands[candcnt].flip.delta = vlb[k]-vub[k] ; }
       else
       { incands[candcnt].flippable = FALSE ; } }
     else
-    { if (rev == FALSE)
-      { incands[candcnt].pivdir = 1 ; }
-      else
-      { incands[candcnt].pivdir = -1 ; }
-      if (vub[k] < dy_tols->inf)
+    { if (vub[k] < dy_tols->inf)
       { incands[candcnt].flippable = TRUE ;
 	incands[candcnt].flip.delta = vub[k]-vlb[k] ; }
       else
@@ -1592,7 +1598,7 @@ dyret_enum dualmultiin (int i, int outdir,
     lastpivinf = quiet_nan(0) ;
     starttotinf = quiet_nan(0) ;
     startmaxinf = quiet_nan(0) ; }
-# if (!defined(DYLP_NDEBUG) || defined(PARANOID))
+# if (!defined(DYLP_NDEBUG) || defined(PARANOIA))
   if (dpstrat == 1)
   { if (flgon(dy_status[i],vstatBLLB))
     { starttotinf = vlb[i]-dy_x[i] ; }
