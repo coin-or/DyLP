@@ -714,8 +714,8 @@ static bool cold_scanvars (consys_struct *orig_sys)
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.setup >= 2 || dy_opts->print.dual >= 2)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
-	    "\n    %d (%g%%) flippable variables; disabling dual multipivot.",
-	    flippable,uj) ; }
+	    "\n    %d (%.1f%%) flippable variables; disabling dual multipivot.",
+	    flippable,uj*100) ; }
 #   endif
   }
 # ifdef PARANOIA
@@ -1491,6 +1491,11 @@ static int ib_archvselect (int cnt, ibrank_struct *vars)
 
   const char *rtnnme = "ib_archvselect" ;
 
+# ifndef DYLP_NDEBUG
+  int bndcnt ;
+  double maxratio ;
+# endif
+
   retval = 0 ;
   ratio = 0 ;
 /*
@@ -1514,6 +1519,12 @@ static int ib_archvselect (int cnt, ibrank_struct *vars)
 	     consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
       retval = -1 ;
       break ; }
+#   ifndef DYLP_NDEBUG
+    bndcnt = 0 ;
+    if (dy_sys->vlb[j] > -dy_tols->inf) bndcnt++ ;
+    if (dy_sys->vub[j] < dy_tols->inf) bndcnt++ ;
+    maxratio = -1.0 ;
+#   endif
 /*
   Scan the column: We need a coefficient in an uncovered row (dy_basis[i] ==
   0) which satisfies the stability criteria (ratio > .9). The coefficients we
@@ -1533,9 +1544,15 @@ static int ib_archvselect (int cnt, ibrank_struct *vars)
       i = aij->ndx ;
       ratio = fabs(aij->val) ;
       if (!scaled) ratio /= var->ajmax ;
-      if (dy_basis[i] == 0 && ratio > .9)
-      { select = TRUE ;
-	break ; }
+      if (dy_basis[i] == 0)
+      { if (ratio > .9)
+	{ select = TRUE ;
+	  break ; }
+#     ifndef DYLP_NDEBUG
+	else
+	{ if (maxratio < ratio) maxratio = ratio ; }
+#     endif
+      }
       else
       { if (ratio > .1*estpiv[i]) break ; } }
 /*
@@ -1549,9 +1566,10 @@ static int ib_archvselect (int cnt, ibrank_struct *vars)
       covered++ ;
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.crash >= 4)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t  adding %s (%d)",
-		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho," to cover %s (%d),",
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t  adding %s (%d) (%d bounds)",
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j,bndcnt) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," to cover %s %s (%d),",
+		    consys_prtcontyp(dy_sys->ctyp[i]),
 		    consys_nme(dy_sys,'c',i,FALSE,NULL),i) ;
 	dyio_outfmt(dy_logchn,dy_gtxecho," |a<%d,%d>/max(a<*,%d>)| = %g.",
 		    i,j,j,ratio) ; }
@@ -1560,17 +1578,20 @@ static int ib_archvselect (int cnt, ibrank_struct *vars)
 #   ifndef DYLP_NDEBUG
     else
     if (dy_opts->print.crash >= 4)
-    { if (pkndx < 0)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n\t  rejected %s (%d); lower diag violation at .1;",
-		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t  rejected %s (%d) (%d bounds)",
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,bndcnt) ;
+      if (pkndx >= 0)
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"; lower diag violation at .1;") ;
 	dyio_outfmt(dy_logchn,dy_gtxecho,
 		    " a<%d,%d> = %g, estpiv<%d> = %g, ratio %g.",
 		    i,j,ratio,i,estpiv[i],ratio/estpiv[i]) ; }
       else
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n\t  rejected %s (%d) at .9; no suitable pivots.",
-		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; } }
+      { if (maxratio > 0)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," at %g < .9; no suitable pivots.",
+		      maxratio) ; }
+	else
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,
+		      " no non-zeroes in uncovered rows.") ; } } }
 #   endif
   }
   if (aj != NULL) pkvec_free(aj) ;
