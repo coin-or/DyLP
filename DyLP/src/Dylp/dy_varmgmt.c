@@ -646,10 +646,12 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
   Ok, things look good --- we can locate the variable in the active and
   original systems, and we have the column in hand. To deactivate, we
   clean the status and set it in dy_origvars to mark the variable inactive.
+  If the outgoing variable is NBFX, mark it with the NOLOAD qualifier.
   If x<j> is nonzero, traverse the column and correct the rhs and rhslow
   values, and adjust the objective correction.
 */
   clrflg(statj,vstatQUALS) ;
+  if (statj == vstatNBFX) setflg(statj,vstatNOLOAD) ;
   MARK_INACTIVE_VAR(ovndx,-((int) statj)) ;
   if (valj != 0)
   { for (pkndx = 0, aij = aj->coeffs ; pkndx < aj->cnt ; pkndx++, aij++)
@@ -1126,7 +1128,8 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
 #   ifndef DYLP_NDEBUG
     if (activate == FALSE)
     { if (dy_opts->print.varmgmt >= 3)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    skipping %s %s (%d), status %s",
+      { statj = (flags) -dy_origvars[j] ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"\n    skipping %s %s (%d), status %s",
 		    consys_prtvartyp(orig_sys->vtyp[j]),
 		    consys_nme(orig_sys,'v',j,FALSE,NULL),j,
 		    dy_prtvstat(statj)) ;

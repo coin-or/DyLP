@@ -1226,7 +1226,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 #	  endif
 	  phase = addvar_nextphase(0) ;
 	  break ; }
-	if (orig_sys->archvcnt - dy_sys->archvcnt > 0)
+	else
 	{ if (dy_lp->simplex.next == dyDUAL && dy_lp->lpret == lpINFEAS)
 	  { if (dy_opts->dualadd > 0)
 	    {
@@ -1241,8 +1241,8 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 			    dy_lp->z) ; }
 #	      endif
 	      cnt = dy_dualaddvars(orig_sys) ; }
-	      else
-	      {  cnt = 0 ; }
+	    else
+	    {  cnt = 0 ; }
 	    if (cnt > 0)
 	    { phase = dyDUAL ; }
 	    else
@@ -1266,8 +1266,6 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 #	    endif
 	    cnt = dy_activateVars(orig_sys,NULL) ;
 	    phase = addvar_nextphase(cnt) ; } }
-	else
-	{ phase = addvar_nextphase(0) ; }
 	break ; }
 /*
   To arrive here, we've solved to optimality with primal simplex, added

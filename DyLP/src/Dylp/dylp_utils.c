@@ -1683,7 +1683,7 @@ bool dy_chkdysys (consys_struct *orig_sys)
   Returns: TRUE if the systems seem to correspond, FALSE otherwise.
 */
 
-{ int ovndx,ocndx,avndx,acndx,opkndx,apkndx,cnt ;
+{ int ovndx,ocndx,avndx,acndx,opkndx,apkndx,cnt,noloadcnt,inactcnt ;
   double oaij,aaij,rhscorr,*obj,scaledtol ;
   pkvec_struct *opkcon,*apkcon,*apkvar ;
   flags vstatus ;
@@ -1692,20 +1692,22 @@ bool dy_chkdysys (consys_struct *orig_sys)
   const char *rtnnme = "dy_chkdysys" ;
 
 /*
-  The first thing we'll do is run through dy_origvars and dy_origcons,
-  count up the number of active entries, and check that this agrees with
-  the size of dy_sys. At the same time, cross-check with dy_actvars and
-  dy_actcons. While we're walking the columns, check that dy_sys and orig_sys
-  agree on upper/lower bounds and objective function coefficients. We have
-  to be a bit careful. For bounds, the initial check for equality handles the
-  case where the bound is +/-inf. For the objective, clearly the phase I
-  objective isn't going to match, so make sure we're looking at the phase II
-  objective.
+  The first thing we'll do is run through dy_origvars, count up the number of
+  active, inactive, and unloadable entries, and check that this agrees with
+  the size of dy_sys and dylp's running accounting. At the same time,
+  cross-check with dy_actvars. While we're walking the columns, check for
+  reasonable status and check that dy_sys and orig_sys agree on upper/lower
+  bounds and objective function coefficients. We have to be a bit careful.
+  For bounds, the initial check for equality handles the case where the bound
+  is +/-inf.  For the objective, clearly the phase I objective isn't going to
+  match, so make sure we're looking at the phase II objective.
 
-  As far as status of inactive variables, the only qualifier should be NOLOAD.
-  Strip it out and check for valid nonbasic status.
+  As far as status of inactive variables, the only qualifier should be
+  NOLOAD.  Strip it out and check for valid nonbasic status.
 */
   cnt = 0 ;
+  noloadcnt = 0 ;
+  inactcnt = 0 ;
   if (dy_lp->p1obj.installed == TRUE)
     obj = dy_lp->p1obj.p2obj ;
   else
@@ -1713,7 +1715,11 @@ bool dy_chkdysys (consys_struct *orig_sys)
   for (ovndx = 1 ; ovndx <= orig_sys->varcnt ; ovndx++)
   { if (INACTIVE_VAR(ovndx))
     { vstatus = (flags) -dy_origvars[ovndx] ;
-      clrflg(vstatus,vstatNOLOAD) ;
+      if (flgon(vstatus,vstatNOLOAD))
+      { noloadcnt++ ;
+	clrflg(vstatus,vstatNOLOAD) ; }
+      else
+      { inactcnt++ ; }
       if (!(vstatus == vstatNBFR || vstatus == vstatNBFX ||
 	    vstatus == vstatNBUB || vstatus == vstatNBLB))
       { errmsg(433,rtnnme,
@@ -1757,10 +1763,35 @@ bool dy_chkdysys (consys_struct *orig_sys)
   if (cnt != dy_sys->archvcnt)
   { errmsg(361,rtnnme,dy_sys->nme,"variable",dy_sys->archvcnt,cnt) ;
     return (FALSE) ; }
-
+  if (noloadcnt != dy_lp->sys.vars.unloadable)
+  { errmsg(446,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   dy_lp->sys.vars.unloadable,"variables","unloadable",noloadcnt) ;
+    return (FALSE) ; }
+  if (inactcnt != dy_lp->sys.vars.loadable)
+  { errmsg(446,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   dy_lp->sys.vars.loadable,"variables","loadable",inactcnt) ;
+    return (FALSE) ; }
+  cnt = (orig_sys->varcnt-noloadcnt)-(cnt+inactcnt) ;
+  if (cnt != 0)
+  { errmsg(444,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "variable",orig_sys->varcnt,noloadcnt,inactcnt,dy_sys->archvcnt) ;
+    return (FALSE) ; }
+/*
+  Run a similar set of checks for constraints.
+*/
   cnt = 0 ;
+  noloadcnt = 0 ;
+  inactcnt = 0 ;
   for (ocndx = 1 ; ocndx <= orig_sys->concnt ; ocndx++)
-  { if (ACTIVE_CON(ocndx))
+  { if (INACTIVE_CON(ocndx))
+    { if (LOADABLE_CON(ocndx))
+      { inactcnt++ ; }
+      else
+      { noloadcnt++ ; } }
+    else
     { cnt++ ;
       acndx = dy_origcons[ocndx] ;
       if (ocndx != dy_actcons[acndx])
@@ -1769,6 +1800,22 @@ bool dy_chkdysys (consys_struct *orig_sys)
 	return (FALSE) ; } } }
   if (cnt != dy_sys->concnt)
   { errmsg(361,rtnnme,dy_sys->nme,"constraint",dy_sys->concnt,cnt) ;
+    return (FALSE) ; }
+  if (noloadcnt != dy_lp->sys.cons.unloadable)
+  { errmsg(446,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   dy_lp->sys.cons.unloadable,"constraints","unloadable",noloadcnt) ;
+    return (FALSE) ; }
+  if (inactcnt != dy_lp->sys.cons.loadable)
+  { errmsg(446,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   dy_lp->sys.cons.loadable,"constraints","loadable",inactcnt) ;
+    return (FALSE) ; }
+  cnt = (orig_sys->concnt-noloadcnt)-(cnt+inactcnt) ;
+  if (cnt != 0)
+  { errmsg(444,rtnnme,
+	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	   "constraint",orig_sys->concnt,noloadcnt,inactcnt,dy_sys->concnt) ;
     return (FALSE) ; }
 /*
   Now check each active constraint to make sure that it contains exactly the

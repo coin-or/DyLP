@@ -341,11 +341,12 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
 	dy_actvars[act_j] = j ;
 	dy_lp->sys.vars.loadable-- ; }
 /*
-  If activation is disallowed, note the contribution to the right-hand-side,
-  record the index in inactndxs, and move on to the next variable.
+  If activation is disallowed, note the contribution to the right-hand-side.
+  If the variable is loadable, record the index in inactndxs. Then move on to
+  the next variable.
 */
       else
-      { if (inactndxs != NULL) inactndxs[++inact_ndx] = j ;
+      { if (inactndxs != NULL && LOADABLE_VAR(j)) inactndxs[++inact_ndx] = j ;
 	switch (getflg(statj,vstatSTATUS))
 	{ case vstatNBLB:
 	  { rhscorr = aij->val*orig_sys->vlb[j] ;

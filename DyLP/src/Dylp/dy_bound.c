@@ -1202,7 +1202,7 @@ static int type2activate (consys_struct *orig_sys,
 static int type3activate (consys_struct *orig_sys, double *betai,
 			  int xindx, int diri,
 			  int oxjndx, int dirj,
-			  double cbarj, double abarij)
+			  double cbarj, double abarij, int *p_actcnt)
 /*
   This routine is responsible for handling type 3 variables. It expects to
   be passed a type 3 variable x<j> which can be activated with a
@@ -1220,10 +1220,6 @@ static int type3activate (consys_struct *orig_sys, double *betai,
   dy_duenna to check things over and do some bookkeeping. If anything goes
   mildly wrong, we bail out back to the primal simplex.
 
-  In the case where a sequence of type 3 activations hasn't helped, the return
-  value is a lie --- it's forced to 0. There's probably a better fix, but
-  this'll do for now. I'm not entirely convinced this routine is correct.
-
   Parameters:
     orig_sys:	the original constraint system
     betai:	row i of the basis inverse
@@ -1233,14 +1229,15 @@ static int type3activate (consys_struct *orig_sys, double *betai,
     dirj:	direction of motion of x<j>
     cbarj:	reduced cost of x<j>
     abarij:	pivot for x<j>
+    p_actcnt:	(o) the number of type 3 variables activated
   
-  Returns: > 0: one or more bound-to-bound pivots has succeeded in changing
-	        the variable selected by dy_dualout; a normal dual pivot is
-		possible
-	     0: if we run out of type 3 variables and still get the same
-		leaving variable, or if we encounter recoverable error on the
-		pivot
-	    -1: if things go badly wrong
+  Returns:  1: if one or more bound-to-bound pivots has succeeded in changing
+	       the variable selected by dy_dualout; a normal dual pivot is
+	       possible
+	    0: if we run out of type 3 variables and still get the same
+	       leaving variable, or if we encounter some other recoverable
+	       condition
+	   -1: when things go badly wrong
 */
 
 { int candxi,oxkndx,xjndx,xqndx,pkndx ;
@@ -1258,6 +1255,7 @@ static int type3activate (consys_struct *orig_sys, double *betai,
 # endif
 
   retval = -1 ;
+  *p_actcnt = -1 ;
   actcnt = 0 ;
   ak = NULL ;
 
@@ -1330,7 +1328,8 @@ static int type3activate (consys_struct *orig_sys, double *betai,
       { retval = 0 ;
 	break ; }
       default:
-      { retval = -1 ; } }
+      { retval = -1 ;
+	break ; } }
 /*
   If the pivot went through without problem, keep going. The next thing to do
   is call dy_dualout to see what we select for the leaving variable.
@@ -1342,17 +1341,17 @@ static int type3activate (consys_struct *orig_sys, double *betai,
   It's obvious we want to return to dual simplex (retval = 1) when we've
   successfully pivoted and will select a new leaving variable. The reason
   for returning when we get dyrOPTIMAL or dyrPUNT from dy_dualout is that it's
-  easier to allow dy_dual to take clear of cleanly winding up the dual simplex
+  easier to allow dy_dual to take care of cleanly winding up the dual simplex
   run.
 */
     if (retval != 1) break ;
 
     outresult = dy_dualout(&candxi) ;
-    if (outresult != dyrOK)
-    { retval = 1 ;
+    if (!(outresult == dyrOK || outresult == dyrOPTIMAL))
+    { retval = 0 ;
       break ; }
     if (xindx != candxi)
-    { retval = actcnt ;
+    { retval = 1 ;
       break ; }
 /*
   Sigh. We need another type 3 candidate. Open a loop to scan the inactive
@@ -1371,9 +1370,9 @@ static int type3activate (consys_struct *orig_sys, double *betai,
       {
 #       ifndef DYLP_NDEBUG
 	if (dy_opts->print.varmgmt >= 3)
-	{ dyio_outfmt(dy_logchn,dy_gtxecho,
-		      "\n      skipping %s %s (%d).",dy_prtvstat(xkstatus),
-		      consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n      skipping %s %s (%d).",
+		((dy_origvars[oxkndx] > 0)?"loaded":dy_prtvstat(xkstatus)),
+		consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
 #       endif
 	continue ; }
 /*
@@ -1396,13 +1395,13 @@ static int type3activate (consys_struct *orig_sys, double *betai,
       setcleanzero(abarik,dy_tols->zero) ;
       if (abarik == 0)
       {
-  #    ifndef DYLP_NDEBUG
+#       ifndef DYLP_NDEBUG
 	if (dy_opts->print.varmgmt >= 3)
 	{ dyio_outfmt(dy_logchn,dy_gtxecho,
 		      "\n      skipping %s %s (%d), abarik = 0.",
 		      dy_prtvstat(xkstatus),
 		      consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
-  #     endif
+#       endif
 	continue ; }
       setcleanzero(cbark,dy_tols->zero) ;
       deltak = cbark/abarik ;
@@ -1416,13 +1415,26 @@ static int type3activate (consys_struct *orig_sys, double *betai,
 	        &oxjndx,&distj,&cbarj,&dirj,&abarij) ;
       if (distj == 0) break ; } } }
 /*
-  We've dropped out of the main loop. There are lots of reasons, but the only
-  one we need to deal with here is oxjndx == 0, which means that we didn't
-  find another type 3 variable to pivot in. In that case, we'll revert to the
-  primal just to make sure we havn't missed anything.
+  We've dropped out of the main loop. There are lots of reasons, but we don't
+  need to deal with any of them here.
 */
-  if (ak != NULL) pkvec_free(ak) ;
   if (oxjndx == 0) retval = 0 ;
+  *p_actcnt = actcnt ;
+  if (ak != NULL) pkvec_free(ak) ;
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.varmgmt >= 1)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    activated %d variables",actcnt) ;
+    switch (retval)
+    { case 1:
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", success.") ;
+	break ; }
+      case 0:
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", exhaustion.") ;
+	break ; }
+      default:
+      { dyio_outfmt(dy_logchn,dy_gtxecho,", error.") ;
+	break ; } } }
+# endif
 
   return (retval) ; }
 
@@ -1588,8 +1600,8 @@ int dy_dualaddvars (consys_struct *orig_sys)
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.varmgmt >= 3)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n      skipping %s %s (%d).",dy_prtvstat(xkstatus),
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n      skipping %s %s (%d).",
+		    ((dy_origvars[oxkndx] > 0)?"loaded":dy_prtvstat(xkstatus)),
 		    consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
 #     endif
       continue ; }
@@ -1702,8 +1714,10 @@ int dy_dualaddvars (consys_struct *orig_sys)
 */
   else
   if (ox3ndx > 0 && acttype >= 3)
-  { retval = type3activate(orig_sys,
-			   betai,xindx,diri,ox3ndx,dir3,cbar3,abari3) ; }
+  { retval = type3activate(orig_sys,betai,
+			   xindx,diri,ox3ndx,dir3,cbar3,abari3,&newcnt) ;
+    if (retval >= 0)
+    { retval = newcnt ; } }
 /*
   Nothing! Guess we're done, eh?
 */

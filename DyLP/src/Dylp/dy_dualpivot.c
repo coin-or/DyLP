@@ -2267,7 +2267,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
 
 # ifdef PARANOIA
   { deltak = dy_calcobj() ;
-    if (fabs(deltak-dy_lp->z) > fabs(.001*(1+deltak)))
+    if (fabs(deltak-dy_lp->z) > fabs(.001*(1+fabs(deltak))))
     { warn(405,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	   dy_lp->tot.iters+1,dy_lp->z,deltak,fabs(dy_lp->z-deltak),
 	   fabs(.001*deltak)) ; } }

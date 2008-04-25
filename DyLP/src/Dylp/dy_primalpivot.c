@@ -1949,7 +1949,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 # ifdef PARANOIA
   else
   { val = dy_calcobj() ;
-    if (fabs(val-dy_lp->z) > fabs(.001*(1+val)))
+    if (fabs(val-dy_lp->z) > fabs(.001*(1+fabs(val))))
     { warn(405,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	   dy_lp->tot.iters+1,dy_lp->z,val,fabs(dy_lp->z-val),
 	   fabs(.001*val)) ; } }
