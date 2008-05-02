@@ -216,12 +216,13 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
 
   orig_sys = orig_lp->consys ;
 
+  xkstatus = getflg(orig_lp->status[oxkndx],vstatSTATUS) ;
+
 # ifdef PARANOIA
 /*
   Any inactive variable should be nonbasic, and the paranoid check is looking
   to make sure of this.
 */
-  xkstatus = getflg(orig_lp->status[oxkndx],vstatSTATUS) ;
   if (!VALID_STATUS(xkstatus))
   { errmsg(300,rtnnme,(int) xkstatus,
 	   consys_nme(orig_sys,'v',oxkndx,FALSE,NULL),oxkndx) ;
