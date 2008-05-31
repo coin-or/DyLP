@@ -201,6 +201,10 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
 /*
   Does the client want indices returned? Did the client supply a vector for
   candidate indices? If not, make one.
+
+  Here's one of the modifications for the debug version: the limit is all of
+  the original constraints. The other modification is just below in the scan
+  loop: we look at all constraints, not just loadable constraints.
 */
   cand_limit = orig_sys->concnt ;
   if (p_ocndxs == NULL || *p_ocndxs == NULL)
@@ -209,17 +213,16 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   { ocndxs = *p_ocndxs ; }
 /*
   Now we can step through the constraints in the original system. For each
-  inactive constraint, we first check idotj = dot(orig_a<i>,orig_eta<j>) to
-  see if we have a bounding candidate.  For a <= constraint, we need idotj >
-  0; for an equality or range constraint, idotj != 0 is sufficient.
+  constraint, we first check idotj = dot(orig_a<i>,orig_eta<j>) to see if we
+  have a bounding candidate.  For a <= constraint, we need idotj > 0; for an
+  equality or range constraint, idotj != 0 is sufficient.
 */
   orig_ctyp = orig_sys->ctyp ;
   orig_rhs = orig_sys->rhs ;
   orig_rhslow = orig_sys->rhslow ;
   actcnt = 0 ;
   for (i = 1 ; i <= m && actcnt <= cand_limit ; i++)
-  { if (!LOADABLE_CON(i)) continue ;
-    ctypi = orig_ctyp[i] ;
+  { ctypi = orig_ctyp[i] ;
     idotj = consys_dotrow(orig_sys,i,orig_etaj) ;
     setcleanzero(idotj,dy_tols->zero) ;
     if (idotj == 0 || (ctypi == contypLE && idotj < 0))

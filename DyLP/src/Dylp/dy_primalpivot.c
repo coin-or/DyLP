@@ -1,7 +1,7 @@
 /*
   This file is a part of the Dylp LP distribution.
 
-        Copyright (C) 2005 -- 2007Lou Hafer
+        Copyright (C) 2005 -- 2007 Lou Hafer
 
         School of Computing Science
         Simon Fraser University
