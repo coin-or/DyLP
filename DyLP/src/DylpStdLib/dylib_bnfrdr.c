@@ -1088,7 +1088,7 @@ bool doterminal (bnfTref_struct *ref)
   int cnt ;
   bool success ;
   const char *rtnnme = "doterminal" ;
-  static lex_struct lex_nil = {LCNIL,NULL} ;
+  static lex_struct lex_nil = {DY_LCNIL,NULL} ;
 
 /*
   From stdio.h
@@ -1134,23 +1134,23 @@ bool doterminal (bnfTref_struct *ref)
       break ; }
     case bnfttN:
     { lex = dyio_scanlex(bnfchn) ;
-      if (lex->class != LCNUM) success = FALSE ;
+      if (lex->class != DY_LCNUM) success = FALSE ;
       break ; }
     case bnfttID:
     { lex = dyio_scanlex(bnfchn) ;
-      if (lex->class != LCID) success = FALSE ;
+      if (lex->class != DY_LCID) success = FALSE ;
       break ; }
     case bnfttD:
     { lex = dyio_scanlex(bnfchn) ;
-      if (lex->class != LCDEL) success = FALSE ;
+      if (lex->class != DY_LCDEL) success = FALSE ;
       break ; }
     case bnfttF:
-    { lex = dyio_scanstr(bnfchn,LCFS,def->parm1,'\0','\0') ;
-      if (lex->class != LCFS) success = FALSE ;
+    { lex = dyio_scanstr(bnfchn,DY_LCFS,def->parm1,'\0','\0') ;
+      if (lex->class != DY_LCFS) success = FALSE ;
       break ; }
     case bnfttQ:
-    { lex = dyio_scanstr(bnfchn,LCQS,0,def->qschr,def->qechr) ;
-      if (lex->class != LCQS && lex->class != LCNIL) success = FALSE ;
+    { lex = dyio_scanstr(bnfchn,DY_LCQS,0,def->qschr,def->qechr) ;
+      if (lex->class != DY_LCQS && lex->class != DY_LCNIL) success = FALSE ;
       break ; }
     default:
     { errmsg(42,rtnnme,def->ttype) ;
@@ -1170,7 +1170,7 @@ bool doterminal (bnfTref_struct *ref)
 
   if (success == FALSE) return (FALSE) ;
   if (def->val != NULL)
-  { if (lex->class == LCNIL) return (FALSE) ;
+  { if (lex->class == DY_LCNIL) return (FALSE) ;
     if (flgon(ref->uflgs,bnfcs) == TRUE)
     { if (flgon(ref->uflgs,bnfmin) == TRUE)
       { if (mstrcmp(lex->string,def->val) != 0) return (FALSE) ; }
@@ -1194,7 +1194,7 @@ bool doterminal (bnfTref_struct *ref)
     { if (offset_in_range(ref->offset,sizeof(char *)) == FALSE)
       { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(char *))) ;
 	return (FALSE) ; }
-      if (lex->class != LCNIL)
+      if (lex->class != DY_LCNIL)
       { *((const char **) socket) = STRALLOC(lex->string) ; } }
     else
       switch (def->ttype)
@@ -1270,13 +1270,13 @@ bool doterminal (bnfTref_struct *ref)
 	{ if (offset_in_range(ref->offset,strlen(lex->string)+1) == FALSE)
 	  { errmsg(30,rtnnme,ref->offset,max_offset(strlen(lex->string)+1)) ;
 	    return (FALSE) ; }
-	  if (lex->class != LCNIL) (void) strcpy((char *) socket,lex->string) ;
+	  if (lex->class != DY_LCNIL) (void) strcpy((char *) socket,lex->string) ;
 	  break ; } } }
 /*
   The last thing to do is see if there is an active primitive collecting text,
   and if so concatenate our string onto it.
 */
-  if (curtxt != NULL && lex->class != LCNIL)
+  if (curtxt != NULL && lex->class != DY_LCNIL)
   { lcltxt = (char *) MALLOC(strlen(curtxt)+strlen(lex->string)+1) ;
     (void) strcpy(lcltxt,curtxt) ;
     (void) strcat(lcltxt,lex->string) ;

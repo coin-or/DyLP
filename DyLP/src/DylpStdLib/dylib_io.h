@@ -54,17 +54,18 @@ typedef int ioid ;
 
   Value		Description
   -----		-----------
-  LCNIL		Null lexeme.
-  LCNUM		A number.
-  LCID		An identifier.
-  LCDEL		A delimiter.
-  LCFS		A fixed-length string.
-  LCQS		A quoted string.
-  LCEOF		Indicates end-of-file while trying to assemble a lexeme.
-  LCERR		Indicates I/O error while trying to assemble a lexeme.
+  DY_LCNIL	Null lexeme.
+  DY_LCNUM	A number.
+  DY_LCID	An identifier.
+  DY_LCDEL	A delimiter.
+  DY_LCFS	A fixed-length string.
+  DY_LCQS	A quoted string.
+  DY_LCEOF	Indicates end-of-file while trying to assemble a lexeme.
+  DY_LCERR	Indicates I/O error while trying to assemble a lexeme.
 */
 
-typedef enum {LCNIL,LCNUM,LCID,LCDEL,LCFS,LCQS,LCEOF,LCERR} lexclass ;
+typedef enum {DY_LCNIL,DY_LCNUM,DY_LCID,DY_LCDEL,DY_LCFS,DY_LCQS,
+	      DY_LCEOF,DY_LCERR} lexclass ;
 
 #ifdef	__cplusplus
 typedef struct { lexclass clazz ;

@@ -295,9 +295,9 @@ chartab_struct chartab[128] = { { CCIG,CCIG,'\0' },	 	/* NULL, ^@ */
   EOF and lexical scan error, respectively. lex_nil is the null lexeme.
 */
 
-static lex_struct lex_eof = {LCEOF,"end-of-file"},
-		  lex_err = {LCERR,"lexical scan error"},
-		  lex_nil = {LCNIL,NULL} ;
+static lex_struct lex_eof = {DY_LCEOF,"end-of-file"},
+		  lex_err = {DY_LCERR,"lexical scan error"},
+		  lex_nil = {DY_LCNIL,NULL} ;
  
 
 
@@ -1269,9 +1269,9 @@ lex_struct *dyio_scanlex (ioid id)
 
 /*
   This routine is a general lexical scanner. It recognizes three classes of 
-  lexemes: numbers (LCNUM), identifiers (LCID), and delimiters (LCDEL). As
-  with character classes, these are augmented by two classes for EOF (LCEOF)
-  and i/o error (LCERR). Lexemes are limited to 80 characters in length. Longer
+  lexemes: numbers (DY_LCNUM), identifiers (DY_LCID), and delimiters (DY_LCDEL). As
+  with character classes, these are augmented by two classes for EOF (DY_LCEOF)
+  and i/o error (DY_LCERR). Lexemes are limited to 80 characters in length. Longer
   lexemes are truncated and the user is warned, but no error is indicated in
   the returned value.
 
@@ -1295,7 +1295,7 @@ lex_struct *dyio_scanlex (ioid id)
   FILE *stream ;
   flags mode ;
   static char stringspace[MAXLEXLEN+1] ;
-  static lex_struct lex = {LCNIL,stringspace} ;
+  static lex_struct lex = {DY_LCNIL,stringspace} ;
   const char *rtnnme = "dyio_scanlex" ;
 /*
   Check to make sure that the stream id is OK.
@@ -1348,9 +1348,9 @@ lex_struct *dyio_scanlex (ioid id)
 	ungetc(chr->chrtrn,stream) ;
       if ((lexptr-1) == lex.string &&
 	  (*(lexptr-1) == '+' || *(lexptr-1) == '-'))
-	lex.class = LCDEL ;
+	lex.class = DY_LCDEL ;
       else
-	lex.class = LCNUM ;
+	lex.class = DY_LCNUM ;
       break ; }
     case CCIDB:				/* Form an identifier. */
     { for (chr = nxtchar(stream,mode) ;
@@ -1365,10 +1365,10 @@ lex_struct *dyio_scanlex (ioid id)
 	    errmsg(26,rtnnme,lex.string,MAXLEXLEN) ; } }
       if (!(chr->class1 == CCEOF || chr->class1 == CCERR))
 	ungetc(chr->chrtrn,stream) ;
-      lex.class = LCID ;
+      lex.class = DY_LCID ;
       break ; }
     case CCDEL:				/* Form single-character delimiter. */
-    { lex.class = LCDEL ;
+    { lex.class = DY_LCDEL ;
       break ; }
     default:				/* Should never execute this. */
     { errmsg(1,rtnnme,__LINE__) ;
@@ -1392,7 +1392,7 @@ lex_struct *dyio_scanstr (ioid id,
 
 /*
   This routine is a string scanner. It scans two types of strings, fixed length
-  (LCFS) and quoted (LCQS). Before starting the string scan, the input is read
+  (DY_LCFS) and quoted (DY_LCQS). Before starting the string scan, the input is read
   until a non-CCINV character is encountered (i.e, we skip over whitespace
   characters).
   
@@ -1417,22 +1417,22 @@ lex_struct *dyio_scanstr (ioid id,
   (This avoids problems with forming strings ended by \n or \f from terminal
   input, where the read may block because there are no more characters.)
  
-  NOTE: It is possible to parse a string of length 0 (and hence get a LCNIL
+  NOTE: It is possible to parse a string of length 0 (and hence get a DY_LCNIL
 	return type) when a quoted string is parsed with start character '\0'.
 	Example: a request for a string quoted with '\0','\n' (to parse off
-	entire lines) will return LCNIL if the line contains only a '\n'.
+	entire lines) will return DY_LCNIL if the line contains only a '\n'.
 
 	Further, a string quoted with '\0','\0' is satisfied by any amount of
 	whitespace, even the whitespace skipped over at the start of the
 	parse.
 
 	Finally, to avoid leaking the buffer allocated for the last non-null
-	string, use a call of dyio_scanstr(ioid,LCQS,0,'\0','\0') and free
-	lex.string iff lex.class == LCQS.
+	string, use a call of dyio_scanstr(ioid,DY_LCQS,0,'\0','\0') and free
+	lex.string iff lex.class == DY_LCQS.
 
   Parameters:
     id:		i/o ID from dyio_openfile.
-    stype:	String type, allowable values are LCFS and LCQS.
+    stype:	String type, allowable values are DY_LCFS and DY_LCQS.
     fslen:	String length (fixed-length strings only).
     qschr:	Start character (quoted strings only).
     qechr:	End character (quoted strings only).
@@ -1451,7 +1451,7 @@ lex_struct *dyio_scanstr (ioid id,
   filblk_struct *filblk ;
   FILE *stream ;
   flags mode ;
-  static lex_struct lex = {LCNIL,NULL} ;
+  static lex_struct lex = {DY_LCNIL,NULL} ;
   const char *rtnnme = "dyio_scanstr" ;
 /*
   Release the previous lex space, if necessary.
@@ -1498,7 +1498,7 @@ lex_struct *dyio_scanstr (ioid id,
   Fixed length strings. Acquire some space of the right size, then copy the
   required number of characters.
 */
-    case LCFS:
+    case DY_LCFS:
     { if (fslen <= 0)
       { errmsg(5,rtnnme,"fslen",fslen) ;
 	ungetc(chr->chrtrn,stream) ;
@@ -1515,7 +1515,7 @@ lex_struct *dyio_scanstr (ioid id,
 	  lex.string = NULL ;
 	  return (&lex_err) ; }
 	*lexptr++ = chr->chrtrn ; }
-      lex.class = LCFS ;
+      lex.class = DY_LCFS ;
       break ; }
 /*
   Quoted strings. We'll guess that MAXQSLEN characters will normally hold us,
@@ -1523,7 +1523,7 @@ lex_struct *dyio_scanstr (ioid id,
   start character conditions. Then we allocate space and proceed to scan off
   the string. We allocate MAXQSLEN+1 to allow space for a closing null.
 */
-    case LCQS:
+    case DY_LCQS:
     { switch (qschr)
       { case '\0':
 	{ if (invseen == TRUE && (qechr == '\0' || qechr == ' '))
@@ -1580,7 +1580,7 @@ lex_struct *dyio_scanstr (ioid id,
 	lex.string = NULL ;
 	return (&lex_nil) ; }
       else
-	lex.class = LCQS ;
+	lex.class = DY_LCQS ;
       break ; }
     default:
     { errmsg(5,rtnnme,"string type",stype) ;
