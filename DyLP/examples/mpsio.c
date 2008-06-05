@@ -190,8 +190,9 @@ static lex_struct *getmpsline (ioid mpschn)
   Parameters:
     mpschn:	stream for the MPS input
 
-  Returns: a pointer to a lex_struct; on normal return, the type will be LCQS;
-	   other possibilities are LCEOF (end-of-file) and LCERR (i/o error)
+  Returns: a pointer to a lex_struct; on normal return, the type will be
+	   DY_LCQS; other possibilities are DY_LCEOF (end-of-file) and
+	   DY_LCERR (i/o error)
 
   NOTE: The lex_struct returned by getmpsline is owned by dyio_scanstr. The
 	string buffer it contains is allocated by scanstr and will be freed
@@ -206,15 +207,15 @@ static lex_struct *getmpsline (ioid mpschn)
 
 /*
   Fire up a loop to read lines. A line that's all white space will come back
-  from dyio_scanstr as LCNIL. If there's something in the line, check for
+  from dyio_scanstr as DY_LCNIL. If there's something in the line, check for
   comments.  If there's still a line left after peeling off the comment,
   we've got something.
 */
   empty = TRUE ;
   while (empty == TRUE)
-  { lex = dyio_scanstr(mpschn,LCQS,0,'\0','\n') ;
-    if (lex->class == LCEOF || lex->class == LCERR) break ;
-    if (lex->class == LCNIL) continue ;
+  { lex = dyio_scanstr(mpschn,DY_LCQS,0,'\0','\n') ;
+    if (lex->class == DY_LCEOF || lex->class == DY_LCERR) break ;
+    if (lex->class == DY_LCNIL) continue ;
 /*
   If the last character is ^M (carriage return), strip it. Likely we're looking
   at a file produced on a system where <cr><lf> ends a line.
@@ -270,10 +271,10 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
   Find the "name" keyword.
 */
   lex = getmpsline(mpschn) ;
-  if (lex->class == LCERR)
+  if (lex->class == DY_LCERR)
   { errmsg(168,rtnnme,mysection) ;
     return (mpsinINV) ; }
-  if (lex->class == LCEOF)
+  if (lex->class == DY_LCEOF)
   { errmsg(169,rtnnme,mysection) ;
     return (mpsinINV) ; }
   tok = strtok(lex->string,sepchars) ;
@@ -312,10 +313,10 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
   It's an error to see anything else.
 */
   lex = getmpsline(mpschn) ;
-  if (lex->class == LCERR)
+  if (lex->class == DY_LCERR)
   { errmsg(168,rtnnme,mysection) ;
     return (mpsinINV) ; }
-  if (lex->class == LCEOF)
+  if (lex->class == DY_LCEOF)
   { errmsg(169,rtnnme,mysection) ;
     return (mpsinINV) ; }
   tok = strtok(lex->string,sepchars) ;
@@ -383,7 +384,7 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
   seen_cols = FALSE ;
   consys->objndx = -1 ;
   for (lex = getmpsline(mpschn) ;
-       lex->class == LCQS ;
+       lex->class == DY_LCQS ;
        lex = getmpsline(mpschn))
   { tok = strtok(lex->string,sepchars) ;
     if (cistrcmp(tok,"columns") == 0)
@@ -469,10 +470,10 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
 	      rtnnme,consys->archccnt) ;
 # endif
   if (seen_cols == FALSE)
-  { if (lex->class == LCERR)
+  { if (lex->class == DY_LCERR)
       errmsg(168,rtnnme,mysection) ;
     else
-    if (lex->class == LCEOF)
+    if (lex->class == DY_LCEOF)
       errmsg(169,rtnnme,mysection) ;
     else
       errmsg(1,rtnnme,__LINE__) ;
@@ -560,7 +561,7 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
   vartype = vartypCON ;
 
   for (lex = getmpsline(mpschn) ;
-       lex->class == LCQS ;
+       lex->class == DY_LCQS ;
        lex = getmpsline(mpschn))
   { 
 /*
@@ -722,10 +723,10 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
   the next state code.
 */
   if (nxtstate == mpsinINV)
-  { if (lex->class == LCERR)
+  { if (lex->class == DY_LCERR)
       errmsg(168,rtnnme,mysection) ;
     else
-    if (lex->class == LCEOF)
+    if (lex->class == DY_LCEOF)
       errmsg(169,rtnnme,mysection) ;
     else
       errmsg(1,rtnnme,__LINE__) ;
@@ -790,7 +791,7 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
   vector. An even number indicates the name is null.
 */
   lex = getmpsline(mpschn) ;
-  if (lex->class == LCQS)
+  if (lex->class == DY_LCQS)
   { rowndx = 1 ;
     for (tok = strpbrk(lex->string,sepchars) ;
 	 tok != NULL ;
@@ -813,7 +814,7 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
   three.
 */
   nxtstate = mpsinINV ;
-  for ( ; lex->class == LCQS ; lex = getmpsline(mpschn))
+  for ( ; lex->class == DY_LCQS ; lex = getmpsline(mpschn))
   { tok = strtok(lex->string,sepchars) ;
     if (cistrcmp(tok,"bounds") == 0) nxtstate = mpsinBOUNDS ;
     else
@@ -853,10 +854,10 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
   See if we're out of the loop due to an i/o error.
 */
   if (nxtstate == mpsinINV)
-  { if (lex->class == LCERR)
+  { if (lex->class == DY_LCERR)
       errmsg(168,rtnnme,mysection) ;
     else
-    if (lex->class == LCEOF)
+    if (lex->class == DY_LCEOF)
       errmsg(169,rtnnme,mysection) ;
     else
       errmsg(1,rtnnme,__LINE__) ;
@@ -937,7 +938,7 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
   vector. An even number indicates the name is null.
 */
   lex = getmpsline(mpschn) ;
-  if (lex->class == LCQS)
+  if (lex->class == DY_LCQS)
   { rowndx = 1 ;
     for (tok = strpbrk(lex->string,sepchars) ;
 	 tok != NULL ;
@@ -959,7 +960,7 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
   optional section, so we look for both.
 */
   nxtstate = mpsinINV ;
-  for ( ; lex->class == LCQS ; lex = getmpsline(mpschn))
+  for ( ; lex->class == DY_LCQS ; lex = getmpsline(mpschn))
   { tok = strtok(lex->string,sepchars) ;
     if (cistrcmp(tok,"bounds") == 0) nxtstate = mpsinBOUNDS ;
     else
@@ -1020,10 +1021,10 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
   See if we're out of the loop due to an i/o error.
 */
   if (nxtstate == mpsinINV)
-  { if (lex->class == LCERR)
+  { if (lex->class == DY_LCERR)
       errmsg(168,rtnnme,mysection) ;
     else
-    if (lex->class == LCEOF)
+    if (lex->class == DY_LCEOF)
       errmsg(169,rtnnme,mysection) ;
     else
       errmsg(1,rtnnme,__LINE__) ;
@@ -1127,7 +1128,7 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
   we'll see 10 characters worth of space.
 */
   lex = getmpsline(mpschn) ;
-  if (lex->class == LCQS)
+  if (lex->class == DY_LCQS)
   { tok = (lex->string)+3 ;
     if (strspn(tok,sepchars) == 10)
     { named_vec = FALSE ;
@@ -1143,7 +1144,7 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
   and correct it below if we're wrong.
 */
   seen_end = FALSE ;
-  for ( ; lex->class == LCQS ; lex = getmpsline(mpschn))
+  for ( ; lex->class == DY_LCQS ; lex = getmpsline(mpschn))
   { tok = strtok(lex->string,sepchars) ;
     if (cistrcmp(tok,"endata") == 0)
     { seen_end = TRUE ;
@@ -1238,10 +1239,10 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
   Check to see if we escaped the loop due to i/o error.
 */
   if (seen_end == FALSE)
-  { if (lex->class == LCERR)
+  { if (lex->class == DY_LCERR)
       errmsg(168,rtnnme,mysection) ;
     else
-    if (lex->class == LCEOF)
+    if (lex->class == DY_LCEOF)
       errmsg(169,rtnnme,mysection) ;
     else
       errmsg(1,rtnnme,__LINE__) ;
@@ -1446,8 +1447,8 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
 /*
   Clean up after dyio_scanstr.
 */
-  lex = dyio_scanstr(mpschn,LCQS,0,'\0','\0') ;
-  if (lex->class == LCQS && lex->string != NULL)
+  lex = dyio_scanstr(mpschn,DY_LCQS,0,'\0','\0') ;
+  if (lex->class == DY_LCQS && lex->string != NULL)
   { FREE(lex->string) ;
     lex->string = NULL ; }
   
