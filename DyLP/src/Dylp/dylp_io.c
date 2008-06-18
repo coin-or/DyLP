@@ -463,7 +463,7 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
   basis_struct *basis ;
   const char *rtnnme = "dy_dumpcompact" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (soln == NULL)
   { errmsg(2,rtnnme,"solution") ;
     return (FALSE) ; }

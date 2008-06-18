@@ -153,7 +153,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 
   extern void dy_setfinalstatus(void) ;		/* dy_hotstart.c */
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   double xi ;
 # endif
 
@@ -360,7 +360,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
       }
       else
       {
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (flgon(vstat,vstatBASIC))
 	{ errmsg(380,rtnnme,orig_sys->nme,
 		 consys_nme(orig_sys,'v',vndx,FALSE,NULL),vndx,
@@ -429,7 +429,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	       consys_nme(orig_sys,'c',cndx,TRUE,NULL),cndx) ;
 	return (dyrFATAL) ; }
       if (orig_sys->ctyp[cndx] == contypRNG) rngseen = TRUE ; } }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Paranoid checks and informational print statements.
 */
@@ -517,7 +517,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
   enough, but the basis pacakge is capable of patching the basis. (Indeed,
   it's hard to do it correctly here.) 
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   pkcol = pkvec_new(0) ;
   retval = dyrOK ;
 # endif
@@ -530,7 +530,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
     else
     { dyvndx = dy_origvars[vndx] ; }
 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (dycndx <= 0)
     { errmsg(369,rtnnme,orig_sys->nme,"constraint",
 	     consys_nme(orig_sys,'c',cndx,FALSE,NULL),cndx,
@@ -582,7 +582,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
     { dy_basis[bpos] = bpos ;
       dy_var2basis[bpos] = bpos ; } }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   pkvec_free(pkcol) ;
   if (retval != dyrOK) return (retval) ;
 # endif
@@ -744,7 +744,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
         case vstatNBUB:
 	{ dy_lp->inactzcorr += obj*orig_sys->vub[vndx] ;
 	  break ; }
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	case vstatNBFR:
 	{ break ; }
 	default:
@@ -773,7 +773,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	  case vstatNBFR:
 	  { dy_x[dyvndx] = 0 ;
 	    break ; }
-#	  ifdef PARANOIA
+#	  ifdef DYLP_PARANOIA
 	  default:
 	  { errmsg(1,rtnnme,__LINE__) ;
 	    return (dyrINV) ; }

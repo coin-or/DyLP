@@ -19,6 +19,8 @@ DyLP/m4/ac_dylp_fix_cppflags.m4 -text
 DyLP/m4/ac_dylp_options.m4 -text
 DyLP/src/Dylp/Makefile.am -text
 DyLP/src/Dylp/Makefile.in -text
+DyLP/src/Dylp/dy_tableau.c -text
+DyLP/src/Dylp/dy_unscaling.c -text
 DyLP/src/DylpStdLib/DylpConfig.h -text
 DyLP/src/DylpStdLib/Makefile.am -text
 DyLP/src/DylpStdLib/Makefile.in -text
@@ -38,6 +40,11 @@ DyLP/src/DylpStdLib/dylib_littab.c -text
 DyLP/src/DylpStdLib/dylib_std.h -text
 DyLP/src/DylpStdLib/dylib_strrtns.c -text
 DyLP/src/DylpStdLib/dylib_strrtns.h -text
+DyLP/test/Makefile.am -text
+DyLP/test/Makefile.in -text
+DyLP/test/dytest_problems.c -text
+DyLP/test/dytest_tableau.c -text
+DyLP/test/unitTest.c -text
 /Externals -text
 /LICENSE -text
 /Makefile.am -text

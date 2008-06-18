@@ -51,6 +51,11 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+
+# We don't want to compile the test subdirectory, unless the test target is
+# specified.  But we need to list it as subdirectory to make sure that it is
+# included in the tarball
+@ALWAYS_FALSE@am__append_1 = test
 DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/../BuildTools/Makemain.inc $(srcdir)/../config.guess \
 	$(srcdir)/../config.sub $(srcdir)/../install-sh \
@@ -59,8 +64,8 @@ DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/dylp_addlibs.txt.in $(top_srcdir)/configure \
 	$(top_srcdir)/examples/Makefile.in \
 	$(top_srcdir)/inc/config_dylp.h.in AUTHORS
-@HAVE_EXTERNALS_TRUE@am__append_1 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_2 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_2 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_3 = .Externals-stamp
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
@@ -87,7 +92,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = src/DylpStdLib src/Dylp examples doc test
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -252,7 +257,7 @@ AUTOMAKE_OPTIONS = foreign
 ########################################################################
 #                          Subdirectories                              #
 ########################################################################
-SUBDIRS = src/DylpStdLib src/Dylp examples doc
+SUBDIRS = src/DylpStdLib src/Dylp examples doc $(am__append_1)
 
 ########################################################################
 #             Additional files to be included in tarball               #
@@ -262,7 +267,7 @@ SUBDIRS = src/DylpStdLib src/Dylp examples doc
 EXTRA_DIST = examples/generic.spc examples/greenbeb.spc \
 	examples/Makefile.in examples/mpsio.c examples/odsi+dylp.cpp \
 	examples/osi_dylp.c examples/osi+dylp.cpp examples/plain \
-	examples/README $(am__append_1)
+	examples/README $(am__append_2)
 
 ########################################################################
 #                  Installation of the addlibs file                    #
@@ -278,7 +283,7 @@ addlibsdir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)/
 ACLOCAL_AMFLAGS = -I m4
 
 # Files that are generated and should be cleaned with make distclean
-DISTCLEANFILES = $(am__append_2) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_3) $(VPATH_DISTCLEANFILES)
 DocFiles = README AUTHORS LICENSE
 DocInstallDir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)
 all: all-recursive
@@ -727,11 +732,12 @@ uninstall-info: uninstall-info-recursive
 ########################################################################
 
 test: all
+	cd test ; $(MAKE) test
 	if test -r ../Osi/test/Makefile; then \
 	  cd ../Osi/test; \
 	  $(MAKE) test; \
 	else \
-	  echo "We don't have Osi to run the test"; \
+	  echo "Osi not present; skipping Osi unit test."; \
 	fi
 
 install-exec-local: install-doc

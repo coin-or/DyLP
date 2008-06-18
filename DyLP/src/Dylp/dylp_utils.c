@@ -107,7 +107,7 @@ bool dy_reducerhs (double *rhs, bool init)
   pkvec_struct *pkcol ;
   const char *rtnnme = "dy_reducerhs" ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (rhs == NULL)
   { errmsg(2,rtnnme,"rhs") ;
     return (FALSE) ; }
@@ -137,7 +137,7 @@ bool dy_reducerhs (double *rhs, bool init)
   for (vndx = 1 ; vndx <= dy_sys->varcnt ; vndx++)
     if (flgon(dy_status[vndx],vstatNONBASIC) && dy_x[vndx] != 0.0)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (fabs(dy_x[vndx]) >= dy_tols->inf)
       { errmsg(315,rtnnme,consys_nme(dy_sys,'v',vndx,TRUE,NULL),vndx,
 	       dy_prtvstat(dy_status[vndx])) ;
@@ -214,7 +214,7 @@ bool dy_calcprimals (void)
       break ; } }
 # endif
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (dy_xbasic == NULL)
   { errmsg(2,rtnnme,"xbasic") ;
     return (FALSE) ; }
@@ -279,7 +279,7 @@ bool dy_calcprimals (void)
       { vndx = dy_basis[bndx] ;
 	if (flgon(dy_status[vndx],vstatBFX))
 	{ 
-#         ifdef PARANOIA
+#         ifdef DYLP_PARANOIA
 	  if (!withintol(xvec[bndx],dy_sys->vub[vndx],dy_tols->zero))
 	  { if (!withintol(xvec[bndx],dy_sys->vub[vndx],dy_tols->pfeas*100))
 	    { errmsg(333,rtnnme,dy_sys->nme,
@@ -322,7 +322,7 @@ bool dy_calcprimals (void)
 	        dy_tols->zero,dy_tols->pfeas) ; }
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Check the nonbasic variables to see that their value agrees with their
   status.
@@ -755,7 +755,7 @@ double dy_calcobj (void)
 { int vndx ;
   double z ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_calcobj" ;
 
   if (dy_x == NULL)
@@ -801,7 +801,7 @@ double dy_calcdualobj (void)
 
   const char *rtnnme = "dy_calcdualobj" ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (dy_x == NULL)
   { errmsg(2,rtnnme,"dy_x") ;
     return (quiet_nan(0)) ; }
@@ -948,7 +948,7 @@ bool dy_calccbar (void)
 { int xjndx ;
   double cbarj ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   flags xjstatus ;
   const char *rtnnme = "dy_calccbar" ;
 # endif
@@ -958,7 +958,7 @@ bool dy_calccbar (void)
 */
   for (xjndx = 1 ; xjndx <= dy_sys->varcnt ; xjndx++)
   {
-#   ifndef PARANOIA
+#   ifndef DYLP_PARANOIA
 /* The expedient decision: basic or not? */
     if (dy_var2basis[xjndx] > 0)
     { dy_cbar[xjndx] = 0 ;
@@ -980,7 +980,7 @@ bool dy_calccbar (void)
   Calculate the reduced cost and store it in cbar<j>.
 */
     cbarj = consys_dotcol(dy_sys,xjndx,dy_y) ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (isnan(cbarj) == TRUE)
     { errmsg(320,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	     dy_lp->tot.iters,"y",xjndx,"reduced cost") ;
@@ -1135,7 +1135,7 @@ void dy_pseinit (void)
 
 
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
 
 bool dy_chkstatus (int vndx)
 
@@ -1972,7 +1972,7 @@ bool dy_chkdysys (consys_struct *orig_sys)
   return (retval) ; }
 
 
-#endif /* PARANOIA */
+#endif /* DYLP_PARANOIA */
 
 bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
 		  basis_struct *src_basis, int dst_statussze,
@@ -2012,7 +2012,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
   bool want_basis,want_status ;
 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_dupbasis" ;
 
   if (p_dst_basis == NULL && p_dst_status == NULL)
@@ -2053,7 +2053,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
 
     if (dst_basissze < src_basis->len)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       warn(404,rtnnme,"basis",dst_basissze,src_basis->len) ;
 #     endif
       dst_basissze = src_basis->len ; }
@@ -2073,7 +2073,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
     {
       if (dst_statussze < src_statuslen)
       {
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	warn(404,rtnnme,"status",dst_statussze,src_statuslen) ;
 #       endif
 	dst_statussze = src_statuslen ; }
@@ -2118,8 +2118,8 @@ static void build_soln (lpprob_struct *orig_lp)
   consys_struct *orig_sys ;
   const char *rtnnme = "build_soln" ;
 
-  /* scaling.c */
-  extern void dy_unscale_soln(double *x, double *y) ;
+  /* dy_unscaling.c */
+  extern void dy_orig_soln(double *x, double *y) ;
 
 /*
   Grab the necessary space, if the user hasn't provided it or the space
@@ -2283,7 +2283,7 @@ static void build_soln (lpprob_struct *orig_lp)
 /*
   Unscale the solution.
 */
-  dy_unscale_soln(orig_lp->x,orig_lp->y) ;
+  dy_orig_soln(orig_lp->x,orig_lp->y) ;
 /*
   Set the basis length and we're out of here.
 */
@@ -2403,7 +2403,7 @@ void dy_finishup (lpprob_struct *orig_lp, dyphase_enum phase)
   else
   { setflg(orig_lp->ctlopts,lpctlDYVALID) ;
     dy_freelclsystem(orig_lp,FALSE) ;
-    dy_retained = TRUE ;}
+    dy_retained = TRUE ; }
 
   return ; }
 
@@ -2474,7 +2474,7 @@ bool dy_expandxopt (lpprob_struct *lp, double **p_xopt)
 
   const char *rtnnme = "dy_expandxopt" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (p_xopt == NULL)
   { errmsg(2,rtnnme,"&x<opt>") ;
     return (FALSE) ; }

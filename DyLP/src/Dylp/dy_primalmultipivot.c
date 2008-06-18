@@ -291,18 +291,18 @@ static dyret_enum scanForPrimOutCands (primcand_struct *outcands,
 */
   const bool allowsoftdegen = FALSE ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "scanForPrimOutCands" ;
 # endif
 
-# if !defined(DYLP_NDEBUG) || defined(PARANOIA)
+# if !defined(DYLP_NDEBUG) || defined(DYLP_PARANOIA)
   int print ;
 
   print = dy_opts->print.pivoting ;	/* suppress print in dy_chkpiv */
   dy_opts->print.pivoting = 0 ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (outcands == NULL)
   { errmsg(2,rtnnme,"outcands array") ;
     return (dyrFATAL) ; }
@@ -369,7 +369,7 @@ static dyret_enum scanForPrimOutCands (primcand_struct *outcands,
   lastcandcnt = candcnt ;
   for (kpos = 1 ; kpos <= m ; kpos++)
   { k = dy_basis[kpos] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (dy_chkstatus(k) == FALSE)
     { outcands[0].ndx = -1 ;
       dy_opts->print.pivoting = print ;

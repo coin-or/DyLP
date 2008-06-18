@@ -216,7 +216,7 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
       return (FALSE) ; } }
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
@@ -281,7 +281,7 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
   for (ndx = 0 ; ndx < ai->cnt ; ndx++)
   { aij = &ai->coeffs[ndx] ;
     j = aij->ndx ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (j <= 0 || j > orig_sys->varcnt)
     { errmsg(102,rtnnme,orig_sys->nme,"variable",j,1,orig_sys->varcnt) ;
       retval = FALSE ;
@@ -304,7 +304,7 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
 */
     if (INACTIVE_VAR(j))
     { statj = (flags) (-dy_origvars[j]) ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (dy_lp->phase == dyINIT)
       { retval = flgon(statj,vstatNONBASIC|vstatEXOTIC) ; }
       else
@@ -424,7 +424,7 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
   if (dy_sys->archvcnt > 0)
   { act_j = dy_sys->varcnt ;
     j = dy_actvars[act_j] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (dy_origvars[j] != act_i)
     { errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; }
@@ -488,7 +488,7 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
 
   const char *rtnnme = "dy_actBLogPrimCon" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   A little paranoia. Check that origi is valid.
 */
@@ -575,7 +575,7 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
   bounds. There are two exceptions: If we're trying to bound an unbounded
   primal, or we're forcing a full system.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (flgon(dy_status[i],vstatB) ||
       (dy_opts->con.actlvl = 0 && flgon(dy_status[i],vstatBLLB|vstatBUUB)))
   { if (dy_lp->phase == dyFORCEFULL ||
@@ -629,7 +629,7 @@ bool dy_actBLogPrimConList (consys_struct *orig_sys,
   bool with_vars,retval ;
   const char *rtnnme = "dy_actBLogPrimConList" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
@@ -715,7 +715,7 @@ bool dy_actBLogPrimConList (consys_struct *orig_sys,
     if (onecon != NULL) FREE(onecon) ;
     if (seen != NULL) FREE(seen) ; }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (retval == TRUE)
   { retval = dy_chkdysys(orig_sys) ; }
 # endif
@@ -768,13 +768,13 @@ bool dy_deactNBLogPrimCon (consys_struct *orig_sys, int i)
 */
   m = dy_sys->concnt ;
   n = dy_sys->varcnt ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (i <= 0 || i > m)
   { errmsg(102,rtnnme,"constraint",i,1,m) ;
     return (FALSE) ; }
 # endif
   stati = getflg(dy_status[i],vstatSTATUS) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (flgoff(stati,vstatNBLB|vstatNBUB|vstatNBFX))
   { errmsg(437,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -931,7 +931,7 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
   m = dy_sys->concnt ;
   n = dy_sys->varcnt ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (i <= 0 || i > m)
   { errmsg(102,rtnnme,"constraint",i,1,m) ;
     return (FALSE) ; }
@@ -940,7 +940,7 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
   stati = dy_status[i] ;
   bposi = dy_var2basis[i] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (flgoff(stati,vstatBASIC))
   { errmsg(436,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -956,7 +956,7 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 
   origi = dy_actcons[i] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
@@ -1036,7 +1036,7 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 	   consys_nme(dy_sys,'c',i,FALSE,NULL),i) ;
     return (FALSE) ; }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   A few checks to make sure that things are in the expected places. If there
   are constraints remaining and a<i> was not the last constraint, then the
@@ -1159,7 +1159,7 @@ static bool deactBLogPrimConList (consys_struct *orig_sys,
   bool retval ;
   const char *rtnnme = "deactBLogPrimConList" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (acndxs == NULL)
   { errmsg(2,rtnnme,"acndxs") ;
     return (FALSE) ; }
@@ -1190,7 +1190,7 @@ static bool deactBLogPrimConList (consys_struct *orig_sys,
 	     "deactivate","constraint",
 	     consys_nme(dy_sys,'c',acndxs[k],TRUE,NULL),acndxs[k]) ; } }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (retval == TRUE)
   { retval = dy_chkdysys(orig_sys) ; }
 # endif
@@ -1229,7 +1229,7 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
 
   const char *rtnnme = "scanPrimConStdAct" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
@@ -1248,7 +1248,7 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
   paranoid.
 */
   cand_limit = dy_lp->sys.cons.loadable ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (cand_limit == 0)
   { errmsg(1,rtnnme,__LINE__) ;
     return (-1) ; }
@@ -1272,7 +1272,7 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
     { orig_x[j] = dy_x[k] ; }
     else
     { statj = (flags) -k ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
       { errmsg(433,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -1429,7 +1429,7 @@ static int scanPrimConStdDeact (int **p_acndxs)
 
   const char *rtnnme = "scanPrimConStdDeact" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (p_acndxs == NULL)
   { errmsg(2,rtnnme,"&acndxs") ;
     return (-1) ; }

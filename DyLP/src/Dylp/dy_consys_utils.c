@@ -173,6 +173,13 @@ static char svnid[] UNUSED = "$Id$" ;
 #define EXPAND_MIN_DFLT 10
 #define EXPAND_PCT_DFLT .1
 
+/*
+  For debugging vector attach/detach. Defining this variable will cause a
+  trace of attach / update / detach operations.
+
+  #define DY_CONSYS_TRACE_ATTACH 1
+*/
+
 
 
 static bool empty_col (consys_struct *consys, int colndx, bool *rescan)
@@ -202,11 +209,11 @@ static bool empty_col (consys_struct *consys, int colndx, bool *rescan)
   coeff_struct *ccoeff,*rcoeff ;
 
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "empty_column" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -230,7 +237,7 @@ static bool empty_col (consys_struct *consys, int colndx, bool *rescan)
 */
   *rescan = FALSE ;
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
@@ -241,14 +248,14 @@ static bool empty_col (consys_struct *consys, int colndx, bool *rescan)
   for (ccoeff = colhdr->coeffs ; ccoeff != NULL ; ccoeff = colhdr->coeffs)
   { colhdr->coeffs = ccoeff->colnxt ;
     rowhdr = ccoeff->rowhdr ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",ccoeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (FALSE) ; }
 #   endif
     rowndx = rowhdr->ndx ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (rowndx <= 0 || rowndx > consys->concnt)
     { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
       return (FALSE) ; }
@@ -263,7 +270,7 @@ static bool empty_col (consys_struct *consys, int colndx, bool *rescan)
     else
     { for (rcoeff = rowhdr->coeffs ; rcoeff != NULL ; rcoeff = rcoeff->rownxt)
 	if (rcoeff->rownxt == ccoeff) break ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (rcoeff == NULL)
       { errmsg(119,rtnnme,consys->nme,rowndx,colndx,ccoeff->val,
 	       "column",colndx,"row",rowndx) ;
@@ -310,11 +317,11 @@ static bool empty_row (consys_struct *consys, int rowndx, bool *rescan)
   coeff_struct *ccoeff,*rcoeff ;
 
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "empty_row" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -338,7 +345,7 @@ static bool empty_row (consys_struct *consys, int rowndx, bool *rescan)
 */
   *rescan = FALSE ;
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
@@ -349,14 +356,14 @@ static bool empty_row (consys_struct *consys, int rowndx, bool *rescan)
   for (rcoeff = rowhdr->coeffs ; rcoeff != NULL ; rcoeff = rowhdr->coeffs)
   { rowhdr->coeffs = rcoeff->rownxt ;
     colhdr = rcoeff->colhdr ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",rcoeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (FALSE) ; }
 #   endif
     colndx = colhdr->ndx ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (colndx <= 0 || colndx > consys->varcnt)
     { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
       return (FALSE) ; }
@@ -371,7 +378,7 @@ static bool empty_row (consys_struct *consys, int rowndx, bool *rescan)
     else
     { for (ccoeff = colhdr->coeffs ; ccoeff != NULL ; ccoeff = ccoeff->colnxt)
 	if (ccoeff->colnxt == rcoeff) break ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (ccoeff == NULL)
       { errmsg(119,rtnnme,consys->nme,rowndx,colndx,rcoeff->val,
 	       "row",rowndx,"column",colndx) ;
@@ -414,7 +421,7 @@ static bool move_col (consys_struct *consys, int fndx, int tndx)
 { attvhdr_struct *attvhdr ;
   colhdr_struct *colhdr ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "move_col" ;
 
@@ -445,7 +452,7 @@ static bool move_col (consys_struct *consys, int fndx, int tndx)
 */
   for (attvhdr = consys->attvecs ; attvhdr != NULL ; attvhdr = attvhdr->nxt)
   { 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (!(VALID_ATTVTYPE(attvhdr->what)))
     { errmsg(114,rtnnme,consys->nme,"attached",attvhdr->what) ;
       return (FALSE) ; }
@@ -486,7 +493,7 @@ static bool move_row (consys_struct *consys, int fndx, int tndx)
 { attvhdr_struct *attvhdr ;
   rowhdr_struct *rowhdr ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "move_row" ;
 
@@ -517,7 +524,7 @@ static bool move_row (consys_struct *consys, int fndx, int tndx)
 */
   for (attvhdr = consys->attvecs ; attvhdr != NULL ; attvhdr = attvhdr->nxt)
   { 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (!(VALID_ATTVTYPE(attvhdr->what)))
     { errmsg(114,rtnnme,consys->nme,"attached",attvhdr->what) ;
       return (FALSE) ; }
@@ -553,11 +560,11 @@ static bool find_maxes (consys_struct *consys, bool scan_cols, bool scan_rows)
 
 { int colndx,rowndx ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "find_maxes" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -575,7 +582,7 @@ static bool find_maxes (consys_struct *consys, bool scan_cols, bool scan_rows)
   { consys->maxcollen = 0 ;
     for (colndx = 1 ; colndx <= consys->varcnt ; colndx++)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (consys->mtx.cols[colndx] == NULL)
       { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
 	return (FALSE) ; }
@@ -593,7 +600,7 @@ static bool find_maxes (consys_struct *consys, bool scan_cols, bool scan_rows)
   { consys->maxrowlen = 0 ;
     for (rowndx = 1 ; rowndx <= consys->concnt ; rowndx++)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (consys->mtx.rows[rowndx] == NULL)
       { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
 	return (FALSE) ; }
@@ -654,7 +661,7 @@ static bool add_logical (consys_struct *consys, int rowndx)
   extern char *consys_lognme(consys_struct *consys,
 			     int rowndx, char *clientbuf) ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   The usual, and checks that some necessary associated arrays are present.
   This is an internal routine, so index bounds checks are dropped unless
@@ -716,7 +723,7 @@ static bool add_logical (consys_struct *consys, int rowndx)
     default:
     { errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; } }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys->varcnt+1 > consys->colsze)
   { errmsg(129,rtnnme,consys->nme,nme,rowndx,consys->varcnt+1,
 	   "variables",consys->colsze) ;
@@ -896,7 +903,7 @@ bool consys_dupsys (consys_struct *src, consys_struct **p_dst, flags dstvecs)
 
   const char *rtnnme = "consys_dupsys" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (src == NULL)
   { errmsg(2,rtnnme,"src") ;
     return (FALSE) ; }
@@ -945,7 +952,7 @@ bool consys_dupsys (consys_struct *src, consys_struct **p_dst, flags dstvecs)
       if (pkvec != NULL) pkvec_free(pkvec) ;
       consys_free(dst) ;
       return (FALSE) ; }
-#  ifdef PARANOIA
+#  ifdef DYLP_PARANOIA
    if (i != pkvec->ndx)
    { errmsg(136,rtnnme,src->nme,"loss of synch","rows",i,pkvec->ndx) ;
       if (pkvec != NULL) pkvec_free(pkvec) ;
@@ -969,7 +976,7 @@ bool consys_dupsys (consys_struct *src, consys_struct **p_dst, flags dstvecs)
       if (pkvec != NULL) pkvec_free(pkvec) ;
       consys_free(dst) ;
       return (FALSE) ; }
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (j != pkvec->ndx)
     { errmsg(136,rtnnme,src->nme,"loss of synch","columns",i,pkvec->ndx) ;
       if (pkvec != NULL) pkvec_free(pkvec) ;
@@ -978,7 +985,7 @@ bool consys_dupsys (consys_struct *src, consys_struct **p_dst, flags dstvecs)
 #   endif
   }
   if (pkvec != NULL) pkvec_free(pkvec) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (src->mtx.coeffcnt != dst->mtx.coeffcnt)
   { errmsg(136,rtnnme,src->nme,"coefficient count mismatch","columns",
 	   src->mtx.coeffcnt,dst->mtx.coeffcnt) ;
@@ -1043,7 +1050,7 @@ void consys_free (consys_struct *consys)
   rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "consys_free" ;
 
@@ -1118,9 +1125,9 @@ bool consys_attach (consys_struct *consys, flags what, int elsze, void **pvec)
   The expectation is that this list will never become very big, so there's no
   particular attempt to keep the entries in order.
 
-  If DYLP_NDEBUG is not set and the WRNATT flag is set, a warning will be issued if
-  the attach request specifies a (pointer,vector) pair already attached to the
-  system.
+  If DYLP_NDEBUG is not set and the WRNATT flag is set, a warning will be
+  issued if the attach request specifies a (pointer,vector) pair already
+  attached to the system.
 
   Parameters:
     consys:	constraint system
@@ -1139,11 +1146,11 @@ bool consys_attach (consys_struct *consys, flags what, int elsze, void **pvec)
   lnk_struct *lnk ;
   double *dvec ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_attach" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1178,12 +1185,12 @@ bool consys_attach (consys_struct *consys, flags what, int elsze, void **pvec)
     if (flgon(what,CONSYS_CSCALE))
     { dvec = (double *) *pvec ;
       dvec[0] = 0.0 ;
-      for (ndx = 1 ; ndx <= consys->rowsze ; ndx++) dvec[ndx] = 1.0 ; }
+      for (ndx = 1 ; ndx <= consys->colsze ; ndx++) dvec[ndx] = 1.0 ; }
     else
     if (flgon(what,CONSYS_RSCALE))
     { dvec = (double *) *pvec ;
       dvec[0] = 0.0 ;
-      for (ndx = 1 ; ndx <= consys->colsze ; ndx++) dvec[ndx] = 1.0 ; }
+      for (ndx = 1 ; ndx <= consys->rowsze ; ndx++) dvec[ndx] = 1.0 ; }
     attvhdr = NULL ; }
   else
   { for (attvhdr = consys->attvecs ; attvhdr != NULL ; attvhdr = attvhdr->nxt)
@@ -1199,7 +1206,7 @@ bool consys_attach (consys_struct *consys, flags what, int elsze, void **pvec)
     attvhdr->pveclst = NULL ;
     attvhdr->nxt = consys->attvecs ;
     consys->attvecs = attvhdr ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   else
   { if (attvhdr->what != what)
     { errmsg(1,rtnnme,__LINE__) ;
@@ -1221,7 +1228,12 @@ bool consys_attach (consys_struct *consys, flags what, int elsze, void **pvec)
   { if (flgon(consys->opts,CONSYS_WRNATT))
       warn(107,rtnnme,consys_assocnme(consys,what),*pvec,pvec) ; }
 # endif
-  
+
+# if DY_CONSYS_TRACE_ATTACH
+  dyio_outfmt(IOID_NOSTRM,TRUE,"\n  [%s] Attached",consys->nme) ;
+  dyio_outfmt(IOID_NOSTRM,TRUE," vec = %#0x, ref = %#0x.",*pvec,pvec) ;
+# endif
+
   return (TRUE) ; }
 
 
@@ -1248,7 +1260,7 @@ bool consys_update (consys_struct *consys, void *old, void *new)
   lnk_struct *lnk ;
   const char *rtnnme = "consys_update" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1258,6 +1270,10 @@ bool consys_update (consys_struct *consys, void *old, void *new)
   if (new == NULL)
   { errmsg(2,rtnnme,"new") ;
     return (FALSE) ; }
+# endif
+# if DY_CONSYS_TRACE_ATTACH
+  dyio_outfmt(IOID_INV,TRUE,"\n  [%s] Converting ",consys->nme) ;
+  dyio_outfmt(IOID_INV,TRUE,", old = %#0x to new = %#0x.",old,new) ;
 # endif
 /*
   Look for an entry for old. It's an error if we can't find it.
@@ -1271,7 +1287,7 @@ bool consys_update (consys_struct *consys, void *old, void *new)
 /*
   Do the update.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (attvhdr->pveclst == NULL)
   { errmsg(108,rtnnme,consys_assocnme(NULL,attvhdr->what),attvhdr->vec) ;
     return (FALSE) ; }
@@ -1279,7 +1295,7 @@ bool consys_update (consys_struct *consys, void *old, void *new)
   attvhdr->vec = new ;
   for (lnk = attvhdr->pveclst ; lnk != NULL ; lnk = lnk->llnxt)
   {
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
     if (lnk->llval == NULL)
     { errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; }
@@ -1315,7 +1331,7 @@ bool consys_detach (consys_struct *consys, void **pvec, bool all)
   void *vec ;
   const char *rtnnme = "consys_detach" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1328,6 +1344,12 @@ bool consys_detach (consys_struct *consys, void **pvec, bool all)
   if (*pvec == NULL)
   { errmsg(2,rtnnme,"vec") ;
     return (FALSE) ; }
+# endif
+# if DY_CONSYS_TRACE_ATTACH
+  dyio_outfmt(IOID_NOSTRM,TRUE,"\n  [%s] Detaching ",consys->nme) ;
+  if (all == TRUE)
+  { dyio_outfmt(IOID_NOSTRM,TRUE,"(all) ") ; }
+  dyio_outfmt(IOID_NOSTRM,TRUE,", vec = %#0x, ref = %#0x.",*pvec,pvec) ;
 # endif
 /*
   Find the entry for the vector. It's an error to try and detach a vector that
@@ -1342,7 +1364,7 @@ bool consys_detach (consys_struct *consys, void **pvec, bool all)
   { setflg(consys->opts,CONSYS_CORRUPT) ;
     errmsg(104,rtnnme,consys->nme,vec) ;
     return (FALSE) ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (attvhdr->pveclst == NULL)
   { errmsg(108,rtnnme,consys_assocnme(NULL,attvhdr->what),attvhdr->vec) ;
     return (FALSE) ; }
@@ -1428,7 +1450,7 @@ bool consys_realloc (consys_struct *consys, char rowcol, int incr)
   colsze = -1 ;
   oldcolsze = -1 ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1494,7 +1516,7 @@ bool consys_realloc (consys_struct *consys, char rowcol, int incr)
   { vec = (char *) attvhdr->vec ;
     what = attvhdr->what ;
     elsze = attvhdr->elsze ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (elsze <= 0)
     { errmsg(106,rtnnme,consys->nme,vec,elsze) ;
       return (FALSE) ; }
@@ -1531,7 +1553,7 @@ bool consys_realloc (consys_struct *consys, char rowcol, int incr)
     if (vec != attvhdr->vec)
     { for (lnk = attvhdr->pveclst ; lnk != NULL ; lnk = lnk->llnxt)
       {
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (lnk->llval == NULL)
 	{ errmsg(110,rtnnme,lnk,consys_assocnme(NULL,what),attvhdr->vec) ;
 	  return (FALSE) ; }
@@ -1539,7 +1561,7 @@ bool consys_realloc (consys_struct *consys, char rowcol, int incr)
 	*((void **) lnk->llval) = (void *) vec ; }
       attvhdr->vec = (void *) vec ; } }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Just checking to see if we dropped anything.
 */
@@ -1619,7 +1641,7 @@ bool consys_addcol_pk (consys_struct *consys,
   char nmebuf[20] ;
   const char *rtnnme = "consys_addcol_pk" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1629,12 +1651,15 @@ bool consys_addcol_pk (consys_struct *consys,
   if (consys->mtx.cols == NULL)
   { errmsg(101,rtnnme,consys->nme,"column header") ;
     return (FALSE) ; }
+/* ZZ_TABLEAU_ZZ
   if (consys->vtyp == NULL)
   { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VTYP)) ;
     return (FALSE) ; }
-  if (!VALID_VARTYPE(vartyp))
-  { errmsg(5,rtnnme,"vartyp",(int) vartyp) ;
-    return (FALSE) ; }
+*/
+  if (consys->vtyp != NULL)
+  { if (!VALID_VARTYPE(vartyp))
+    { errmsg(5,rtnnme,"vartyp",(int) vartyp) ;
+      return (FALSE) ; } }
   if (pkcol == NULL)
   { errmsg(2,rtnnme,"pkcol") ;
     return (FALSE) ; }
@@ -1649,7 +1674,7 @@ bool consys_addcol_pk (consys_struct *consys,
   if (pkcol->nme == NULL)
   { dyio_outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"var<%d>",colndx) ;
     pkcol->nme = nmebuf ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   We need to postpone this check to here because pkvec_check requires that
   nme != NULL.
@@ -1673,7 +1698,8 @@ bool consys_addcol_pk (consys_struct *consys,
   consys->mtx.cols[colndx] = colhdr ;
   colhdr->ndx = colndx ;
   colhdr->nme = STRALLOC(pkcol->nme) ;
-  consys->vtyp[colndx] = vartyp ;
+  if (consys->vtyp != NULL)
+  { consys->vtyp[colndx] = vartyp ; }
   consys->archvcnt++ ;
   consys->varcnt++ ;
   if (vartyp == vartypINT)
@@ -1710,7 +1736,7 @@ bool consys_addcol_pk (consys_struct *consys,
 	return (FALSE) ; }
       if (fabs(pkcoeff->val) > consys->tiny)
       { rowhdr = consys->mtx.rows[pkcoeff->ndx] ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (rowhdr == NULL)
 	{ errmsg(103,rtnnme,consys->nme,"row",pkcoeff->ndx) ;
 	  return (FALSE) ; }
@@ -1789,7 +1815,7 @@ bool consys_addcol_ex (consys_struct *consys,
   char nmebuf[20] ;
   const char *rtnnme = "consys_addcol_ex" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1799,12 +1825,15 @@ bool consys_addcol_ex (consys_struct *consys,
   if (consys->mtx.cols == NULL)
   { errmsg(101,rtnnme,consys->nme,"column header") ;
     return (FALSE) ; }
+/* ZZ_TABLEAU_ZZ
   if (consys->vtyp == NULL)
   { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VTYP)) ;
     return (FALSE) ; }
-  if (!VALID_VARTYPE(vartyp))
-  { errmsg(5,rtnnme,"vartyp",(int) vartyp) ;
-    return (FALSE) ; }
+*/
+  if (consys->vtyp != NULL)
+  { if (!VALID_VARTYPE(vartyp))
+    { errmsg(5,rtnnme,"vartyp",(int) vartyp) ;
+      return (FALSE) ; } }
   if (excol == NULL)
   { errmsg(2,rtnnme,"excol") ;
     return (FALSE) ; }
@@ -1838,7 +1867,8 @@ bool consys_addcol_ex (consys_struct *consys,
   consys->mtx.cols[colndx] = colhdr ;
   colhdr->ndx = colndx ;
   colhdr->nme = STRALLOC(*nme) ;
-  consys->vtyp[colndx] = vartyp ;
+  if (consys->vtyp != NULL)
+  { consys->vtyp[colndx] = vartyp ; }
   consys->archvcnt++ ;
   consys->varcnt++ ;
   if (vartyp == vartypINT)
@@ -1864,7 +1894,7 @@ bool consys_addcol_ex (consys_struct *consys,
     if (fabs(excol[rowndx]) >= consys->tiny)
     { colhdr->len++ ;
       rowhdr = consys->mtx.rows[rowndx] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (rowhdr == NULL)
       { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
 	return (FALSE) ; }
@@ -1954,7 +1984,7 @@ bool consys_addrow_pk (consys_struct *consys, char class,
 
   const char *rtnnme = "consys_addrow_pk" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1967,12 +1997,15 @@ bool consys_addrow_pk (consys_struct *consys, char class,
   if (!(class == 'a' || class == 'c'))
   { errmsg(3,rtnnme,"constraint class",class) ;
     return (FALSE) ; }
+/*
   if (consys->ctyp == NULL)
   { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
     return (FALSE) ; }
-  if (!(VALID_CONTYPE(contyp) || contyp == contypNB))
-  { errmsg(5,rtnnme,"contyp",(int) contyp) ;
-    return (FALSE) ; }
+*/
+  if (consys->ctyp != NULL)
+  { if (!(VALID_CONTYPE(contyp) || contyp == contypNB))
+    { errmsg(5,rtnnme,"contyp",(int) contyp) ;
+      return (FALSE) ; } }
   if (pkrow == NULL)
   { errmsg(2,rtnnme,"pkrow") ;
     return (FALSE) ; }
@@ -1996,7 +2029,7 @@ bool consys_addrow_pk (consys_struct *consys, char class,
   { dyio_outfxd(nmebuf,-((int) (sizeof(nmebuf)-1)),'l',"%s<%d>",
 	        (class == 'a')?"con":"cut",rowndx) ;
     pkrow->nme = nmebuf ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   We need to postpone this check to here because pkvec_check requires that
   nme != NULL.
@@ -2029,7 +2062,8 @@ bool consys_addrow_pk (consys_struct *consys, char class,
   consys->mtx.rows[rowndx] = rowhdr ;
   rowhdr->ndx = rowndx ;
   rowhdr->nme = STRALLOC(pkrow->nme) ;
-  consys->ctyp[rowndx] = contyp ;
+  if (consys->ctyp != NULL)
+  { consys->ctyp[rowndx] = contyp ; }
   if (class == 'a')
     consys->archccnt++ ;
   else
@@ -2064,7 +2098,7 @@ bool consys_addrow_pk (consys_struct *consys, char class,
 	return (FALSE) ; }
       if (fabs(pkcoeff->val) > consys->tiny)
       { colhdr = consys->mtx.cols[pkcoeff->ndx] ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (colhdr == NULL)
 	{ errmsg(103,rtnnme,consys->nme,"column",pkcoeff->ndx) ;
 	  return (FALSE) ; }
@@ -2158,11 +2192,11 @@ bool consys_getcol_pk (consys_struct *consys, int colndx, pkvec_struct **pkvec)
   coeff_struct *coeff ;
   pkcoeff_struct *pkcoeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_getcol_pk" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -2176,7 +2210,7 @@ bool consys_getcol_pk (consys_struct *consys, int colndx, pkvec_struct **pkvec)
     return (FALSE) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
@@ -2195,13 +2229,13 @@ bool consys_getcol_pk (consys_struct *consys, int colndx, pkvec_struct **pkvec)
 */
   if (*pkvec == NULL)
     *pkvec = pkvec_new(consys->maxcollen) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   else
     if (pkvec_check(*pkvec,rtnnme) == FALSE) return FALSE ;
 # endif
   if ((*pkvec)->sze != 0)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if ((*pkvec)->sze < colhdr->len)
     { errmsg(92,rtnnme,((*pkvec)->nme == NULL)?"<<null>>":(*pkvec)->nme,
 	     (*pkvec)->ndx,(*pkvec)->sze,"column",
@@ -2212,7 +2246,7 @@ bool consys_getcol_pk (consys_struct *consys, int colndx, pkvec_struct **pkvec)
 	 coeff != NULL ;
 	 coeff = coeff->colnxt,pkcoeff++)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (coeff->rowhdr == NULL)
       { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	       consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -2253,11 +2287,11 @@ bool consys_getcol_ex (consys_struct *consys, int colndx, double **vec)
 { colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_getcol_ex" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -2271,7 +2305,7 @@ bool consys_getcol_ex (consys_struct *consys, int colndx, double **vec)
     return (FALSE) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
@@ -2293,7 +2327,7 @@ bool consys_getcol_ex (consys_struct *consys, int colndx, double **vec)
     memset(*vec,0,(consys->concnt+1)*sizeof(double)) ;
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -2332,11 +2366,11 @@ bool consys_getrow_pk (consys_struct *consys, int rowndx, pkvec_struct **pkvec)
   coeff_struct *coeff ;
   pkcoeff_struct *pkcoeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_getrow_pk" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -2350,7 +2384,7 @@ bool consys_getrow_pk (consys_struct *consys, int rowndx, pkvec_struct **pkvec)
     return (FALSE) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
@@ -2369,13 +2403,13 @@ bool consys_getrow_pk (consys_struct *consys, int rowndx, pkvec_struct **pkvec)
 */
   if (*pkvec == NULL)
     *pkvec = pkvec_new(consys->maxrowlen) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   else
     if (pkvec_check(*pkvec,rtnnme) == FALSE) return FALSE ;
 # endif
   if ((*pkvec)->sze != 0)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if ((*pkvec)->sze < rowhdr->len)
     { errmsg(92,rtnnme,((*pkvec)->nme == NULL)?"<<null>>":(*pkvec)->nme,
 	     (*pkvec)->ndx,(*pkvec)->sze,"row",
@@ -2386,7 +2420,7 @@ bool consys_getrow_pk (consys_struct *consys, int rowndx, pkvec_struct **pkvec)
 	 coeff != NULL ;
 	 coeff = coeff->rownxt,pkcoeff++)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (coeff->colhdr == NULL)
       { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	       consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -2427,11 +2461,11 @@ bool consys_getrow_ex (consys_struct *consys, int rowndx, double **vec)
 { rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_getrow_ex" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -2445,7 +2479,7 @@ bool consys_getrow_ex (consys_struct *consys, int rowndx, double **vec)
     return (FALSE) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
@@ -2467,7 +2501,7 @@ bool consys_getrow_ex (consys_struct *consys, int rowndx, double **vec)
     memset(*vec,0,(consys->varcnt+1)*sizeof(double)) ;
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -2501,7 +2535,7 @@ bool consys_delcol (consys_struct *consys, int colndx)
   bool rescan_rows,rescan_cols ;
   const char *rtnnme = "consys_delcol" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -2511,9 +2545,11 @@ bool consys_delcol (consys_struct *consys, int colndx)
   if (consys->mtx.cols == NULL)
   { errmsg(101,rtnnme,consys->nme,"column header") ;
     return (FALSE) ; }
+/* ZZ_TABLEAU_ZZ
   if (consys->vtyp == NULL)
   { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VTYP)) ;
     return (FALSE) ; }
+*/
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= consys->logvcnt || colndx > consys->varcnt)
@@ -2522,7 +2558,7 @@ bool consys_delcol (consys_struct *consys, int colndx)
     return (FALSE) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
@@ -2605,7 +2641,7 @@ bool consys_delrow (consys_struct *consys, int rowndx)
   bool rescan_rows,rescan_cols ;
   const char *rtnnme = "consys_delrow" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -2626,7 +2662,7 @@ bool consys_delrow (consys_struct *consys, int rowndx)
     return (FALSE) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
@@ -2648,7 +2684,7 @@ bool consys_delrow (consys_struct *consys, int rowndx)
   if (flgon(consys->opts,CONSYS_LVARS))
   { colndx = rowndx ;
     colhdr = consys->mtx.cols[colndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (colhdr == NULL)
     { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
       return (FALSE) ; }
@@ -2756,7 +2792,7 @@ bool consys_delrow_stable (consys_struct *consys, int rowndx)
   bool rescan_rows,rescan_cols ;
   const char *rtnnme = "consys_delrow" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -2777,7 +2813,7 @@ bool consys_delrow_stable (consys_struct *consys, int rowndx)
     return (FALSE) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
@@ -2799,7 +2835,7 @@ bool consys_delrow_stable (consys_struct *consys, int rowndx)
   if (flgon(consys->opts,CONSYS_LVARS))
   { colndx = rowndx ;
     colhdr = consys->mtx.cols[colndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (colhdr == NULL)
     { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
       return (FALSE) ; }
@@ -2917,11 +2953,11 @@ double consys_getcoeff (consys_struct *consys, int rowndx, int colndx)
   colhdr_struct *colhdr ;
   rowhdr_struct *rowhdr ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_getcoeff" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -2947,7 +2983,7 @@ double consys_getcoeff (consys_struct *consys, int rowndx, int colndx)
 
   colhdr = consys->mtx.cols[colndx] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
@@ -2969,14 +3005,14 @@ double consys_getcoeff (consys_struct *consys, int rowndx, int colndx)
 */
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   { rowhdr = coeff->rowhdr ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (quiet_nan(0)) ; }
 #   endif
     lclndx = rowhdr->ndx ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (lclndx <= 0 || lclndx > consys->concnt)
     { errmsg(102,rtnnme,consys->nme,"row",lclndx,1,consys->concnt) ;
       return (quiet_nan(0)) ; }
@@ -3027,7 +3063,7 @@ bool consys_setcoeff (consys_struct *consys,
 
   const char *rtnnme = "consys_chgcoeff" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -3053,7 +3089,7 @@ bool consys_setcoeff (consys_struct *consys,
 
   colhdr = consys->mtx.cols[colndx] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
@@ -3082,14 +3118,14 @@ bool consys_setcoeff (consys_struct *consys,
   if (val != 0)
   { for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
     { rowhdr = coeff->rowhdr ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (rowhdr == NULL)
       { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	       consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
 	return (FALSE) ; }
 #     endif
       lclndx = rowhdr->ndx ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (lclndx <= 0 || lclndx > consys->concnt)
       { errmsg(102,rtnnme,consys->nme,"row",lclndx,1,consys->concnt) ;
 	return (FALSE) ; }
@@ -3132,14 +3168,14 @@ bool consys_setcoeff (consys_struct *consys,
 	 coeff != NULL ;
 	 pcoeff = &coeff->colnxt, coeff = *pcoeff)
     { rowhdr = coeff->rowhdr ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (rowhdr == NULL)
       { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	       consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
 	return (FALSE) ; }
 #     endif
       lclndx = rowhdr->ndx ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (lclndx <= 0 || lclndx > consys->concnt)
       { errmsg(102,rtnnme,consys->nme,"row",lclndx,1,consys->concnt) ;
 	return (FALSE) ; }
@@ -3162,7 +3198,7 @@ bool consys_setcoeff (consys_struct *consys,
 	 *pcoeff != NULL ;
 	 pcoeff = &(*pcoeff)->rownxt)
     { if (*pcoeff == coeff) break ; }
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (*pcoeff == NULL)
     { errmsg(119,rtnnme,consys->nme,rowndx,colndx,coeff->val,
 	     "column",colhdr->ndx,"row",rowhdr->ndx) ;
@@ -3209,7 +3245,7 @@ bool consys_logicals (consys_struct *consys)
 { int ndx ;
   const char *rtnnme = "consys_logicals" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }

@@ -59,6 +59,18 @@ static char svnid[] UNUSED = "$Id$" ;
 
 
 
+/*
+  This is a dummy stub routine for the benefit of optimised builds. It'll do
+  until I rewrite the original.
+*/
+
+static bool dy_unscale_betai(consys_struct *orig_sys, int oxindx,
+			       double **betai, double **ai)
+
+{ return (FALSE) ; }
+
+
+
 bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 		     double **p_ocbar, int *p_nbcnt, int **p_nbvars)
 
@@ -104,10 +116,10 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 
   const char *rtnnme = "dy_pricenbvars" ;
 
-  /* dy_scaling.c */
-  extern void dy_unscale_cbar (int nbcnt, double *cbar, int *vndx) ;
+  /* dy_unscaling.c */
+  extern void dy_orig_cbar (int nbcnt, double *cbar, int *vndx) ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (p_ocbar == NULL)
   { errmsg(2,rtnnme,"&cbar") ;
     return (FALSE) ; }
@@ -162,7 +174,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
       if (flgon(statj,priceme))
       { cbarj = dy_cbar[xjndx] ;
 	setcleanzero(cbarj,dy_tols->dfeas) ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if ((flgon(statj,vstatNBUB) && cbarj > 0) ||
 	    (flgon(statj,vstatNBLB) && cbarj < 0))
 	{ errmsg(739,rtnnme,dy_sys->nme,"active",
@@ -181,7 +193,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 */
     else
     { statj = (flags) -dy_origvars[oxjndx] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNBFX|vstatNBUB|vstatNBLB|vstatNBFR))
       { errmsg(433,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -202,7 +214,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 	  { cndx = dy_origcons[aij->ndx] ;
 	    cbarj -= dy_y[cndx]*aij->val ; } }
 	setcleanzero(cbarj,dy_tols->dfeas) ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if ((flgon(statj,vstatNBUB) && cbarj > 0) ||
 	    (flgon(statj,vstatNBLB) && cbarj < 0))
 	{ errmsg(739,rtnnme,dy_sys->nme,"inactive",
@@ -223,7 +235,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
     if (flgon(statj,priceme))
     { cbarj = dy_cbar[xjndx] ;
       setcleanzero(cbarj,dy_tols->dfeas) ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if ((flgon(statj,vstatNBUB) && cbarj > 0) ||
 	  (flgon(statj,vstatNBLB) && cbarj < 0))
       { errmsg(739,rtnnme,dy_sys->nme,"logical",
@@ -238,7 +250,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 /*
   Unscale the reduced costs.
 */
-  (void) dy_unscale_cbar(nbcnt,ocbar,nbvars) ;
+  (void) dy_orig_cbar(nbcnt,ocbar,nbvars) ;
 /*
   And we're done. Clean up and return.
 */
@@ -321,7 +333,11 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
   Returns: TRUE if the calculation proceeds without error, FALSE otherwise
 */
 
-{ int oxjndx,nbndx,pkndx,cndx,vndx ;
+{ 
+
+#if 0
+
+  int oxjndx,nbndx,pkndx,cndx,vndx ;
   double abarij,upenij,dpenij,upeni,dpeni,cbarj ;
   flags statj ;
   vartyp_enum *vtyp ;
@@ -331,13 +347,13 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 
   const char *rtnnme = "pricedualpiv" ;
 
-# ifdef PARANOIA
+
+# ifdef DYLP_PARANOIA
   int i,ipos ;
   double *abarj ;
 
-  /* dy_scaling.c */
-  bool dy_unscaleabarj(consys_struct *orig_sys,
-		       int j_orig, double **p_abarj) ;
+  /* dy_tableau.c */
+  bool dy_abarj(consys_struct *orig_sys, int j_orig, double **p_abarj) ;
 
   abarj = NULL ;
 # endif
@@ -360,7 +376,7 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
     { errmsg(737,rtnnme,orig_sys->nme,
 	     consys_nme(orig_sys,'v',oxindx,FALSE,NULL),oxindx) ;
       return (FALSE) ; } }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (activexi == FALSE && ai == NULL)
   { errmsg(2,rtnnme,"a<i> (inactive)") ;
     return (FALSE) ; }
@@ -417,15 +433,19 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 	abarij += betai[dy_sys->concnt+1]*ai[oxjndx] ; }
     setcleanzero(abarij,dy_tols->zero) ;
 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
 /*
   We can do a check if the row is active, by ftran'ing the column and checking
   that we get the same value for abar<ij> with both calculations. The tolerance
   on the check --- 1000*dy_tols.zero ---  is pretty loose, but remember that
   the original system is unscaled and could be pretty ugly.
+
+  This code is broken at the moment, because I'm changing the semantics of
+  dy_abarj to return the full abar<j> in the context of the original system.
+  See dy_tableau.c.	-- lh, 080515 --
 */
     if (activexi)
-    { if (dy_unscaleabarj(orig_sys,oxjndx,&abarj) == FALSE)
+    { if (dy_abarj(orig_sys,oxjndx,&abarj) == FALSE)
       { if (oxjndx < 0)
 	{ vndx = orig_sys->varcnt-oxjndx ; }
 	else
@@ -457,7 +477,7 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
   The drill is the same for upen<i>, using nlb<i>.
 */
     cbarj = nbcbar[nbndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (cbarj != 0 && fabs(cbarj) < dy_tols->dfeas)
     { int tmpndx ;
       if (oxjndx < 0)
@@ -480,7 +500,7 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 	{ if (INT_VARTYPE(vtyp[oxjndx]) && dpenij < fabs(cbarj))
 	    dpenij = fabs(cbarj) ; }
 #	endif
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (dpenij < 0)
 	{ errmsg(736,rtnnme,orig_sys->nme,"dpen",oxindx,oxjndx,dpenij) ;
 	  retval = FALSE ;
@@ -497,7 +517,7 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 	{ if (INT_VARTYPE(vtyp[oxjndx]) && upenij < fabs(cbarj))
 	    upenij = fabs(cbarj) ; }
 #	endif
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (upenij < 0)
 	{ errmsg(736,rtnnme,orig_sys->nme,"upen",oxindx,oxjndx,upenij) ;
 	  retval = FALSE ;
@@ -514,14 +534,19 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 */
   if (aj != NULL) pkvec_free(aj) ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (abarj != NULL) FREE(abarj) ;
 # endif
 
   *p_upeni = upeni ;
   *p_dpeni = dpeni ;
 
-  return (retval) ; }
+  return (retval) ;
+
+#endif
+
+  return (FALSE) ; }
+
 
 
 
@@ -594,7 +619,7 @@ bool dy_pricedualpiv (lpprob_struct *orig_lp, int oxindx,
   /* dy_scaling.c */
   extern bool dy_unscale_betai(consys_struct *orig_sys, int oxindx,
 			       double **betai, double **ai) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (p_upeni == NULL)
   { errmsg(2,rtnnme,"&upen<i>") ;
     return (FALSE) ; }

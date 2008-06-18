@@ -189,15 +189,15 @@ void consys_chgnme (consys_struct *consys, char cv,
 
 { rowhdr_struct *rowhdr ;
   colhdr_struct *colhdr ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   int varcnt ;
 # endif
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_chgnme" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return ; }
@@ -306,7 +306,7 @@ char *consys_lognme (consys_struct *consys, int rowndx, char *clientbuf)
   char *nmebuf ;
   static char ownbuf[32] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "consys_lognme" ;
 /*
@@ -320,9 +320,11 @@ char *consys_lognme (consys_struct *consys, int rowndx, char *clientbuf)
   if (consys->mtx.rows == NULL)
   { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_ROWHDR)) ;
     return (FALSE) ; }
+/* ZZ_TABLEAU_ZZ
   if (consys->ctyp == NULL)
   { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
     return (FALSE) ; }
+*/
   if (rowndx <= 0 || rowndx > consys->concnt)
   { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (FALSE) ; }
@@ -339,28 +341,32 @@ char *consys_lognme (consys_struct *consys, int rowndx, char *clientbuf)
   else
   { nmebuf = clientbuf ; }
 /*
-  Construct a name, based on the type of constraint.
+  Construct a name, based on the type of constraint. If the constraint system
+  doesn't have a ctyp array, use the generic ".log".
 */
   rowhdr = consys->mtx.rows[rowndx] ;
   len = strlen(rowhdr->nme) ;
   if (len > sizeof(nmebuf)-5) len = sizeof(nmebuf)-5 ;
   strncpy(nmebuf,rowhdr->nme,len) ;
-  switch (consys->ctyp[rowndx])
-  { case contypLE:
-    { strcpy(&nmebuf[len],".slk") ;
-      break ; }
-    case contypEQ:
-    { strcpy(&nmebuf[len],".art") ;
-      break ; }
-    case contypGE:
-    { strcpy(&nmebuf[len],".sur") ;
-      break ; }
-    case contypRNG:
-    { strcpy(&nmebuf[len],".rng") ;
-      break ; }
-    default:
-    { strcpy(&nmebuf[len],".inv") ;
-      break ; } }
+  if (consys->ctyp != NULL)
+  { switch (consys->ctyp[rowndx])
+    { case contypLE:
+      { strcpy(&nmebuf[len],".slk") ;
+	break ; }
+      case contypEQ:
+      { strcpy(&nmebuf[len],".art") ;
+	break ; }
+      case contypGE:
+      { strcpy(&nmebuf[len],".sur") ;
+	break ; }
+      case contypRNG:
+      { strcpy(&nmebuf[len],".rng") ;
+	break ; }
+      default:
+      { strcpy(&nmebuf[len],".inv") ;
+	break ; } } }
+  else
+  { strcpy(&nmebuf[len],".log") ; }
 
   return (nmebuf) ; }
 
@@ -407,7 +413,7 @@ const char *consys_nme (consys_struct *consys,
   const char *rtnbuf ;
   int nmlen,partlen ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
 
   const char *rtnnme = "consys_nme",
 	     *errname = "<<error>>" ;
@@ -634,7 +640,7 @@ void consys_prtcon (ioid chn, bool echo,
 	     *dfltpfx = "" ;
 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     dyio_outfmt(chn,echo,errstring) ;

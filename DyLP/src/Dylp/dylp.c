@@ -166,7 +166,7 @@ static void updateOptsAndTols (lpopts_struct *client_opts,
 { lptols_struct lcl_tols ;
   lpopts_struct lcl_opts ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "updateOptsAndTols" ;
 # endif
   
@@ -174,7 +174,7 @@ static void updateOptsAndTols (lpopts_struct *client_opts,
   Allocate dylp's structures, if they don't exist, or make copies if they do.
   It should be the case that we have structures iff dy_retained == TRUE
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if ((dy_retained == TRUE && (dy_tols == NULL || dy_opts == NULL)) ||
       (dy_retained == FALSE && (dy_tols != NULL || dy_opts != NULL)))
   { errmsg(1,rtnnme,__LINE__) ;
@@ -714,20 +714,18 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   dyphase_enum dy_forceDual2Primal(consys_struct *orig_sys) ;
   dyphase_enum dy_forceFull(consys_struct *orig_sys) ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (orig_lp == NULL)
   { errmsg(2,rtnnme,"orig_lp") ;
     return (lpINV) ; }
-#endif
-  orig_sys = orig_lp->consys ;
-#ifdef PARANOIA
   if (orig_opts == NULL)
   { errmsg(2,rtnnme,"orig_opts") ;
     return (lpINV) ; }
-  if (orig_sys == NULL)
+  if (orig_lp->consys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (lpINV) ; }
 #endif
+
 /*
   The first possibility is that this call is solely for the purpose of
   freeing the problem data structures. The indication is a phase of dyDONE.
@@ -746,12 +744,21 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   Attempting cleanup is risky, but the alternative is to leak a lot of
   allocated space.
 */
+  orig_sys = orig_lp->consys ;
   if (flgon(orig_sys->opts,CONSYS_CORRUPT))
-  { if (dy_retained == TRUE)
-    { orig_lp->phase = dyDONE ;
+  { 
+    errmsg(115,rtnnme,orig_sys->nme) ;
+    if (dy_retained == TRUE)
+    { 
+#     ifndef DYLP_NDEBUG
+      if (orig_opts->print.major >= 1)
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n  Attempting cleanup of retained structures for %2.",
+		    orig_sys->nme) ;
+#     endif
+      orig_lp->phase = dyDONE ;
       setflg(orig_lp->ctlopts,lpctlONLYFREE) ;
       dy_finishup(orig_lp,dyINV) ; }
-    errmsg(115,rtnnme,orig_sys->nme) ;
     return (lpFATAL) ; }
 /*
   Next we need to check the forcewarm and forcecold options, and set start
@@ -779,7 +786,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   client knows what it's doing and is not arbitrarily interleaving calls
   from different objects. If we're paranoid, we'll check for consistency.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_retained == TRUE) ||
       (flgon(orig_lp->ctlopts,lpctlDYVALID) && dy_retained == FALSE))
   { errmsg(1,rtnnme,__LINE__) ;
@@ -808,7 +815,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	        (start == startHOT)?"hot":((start == startWARM)?"warm":"cold"),
 	        orig_sys->nme) ;
 # endif
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   In the context of an B&C code, it's common to run an LP to check a
   solution. If many or all variables are fixed, a presolve phase may give a
@@ -1101,7 +1108,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	    { phase = dyGENCON ; }
 	    else
 	    { phase = dyDONE ; }
-#	    ifdef PARANOIA
+#	    ifdef DYLP_PARANOIA
 	    if (dy_lp->ubnd.ndx == 0)
 	    { errmsg(1,rtnnme,__LINE__) ;
 	      phase = dyINV ;
@@ -1110,7 +1117,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	    break ; }
 	  case lpSWING:
 	  { phase = dyGENCON ;
-#	    ifdef PARANOIA
+#	    ifdef DYLP_PARANOIA
 	    if (dy_lp->ubnd.ndx == 0)
 	    { errmsg(1,rtnnme,__LINE__) ;
 	      phase = dyINV ;
@@ -1297,7 +1304,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	  else
 	    phase = dyDUAL ;
 	  dy_lp->lastz.cd = dy_lp->z ;
-# 	  ifdef PARANOIA
+# 	  ifdef DYLP_PARANOIA
 	  if (dy_chkdysys(orig_sys) == FALSE) phase = dyINV ;
 # 	  endif
 	}

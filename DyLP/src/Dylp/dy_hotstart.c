@@ -82,7 +82,7 @@ void dy_setfinalstatus (void)
 { int aindx, xkndx ;
   double xk,lbk,ubk ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_setfinalstatus" ;
 # endif
 
@@ -107,7 +107,7 @@ void dy_setfinalstatus (void)
     xk = dy_xbasic[aindx] ;
     lbk = dy_sys->vlb[xkndx] ;
     ubk = dy_sys->vub[xkndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (xkndx <= 0 || xkndx > dy_sys->varcnt)
     { errmsg(303,rtnnme,dy_sys->nme,aindx,1,xkndx,dy_sys->varcnt) ;
       continue ; }
@@ -218,7 +218,7 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
 
   xkstatus = getflg(orig_lp->status[oxkndx],vstatSTATUS) ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Any inactive variable should be nonbasic, and the paranoid check is looking
   to make sure of this.
@@ -384,7 +384,7 @@ static void process_active (lpprob_struct *orig_lp, int oxkndx)
   flags xkstatus ;
   consys_struct *orig_sys ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "process_active" ;
 # endif
 
@@ -397,7 +397,7 @@ static void process_active (lpprob_struct *orig_lp, int oxkndx)
   xkndx = dy_origvars[oxkndx] ;
   xkstatus = dy_status[xkndx] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if ((flgon(xkstatus,vstatBASIC) &&
        ((int) orig_lp->status[oxkndx]) > 0) ||
       (flgon(xkstatus,vstatNONBASIC|vstatNBFR) &&
@@ -520,7 +520,7 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
 
 { int oxkndx,xkndx,oaindx,aindx ;
   double *ogvlb,*dyvlb,*ogvub,*dyvub,*ogobj,*dyobj,*dyrhs,*ogrhs ;
-  double lbj,ubj,cj ;
+  double lbj,ubj ;
   consys_struct *orig_sys ;
   flags *ogstatus,calcflgs,statk ;
   dyret_enum retval ;
@@ -702,7 +702,7 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
   And that should do it. Let's make a paranoid check or two, then we're
   off and running.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_chkdysys(orig_sys) == FALSE) return (dyrFATAL) ;
 # endif
 

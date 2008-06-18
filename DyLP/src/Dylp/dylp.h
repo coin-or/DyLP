@@ -930,12 +930,15 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		If set to FALSE, a copy will be made only if necessary.
 		Scaling will trigger a local copy.
   scaling	Controls whether dylp attempts to scale the original constraint
-		system.
+		system for numeric stability.
 		  0: scaling is forbidden
-		  1: scale the original constraint system using scaling vectors
-		     attached to the system
+		  1: scale the original constraint system using numeric
+		     scaling vectors attached to the system
 		  2: evaluate the original constraint system and scale it if
 		     necessary
+		Note that even if scaling = 0, dylp may install +/-1.0 scaling
+		vectors in order to flip >= constraints to <= constraints. See
+		comments in dy_scaling.c
   print		Substructure for picky printing control. For all print options,
 		a value of 0 suppresses all information messages.
     major	  Controls printing of major phase information.
@@ -1072,6 +1075,11 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		     constraints and variables.
 		  3: additional information about variables and constraints
 		     examined.
+    tableau	  Controls print level for routines that generate tableau
+		  vectors (beta<i>, beta<j>, abar<i>, abar<j>) for use by
+		  external clients.
+		  1: prints summary messages about the circumstances
+		  2: prints nonzeros in the vector.
 */
 
 typedef struct
@@ -1134,7 +1142,8 @@ typedef struct
 	   int basis ;
 	   int conmgmt ;
 	   int varmgmt ;
-	   int force ; } print ; } lpopts_struct ;
+	   int force ;
+	   int tableau ; } print ; } lpopts_struct ;
 
 
 
@@ -1569,6 +1578,9 @@ typedef struct
   unpacking a structure on a regular basis. Unless otherwise indicated, indices
   are in the dy_sys (active system) frame of reference.
 
+  dy_retained	TRUE if dylp thinks that the structures below are valid, FALSE
+		otherwise.
+
   Main structures
   ---------------
   dy_lp:	The lp control structure for dylp.
@@ -1669,6 +1681,8 @@ typedef struct
 		0, the constraint is not involved in degeneracy.
 */
 
+extern bool dy_retained ;
+
 extern lp_struct *dy_lp ;
 extern consys_struct *dy_sys ;
 extern lptols_struct *dy_tols ;
@@ -1689,6 +1703,7 @@ extern lpstats_struct *dy_stats ;
 extern bool dy_initlclsystem(lpprob_struct *orig_lp, bool hotstart) ;
 extern void dy_freelclsystem(lpprob_struct *orig_lp, bool freesys) ;
 extern bool dy_isscaled(void) ;
+extern void dy_scaling_vectors(const double **rscale, const double **cscale) ;
 
 /*
   dy_coldstart.c
@@ -1841,7 +1856,7 @@ extern void dy_calcduals(void),dy_setbasicstatus(void),
 extern double dy_calcobj(void),dy_calcdualobj(void),dy_calcpinfeas(void) ;
 extern void dy_finishup(lpprob_struct *orig_lp, dyphase_enum phase) ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
 
 extern bool dy_chkstatus(int vndx),
             dy_chkdysys(consys_struct *orig_sys) ;
@@ -1868,6 +1883,13 @@ extern bool dy_pricenbvars(lpprob_struct *orig_lp, flags priceme,
 			    double nubi, double xi, double nlbi,
 			    int nbcnt, int *nbvars,
 			    double *cbar, double *p_upeni, double *p_dpeni) ;
+
+/*
+  dy_tableau.c
+*/
+
+extern bool dy_abarj(lpprob_struct *orig_lp, int tgt_j, double **p_abarj) ;
+extern bool dy_betaj(lpprob_struct *orig_lp, int tgt_j, double **p_betaj) ;
 
 /*
   dylp_io.c

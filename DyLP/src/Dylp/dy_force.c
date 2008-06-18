@@ -171,7 +171,7 @@ static int scanPrimVarDualInfeas (fdcand_struct **p_fdcands)
   flags statj ;
   bool purge ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "scanPrimVarDualInfeas" ;
 
@@ -338,7 +338,7 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 
   next_phase = dyINV ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   retval = FALSE ;
   if (dy_lp->simplex.active == dyDUAL && dy_lp->lpret == lpLOSTFEAS)
     retval = TRUE ;
@@ -380,7 +380,7 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 	   "variable","forced primal -> dual transition") ;
     if (candidates != NULL) FREE(candidates) ;
     return (dyINV) ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   We should always find candidates, otherwise why are we here?
 */
@@ -404,7 +404,7 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
   retval = TRUE ;
   for (ndx = 1 ; ndx <= cand_cnt && retval == TRUE ; ndx++)
   { j = candidates[ndx].ndx ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (j < 1 || j > dy_sys->varcnt)
     { errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,dy_sys->varcnt) ;
       retval = FALSE ;
@@ -488,7 +488,7 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 		dy_sys->logvcnt) ; }
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_chkdysys(orig_sys) == FALSE) return (dyINV) ;
 # endif
 
@@ -532,7 +532,7 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 #     endif
       break ; } }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   The crucial question is whether we have dual feasibility. See the long
   explanation at the head of the routine for the detailed reasons behind the
@@ -625,7 +625,7 @@ static int scanPrimConForceDeact (int **p_acndxs)
   flags statj ;
 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "scanPrimConForceDeact" ;
 
@@ -736,7 +736,7 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 
   const char *rtnnme = "dy_forceDual2Primal" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   retval = FALSE ;
   if (dy_lp->simplex.active == dyDUAL &&
       (dy_lp->lpret == lpPUNT || dy_lp->lpret == lpSTALLED))
@@ -771,7 +771,7 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 	   "constraint","forced dual -> primal transition") ;
     if (candidates != NULL) FREE(candidates) ;
     return (dyINV) ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   We should always find candidates, otherwise why are we here?
 */
@@ -795,7 +795,7 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
   retval = TRUE ;
   for (ndx = 0 ; ndx < cand_cnt && retval == TRUE ; ndx++)
   { j = candidates[ndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (j < 1 || j > dy_sys->varcnt)
     { errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,dy_sys->varcnt) ;
       retval = FALSE ;
@@ -854,7 +854,7 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 		dy_sys->logvcnt) ; }
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_chkdysys(orig_sys) == FALSE) return (dyINV) ;
 # endif
 
@@ -910,7 +910,7 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 
   If we're paranoid, we check that the feasibility is what we expect.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (suppressed == 0)
   { if (varcnt == 0 && flgon(calcflgs,ladPRIMFEAS))
     { warn(439,rtnnme,
@@ -965,7 +965,7 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
   int *ovndxs ;
 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "scanPrimVarForceAct" ;
 
@@ -1041,7 +1041,7 @@ static int scanPrimConForceAct (consys_struct *orig_sys, int **p_ocndxs)
   int *ocndxs ;
 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "scanPrimConForceAct" ;
 
@@ -1117,7 +1117,7 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
 
   next_phase = dyINV ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (!(dy_lp->lpret == lpFORCEDUAL || dy_lp->lpret == lpFORCEPRIMAL ||
 	dy_lp->lpret == lpPUNT || dy_lp->lpret == lpACCCHK))
   { errmsg(4,rtnnme,"simplex return code",dy_prtlpret(dy_lp->lpret)) ;
@@ -1161,7 +1161,7 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
   if (concnt < 0 || retval == FALSE)
   { return (dyINV) ; } 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   We should have activated at least one constraint or variable. Check the
   constraint system while we're here.

@@ -148,7 +148,7 @@ typedef struct { int ndx ;
 			  double maxinf ; } flip ; } dualcand_struct ;
 
 /*
-  # ifdef PARANOIA
+  # ifdef DYLP_PARANOIA
     static int predictiter ;
     static double predicttotinf,predictmaxinf ;
   # endif
@@ -369,18 +369,18 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
   bool rev ;
   dyret_enum retval ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "scanForDualInCands" ;
 # endif
 
-# if !defined(DYLP_NDEBUG) || defined(PARANOIA)
+# if !defined(DYLP_NDEBUG) || defined(DYLP_PARANOIA)
   int print ;
 
   print = dy_opts->print.pivoting ;	/* suppress print in dy_chkpiv */
   dy_opts->print.pivoting = 0 ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (incands == NULL)
   { errmsg(2,rtnnme,"incands array") ;
     return (dyrFATAL) ; }
@@ -410,7 +410,7 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
   candcnt = 0 ;
   for (k = 1 ; k <= n ; k++)
   { if (dy_lp->degen > 0 && dy_ddegenset[k] != dy_lp->degen) continue ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (dy_chkstatus(k) == FALSE)
     { incands[0].ndx = -1 ;
       dy_opts->print.pivoting = print ;
@@ -917,7 +917,7 @@ bool selectWithInf (int i, dualcand_struct *incands,
 	        starttotinf,startmaxinf) ; }
 # endif
 /*
-  # ifdef PARANOIA
+  # ifdef DYLP_PARANOIA
     if (dy_lp->d2.iters > 0 && predictiter+1 == dy_lp->d2.iters)
     { if (!atbnd(predicttotinf,starttotinf))
       { warn(350,rtnnme,
@@ -1134,7 +1134,7 @@ bool selectWithInf (int i, dualcand_struct *incands,
 
   FREE(xbasic) ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if ((bestpivcand > 0 && lastpivcand < 0) ||
       (bestpivcand < 0 && lastpivcand > 0))
   { errmsg(1,rtnnme,__LINE__) ;
@@ -1224,7 +1224,7 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
   lastdegen = 0 ;
 # endif
 /*
-  # ifdef PARANOIA
+  # ifdef DYLP_PARANOIA
     const char *rtnnme = "selectWithOutInf" ;
   # endif
 */
@@ -1253,7 +1253,7 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
 		"\n      starting inf<%d> = %g",i,startinf) ; }
 # endif
 /*
-  # ifdef PARANOIA
+  # ifdef DYLP_PARANOIA
     if (dy_lp->d2.iters == 0)
     { predictinf = 0 ;
       predictiter = 0 ; }
@@ -1598,7 +1598,7 @@ dyret_enum dualmultiin (int i, int outdir,
     lastpivinf = quiet_nan(0) ;
     starttotinf = quiet_nan(0) ;
     startmaxinf = quiet_nan(0) ; }
-# if (!defined(DYLP_NDEBUG) || defined(PARANOIA))
+# if (!defined(DYLP_NDEBUG) || defined(DYLP_PARANOIA))
   if (dpstrat == 1)
   { if (flgon(dy_status[i],vstatBLLB))
     { starttotinf = vlb[i]-dy_x[i] ; }
@@ -1685,7 +1685,7 @@ dyret_enum dualmultiin (int i, int outdir,
 	        bestinf,infj) ; }
 # endif
 /*
-  # ifdef PARANOIA
+  # ifdef DYLP_PARANOIA
     if (dy_opts->dpsel.strat >= 2 && incands[bestcand].madpiv == FALSE)
     { predictiter = dy_lp->d2.iters ;
       predicttotinf = starttotinf ;

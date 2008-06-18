@@ -48,6 +48,8 @@ libDylp_la_SOURCES = \
 	dy_scaling.c \
 	dy_setup.c \
 	dy_statistics.c \
+	dy_tableau.c \
+	dy_unscaling.c \
 	dy_varmgmt.c \
 	dy_warmstart.c \
 	glpinv.c glpinv.h \

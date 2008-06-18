@@ -10,7 +10,7 @@ AC_DEFUN([AC_DYLP_PARANOIA],
       [dylp_paranoia=$enableval],
       [dylp_paranoia=$1])
   if test "$dylp_paranoia" = "yes"; then
-    AC_DEFINE([PARANOIA],[1],
+    AC_DEFINE([DYLP_PARANOIA],[1],
 	[Define this variable to enable dylp's paranoid checks.])
     AC_MSG_NOTICE([Dylp paranoid checks enabled.])
   else

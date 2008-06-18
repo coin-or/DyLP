@@ -41,7 +41,7 @@ AC_DEFUN([AC_DYLP_FIX_CPPFLAGS],
       CFLAGS="$CFLAGS -wd4996"
     ;;
   esac
-# Darwin will refuse to compile it's own standard headers if pedantic-errors is
+# Darwin will refuse to compile its own standard headers if pedantic-errors is
 # requested.
   case "$build" in
     *-darwin*)
@@ -50,7 +50,7 @@ AC_DEFUN([AC_DYLP_FIX_CPPFLAGS],
     ;;
   esac
 
-# # DyLP's command parser (bnfrdr) makes heavy use of type-punning. We cannot #
+# DyLP's command parser (bnfrdr) makes heavy use of type-punning. We cannot
 # allow GCC to enforce strict-aliasing. And we can't simply test to see if it's
 # present; specifying -O2, -O3, or -Os also enables it. As above, strip
 # anything already present and insert one -fno-strict-aliasing.
