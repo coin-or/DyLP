@@ -75,7 +75,7 @@ lptols_struct* main_lptols ;
 static lpret_enum do_lp (lpprob_struct *lp,
 			 lptols_struct *lptols,
 			 lpopts_struct *lpopts,
-			 struct timeval *elapsed, int printlvl)
+			 int printlvl)
 /*
   This routine is a convenience wrapper which handles statistics and timing.
   It also allows for easy adjustment of the print level by making a local copy
@@ -85,7 +85,6 @@ static lpret_enum do_lp (lpprob_struct *lp,
     lp:		lp problem to be solved
     lptols:	tolerances
     lpopts:	options
-    elapsed:	time value
     printlvl:	desired output level
 
   Returns: lp status code; lpINV is used in the event of a fatal error that's
@@ -97,8 +96,6 @@ static lpret_enum do_lp (lpprob_struct *lp,
   lpstats_struct *local_lpstats ;
 
   consys_struct *sys ;
-
-  struct timeval diff/*, before,after */ ;
 
   /* const char *rtnnme = "do_lp" ; */
 
@@ -121,13 +118,7 @@ static lpret_enum do_lp (lpprob_struct *lp,
 /*
   Solve the lp.
 */
-  /* get_timeval(&before) ; */
   lpret = dylp(lp,local_lpopts,lptols,local_lpstats) ;
-  /*
-   get_timeval(&after) ;
-   sub_timevals(&diff,&after,&before) ;
-  */
-  if (elapsed != NULL) (*elapsed) = diff ;
 /*
   Dump the statistics and free the dylp statistics structure.
 */
@@ -178,7 +169,11 @@ int main (int argc, char **argv)
 
   extern bool dytest_betaj(lpprob_struct *lp,
 			   lptols_struct *lptols,lpopts_struct *lpopts) ;
+  extern bool dytest_betai(lpprob_struct *lp,
+			   lptols_struct *lptols,lpopts_struct *lpopts) ;
   extern bool dytest_abarj(lpprob_struct *lp,
+			   lptols_struct *lptols,lpopts_struct *lpopts) ;
+  extern bool dytest_abari(lpprob_struct *lp,
 			   lptols_struct *lptols,lpopts_struct *lpopts) ;
 
   outchn = IOID_INV ;
@@ -246,6 +241,7 @@ int main (int argc, char **argv)
   main_lpopts->finpurge.cons = TRUE ;
   main_lpopts->coldbasis = ibLOGICAL ;
   main_lpopts->scaling = 2 ;
+  main_lpopts->print.scaling = 2 ;
 /*
   main_lpopts->print.tableau = 5 ;
 
@@ -258,7 +254,7 @@ int main (int argc, char **argv)
 
   main_lpopts->forcecold = TRUE ;
   main_lpopts->print.scaling = 2 ;
-  lpretval = do_lp(main_lp,main_lptols,main_lpopts,NULL,2) ;
+  lpretval = do_lp(main_lp,main_lptols,main_lpopts,2) ;
 /*
   And the result is ...
 */
@@ -271,9 +267,10 @@ int main (int argc, char **argv)
 		main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
 
   dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ;
-  dytest_betaj (main_lp,main_lptols,main_lpopts) ;
-  dytest_abarj (main_lp,main_lptols,main_lpopts) ;
-
+  dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+  dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+  dytest_betai(main_lp,main_lptols,main_lpopts) ;
+  dytest_abari(main_lp,main_lptols,main_lpopts) ;
 /*
   Call dylp to free internal structures, then free main_sys.
 */
@@ -302,7 +299,7 @@ int main (int argc, char **argv)
   main_lpopts->scaling = 2 ;
   main_lpopts->print.scaling = 2 ;
   dyio_outfmt(ttyout,dy_gtxecho,"Solving afiro ... ") ;
-  lpretval = do_lp(main_lp,main_lptols,main_lpopts,NULL,1) ;
+  lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
   dyio_outfmt(ttyout,dy_gtxecho,"%s, z = %.12f.\n",
 	      dy_prtlpret(lpretval),main_lp->obj) ;
   z = -464.753142857143 ;
@@ -318,8 +315,10 @@ int main (int argc, char **argv)
   Start with columns of the basis inverse, beta<j>. Test that B inv(B) = I.
   Then do ftran'd columns abar<j>. Test that B abar<j> = B (inv(B) A) = A.
 */
-  dytest_betaj (main_lp,main_lptols,main_lpopts) ;
-  dytest_abarj (main_lp,main_lptols,main_lpopts) ;
+  dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+  dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+  dytest_betai(main_lp,main_lptols,main_lpopts) ;
+  dytest_abari(main_lp,main_lptols,main_lpopts) ;
 /*
   Call dylp to free internal structures, then free main_sys.
 */
@@ -353,7 +352,7 @@ int main (int argc, char **argv)
   main_lpopts->print.setup = 4 ;
 */
   dyio_outfmt(ttyout,dy_gtxecho,"Solving boeing2 ... ") ;
-  lpretval = do_lp(main_lp,main_lptols,main_lpopts,NULL,1) ;
+  lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
   dyio_outfmt(ttyout,dy_gtxecho,"%s, z = %.12f.\n",
 	      dy_prtlpret(lpretval),main_lp->obj) ;
   z = -315.0187280152 ;
@@ -369,8 +368,10 @@ int main (int argc, char **argv)
   Start with columns of the basis inverse, beta<j>. Test that Binv(B) = I.
   Then do ftran'd columns abar<j>. Test that B(inv(B)A) = A.
 */
-  dytest_betaj (main_lp,main_lptols,main_lpopts) ;
-  dytest_abarj (main_lp,main_lptols,main_lpopts) ;
+  dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+  dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+  dytest_betai(main_lp,main_lptols,main_lpopts) ;
+  dytest_abari(main_lp,main_lptols,main_lpopts) ;
 /*
   Call dylp to free internal structures, then free main_sys.
 */

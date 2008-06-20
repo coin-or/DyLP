@@ -183,7 +183,8 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   n = dy_sys->varcnt ;
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.tableau >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  generating beta<%d>",tgt_j) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n  generating column beta<%d>",tgt_j) ; }
 # endif
 /*
   Determine what sort of variable we're looking at, and do some validity checks
@@ -518,7 +519,8 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   n = dy_sys->varcnt ;
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.tableau >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  generating abar<%d>, ",tgt_j) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n  generating column abar<%d>, ",tgt_j) ; }
 # endif
 /*
   If we're scaled, grab the scaling vectors.
@@ -772,4 +774,377 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   That should do it.
 */
 
+  return (TRUE) ; }
+
+
+
+
+bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
+/*
+  Given a row i, this routine returns the corresponding unscaled row of the
+  basis inverse, beta<i>.
+
+  Of course, it's not quite that simple. The client only knows about the
+  original system, so tgt_i is the index of i in the original system.
+
+  There are two cases:
+
+    1) If tgt_i is active, we need to determine its position in the active
+       system and extract the corresponding row of the basis inverse,
+       e<i> inv(B). Then we need to translate this row into the original
+       system frame of reference, padding it out with zeros.
+
+    2) If tgt_i is inactive, we need to synthesize the row that would result
+       if the constraint were activated, g<i> inv(B).  The logical for the
+       constraint is used as the basic variable.  This is accomplished by
+       translating g<i> into the active frame of reference, executing the
+       btran, and then translating back to the original system frame of
+       reference, adding padding and a coefficient for the slack.
+
+  It is assumed that orig_sys is unscaled.
+
+  Clearly, things will go wrong if the constraint system passed in through
+  orig_lp has been modified and no longer matches dylp's idea of the original
+  system.
+
+  In particular, note that dy_origvars and dy_origcons may well be attached to
+  the scaled local copy of the original system. The WILL NOT be updated by
+  changes to the client's unscaled copy.
+
+  Parameters:
+    orig_lp:	lp problem structure
+    tgt_i:	constraint (row) index in original system
+    p_betai:	(i) vector to hold beta<i>; if NULL, one will be allocated;
+		if non-NULL, will be cleared to zero.
+		(o) e<i> inv(B), unscaled
+
+  Returns: TRUE if the calculation is successful, FALSE otherwise.
+*/
+
+{ int m_orig,n_orig,i_orig,j_orig ;
+  int m,n,i,j,j_bpos,v ;
+
+  bool scaled,active ;
+  double *sc_betai,*betai ;
+  const double *rscale, *cscale ;
+  double Sj,gij ;
+
+  pkvec_struct *ai ;
+
+  consys_struct *orig_sys ;
+
+  char *rtnnme = "dy_betai" ;
+
+# ifndef DYLP_NDEBUG
+  int k_orig ;
+# endif
+
+# if DYLP_PARANOIA > 0
+  if (standard_paranoia(orig_lp,rtnnme) == FALSE)
+  { return (FALSE) ; }
+  if (p_betai == NULL)
+  { errmsg(2,rtnnme,"betai") ;
+    return (FALSE) ; }
+# endif
+/*
+  Always check for valid data structures.
+*/
+  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
+  { errmsg(396,rtnnme,orig_lp->consys->nme,"calculate row of basis inverse") ;
+    return (FALSE) ; }
+/*
+  Do a bit of setup. Pull constraint system sizes for convenient use. Grab the
+  scaling vectors if we're scaled.
+*/
+  orig_sys = orig_lp->consys ;
+  m_orig = orig_sys->concnt ;
+  n_orig = orig_sys->varcnt ;
+
+  m = dy_sys->concnt ;
+  n = dy_sys->varcnt ;
+
+  scaled = dy_isscaled() ;
+  if (scaled == TRUE)
+  { dy_scaling_vectors(&rscale,&cscale) ; }
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.tableau >= 1)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  generating row beta<%d>,",tgt_i) ; }
+# endif
+/*
+  What sort of constraint do we have?
+*/
+  if (ACTIVE_CON(tgt_i))
+  { active = TRUE ;
+    i = dy_origcons[tgt_i] ; }
+  else
+  { active = FALSE ;
+    i = -1 ; }
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.tableau >= 1)
+  { if (active == FALSE)
+    { dyio_outfmt(dy_logchn,dy_gtxecho," inactive") ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho," constraint %s (%d)",
+		consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
+    if (active == TRUE)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,", basis pos'n %d",i) ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho,".") ; }
+# endif
+
+/*
+  For an active constraint, we can retrieve the row as e<i> inv(B). But, we
+  really have the scaled basis inverse inv(S) inv(B) inv(R).  Hence it's
+  convenient to use a vector with S<i> in place of a unit coefficient to
+  cancel the leading scale factor. We have to be careful to get the right
+  scale factor --- the column scale factor for the logical for constraint i
+  is 1/R<i>, and logicals need not be in natural position.
+*/
+  sc_betai = (double *) CALLOC((m+1),sizeof(double)) ;
+  if (active == TRUE)
+  { if (scaled == TRUE)
+    { j = dy_basis[i] ;
+      if (j > m)
+      { j_orig = dy_actvars[j] ;
+	Sj = cscale[j_orig] ; }
+      else
+      { i_orig = dy_actcons[j] ;
+	Sj = 1/rscale[i_orig] ; }
+      sc_betai[i] = Sj ; }
+    else
+    { sc_betai[i] = 1.0 ; }
+    dy_btran(sc_betai) ; }
+/*
+  For an inactive constraint, we have more work to do. We need to pull the
+  row from orig_sys, apply column scaling, and drop the coefficients into the
+  vector in basis order so that we can use btran.  But since this is an
+  inactive constraint, we don't have to worry about logicals.
+*/
+  else
+  { ai = NULL ;
+    if (consys_getrow_pk(orig_sys,tgt_i,&ai) == FALSE)
+    { errmsg(122,rtnnme,orig_sys->nme,"row",
+	     consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
+      if (ai != NULL) pkvec_free(ai) ;
+      if (sc_betai != NULL) FREE(sc_betai) ;
+      return (FALSE) ; }
+    if (scaled == TRUE)
+    { for (v = 0 ; v < ai->cnt ; v++)
+      { j_orig = ai->coeffs[v].ndx ;
+	if (ACTIVE_VAR(j_orig))
+	{ j = dy_origvars[j_orig] ;
+	  j_bpos = dy_var2basis[j] ;
+	  if (j_bpos > 0)
+	  { gij = cscale[j_orig]*ai->coeffs[v].val ;
+	    sc_betai[j_bpos] = -gij ; } } } }
+    else
+    { for (v = 0 ; v < ai->cnt ; v++)
+      { j_orig = ai->coeffs[v].ndx ;
+	if (ACTIVE_VAR(j_orig))
+	{ j = dy_origvars[j_orig] ;
+	  j_bpos = dy_var2basis[j] ;
+	  if (j_bpos > 0)
+	  { sc_betai[j_bpos] = -ai->coeffs[v].val ; } } } }
+    if (ai != NULL)
+    { pkvec_free(ai) ; }
+    dy_btran(sc_betai) ; }
+/*
+  At this point, we have a row beta<i> which is partially unscaled and in
+  basis order.  First order of business is to allocate a working array for
+  the final product.
+*/
+  if (*p_betai == NULL)
+  { betai = (double *) CALLOC((m_orig+1),sizeof(double)) ;
+    *p_betai = betai ; }
+  else
+  { betai = *p_betai ;
+    memset(betai,0,((size_t) (m_orig+1)*sizeof(double))) ; }
+/*
+  To complete the unscaling, we need to postmultiply by R. The array is in
+  basis order, which is correct, but we need to reposition so that the row
+  order matches the original system.
+*/
+  if (scaled == TRUE)
+  { for (i = 0 ; i <= m ; i++)
+    { i_orig = dy_actcons[i] ;
+      betai[i_orig] = sc_betai[i]*rscale[i_orig] ; } }
+  else
+  { for (i = 0 ; i <= m ; i++)
+    { i_orig = dy_actcons[i] ;
+      betai[i_orig] = sc_betai[i] ; } }
+  if (active == FALSE)
+  { betai[tgt_i] = 1.0 ; }
+
+  if (sc_betai != NULL) FREE(sc_betai) ;
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.tableau >= 4)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  nonzeros:") ;
+    v = 0 ;
+    for (i_orig = 1 ; i_orig <= m_orig ; i_orig++)
+    { if (betai[i_orig] != 0)
+      { if (ACTIVE_CON(i_orig))
+	{ i = dy_origcons[i_orig] ;
+	  j = dy_basis[i] ;
+	  if (j <= m)
+	  { k_orig = dy_actcons[j] ;
+	    dyio_outfmt(dy_logchn,dy_gtxecho," (%s %d %g)",
+			consys_nme(orig_sys,'v',n_orig+k_orig,FALSE,NULL),
+			k_orig,betai[i_orig]) ; }
+	  else
+	  { j_orig = dy_actvars[j] ;
+	    dyio_outfmt(dy_logchn,dy_gtxecho," (%s %d %g)",
+			consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig,
+			betai[i_orig]) ; } }
+	else
+	{ dyio_outfmt(dy_logchn,dy_gtxecho, " (%s %d %g)",
+		      consys_nme(orig_sys,'v',n_orig+i_orig,FALSE,NULL),
+		      i_orig,betai[i_orig]) ; }
+	v++ ;
+	if (v%3 == 0) dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t\t  ") ; } } }
+# endif
+
+/*
+  That's it, we're done.
+*/
+  return (TRUE) ; }
+
+
+
+bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
+	       double **p_betai)
+/*
+  This routine returns the value of row i of inv(B)A = inv(B) [ B N ] in
+  p_abari.
+
+  If p_betai is non-NULL, the routine returns row i of inv(B) [ A I ] where
+  I is the identity matrix of coefficients of logicals. Row i of inv(B)A is
+  still returned in p_abari, and e<i> inv(B) I = beta<i> is returned in
+  p_betai.
+
+  Given the primitives we have available (ftran, btran), the best we can do
+  here is extract the relevant row of the basis inverse and calculate
+  dot(beta<i>,a<j>) for j in N. Fortunately, we have a handy routine to
+  calculate beta<i>.
+
+  Parameters:
+    orig_lp:	lp problem structure
+    tgt_i:	constraint (row) index in original system
+    p_abari:	(i) vector to hold abar<i>; if NULL, one will be allocated;
+		if non-NULL, will be cleared to zero.
+		(o) e<i> inv(B) A,  unscaled
+    p_betai:	(i) vector to hold beta<i>; if NULL, one will be allocated;
+		if non-NULL, will be cleared to zero.
+		(o) e<i> inv(B) I,  unscaled
+
+  Returns: TRUE if the calculation is successful, FALSE otherwise.
+*/
+
+{ int m_orig,n_orig,j_orig ;
+  int i,j,j_bpos ;
+
+  bool active,dologicals ;
+
+  double *betai,*abari ;
+
+  consys_struct *orig_sys ;
+
+  char *rtnnme = "dy_betai" ;
+
+# if DYLP_PARANOIA > 0
+  if (standard_paranoia(orig_lp,rtnnme) == FALSE)
+  { return (FALSE) ; }
+  if (p_abari == NULL)
+  { errmsg(2,rtnnme,"abari") ;
+    return (FALSE) ; }
+# endif
+
+  if (p_betai != NULL)
+  { dologicals = TRUE ; }
+/*
+  Always check for valid data structures.
+*/
+  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
+  { errmsg(396,rtnnme,orig_lp->consys->nme,"calculate row of basis inverse") ;
+    return (FALSE) ; }
+/*
+  Do a bit of setup. Pull constraint system sizes for convenient use.
+*/
+  orig_sys = orig_lp->consys ;
+  m_orig = orig_sys->concnt ;
+  n_orig = orig_sys->varcnt ;
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.tableau >= 1)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  generating row abar<%d>,",tgt_i) ; }
+# endif
+
+/*
+  What sort of constraint do we have?
+*/
+  if (ACTIVE_CON(tgt_i))
+  { active = TRUE ;
+    i = dy_origcons[tgt_i] ; }
+  else
+  { active = FALSE ;
+    i = -1 ; }
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.tableau >= 1)
+  { if (active == FALSE)
+    { dyio_outfmt(dy_logchn,dy_gtxecho," inactive") ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho," constraint %s (%d)",
+		consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
+    if (active == TRUE)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,", basis pos'n %d",i) ; }
+    dyio_outfmt(dy_logchn,dy_gtxecho,".") ; }
+# endif
+
+/*
+  Call dy_betai to get row beta<i> of the basis inverse.
+*/
+  betai = *p_betai ;
+  if (dy_betai(orig_lp,tgt_i,&betai) == FALSE)
+  { errmsg(952,rtnnme,orig_sys->nme,"row",tgt_i,"constraint",
+	   consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
+    if (betai != NULL) FREE(betai) ;
+    return (FALSE) ; }
+/*
+  Get a vector to return abar<i>.
+*/
+  if (*p_abari == NULL)
+  { abari = (double *) CALLOC((n_orig+1),sizeof(double)) ;
+    *p_abari = abari ; }
+  else
+  { abari = *p_abari ;
+    memset(abari,0,((size_t) (n_orig+1)*sizeof(double))) ; }
+/*
+  Now walk the columns of orig_sys calculating abar<ij> = dot(beta<i>,a<j>).
+
+  We can help ourselves a bit here by recognising basic columns, which will
+  resolve to 0 or 1, depending on whether the variable is basic for this row.
+  Other than that, however, active or inactive is irrelevant.
+*/
+  for (j_orig = 1 ; j_orig <= n_orig ; j_orig++)
+  { if (ACTIVE_VAR(j_orig))
+    { j = dy_origvars[j_orig] ;
+      j_bpos = dy_var2basis[j] ;
+      if (j_bpos > 0)
+      { if (j_bpos == i)
+	{ abari[j_orig] = 1.0 ; }
+	else
+	{ abari[j_orig] = 0.0 ; }
+	continue ; } }
+    abari[j_orig] = consys_dotcol(orig_sys,j_orig,betai) ; }
+/*
+  Did the client ask for the columns corresponding to logicals? If so, hand
+  back beta<i>. Otherwise, we're done with it.
+*/
+  if (dologicals == TRUE)
+  { *p_betai = betai ; }
+  else
+  { if (betai != NULL) FREE(betai) ; }
+/*
+  That's it, we're done.
+*/
   return (TRUE) ; }

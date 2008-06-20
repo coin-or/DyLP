@@ -1890,6 +1890,9 @@ extern bool dy_pricenbvars(lpprob_struct *orig_lp, flags priceme,
 
 extern bool dy_abarj(lpprob_struct *orig_lp, int tgt_j, double **p_abarj) ;
 extern bool dy_betaj(lpprob_struct *orig_lp, int tgt_j, double **p_betaj) ;
+extern bool dy_betai(lpprob_struct *orig_lp, int tgt_i, double **p_betai) ;
+extern bool dy_abari(lpprob_struct *orig_lp, int tgt_i, double **p_abari,
+		     double **p_betai) ;
 
 /*
   dylp_io.c

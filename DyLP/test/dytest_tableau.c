@@ -338,6 +338,8 @@ bool dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   basis = create_basis(main_lp,main_lptols,main_lpopts,&basis2sys) ;
   if (basis == NULL || basis2sys == NULL)
   { errmsg(152,rtnnme,"basisMtx") ;
+    consys_free(basis) ;
+    if (basis2sys != NULL) FREE(basis2sys) ;
     return (FALSE) ; }
 /*
   Now that we have a basis matrix with columns in the proper order, matching
@@ -373,6 +375,7 @@ bool dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
 */
   if (betaj != 0) FREE(betaj) ;
   consys_free(basis) ;
+  if (basis2sys != NULL) FREE(basis2sys) ;
 
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: found %d errors testing Binv(B).\n",
@@ -435,6 +438,8 @@ bool dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   basis = create_basis(main_lp,main_lptols,main_lpopts,&basis2sys) ;
   if (basis == NULL || basis2sys == NULL)
   { errmsg(152,rtnnme,"basisMtx") ;
+    consys_free(basis) ;
+    if (basis2sys != NULL) FREE(basis2sys) ;
     return (FALSE) ; }
 /*
   Now that we have a basis matrix with columns in the proper order, matching
@@ -491,6 +496,7 @@ bool dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (abarj != 0) FREE(abarj) ;
   if (aj != 0) FREE(aj) ;
   consys_free(basis) ;
+  if (basis2sys != NULL) FREE(basis2sys) ;
 
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -501,3 +507,209 @@ bool dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass B(inv(B)A).\n",rtnnme) ;
     return (TRUE) ; } }
 
+
+
+bool dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		   lpopts_struct *main_lpopts)
+
+/*
+  This routine checks the accuracy of the tableau routine dy_betai (row
+  beta<i> of the basis inverse) by testing that beta<i> B = e<i>.
+
+  Parameters:
+    main_lp:	 the lp problem structure
+    main_lptols: the lp tolerance structure
+    main_lpopts: the lp options structure
+
+  Returns: TRUE if inv(B)B = I, FALSE otherwise.
+*/
+
+{ int m,i,j ;
+  consys_struct *sys ;
+
+  consys_struct *basis ;
+
+  int *basis2sys ;
+
+  double *betai ;
+  double betaidotaj,expected ;
+  int errcnt ;
+
+  char *rtnnme = "dytest_betai" ;
+
+/*
+  Do a little initialisation. Mention that we've started.
+*/
+  sys = main_lp->consys ;
+
+# ifndef DYLP_NDEBUG
+  if (main_lpopts->print.tableau >= 1)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"%s: checking rows of basis inverse using %s (%d x %d).\n",
+		rtnnme,sys->nme,sys->concnt,sys->varcnt) ;
+    if (main_lpopts->print.tableau >= 2)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "  basis contains %d entries.\n",main_lp->basis->len) ; } }
+# endif
+/*
+  Create the basis matrix.
+*/
+  basis2sys = NULL ;
+  basis = create_basis(main_lp,main_lptols,main_lpopts,&basis2sys) ;
+  if (basis == NULL || basis2sys == NULL)
+  { errmsg(152,rtnnme,"basisMtx") ;
+    consys_free(basis) ;
+    if (basis2sys != NULL) FREE(basis2sys) ;
+    return (FALSE) ; }
+/*
+  Now that we have a basis matrix with columns in the proper order, matching
+  the constraints, we can simply call dy_betai to obtain rows of the basis
+  inverse and call consys_dotcol(j,beta<i>), j = 1, ..., m, and check that we
+  have e<i>.
+*/
+  m = sys->concnt ;
+  betai = NULL ;
+  errcnt = 0 ;
+  for (i = 1 ; i <= m ; i++)
+  { if (dy_betai(main_lp,i,&betai) == FALSE)
+    { errmsg(952,rtnnme,sys->nme,"row",i,"constraint",
+	     consys_nme(sys,'c',i,FALSE,NULL),i) ;
+      errcnt++ ;
+      continue ; }
+    for (j = 1 ; j <= m ; j++)
+    { betaidotaj = consys_dotcol(basis,j,betai) ;
+      if (i == j)
+      { expected = 1.0 ; }
+      else
+      { expected = 0.0 ; }
+      if (fabs(betaidotaj-expected) > main_lptols->zero)
+      { errcnt++ ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
+		    i,j,betaidotaj,expected) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+		    (betaidotaj-expected),main_lptols->zero) ; } } }
+/*
+  We're done. Do a bit of cleanup.
+*/
+  if (betai != 0) FREE(betai) ;
+  consys_free(basis) ;
+  if (basis2sys != NULL) FREE(basis2sys) ;
+
+  if (errcnt != 0)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: found %d errors testing inv(B)B.\n",
+	   rtnnme,errcnt) ;
+    return (FALSE) ; }
+  else
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass inv(B)B.\n",rtnnme) ;
+    return (TRUE) ; } }
+
+
+bool dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		   lpopts_struct *main_lpopts)
+
+/*
+  This routine checks the accuracy of the tableau routine dy_abari, which
+  calculates row i of inv(B)[ B N I ], where B is the basic columns, N the
+  nonbasic columns, and I is the identity matrix produced by the coefficients
+  of logical variables.
+
+  This is an inconvenient calculation to check --- we can't premultiply the
+  resulting row by the basis, as we do for all the other routines. So we do the
+  next best thing: call dy_abarj and check that abar<ij> matches. It's
+  expensive, but hey, this is a test routine. This does imply that dy_abarj
+  should be tested first.
+
+  Parameters:
+    main_lp:	 the lp problem structure
+    main_lptols: the lp tolerance structure
+    main_lpopts: the lp options structure
+
+  Returns: TRUE if inv(B)B = I, FALSE otherwise.
+*/
+
+{ int m,n,i,j ;
+  consys_struct *sys ;
+
+  double *abari,*abarj,*betai ;
+  double abarij,expected ;
+  int errcnt ;
+
+  char *rtnnme = "dytest_abari" ;
+
+/*
+  Do a little initialisation. Mention that we've started.
+*/
+  sys = main_lp->consys ;
+  m = sys->concnt ;
+  n = sys->varcnt ;
+
+# ifndef DYLP_NDEBUG
+  if (main_lpopts->print.tableau >= 1)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"%s: checking rows of inv(B)A using %s (%d x %d).\n",
+		rtnnme,sys->nme,m,n) ; }
+# endif
+
+/*
+  Open a pair of loops to do the testing.
+*/
+  errcnt = 0 ;
+  abari = NULL ;
+  betai = NULL ;
+  abarj = NULL ;
+  for (i = 1 ; i <= m ; i++)
+  { if (dy_abari(main_lp,i,&abari,&betai) == FALSE)
+    { errmsg(953,rtnnme,sys->nme,"transformed","row",
+	     consys_nme(sys,'c',i,FALSE,NULL),i) ;
+      errcnt++ ;
+      continue ; }
+    for (j = 1 ; j <= n ; j++)
+    { if (dy_abarj(main_lp,j,&abarj) == FALSE)
+      { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+	       consys_nme(sys,'v',j,FALSE,NULL),j) ;
+	errcnt++ ;
+	continue ; }
+      expected = abarj[i] ;
+      abarij = abari[j] ;
+      if (fabs(abarij-expected) > main_lptols->zero)
+      { errcnt++ ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
+		    i,j,abarij,expected) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+		    (abarij-expected),main_lptols->zero) ; } }
+/*
+  Now test the columns for the logical variables.
+*/
+  for (j = 1 ; j <= m ; j++)
+  { if (dy_abarj(main_lp,-j,&abarj) == FALSE)
+    { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+	     consys_nme(sys,'v',n+j,FALSE,NULL),j) ;
+      errcnt++ ;
+      continue ; }
+    expected = abarj[i] ;
+    abarij = betai[j] ;
+    if (fabs(abarij-expected) > main_lptols->zero)
+    { errcnt++ ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
+		  i,-j,abarij,expected) ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+		  (abarij-expected),main_lptols->zero) ; } } }
+/*
+  We're done. Do a bit of cleanup.
+*/
+  if (abari != 0) FREE(abari) ;
+  if (betai != 0) FREE(betai) ;
+  if (abarj != 0) FREE(abarj) ;
+
+  if (errcnt != 0)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	  "\n%s: found %d errors testing e<i>(inv(B)A) against inv(B)a<j>.\n",
+	   rtnnme,errcnt) ;
+    return (FALSE) ; }
+  else
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: pass e<i>(inv(B)A) against inv(B)a<j>.\n",rtnnme) ;
+    return (TRUE) ; } }
