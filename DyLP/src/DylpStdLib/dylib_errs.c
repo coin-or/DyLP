@@ -159,14 +159,11 @@ void errterm (void)
   This routine cleans up data structures owned by the error package and closes
   the error file and log file, if present. Don't close stdin!
 
-  There doesn't seem to be a reliable way to determine if the file is already
-  closed --- this is a potential problem for elogchn, which can be redirected
-  into a stream under the control of dylib_io functions. I need to do some
-  testing.
+  ANSI stdio doesn't seem to provide a standard method for checking if a file
+  is closed. A bit of testing says that ftell should be ok for testing normal
+  files. Since we don't want to be closing stdin, stdout, or stderr, it's
+  actually a feature to report an error for them.
 
-  The test used below --- a call to fileno() --- will return an error for a
-  closed file on at least some linux systems, but does not return an error on
-  Solaris.
 
   Parameters: none
 
@@ -175,9 +172,7 @@ void errterm (void)
 
 { char *rtnnme = "errterm" ;
 
-  int fnum ;
-
-  if (emsgchn != NULL && emsgchn != stdin && fileno(emsgchn) >= 0)
+  if (emsgchn != NULL && emsgchn != stdin && ftell(emsgchn) >= 0)
   { if (fclose(emsgchn) < 0)
     { fprintf(stderr,"\n%s: couldn't close error message file \"%s\".\n",
 	      emsgname,rtnnme) ;
@@ -187,7 +182,8 @@ void errterm (void)
   { FREE(emsgname) ;
     emsgname = NULL ; }
 
-  if (elogchn != NULL && elogchn != stdin && fileno(elogchn) >= 0 )
+  if (elogchn != NULL && elogchn != stdout && elogchn != stderr &&
+      ftell(elogchn) >= 0 )
   { if (fclose(elogchn) < 0)
     { fprintf(stderr,"\n%s: couldn't close error log file \"%s\".\n",
 	      elogname,rtnnme) ;

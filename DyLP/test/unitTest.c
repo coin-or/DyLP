@@ -505,7 +505,6 @@ int main (int argc, char **argv)
   { (void) dyio_closefile(dy_logchn) ; }
   dyio_ioterm() ;
   errterm() ;
-  errterm() ;
 
   return (0) ; }
 
