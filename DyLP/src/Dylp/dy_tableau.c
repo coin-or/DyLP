@@ -50,10 +50,9 @@ static char svnid[] UNUSED = "$Id$" ;
 
 
 
-# if DYLP_PARANOIA > 0
+#if DYLP_PARANOIA > 0
 
-static bool standard_paranoia (const lpprob_struct *orig_lp,
-			       const char *rtnnme)
+bool dy_std_paranoia (const lpprob_struct *orig_lp, const char *rtnnme)
 /*
   Some standard paranoid checks for a call from outside, collected into one
   place.
@@ -94,7 +93,7 @@ static bool standard_paranoia (const lpprob_struct *orig_lp,
 
   return (TRUE) ; }
 
-# endif    /* DYLP_PARANOIA */
+#endif    /* DYLP_PARANOIA */
 
 
 
@@ -161,7 +160,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   char *rtnnme = "dy_betaj" ;
 
 # if DYLP_PARANOIA > 0
-  if (standard_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return (FALSE) ; }
   if (p_betaj == NULL)
   { errmsg(2,rtnnme,"betaj") ;
@@ -497,7 +496,7 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   const char *rtnnme = "dy_abarj" ;
 
 # if DYLP_PARANOIA > 0
-  if (standard_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return (FALSE) ; }
   if (p_abarj == NULL)
   { errmsg(2,rtnnme,"abarj") ;
@@ -840,7 +839,7 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
 # endif
 
 # if DYLP_PARANOIA > 0
-  if (standard_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return (FALSE) ; }
   if (p_betai == NULL)
   { errmsg(2,rtnnme,"betai") ;
@@ -1052,7 +1051,7 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
   char *rtnnme = "dy_betai" ;
 
 # if DYLP_PARANOIA > 0
-  if (standard_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return (FALSE) ; }
   if (p_abari == NULL)
   { errmsg(2,rtnnme,"abari") ;

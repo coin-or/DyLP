@@ -2182,9 +2182,9 @@ static void build_soln (lpprob_struct *orig_lp)
   clients to limit computational effort; they still expect a valid objective.
 
   When the solution is unbounded, the objective is overloaded to hold the
-  index of the variable that was discovered to be unbounded (which we need to
-  convert to the orig_sys frame, with the usual convention that a logical is
-  represented as the negative of the index of it's constraint).
+  index of the variable that was discovered to be unbounded. Since we're using
+  sign to indicate the direction of unboundedness, represent the logical for
+  constraint i as n+i, in the original system frame of reference.
 */
   switch (dy_lp->lpret)
   { case lpOPTIMAL:
@@ -2211,8 +2211,11 @@ static void build_soln (lpprob_struct *orig_lp)
       if (ubndndx > dy_sys->concnt)
       { orig_ubndndx = dy_actvars[ubndndx] ; }
       else
-      { orig_ubndndx = -dy_actcons[ubndndx] ; }
-      orig_lp->obj = (double) orig_ubndndx ;
+      { orig_ubndndx = orig_sys->varcnt+dy_actcons[ubndndx] ; }
+      if (dy_lp->ubnd.ndx < 0)
+      { orig_lp->obj = -((double) orig_ubndndx) ; }
+      else
+      { orig_lp->obj = ((double) orig_ubndndx) ; }
       break ; }
     case lpINFEAS:
     { orig_lp->obj = dy_lp->infeas ;

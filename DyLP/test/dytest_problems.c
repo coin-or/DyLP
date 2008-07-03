@@ -71,6 +71,81 @@ static const double exmip1_coeff[] = { -42.42,
   -1.0, 1.9
   } ;
 
+
+
+/*
+  The exprimalray example is used to test the routine that returns primal
+  rays. The coefficient matrix is:
+
+   12 x1 +  30 x2 +  16 x3 >=  420	face1
+    9 x1 -   6 x2 -   7 x3 <=   30	face2
+ -  3 x1 +  21 x2 -   4 x3 <=  180	face3
+ -216 x1 + 315 x2 - 136 x3 <= 1218	face4
+
+      x1, x2, x3 free
+
+  The overall shape is a cone formed by face1, face2, and face3, with orgin
+  at (10,10,0), opening upward (increasing x3). Face4 forms an extreme point
+  with faces 1 and 3 at (8,10,3/2), cutting off ray13 emanating from
+  (10,10,0) and forming two more rays emanating from (8,10,3/2).
+
+  ray12 = ( 1 -2  3)
+  ray13 = (-4  0  3)	[ truncated by face4 at (8,10,3/2) ]
+  ray23 = ( 3  1  3)
+
+  ray14 = (-40  -8  45)
+  ray34 = (-28   8  63)
+
+  The objective of min x1 + x3 coded into the arrays below will
+  find (8,10,3/2) with z = 9.5. An objective of min x1 + x2 + x3 will want
+  to go unbounded from (8,10,3/2) along ray14. An objective of min 3x1+x2+x3
+  will want to go unbounded from (8,10,3/2) along both of ray14 and ray34.
+*/
+
+
+static const int exprimalray_rowcnt = 5 ;
+static const int exprimalray_colcnt = 3 ;
+static const int exprimalray_coeffcnt = 15 ;
+static const int exprimalray_maxColLen = 4 ;
+static const char *exprimalray_objname = "obj" ;
+static const int exprimalray_objndx = 1 ;
+
+static const char *exprimalray_rowname[] = { "bogus",
+  "obj", "face1", "face2", "face3", "face4"
+  } ;
+static const char exprimalray_rowsense[] = { 'B',
+  'N', 'G', 'L', 'L', 'L'
+  } ;
+static const double exprimalray_rowlb[] = { -42.42,
+  -1e100, 210, -1e100, -1e100, -1e100
+  } ;
+static const double exprimalray_rowub[] = { -42.42,
+  1e100, 1e100, 30, 180, 1218
+  } ;
+
+static const char *exprimalray_colname[] = { "bogus",
+  "x1", "x2", "x3"
+  } ;
+static const double exprimalray_collb[] = { -42.42,
+  -1e100, -1e100, -1e100
+  } ;
+static const double exprimalray_colub[] = { -42.42,
+  1e100, 1e100, 1e100
+  } ;
+
+static const int exprimalray_rowndx[] = { -42,
+  1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5
+  } ;
+static const int exprimalray_colndx[] = { -42,
+  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3
+  } ;
+static const double exprimalray_coeff[] = { -42.42,
+    1.0,  6.0,  9.0, -3.0, -216.0,
+   -0.0, 15.0, -6.0, 21.0,  315.0,
+    1.0,  8.0, -7.0, -4.0, -136.0
+  } ;
+
+
 
 
 
@@ -791,7 +866,7 @@ static consys_struct *load_consys (
 
 
 /*
-  Routines to create specific constraint systems.
+  Convenience routines to create specific constraint systems.
 */
 
 
@@ -817,6 +892,29 @@ consys_struct *dytest_exmip1sys (lptols_struct *tols)
   return (sys) ; }
 
 
+consys_struct *dytest_exprimalraysys (lptols_struct *tols)
+/*
+  Create a constraint system loaded with the exprimalray example.
+
+  Parameters:
+    tols:	lptols_struct, used to specify infinity
+
+  Returns: pointer to a loaded constraint system, or NULL if there's an error.
+*/
+
+{ consys_struct *sys ;
+
+  sys = load_consys(exprimalray_rowcnt,exprimalray_colcnt,exprimalray_coeffcnt,
+		    exprimalray_maxColLen,tols->inf,"exprimalray",
+		    exprimalray_objndx,exprimalray_objname,
+		    exprimalray_rowname,exprimalray_rowsense,
+		    exprimalray_rowlb,exprimalray_rowub,
+		    exprimalray_colname,exprimalray_collb,exprimalray_colub,
+		    exprimalray_colndx,exprimalray_rowndx,exprimalray_coeff) ;
+  
+  return (sys) ; }
+
+
 consys_struct *dytest_afirosys (lptols_struct *tols)
 /*
   Create a constraint system loaded with the afiro example.
@@ -837,6 +935,7 @@ consys_struct *dytest_afirosys (lptols_struct *tols)
 		    afiro_colndx,afiro_rowndx,afiro_coeff) ;
   
   return (sys) ; }
+
 
 consys_struct *dytest_boeing2sys (lptols_struct *tols)
 /*

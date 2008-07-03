@@ -231,6 +231,14 @@ static dyphase_enum addcon_nextphase (int actcnt)
   flags chkflgs = ladPRIMFEAS|ladPFQUIET ;
   const char *rtnnme = "addcon_nextphase" ;
 
+# ifndef NDEBUG
+  if (dy_opts->print.major >= 2)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+	"\n    Entering simplex %s (%s), loadable %d, activated %d.",
+	dy_prtlpphase(dy_lp->simplex.active,TRUE),dy_prtlpret(dy_lp->lpret),
+	dy_lp->sys.cons.loadable,actcnt) ; }
+# endif
+	      
   if (actcnt < 0) return (dyINV) ;
 
   switch (dy_lp->simplex.active)
@@ -351,6 +359,13 @@ static dyphase_enum addcon_nextphase (int actcnt)
 	   dy_prtlpret(dy_lp->lpret),
 	   dy_prtlpphase(dy_lp->simplex.next,TRUE)) ; }
   
+# ifndef NDEBUG
+  if (dy_opts->print.major >= 2)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n    Leaving phase %s, simplex %s.",
+		dy_prtlpphase(retval,TRUE),
+		dy_prtlpphase(dy_lp->simplex.next,TRUE)) ; }
+# endif
+
   return (retval) ; }
 
 
@@ -728,13 +743,13 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 
 /*
   The first possibility is that this call is solely for the purpose of
-  freeing the problem data structures. The indication is a phase of dyDONE.
-  Note that in an environment like COIN, there may be multiple independent
-  objects using dylp, and they can make multiple calls to free data
-  structures or attempt to free data structures even though dylp has never
-  been called.
+  freeing the problem data structures. The indication is a phase of dyDONE
+  plus the lpctlONLYFREE flag in orig_lp->ctlopts.  Note that in an
+  environment like COIN, there may be multiple independent objects using
+  dylp, and they can make multiple calls to free data structures or attempt
+  to free data structures even though dylp has never been called.
 */
-  if (orig_lp->phase == dyDONE)
+  if (orig_lp->phase == dyDONE && flgon(orig_lp->ctlopts,lpctlONLYFREE))
   { if (dy_retained == TRUE)
     { dy_finishup(orig_lp,dyINV) ; }
     return (orig_lp->lpret) ; }

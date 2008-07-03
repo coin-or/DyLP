@@ -330,7 +330,7 @@ cmd_retval dy_printopt (const char *keywd)
   The bnf for the print option command is:
     <printopt> ::= lpprint <what> <level>
     <what> ::= basis | conmgmt | crash | degen | dual | force | major |
-	       phase1 | phase2 | pivoting | pivreject | pricing |
+	       phase1 | phase2 | pivoting | pivreject | pricing | rays |
 	       scaling | setup | tableau | varmgmt
     <level> ::= <integer>
 
@@ -353,7 +353,7 @@ cmd_retval dy_printopt (const char *keywd)
   enum prntcodes { poINV = 0, poBASIS, poCONMGMT, poCRASH,
 		   poDEGEN, poDUAL, poFORCE, poMAJOR,
 		   poPHASE1, poPHASE2, poPIVOTING, poPIVREJ,
-		   poPRICING, poSCALING, poSETUP,
+		   poPRICING, poRAYS, poSCALING, poSETUP,
 		   poTABLEAU, poVARMGMT } prntcode ;
 
   static keytab_entry prntkwds[] = { { "basis", 1, (int) poBASIS },
@@ -368,6 +368,7 @@ cmd_retval dy_printopt (const char *keywd)
 				     { "pivoting", 4, (int) poPIVOTING },
 				     { "pivreject", 4, (int) poPIVREJ },
 				     { "pricing", 2, (int) poPRICING },
+				     { "rays", 1, (int) poRAYS },
 				     { "scaling", 2, (int) poSCALING },
 				     { "setup", 2, (int) poSETUP },
 				     { "tableau", 1, (int) poTABLEAU },
@@ -469,6 +470,12 @@ cmd_retval dy_printopt (const char *keywd)
       dflt = opts_dflt->print.pricing ;
       lb = opts_lb->print.pricing ;
       ub = opts_ub->print.pricing ;
+      break ; }
+    case poRAYS:
+    { opt = &main_lpopts->print.rays ;
+      dflt = opts_dflt->print.rays ;
+      lb = opts_lb->print.rays ;
+      ub = opts_ub->print.rays ;
       break ; }
     case poSCALING:
     { opt = &main_lpopts->print.scaling ;

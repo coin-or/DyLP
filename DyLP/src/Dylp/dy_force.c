@@ -1100,6 +1100,9 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
   This routine activates all inactive variables and constraints. It's the
   last resort for error recovery by constraint sytem modification.
 
+  It's also used as a utility to force the full constraint system following a
+  hot start. In this case, dy_hotstart will make it look like lpFORCEPRIMAL.
+
   Parameters:
     orig_sys:	The original constraint system
 

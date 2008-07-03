@@ -16,6 +16,7 @@ noinst_PROGRAMS = unitTest
 
 unitTest_SOURCES = \
 	dytest_problems.c \
+	dytest_rays.c \
 	dytest_tableau.c \
 	unitTest.c
 

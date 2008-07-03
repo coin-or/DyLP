@@ -525,10 +525,14 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
   flags *ogstatus,calcflgs,statk ;
   dyret_enum retval ;
   lpret_enum lpret ;
+  dyphase_enum phase ;
   const char *rtnnme = "dy_hotstart" ;
 
   /* dy_scaling.c */
   extern void dy_refreshlclsystem(flags what) ;
+
+  /* dy_force.c */
+  extern dyphase_enum dy_forceFull(consys_struct *orig_sys) ;
 
 /*
   It could happen that there are no changes, in which case there's no point
@@ -705,5 +709,38 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
 # ifdef DYLP_PARANOIA
   if (dy_chkdysys(orig_sys) == FALSE) return (dyrFATAL) ;
 # endif
+/*
+  Now, is the client forcing the full system on top of the hot start? If so,
+  do it here. We're up and running at this point, so dy_forceFull can do its
+  thing.
 
-  return (dyrOK) ; }
+  Normally, dy_forceFull is called when we've failed at primal simplex with a
+  partial system, then tried and failed to force dual feasibility. Make it
+  look like this while we're working.  Reset phase to dyINIT and dy_lp->lpret
+  to dyrINV when we're done so that dylp() sees the codes it expects.
+
+  This is an exceptional activity, so I'm not going out of my way to do this
+  in the most efficient manner. There really isn't a legitimate reason for
+  this --- it's most likely careless coding on the part of the client, but we
+  can cope without too much trouble.
+*/
+  if (dy_opts->fullsys == TRUE &&
+      (dy_lp->sys.cons.loadable > 0 || dy_lp->sys.vars.loadable > 0))
+  {
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.force >= 1)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  Forcing full system.") ; }
+#   endif
+    dy_lp->lpret = lpFORCEDUAL ;
+    dy_lp->phase = dyFORCEFULL ;
+    phase = dy_forceFull(orig_sys) ;
+    if (phase == dyINV)
+    { retval = dyrFATAL ; }
+    else
+    { dy_lp->lpret = lpINV ;
+      dy_lp->phase = dyINIT ;
+      retval = dyrOK ; } }
+  else
+  { retval = dyrOK ; }
+
+  return (retval) ; }

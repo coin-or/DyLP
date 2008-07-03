@@ -130,7 +130,8 @@ lpopts_struct dyopts_dflt = { cxINITIALLP, /* context */
 				0,	/* print.conmgmt */
 				0,	/* print.varmgmt */
 				1, 	/* print.force */
-				0 	/* print.tableau */
+				0,	/* print.tableau */
+				0 	/* print.rays */
 			      }
 			    } ;
 
@@ -195,7 +196,8 @@ lpopts_struct dyopts_lb = { cxSINGLELP,	/* context */
 			      0,	/* print.conmgmt */
 			      0,	/* print.varmgmt */
 			      0,	/* print.force */
-			      0 	/* print.tableau */
+			      0,	/* print.tableau */
+			      0 	/* print.rays */
 			    }
 			  } ;
 
@@ -267,7 +269,8 @@ lpopts_struct dyopts_ub = { cxBANDC,	/* context */
 			      5,	/* print.conmgmt */
 			      4,	/* print.varmgmt */
 			      3,	/* print.force */
-			      2 	/* print.tableau */
+			      6,	/* print.tableau */
+			      4 	/* print.rays */
 			    }
 			  } ;
 
@@ -548,6 +551,7 @@ void dy_setprintopts (int lvl, lpopts_struct *opts)
       opts->print.varmgmt = 0 ;
       opts->print.force = 0 ;
       opts->print.tableau = 0 ;
+      opts->print.rays = 0 ;
       break ; }
     case 1:
     { opts->print.major = maxx(opts->print.major,dyopts_dflt.print.major) ;
@@ -573,6 +577,8 @@ void dy_setprintopts (int lvl, lpopts_struct *opts)
       opts->print.force = maxx(opts->print.force,dyopts_dflt.print.force) ;
       opts->print.tableau = maxx(opts->print.tableau,
 				 dyopts_dflt.print.tableau) ;
+      opts->print.rays = maxx(opts->print.rays,
+				 dyopts_dflt.print.rays) ;
       break ; }
     case 2:
     { opts->print.major = maxx(opts->print.major,1) ;
@@ -591,6 +597,7 @@ void dy_setprintopts (int lvl, lpopts_struct *opts)
       opts->print.varmgmt = maxx(opts->print.varmgmt,1) ;
       opts->print.force = maxx(opts->print.force,1) ;
       opts->print.tableau = maxx(opts->print.tableau,1) ;
+      opts->print.rays = maxx(opts->print.rays,1) ;
       break ; }
     case 3:
     { opts->print.major = maxx(opts->print.major,1) ;
@@ -609,6 +616,7 @@ void dy_setprintopts (int lvl, lpopts_struct *opts)
       opts->print.varmgmt = maxx(opts->print.varmgmt,2) ;
       opts->print.force = maxx(opts->print.force,1) ;
       opts->print.tableau = maxx(opts->print.tableau,1) ;
+      opts->print.rays = maxx(opts->print.rays,1) ;
       break ; }
     case 4:
     { opts->print.major = maxx(opts->print.major,1) ;
@@ -626,7 +634,8 @@ void dy_setprintopts (int lvl, lpopts_struct *opts)
       opts->print.conmgmt = maxx(opts->print.conmgmt,3) ;
       opts->print.varmgmt = maxx(opts->print.varmgmt,2) ;
       opts->print.force = maxx(opts->print.force,2) ;
-      opts->print.tableau = maxx(opts->print.tableau,2) ;
+      opts->print.tableau = maxx(opts->print.tableau,1) ;
+      opts->print.tableau = maxx(opts->print.rays,3) ;
       break ; }
     default:
     { opts->print.major = maxx(opts->print.major,1) ;
@@ -644,7 +653,8 @@ void dy_setprintopts (int lvl, lpopts_struct *opts)
       opts->print.conmgmt = maxx(opts->print.conmgmt,3) ;
       opts->print.varmgmt = maxx(opts->print.varmgmt,2) ;
       opts->print.force = maxx(opts->print.force,3) ;
-      opts->print.tableau = maxx(opts->print.tableau,2) ;
+      opts->print.tableau = maxx(opts->print.tableau,4) ;
+      opts->print.tableau = maxx(opts->print.rays,4) ;
       break ; } }
   
   return ; }

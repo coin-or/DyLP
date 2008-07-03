@@ -790,9 +790,11 @@
 @905@(T%d:#%d\@%d): error while evaluating MMS branching candidates.@
 @906:949@<<open>>@
 
-	Error messages related to dylp's simplex/tableau routines
+	Error messages related to dylp's simplex/tableau and ray routines
 
 @950@[%s]: inactive %s %s (%d); cannot %s.@
 @951@[%s]: nonbasic variable %s (%d); cannot %s.@
 @952@[%s]: error calculating basis inverse %s %d, %s %s (%d).@
 @953@[%s]: error calculating %s %s, %s (%d).@
+@954@[%s]: cannot calculate %s rays; incompatible lp return code %s.@
+@955@[%s]: error while generating %s rays.@

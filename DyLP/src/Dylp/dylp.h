@@ -545,7 +545,8 @@ typedef struct
 		For lpINFEAS, the total infeasibility.
 		For lpUNBOUNDED, the index of the unbounded variable, negated
 		  if the variable can decrease without bound, positive if it
-		  can increase without bound.
+		  can increase without bound. The logical for constraint i
+		  is represented as n+i.
 		Otherwise, undefined.
   iters		The number of simplex iterations.
   consys	The constraint system.
@@ -1079,7 +1080,16 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		  vectors (beta<i>, beta<j>, abar<i>, abar<j>) for use by
 		  external clients.
 		  1: prints summary messages about the circumstances
-		  2: prints nonzeros in the vector.
+		  4: prints nonzeros in the final vector.
+		  5: prints nonzeros in intermediate vectors and (dy_betaj,
+		     dy_abarj only) inactive rows
+		  6: prints nonzeros of active portion in internal reference
+		     frame (dy_betaj only)
+    rays	  Controls print level for routines that generate primal
+		  and dual rays for use by external clients.
+		  1: prints summary messages about vectors found.
+		  3: print information about columns / rows examined.
+		  4: print information about why a column or row was rejected.
 */
 
 typedef struct
@@ -1143,7 +1153,8 @@ typedef struct
 	   int conmgmt ;
 	   int varmgmt ;
 	   int force ;
-	   int tableau ; } print ; } lpopts_struct ;
+	   int tableau ;
+	   int rays ; } print ; } lpopts_struct ;
 
 
 
@@ -1893,6 +1904,13 @@ extern bool dy_betaj(lpprob_struct *orig_lp, int tgt_j, double **p_betaj) ;
 extern bool dy_betai(lpprob_struct *orig_lp, int tgt_i, double **p_betai) ;
 extern bool dy_abari(lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 		     double **p_betai) ;
+
+/*
+  dy_rays.c
+*/
+
+extern bool dy_primalRays(lpprob_struct *orig_lp,
+			  int *p_numRays, double ***p_rays) ;
 
 /*
   dylp_io.c

@@ -59,7 +59,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
 CONFIG_CLEAN_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_unitTest_OBJECTS = dytest_problems.$(OBJEXT) \
+am_unitTest_OBJECTS = dytest_problems.$(OBJEXT) dytest_rays.$(OBJEXT) \
 	dytest_tableau.$(OBJEXT) unitTest.$(OBJEXT)
 unitTest_OBJECTS = $(am_unitTest_OBJECTS)
 unitTest_DEPENDENCIES = $(DYLPOBJDIR)/src/Dylp/libDylp.la
@@ -231,6 +231,7 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 unitTest_SOURCES = \
 	dytest_problems.c \
+	dytest_rays.c \
 	dytest_tableau.c \
 	unitTest.c
 
@@ -307,6 +308,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dytest_problems.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dytest_rays.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dytest_tableau.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unitTest.Po@am__quote@
 

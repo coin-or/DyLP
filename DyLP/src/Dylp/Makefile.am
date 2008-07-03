@@ -45,6 +45,7 @@ libDylp_la_SOURCES = \
 	dy_primal.c \
 	dy_primalmultipivot.c \
 	dy_primalpivot.c \
+	dy_rays.c \
 	dy_scaling.c \
 	dy_setup.c \
 	dy_statistics.c \
