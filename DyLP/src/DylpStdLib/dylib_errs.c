@@ -18,8 +18,8 @@
   the identifier in a file to find the associated error message and pass the
   message, with parameters, to printf.
 
-  If the conditional compilation variable DYLP_NDEBUG is defined, the warn routine
-  is converted to a complete noop.
+  If the conditional compilation variable DYLP_NDEBUG is defined, the warn
+  routine is converted to a complete noop.
 
   The error message file may be passed as a parameter to errinit, or specified
   using the environment variable ERRMSGTXT. Failing anything else, it will
@@ -53,7 +53,7 @@ static char svnid[] UNUSED = "$Id$" ;
 */
 
 static FILE *emsgchn,*elogchn ;
-static char *elogname ;
+static char *emsgname,*elogname ;
 static bool errecho ;
 
 /*
@@ -109,11 +109,13 @@ void errinit (const char *emsgpath, char *elogpath, bool echo)
 */
   if (emsgpath == NULL)
   { emsgpath = getenv("ERRMSGTXT") ;
-    if (emsgpath == NULL) emsgpath = "errmsg.txt" ; }
-  emsgchn = fopen(emsgpath,"r") ;
+    if (emsgpath == NULL) emsgpath = "dy_errmsgs.txt" ; }
+  emsgname = (char *) MALLOC(strlen(emsgpath)+1) ;
+  strcpy(emsgname,emsgpath) ;
+  emsgchn = fopen(emsgname,"r") ;
   if (emsgchn == NULL)
   { fprintf(stderr,"\n%s: couldn't open error message text file \"%s\".\n",
-	    rtnnme,emsgpath) ;
+	    rtnnme,emsgname) ;
     perror(rtnnme) ;
     fprintf(stderr,"\n%s: only numeric error codes will be reported.\n",
 	    rtnnme) ; }
@@ -154,14 +156,46 @@ void errinit (const char *emsgpath, char *elogpath, bool echo)
 void errterm (void)
 
 /*
-  This routine cleans up data structures owned by the error package.
+  This routine cleans up data structures owned by the error package and closes
+  the error file and log file, if present. Don't close stdin!
+
+  There doesn't seem to be a reliable way to determine if the file is already
+  closed --- this is a potential problem for elogchn, which can be redirected
+  into a stream under the control of dylib_io functions. I need to do some
+  testing.
+
+  The test used below --- a call to fileno() --- will return an error for a
+  closed file on at least some linux systems, but does not return an error on
+  Solaris.
 
   Parameters: none
 
   Returns: undefined.
 */
 
-{ if (elogname != NULL) FREE(elogname) ;
+{ char *rtnnme = "errterm" ;
+
+  int fnum ;
+
+  if (emsgchn != NULL && emsgchn != stdin && fileno(emsgchn) >= 0)
+  { if (fclose(emsgchn) < 0)
+    { fprintf(stderr,"\n%s: couldn't close error message file \"%s\".\n",
+	      emsgname,rtnnme) ;
+      perror(rtnnme) ; }
+    emsgchn = NULL ; }
+  if (emsgname != NULL)
+  { FREE(emsgname) ;
+    emsgname = NULL ; }
+
+  if (elogchn != NULL && elogchn != stdin && fileno(elogchn) >= 0 )
+  { if (fclose(elogchn) < 0)
+    { fprintf(stderr,"\n%s: couldn't close error log file \"%s\".\n",
+	      elogname,rtnnme) ;
+      perror(rtnnme) ; }
+    elogchn = NULL ; }
+  if (elogname != NULL)
+  { FREE(elogname) ;
+    elogname = NULL ; }
 
   return ; }
 
