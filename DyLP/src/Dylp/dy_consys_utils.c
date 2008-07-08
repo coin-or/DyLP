@@ -813,7 +813,7 @@ consys_struct *consys_create (const char *nme, flags parts, flags opts,
 */
   consys = (consys_struct *) CALLOC(1,sizeof(consys_struct)) ; 
   if (nme == NULL)
-    consys->nme = STRALLOC("<<unnamed>>") ;
+    consys->nme = STRALLOC("<<anon>>") ;
   else
     consys->nme = STRALLOC(nme) ;
   consys->opts = opts ;

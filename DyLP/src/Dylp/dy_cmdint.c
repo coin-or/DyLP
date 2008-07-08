@@ -163,7 +163,7 @@ static cmd_retval docmd (lex_struct *txt)
   if (txt == NULL)
   { errmsg(2,rtnnme,"txt") ;
     return (cmdHALTERROR) ; }
-  if (txt->class != LCID)
+  if (txt->class != DY_LCID)
   { errmsg(5,rtnnme,(int) txt->class) ;
     return (cmdHALTERROR) ; }
 /*
@@ -244,10 +244,11 @@ static cmd_retval docmd (lex_struct *txt)
   scanning off whatever is left on the command line and echoing it.
 */
   if (retval != cmdHALTERROR)
-  { lex =  dyio_scanstr(dy_cmdchn,LCQS,0,'\0','\n') ;
-    if (!(lex->class == LCNIL || lex->class == LCEOF || lex->class == LCERR))
+  { lex =  dyio_scanstr(dy_cmdchn,DY_LCQS,0,'\0','\n') ;
+    if (!(lex->class == DY_LCNIL || lex->class == DY_LCEOF ||
+    	  lex->class == DY_LCERR))
       dyio_outfmt(dy_logchn,dy_cmdecho," %s",lex->string) ;
-    if (lex->class == LCERR) retval = cmdHALTERROR ; }
+    if (lex->class == DY_LCERR) retval = cmdHALTERROR ; }
   
   return (retval) ; }
 
@@ -273,8 +274,8 @@ static cmd_retval indcmd (bool silent)
 /*
   Get the file name.
 */
-  file = dyio_scanstr(dy_cmdchn,LCQS,0,'"','"') ;
-  if (file->class != LCQS)
+  file = dyio_scanstr(dy_cmdchn,DY_LCQS,0,'"','"') ;
+  if (file->class != DY_LCQS)
   { errmsg(236,rtnnme,"file name","parameter","@") ;
     return (cmdHALTERROR) ; }
 /*
@@ -336,7 +337,7 @@ static cmd_retval dobuiltin (lex_struct *txt, bool silent)
   if (txt == NULL)
   { errmsg(2,rtnnme,"txt") ;
     return (cmdHALTERROR) ; }
-  if (txt->class != LCDEL)
+  if (txt->class != DY_LCDEL)
   { errmsg(5,rtnnme,(int) txt->class) ;
     return (cmdHALTERROR) ; }
 /*
@@ -346,8 +347,8 @@ static cmd_retval dobuiltin (lex_struct *txt, bool silent)
 
   if (*txt->string == '!')
   { dyio_outchr(dy_logchn,dy_cmdecho,'!') ;
-    lex = dyio_scanstr(dy_cmdchn,LCQS,0,'\0','\n') ;
-    if (lex->class != LCNIL)
+    lex = dyio_scanstr(dy_cmdchn,DY_LCQS,0,'\0','\n') ;
+    if (lex->class != DY_LCNIL)
     { dyio_outfmt(dy_logchn,dy_gtxecho," %s",lex->string) ; }
     return (cmdOK) ; }
 
@@ -421,13 +422,13 @@ cmd_retval process_cmds (bool silent)
 */
     txt = dyio_scanlex(dy_cmdchn) ;
     switch (txt->class)
-    { case LCID:
+    { case DY_LCID:
       { retval = docmd(txt) ;
 	break ; }
-      case LCDEL:
+      case DY_LCDEL:
       { retval = dobuiltin(txt,silent) ;
 	break ; }
-      case LCEOF:
+      case DY_LCEOF:
       { if (level == 0)
 	{ retval = cmdHALTNOERROR ; }
 	else
@@ -441,9 +442,9 @@ cmd_retval process_cmds (bool silent)
 	  dy_gtxecho = cmdchns[level].gecho ;
 	  retval = cmdOK ; }
 	break ; }
-      case LCERR:
+      case DY_LCERR:
       { break ; }
-      default: /* LCNIL, LCNUM, LCFS, LCQS */
+      default: /* DY_LCNIL, DY_LCNUM, DY_LCFS, DY_LCQS */
       { errmsg(230,rtnnme,(txt->string == NULL)?"<<nil>>":txt->string) ;
 	break ; } }
     dyio_flushio(dy_logchn,dy_cmdecho) ; }
@@ -451,6 +452,6 @@ cmd_retval process_cmds (bool silent)
   Command interpretation has been stopped. Fix up the return code and return.
 */
   if (retval == cmdHALTERROR) errmsg(235,rtnnme) ;
-  if (retval == cmdHALTNOERROR && txt->class == LCEOF) retval = cmdOK ;
+  if (retval == cmdHALTNOERROR && txt->class == DY_LCEOF) retval = cmdOK ;
 
   return (retval) ; }

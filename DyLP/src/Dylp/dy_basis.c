@@ -505,8 +505,9 @@ static void luf_adjustsize (void)
 void dy_ftran (double *col, bool save)
 
 /*
-  This is a shell that calls inv_ftran to perform inv(B)*col. We need to set
-  clean zeros before returning the result.
+  This is a shell that calls inv_ftran to perform inv(B)*col.  The returned
+  vector will be clean because basis initialisation sets glpk's eps_tol equal
+  to dylp's zero_tol
 
   Parameter:
     col:	The column vector to be ftran'ed.
@@ -532,8 +533,9 @@ void dy_ftran (double *col, bool save)
 void dy_btran (double *col)
 
 /*
-  This is a shell that calls inv_btran to perform col*inv(B). We need to set
-  clean zeros before returning the result.
+  This is a shell that calls inv_btran to perform col*inv(B).  The returned
+  vector will be clean because basis initialisation sets glpk's eps_tol equal
+  to dylp's zero_tol
 
   Parameter:
     col:	The column vector to be btran'ed.

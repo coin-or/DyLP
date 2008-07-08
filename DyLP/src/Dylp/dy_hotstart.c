@@ -207,7 +207,7 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
 */
 
 { int oaindx,aindx,ndx ;
-  double xk,lk,uk ;
+  double xk,lk,uk,ck ;
   pkvec_struct *ak ;
   pkcoeff_struct *aik ;
   consys_struct *orig_sys ;
@@ -216,12 +216,13 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
 
   orig_sys = orig_lp->consys ;
 
+  xkstatus = getflg(orig_lp->status[oxkndx],vstatSTATUS) ;
+
 # ifdef PARANOIA
 /*
   Any inactive variable should be nonbasic, and the paranoid check is looking
   to make sure of this.
 */
-  xkstatus = orig_lp->status[oxkndx] ;
   if (!VALID_STATUS(xkstatus))
   { errmsg(300,rtnnme,(int) xkstatus,
 	   consys_nme(orig_sys,'v',oxkndx,FALSE,NULL),oxkndx) ;
@@ -235,26 +236,52 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
 # endif
 /*
   The bounds can change arbitrarily, and the client may not be maintaining
-  the status vector, but we're limited in what we can do --- our only source
-  of a value for inactive variables is the bounds. (Contrast with the
-  equivalent section in process_active.) For the typical circumstance where
-  both bounds are finite, and a bound has changed, but the variable is not
-  fixed or free, the best we can do is use orig_lp->status. If the variable
-  was previously fixed, we can only guess; arbitrarily choose NBLB.
-
-  The default case in the switch below should never execute, but it serves
-  for paranoia and lets gcc conclude xk will always have a value.
+  the status vector, but we're limited in what we can do --- bounds and status
+  are our only clues to the value of an inactive variable. (Contrast with the
+  equivalent section in process_active.)
 */
   lk = orig_sys->vlb[oxkndx] ;
   uk = orig_sys->vub[oxkndx] ;
+  ck = orig_sys->obj[oxkndx] ;
+/*
+  Start with the case that both bounds are finite. Use a previous status of
+  NBLB or NBUB. Otherwise, guess from the sign of the objective coefficient.
+  `Dirty' fixed variables are marked as unloadable.
+*/
   if (lk > -dy_tols->inf && uk < dy_tols->inf)
-  { if (lk == uk)
-    { xkstatus = vstatNBFX ; }
+  { if (atbnd(lk,uk) && lk != uk)
+    { if (flgon(xkstatus,vstatNBLB|vstatNBUB))
+      { setflg(xkstatus,vstatNOLOAD) ; }
+      else
+      { if (ck < 0)
+	{ xkstatus = vstatNBUB|vstatNOLOAD ; }
+	else
+	{ xkstatus = vstatNBLB|vstatNOLOAD ; } }
+#     ifndef DYLP_NDEBUG
+      if (dy_opts->print.setup >= 3)
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\tDirty fixed variable %s (%d)",
+		    consys_nme(orig_sys,'v',oxkndx,0,0),oxkndx) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    " assigned status %s.",dy_prtvstat(xkstatus)) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n\t  original lb = %g, ub = %g, diff = %g, tol = %g",
+		    lk,uk,uk-lk,dy_tols->pfeas) ; }
+#     endif
+    }
     else
-    if (orig_lp->status[oxkndx] == vstatNBFX)
-    { xkstatus = vstatNBLB ; }
+    if (lk == uk)
+    { xkstatus = vstatNBFX|vstatNOLOAD ; }
     else
-    { xkstatus = orig_lp->status[oxkndx] ; } }
+    if (flgon(xkstatus,vstatNBLB|vstatNBUB))
+    { xkstatus = orig_lp->status[oxkndx] ; }
+    else
+    { if (ck < 0)
+      { xkstatus = vstatNBUB ; }
+      else
+      { xkstatus = vstatNBLB ; } } }
+/*
+  Variables with one bound, or no bounds. No choices here.
+*/
   else
   if (lk > -dy_tols->inf)
   { xkstatus = vstatNBLB ; }
@@ -263,7 +290,15 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
   { xkstatus = vstatNBUB ; }
   else
   { xkstatus = vstatNBFR ; }
-  switch (xkstatus)
+/*
+  Determine the variable's value and set up the status entries.
+
+  The default case in the switch below should never execute, but it serves
+  for paranoia and lets gcc conclude xk will always have a value.
+
+  Consider whether it's really a good idea to change orig_lp->status.
+*/
+  switch (getflg(xkstatus,vstatSTATUS))
   { case vstatNBLB:
     case vstatNBFX:
     { xk = lk ;
@@ -280,11 +315,10 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
       return (FALSE) ; } }
   orig_lp->status[oxkndx] = xkstatus ;
   dy_origvars[oxkndx] = -((int) xkstatus) ;
-  dy_lp->inactzcorr += xk*orig_sys->obj[oxkndx] ;
 /*
-  Now it's time to walk the column and make any necessary corrections to the
-  rhs (and perhaps rhslow).
+  Note any contribution to the objective and constraint rhs & rhslow values.
 */
+  dy_lp->inactzcorr += xk*orig_sys->obj[oxkndx] ;
   if (flgon(orig_lp->ctlopts,lpctlRHSCHG|lpctlLBNDCHG|lpctlUBNDCHG))
   { ak = NULL ;
     if (consys_getcol_pk(orig_sys,oxkndx,&ak) == FALSE)
@@ -309,13 +343,12 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t  %s (%d) %s inactive with value ",
 	        consys_nme(orig_sys,'v',oxkndx,FALSE,NULL),oxkndx,
 	        dy_prtvstat(xkstatus)) ;
-    switch (xkstatus)
+    switch (getflg(xkstatus,vstatSTATUS))
     { case vstatNBFX:
       case vstatNBLB:
-      { dyio_outfmt(dy_logchn,dy_gtxecho,"%g.",orig_sys->vlb[oxkndx]) ;
-	break ; }
       case vstatNBUB:
-      { dyio_outfmt(dy_logchn,dy_gtxecho,"%g.",orig_sys->vub[oxkndx]) ;
+      case vstatNBFR:
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"%g.",xk) ;
 	break ; }
       default:
       { dyio_outfmt(dy_logchn,dy_gtxecho,"??.") ;
@@ -487,8 +520,9 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
 
 { int oxkndx,xkndx,oaindx,aindx ;
   double *ogvlb,*dyvlb,*ogvub,*dyvub,*ogobj,*dyobj,*dyrhs,*ogrhs ;
+  double lbj,ubj,cj ;
   consys_struct *orig_sys ;
-  flags *ogstatus,calcflgs ;
+  flags *ogstatus,calcflgs,statk ;
   dyret_enum retval ;
   lpret_enum lpret ;
   const char *rtnnme = "dy_hotstart" ;
@@ -570,34 +604,16 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
       variable.
     * Update dy_status for each active variable.
     * Update dy_x for each nonbasic active variable.
-
-  Take the opportunity to groom the bounds, making sure that if the bounds
-  are within the feasibility tolerance of one another, they are set exactly
-  equal. This simplifies the handling of fixed variables.
+    * Update loadable/unloadable accounting.
 */
   dy_lp->inactzcorr = 0 ;
   lpret = lpINV ;
+  dy_lp->sys.vars.loadable = 0 ;
+  dy_lp->sys.vars.unloadable = 0 ;
   for (oxkndx = 1 ; oxkndx <= orig_sys->varcnt ; oxkndx++)
   { xkndx = dy_origvars[oxkndx] ;
-/*
-  Force equality for bounds within the feasibility tolerance of one another.
-  Then check for infeasibility (crossed bounds).
-*/
-    if (atbnd(ogvlb[oxkndx],ogvub[oxkndx]) && ogvlb[oxkndx] != ogvub[oxkndx])
-    { 
-#     ifndef DYLP_NDEBUG
-      if (dy_opts->print.setup >= 3)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n\tForcing equal bound %g for %s (%d)",
-		    (ogvlb[oxkndx]+ogvub[oxkndx])/2,
-		    consys_nme(orig_sys,'v',oxkndx,0,0),oxkndx) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n\t  original lb = %g, ub = %g, diff = %g, tol = %g",
-		    ogvlb[oxkndx],ogvub[oxkndx],ogvub[oxkndx]-ogvlb[oxkndx],
-		    dy_tols->pfeas) ; }
-#     endif
-      ogvlb[oxkndx] = (ogvlb[oxkndx]+ogvub[oxkndx])/2 ;
-      ogvub[oxkndx] = ogvlb[oxkndx] ; }
+    lbj = ogvlb[oxkndx] ;
+    ubj = ogvub[oxkndx] ;
     if (ogvlb[oxkndx] > ogvub[oxkndx])
     { lpret = lpINFEAS ;
 #     ifndef DYLP_NDEBUG
@@ -618,7 +634,12 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
   variables.
 */
     if (xkndx < 0)
-    { if (process_inactive(orig_lp,oxkndx) == FALSE) return (dyrFATAL) ; }
+    { if (process_inactive(orig_lp,oxkndx) == FALSE) return (dyrFATAL) ;
+      statk = (flags) -dy_origvars[oxkndx] ;
+      if (flgon(statk,vstatNOLOAD))
+      { dy_lp->sys.vars.unloadable++ ; }
+      else
+      { dy_lp->sys.vars.loadable++ ; } }
     else
     { process_active(orig_lp,oxkndx) ; } }
 /*

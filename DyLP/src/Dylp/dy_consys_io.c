@@ -465,7 +465,7 @@ const char *consys_nme (consys_struct *consys,
       rtnbuf = clientbuf ; } }
 /*
   We have to build the name. Not quite so bad as it seems at first glance.
-  Figure out what buffer to use, then dump in the prefix, the dump in the
+  Figure out what buffer to use, then dump in the prefix, then dump in the
   name.
 
   The call to consys_lognme down below is made with a private buffer so that
