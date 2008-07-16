@@ -45,6 +45,7 @@ DyLP/test/Makefile.am -text
 DyLP/test/Makefile.in -text
 DyLP/test/dytest_problems.c -text
 DyLP/test/dytest_rays.c -text
+DyLP/test/dytest_solutions.c -text
 DyLP/test/dytest_tableau.c -text
 DyLP/test/unitTest.c -text
 /Externals -text
