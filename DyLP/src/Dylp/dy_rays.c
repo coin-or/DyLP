@@ -43,24 +43,25 @@
   with probability 1.
 
   We're only going to return rays that emanate from the current basic
-  solution. Nor do we have any particular obligation to return a complete set
-  of rays.
+  solution. A search for all rays is a nontrivial and expensive task.
 
   With these assumptions, we can ignore any interactions with the inactive
-  parts of the constraint system. That doesn't mean that ray components
-  associated with inactive constraints or variables are all zero, only that the
-  inactive components will not block the ray.
+  parts of the constraint system when testing for ray-ness.  That doesn't
+  mean that ray components associated with inactive constraints or variables
+  are all zero, only that the inactive components will not block the ray. If
+  they could, dylp would have activated them and we wouldn't be here.
 
   There's another bit of pathology to consider: It's possible to define a
   problem where we can move infinitely far in either direction. For example,
 
     min x1  s.t.  x1 + x2 = 0   x1, x2 free
 
-  However, only the direction that improves the objective qualifies as a ray.
-  This follows by extension from the very common case where the constraints of
-  an lp define a finite optimum for, say, minimisation, but changing to
-  maximisation results in an unbounded problem. Clearly, moving in a direction
-  that degrades the objective does not normally qualify as a ray.
+  However, only the direction that improves the objective qualifies as a
+  ray.  This follows by extension from the very common case where the
+  constraints of an lp form a polyhedral cone with a finite optimum for, say,
+  minimisation, but changing to maximisation results in an unbounded problem.
+  Clearly, moving in a direction that degrades the objective does not
+  normally qualify as a ray.
 */
 
 #define DYLP_INTERNAL
@@ -83,20 +84,20 @@ static bool testForPrimalRay (int j, int *p_dir, double **p_abarj)
   if it constitutes a primal ray.  It's a much-simplified version of the
   algorithm that selects the leaving variable for primal simplex.
 
-    * Instead of searching for the smallest limit on the change in x<j> , we
+    * Instead of searching for the smallest limit on the change in x<j>, we
       just want to know if there's no limit. Hence we can abandon the
-      evaluation as soon as any basic variable limits the change in x<j>.
+      evaluation as soon as any basic primal variable limits the change
+      in x<j>.
 
-    * The routine assumes this question is being asked after simplex has
-      determined the problem is unbounded. No need to worry about degeneracy
-      or primal infeasibility.
-
-    * Finally, there's no need to worry about numerical stability and all the
-      other little considerations that go into selecting a good pivot.
+    * There's no need to worry about degeneracy, numerical stability and all
+      the other little considerations that go into selecting a good pivot.
 
   NOTE: This routine works in the active system reference frame. The vector
-	returned is abar<j>, which must be negated to become the corresponding
-	ray. It makes more sense to do this in dy_primalRays.
+	returned is abar<j>. This is not quite a ray: it needs a coefficient
+	(-1.0) for x<j> and it must be negated to become the corresponding
+	ray. It makes more sense to do this in the client, once we know how
+	the ray is to be presented. See, for example, dy_primalRays, which
+	transforms the ray for use by the outside world.
 
   Parameters:
     j:		Index of the column to be evaluated
@@ -106,7 +107,7 @@ static bool testForPrimalRay (int j, int *p_dir, double **p_abarj)
 		 =1: ray in the direction -abar<j> (x<j> decreasing)
     p_abarj:	(o) if non-NULL, used to return abar<j> as an expanded vector
 		    in basis order iff abar<j> is a primal ray, otherwise
-		    *p_abarj set to NULL
+		    *p_abarj is set to NULL
   
   Returns: TRUE if the evaluation completes without error, FALSE otherwise.
 */
@@ -224,8 +225,8 @@ static bool testForPrimalRay (int j, int *p_dir, double **p_abarj)
   dy_ftran(abarj,FALSE) ;
   m = dy_sys->concnt ;
 /*
-  Separate the loops for an up ray and a down ray for efficiency. Only one
-  case will apply.
+  Separate the loops for an up ray and a down ray for efficiency and clarity.
+  Only one case will apply.
 
   Open a loop to step through the basic variables. As soon as we find a limit
   on delta, we're done. Clearly, if abar<kj> = 0, or x<k> is free, no limit
@@ -297,17 +298,17 @@ static bool testForPrimalRay (int j, int *p_dir, double **p_abarj)
 # ifndef DYLP_NDEBUG
   if ((rayUp == TRUE || rayDown == TRUE) && dy_opts->print.rays >= 6)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
-	    "\n    active ray %s (%d)\n      non-zeros:",
-	    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
+		"\n    active ray %s (%d)\n      non-zeros:",
+		consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
     v = 0 ;
-    for (kpos = 1 ; kpos < m ; kpos++)
+    for (kpos = 1 ; kpos <= m ; kpos++)
     { abarkj = abarj[kpos] ;
       if (withintol(abarkj,0,dy_tols->zero)) continue ;
       k = dy_basis[kpos] ;
       dyio_outfmt(dy_logchn,dy_gtxecho," (%s (%d) %g)",
-		  consys_nme(dy_sys,'v',k,FALSE,NULL),k,abarkj) ; }
+		  consys_nme(dy_sys,'v',k,FALSE,NULL),k,abarkj) ;
       v++ ;
-      if (v%3 == 0) dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t\t") ; }
+      if (v%3 == 0) dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t\t") ; } }
 # endif
   
 /*
@@ -344,9 +345,9 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   solution. A call to this routine is productive only when the previous call
   to dylp returned a result of unbounded and dylp's internal data structures
   are still valid. A call when the previous simplex ended in anything other
-  than optimal, infeasible, or unbounded, is considered an error (in
-  judgment, at the very least). A call when the result of optimisation was
-  anything other than unbounded will return zero rays.
+  than optimal, infeasible, or unbounded is considered an error (in judgment,
+  at the least). A call when the result of optimisation was anything other
+  than unbounded will return zero rays.
 
   Parameters:
     orig_lp:	the lp problem structure
@@ -358,7 +359,8 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
 		    If not supplied by client, allocated if necessary; in
 		    particular, not allocated unless at least one ray is
 		    returned
-		(o) p_numRays entries will point to rays
+		(o) p_numRays entries will point to rays; each ray is an
+		    n-vector in original system column order.
 
   Returns: TRUE if no errors occurred while searching for rays; FALSE
 	   otherwise.
@@ -406,9 +408,9 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   else
   { ourCollection = TRUE ; }
 /*
-  What was the result of the last lp? If it was unbounded, we might have some
-  rays. If it was optimal or infeasible, by definition we have no rays and
-  can return TRUE. Any other code indicates an error; return FALSE.
+  What was the result of the last lp? If it was unbounded, we have some rays.
+  If it was optimal or infeasible, by definition we have no rays and can
+  return TRUE. Any other code indicates an error; return FALSE.
 */
   orig_sys = orig_lp->consys ;
   switch (orig_lp->lpret)
@@ -502,6 +504,9 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   position to basic variable (active) to variable (original), i -> j ->
   j_orig. Drop logicals, as they're not present in the original system.
 
+  Last, but not least, x<j> is itself moving and must be part of the ray. Add
+  a coefficient of -1.0, adjusted for direction, directly in the original
+  reference frame.
 */
     ray = CALLOC((n_orig+1),sizeof(double)) ;
     rayCollection[numRays] = ray ;
@@ -537,6 +542,8 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
     if (sc_abarj != NULL)
     { FREE(sc_abarj) ;
       sc_abarj = NULL ; }
+    if (logical == FALSE)
+    { ray[j_orig_ray] = -1.0*dir ; }
 
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.rays >= 5)
@@ -564,6 +571,482 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   vector used for abar<j>. If we have an error, free the ray collection.
 */
   if (sc_abarj != NULL) FREE(sc_abarj) ;
+  if (error == TRUE)
+  { if (rayCollection != NULL)
+    { for (i = 0 ; i < numRays ; i++)
+      { if (rayCollection[i] != NULL)
+	{ FREE(rayCollection[i]) ;
+	  rayCollection[i] = NULL ; } }
+      if (ourCollection == TRUE) FREE(rayCollection) ; }
+    return (FALSE) ; }
+/*
+  That's it --- finish up and return.
+*/
+  *p_rays = rayCollection ;
+  *p_numRays = numRays ;
+
+  return (TRUE) ; }
+
+
+
+static void testForDualRay (int i, int *p_dir, double **p_abari)
+
+/*
+  This routine evaluates an active row abar<i> = e<i>(inv(B)N) to determine
+  if it constitutes a dual ray.  As explained at the head of the file and in
+  dy_dualRays, there's a nonzero possibility this is a pathological problem
+  that's primal and dual infeasible. Still, we can assume that dylp has
+  activated all variables that might help.
+
+  The algorithm is a much-simplified version of the algorithm that selects the
+  leaving dual variable (entering primal variable) for dual simplex.
+
+    * Instead of searching for the smallest limit on the change in y<i>, we
+      just want to know if there's no limit. Hence we can abandon the
+      evaluation as soon as any basic dual variable limits the change in y<i>.
+
+    * There's no need to worry about degeneracy, numerical stability and all
+      the other little considerations that go into a selecting a good pivot.
+
+  NOTE: This routine works in the active system reference frame. The vector
+	returned is abar<i>. This is not quite a ray: it needs a coefficient
+	(-1.0) for y<i> and it must be negated to become the corresponding
+	ray. It makes more sense to do this in the client, once we know how
+	the ray is to be presented. See, for example, dy_dualRays, which
+	transforms the ray for use by the outside world.
+
+  Parameters:
+    i:		Index of the row to be evaluated
+    p_dir:	(o) Direction of motion,
+		  1: ray in the direction abar<i> (y<i> increasing)
+		  0: not a ray
+		 -1: ray in the direction -abar<i> (y<i> decreasing)
+    p_abari:	(o) if non-NULL, used to return abar<i> as an expanded vector
+		    in column order iff abar<i> is a dual ray, otherwise
+		    *p_abari is set to NULL.
+
+  Returns: undefined
+*/
+
+{ int bvi,j,k,m,n,dir ;
+  flags stati,statk ;
+  double abarik ;
+  bool rayUp,rayDown ;
+
+  double *betai,*abari ;
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.rays >= 3)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n      Testing if row %s (%d) is a dual ray",
+	        consys_nme(dy_sys,'c',i,FALSE,NULL),i) ; }
+# endif
+
+/*
+  Initial setup assumes no ray.
+*/
+  betai = NULL ;
+  abari = NULL ;
+  if (p_abari != NULL) *p_abari = NULL ;
+  *p_dir = 0 ;
+  rayUp = FALSE ;
+  rayDown = FALSE ;
+  dir = 0 ;
+/*
+  Start by checking the dual reduced cost, bbar<i> = e<i>inv(B)b. (a.k.a. the
+  value of the basic variable in pos'n i).  If bbar<i> = 0, we can change
+  y<i> all we like, but we won't go unbounded.  If bbar<i> is not zero, then
+  any ray must improve the objective. If you think of the dual as minimising,
+  then for bbar<i> > 0, y<i> must enter decreasing. For bbar<i> < 0, y<i>
+  must enter increasing. To avoid the awkward questions that arise once you
+  start to think hard about this while running dual simplex on the primal
+  structures, we'll just go with the status of the basic variable:
+    * If it's BUUB, then the dual will enter decreasing.
+    * If it's BLLB, then the dual will enter increasing.
+    * Otherwise, the dual reduced cost is 0 or unfavourable, and we don't have
+      a ray.
+*/
+  bvi = dy_basis[i] ;
+  stati = getflg(dy_status[bvi],vstatSTATUS) ;
+  switch (stati)
+  { case vstatBUUB:
+    { rayDown = TRUE ;
+      dir = -1 ;
+      break ; }
+    case vstatBLLB:
+    { rayUp = TRUE ;
+      dir = 1 ;
+      break ; }
+    default:
+    { break ; } }
+/*
+  The action for no ray is simply to return TRUE. This is obscured by all the
+  printing in the debug version.
+*/
+# ifdef DYLP_NDEBUG
+  if (dir == 0)
+  { return (TRUE) ; }
+# else
+  if (dir == 0)
+  { if (dy_opts->print.rays >= 4)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,".\n\tbasic var %s (%d) %s; no ray.",
+		  consys_nme(dy_sys,'v',bvi,FALSE,NULL),bvi,
+		  dy_prtvstat(stati)) ; }
+    return ; }
+  else
+  if (dy_opts->print.rays >= 4)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,".\n\tbasic var %s (%d) %s allows %s ray",
+		consys_nme(dy_sys,'v',bvi,FALSE,NULL),bvi,dy_prtvstat(stati),
+		((dir < 0)?"down":"up")) ; }
+# endif
+/*
+  We'll have to work for it. We can use dy_btran to retrieve beta<i> as
+  e<i>inv(B). It's annoying, but allocate abari too, even though we may throw
+  it away, 'cause otherwise we'll have no place to put coefficients while
+  we're working.
+*/
+  m = dy_sys->concnt ;
+  n = dy_sys->varcnt ;
+  betai = CALLOC((m+1),sizeof(double)) ;
+  abari = CALLOC((n+1),sizeof(double)) ;
+  betai[i] = 1.0 ;
+  dy_btran(betai) ;
+/*
+  Separate the loops for an up ray and a down ray for efficiency and clarity.
+  Only one case will apply.
+
+  Walk the columns (skipping basic variables) looking for coefficients that
+  will block motion.  We're looking at y<k> = cbar<k> - abar<ik>y<i> and
+  asking whether we can drive y<k> to 0.  If we make it through all the
+  columns without turning up a blocking coefficient, we have a ray.
+
+  For an up ray (y<i> increasing), the blocking conditions are:
+    * x<k> NBLB (hence cbar<k> >= 0) and abarik < 0
+    * x<k> NBUB (hence cbar<k> <= 0) and abarik > 0
+
+  If we happen to run across an NBFR variable with abarik != 0, we're
+  immediately done. Dual feasibility is possible only with cbar<k> = 0.
+  NBFX variables, on the other hand, can never block --- we can regard them as
+  NBLB or NBUB as needed.
+*/
+  if (rayUp == TRUE)
+  { for (k = 1 ; k <= n ; k++)
+    { statk = getflg(dy_status[k],vstatSTATUS) ;
+      if (flgon(statk,vstatBASIC|vstatNBFX)) continue ;
+      abarik = consys_dotcol(dy_sys,k,betai) ;
+      if (withintol(abarik,0,dy_tols->zero)) continue ;
+      if ((flgon(statk,vstatNBLB|vstatNBFR) && abarik < 0) ||
+	  (flgon(statk,vstatNBUB|vstatNBFR) && abarik > 0))
+      { rayUp = FALSE ;
+	break ; }
+      abari[k] = abarik ; }
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.rays >= 4)
+    { if (rayUp == FALSE)
+      { k-- ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "; %s %s (%d): abar<%d,%d> = %g; %s (%d) ",
+		    dy_prtvstat(statk),consys_nme(dy_sys,'v',k,FALSE,NULL),k,
+		    i,k,abarik) ;
+	if (flgon(statk,vstatNBFR))
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"; no ray.") ; }
+	else
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"; no ray up.") ; } }
+      else
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"; confirmed.") ; } }
+#   endif
+  }
+/*
+  The same, for a down ray.
+*/
+  if (rayDown == TRUE)
+  { for (k = 1 ; k <= n ; k++)
+    { statk = getflg(dy_status[k],vstatSTATUS) ;
+      if (flgon(statk,vstatBASIC|vstatNBFX)) continue ;
+      abarik = consys_dotcol(dy_sys,k,betai) ;
+      if (withintol(abarik,0,dy_tols->zero)) continue ;
+      if ((flgon(statk,vstatNBLB|vstatNBFR) && abarik > 0) ||
+	  (flgon(statk,vstatNBUB|vstatNBFR) && abarik < 0))
+      { rayDown = FALSE ;
+	break ; }
+      abari[k] = abarik ; }
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.rays >= 4)
+    { if (rayDown == FALSE)
+      { k-- ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "; %s %s (%d): abar<%d,%d> = %g; %s (%d) ",
+		    dy_prtvstat(statk),consys_nme(dy_sys,'v',k,FALSE,NULL),k,
+		    i,k,abarik) ;
+	if (flgon(statk,vstatNBFR))
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"; no ray.") ; }
+	else
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"; no ray down.") ; } }
+      else
+      { dyio_outfmt(dy_logchn,dy_gtxecho,"; confirmed.") ; } }
+#   endif
+  }
+  if (betai != NULL) FREE(betai) ;
+
+# ifndef DYLP_NDEBUG
+  if ((rayUp == TRUE || rayDown == TRUE) && dy_opts->print.rays >= 6)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n    active ray %s (%d)\n      non-zeros:",
+		consys_nme(dy_sys,'c',i,FALSE,NULL),i) ;
+    k = 0 ;
+    for (j = 1 ; j <= n ; j++)
+    { abarik = abari[j] ;
+      if (withintol(abarik,0,dy_tols->zero)) continue ;
+      dyio_outfmt(dy_logchn,dy_gtxecho," (%s (%d) %g)",
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,abarik) ;
+      k++ ;
+      if (k%3 == 0) dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t\t") ; } }
+# endif
+  
+/*
+  That's it. If this is a ray, set the direction and return abar<i> if the
+  client's requested it, otherwise free it.
+*/
+  if (rayUp == TRUE || rayDown == TRUE)
+  { *p_dir = dir ;
+    if (p_abari != NULL)
+    { *p_abari = abari ; }
+    else
+    { if (abari != NULL) FREE(abari) ; }
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.rays == 3)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,": yes.") ; }
+#   endif
+  }
+  else
+  { if (abari != NULL) FREE(abari) ;
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.rays == 3)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,": no.") ; }
+#   endif
+  }
+  
+  return ; }
+
+
+bool dy_dualRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
+
+/*
+  This routine returns the dual rays emanating from the current basic
+  solution. A call to this routine can be productive only when the previous
+  call to dylp returned a result of (primal) infeasible(*) and dylp's
+  internal data structures are still valid. A call when the previous simplex
+  ended in anything other than optimal, infeasible, or unbounded is
+  considered an error (in judgment, at the least). A call when the result of
+  optimisation was anything other than infeasible will return zero rays.
+
+  The ray returned is an m-vector in the original system frame of reference,
+  with the coefficients listed in row order. We're keeping our head firmly in
+  the sand with respect to the duals that would be associated with the upper
+  and lower bounds on variables, were those constraints to be made explicit.
+  Nor are we interested in basic dual logicals.
+
+  (*) Not to belabour the point, but it's possible for a problem to be dual
+      and primal infeasible. In this case, you'll get no rays.
+
+  Parameters:
+    orig_lp:	the lp problem structure
+    p_numRays:	(i) the maximum number of rays to return
+		(o) the actual number of rays returned
+    p_rays:	(i) vector of (double *) or NULL; 0-based indexing
+		    If supplied by client, must be capable of holding at least
+		    p_numRays rays.
+		    If not supplied by client, allocated if necessary; in
+		    particular, not allocated unless at least one ray is
+		    returned
+		(o) p_numRays entries will point to rays; each ray is an
+		    m-vector in original system row order.
+
+  Returns: TRUE if no errors occurred while searching for rays; FALSE
+	   otherwise.
+*/
+
+{ int m,n,i,j,m_orig,n_orig,i_orig,j_orig ;
+  bool error ;
+  double *sc_abari ;
+
+  consys_struct *orig_sys ;
+  bool scaled ;
+  const double *rscale,*cscale ;
+  double Si,dir ;
+
+  int numRows, numRays,maxRays,rayDir,i_ray,i_orig_ray,bv_ray,bv_orig_ray ;
+  flags statbv_ray ;
+  double **rayCollection ;
+  bool ourCollection,logical ;
+  double *ray ;
+
+  char *rtnnme = "dy_dualRays" ;
+
+# if DYLP_PARANOIA > 0
+  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  { return (FALSE) ; }
+  if (p_numRays == NULL)
+  { errmsg(2,rtnnme,"&numRays") ;
+    return (FALSE) ; }
+  if (p_rays == NULL)
+  { errmsg(2,rtnnme,"&rays") ;
+    return (FALSE) ; }
+# endif
+
+/*
+  Do enough setup for a valid return with no rays.
+*/
+  maxRays = *p_numRays ;
+  if (maxRays == 0)
+  { return (TRUE) ; }
+  *p_numRays = 0 ;
+  rayCollection = *p_rays ;
+  if (rayCollection != NULL)
+  { ourCollection = FALSE ; }
+  else
+  { ourCollection = TRUE ; }
+/*
+  What was the result of the last lp? If it was infeasible, we probably have
+  some rays. If it was optimal or unbounded, by definition we have no rays
+  and can return TRUE. Any other code indicates an error; return FALSE.
+*/
+  orig_sys = orig_lp->consys ;
+  switch (orig_lp->lpret)
+  { case lpINFEAS:
+    { break ; }
+    case lpOPTIMAL:
+    case lpUNBOUNDED:
+    { warn(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
+      return (TRUE) ; }
+    default:
+    { errmsg(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
+      return (FALSE) ; } }
+/*
+  The lp was infeasible, so with high probability we'll have a ray.
+
+  Set up a header to hold the collection, if the client did not supply it.
+  Also determine if we'll need to do unscaling, and if so acquire the scaling
+  matrices.
+*/
+  if (ourCollection == TRUE)
+  { rayCollection = (double **) MALLOC(maxRays*sizeof(double *)) ; }
+  sc_abari = NULL ;
+  scaled = dy_isscaled() ;
+  if (scaled == TRUE)
+  { dy_scaling_vectors(&rscale,&cscale) ; }
+/*
+  Set up to walk the rows of the active system.  For each row that tests out
+  as a ray, testForDualRay will return abar<i> in column order in the active
+  reference frame. We'll unscale it and simultaneously drop the coefficients
+  into a vector in row order in the original reference frame.
+*/
+  n_orig = orig_sys->varcnt ;
+  m_orig = orig_sys->varcnt ;
+  n = dy_sys->varcnt ;
+  m = dy_sys->concnt ;
+  error = FALSE ;
+  numRays = 0 ;
+  rayDir = 0 ;
+/*
+  Start to walk the rows of the active system. Unless the row would be a
+  candidate in a dual pivot, there's clearly no ray. Test for BLLB or BUUB
+  status for the associated basic variable.
+*/
+  for (numRows = 1, i_ray = 1 ; numRows <= m ; numRows++, i_ray = (i_ray%m)+1)
+  { bv_ray = dy_basis[i_ray] ;
+    statbv_ray = dy_status[bv_ray] ;
+    if (!flgon(statbv_ray,vstatBLLB|vstatBUUB)) continue ;
+/*
+  The row is not obviously unqualified, so call for a thorough check.
+*/
+    testForDualRay(i_ray,&rayDir,&sc_abari) ;
+    if (rayDir == 0) continue ;
+/*
+  We have a ray. We need to unscale it and translate it from active system
+  column order to original system row order. Begin by allocating a vector
+  to hold the ray.
+
+  In terms of scaling, we have sc_abar<i> = e<i>(inv(S)inv(B)NS<j>) and we need
+  to remove the leading and trailing column scaling, if present.
+
+  Getting the ray pointed in the right direction takes some work. Playing
+  fast and loose with notation, we're testing y = cbar - abar<i>y<i>, so
+  ray<i> = -abar<i>. Then, if y<i> is decreasing, that's another factor of -1
+  (encoded in rayDir). Finally, if the constraint in question is a >=
+  constraint in the original system, there's another factor of -1 folded into
+  the row scaling (but we can't use that directly; we want only the sign).
+
+  In terms of change of reference frame, we're moving from active system
+  column order to original system row order. But since we're only interested
+  in the values associated with nonbasic logicals, in practice we scan only
+  the first m positions of abar<i> and the translation is simply active row
+  to original row, i -> i_orig. As mentioned above, we're keeping our head
+  firmly in the sand when it comes to bounded architecturals.
+
+  Last, but not least, y<i> is itself moving and, if it's associated with an
+  architectural constraint, must be part of the ray. Add a coefficient of
+  -1.0, adjusted for direction, directly in the original reference frame.
+*/
+    ray = CALLOC((m_orig+1),sizeof(double)) ;
+    rayCollection[numRays] = ray ;
+    numRays++ ;
+    dir = -1.0*rayDir ;
+    i_orig_ray = dy_actcons[i_ray] ;
+    if (orig_sys->ctyp[i_orig_ray] == contypGE)
+    { dir = -dir ; }
+
+    if (bv_ray <= m)
+    { logical = TRUE ;
+      bv_orig_ray = dy_actcons[bv_ray] ; }
+    else
+    { logical = FALSE ;
+      bv_orig_ray = dy_actvars[bv_ray] ; }
+
+    if (scaled == TRUE)
+    { if (logical == TRUE)
+      { Si = 1/rscale[bv_orig_ray]*dir ; }
+      else
+      { Si = cscale[bv_orig_ray]*dir ; }
+      for (i = 1 ; i <= m ; i++)
+      { if (sc_abari[i] == 0) continue ;
+        i_orig = dy_actcons[i] ;
+	ray[i_orig] = rscale[i_orig]*sc_abari[i]*Si ;
+	setcleanzero(ray[i_orig],dy_tols->zero) ; } }
+    else
+    { for (i = 1 ; i <= m ; i++)
+      { if (sc_abari[i] == 0) continue ;
+	i_orig = dy_actcons[i] ;
+	ray[i_orig] = sc_abari[i]*dir ;
+	setcleanzero(ray[i_orig],dy_tols->zero) ; } }
+    if (sc_abari != NULL)
+    { FREE(sc_abari) ;
+      sc_abari = NULL ; }
+    if (logical == TRUE)
+    { ray[bv_orig_ray] = -1.0*dir ; }
+
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.rays >= 5)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+	      "\n    ray<%d>: %s (%d)\n      non-zeros:",numRays,
+	      consys_nme(orig_sys,'c',i_orig_ray,FALSE,NULL),i_orig_ray) ;
+      j_orig = 0 ;
+      for (i_orig = 1 ; i_orig <= m_orig ; i_orig++)
+      { if (ray[i_orig] != 0)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho," (%s (%d) %g)",
+		      consys_nme(orig_sys,'c',i_orig,FALSE,NULL),i_orig,
+		      ray[i_orig]) ; }
+	j_orig++ ;
+	if (j_orig%3 == 0) dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t\t") ; } }
+#   endif
+
+    if (numRays >= maxRays) break ; }
+/*
+  End of scanning loop. We've either found the requested number of rays,
+  scanned all columns, or encountered an error. Time for cleanup. Free the
+  vector used for abar<j>. If we have an error, free the ray collection.
+*/
+  if (sc_abari != NULL) FREE(sc_abari) ;
   if (error == TRUE)
   { if (rayCollection != NULL)
     { for (i = 0 ; i < numRays ; i++)

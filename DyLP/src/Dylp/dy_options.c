@@ -331,7 +331,7 @@ cmd_retval dy_printopt (const char *keywd)
     <printopt> ::= lpprint <what> <level>
     <what> ::= basis | conmgmt | crash | degen | dual | force | major |
 	       phase1 | phase2 | pivoting | pivreject | pricing | rays |
-	       scaling | setup | tableau | varmgmt
+	       scaling | setup | soln | tableau | varmgmt
     <level> ::= <integer>
 
   Parameters:
@@ -353,7 +353,7 @@ cmd_retval dy_printopt (const char *keywd)
   enum prntcodes { poINV = 0, poBASIS, poCONMGMT, poCRASH,
 		   poDEGEN, poDUAL, poFORCE, poMAJOR,
 		   poPHASE1, poPHASE2, poPIVOTING, poPIVREJ,
-		   poPRICING, poRAYS, poSCALING, poSETUP,
+		   poPRICING, poRAYS, poSCALING, poSETUP, poSOLN,
 		   poTABLEAU, poVARMGMT } prntcode ;
 
   static keytab_entry prntkwds[] = { { "basis", 1, (int) poBASIS },
@@ -371,6 +371,7 @@ cmd_retval dy_printopt (const char *keywd)
 				     { "rays", 1, (int) poRAYS },
 				     { "scaling", 2, (int) poSCALING },
 				     { "setup", 2, (int) poSETUP },
+				     { "soln", 2, (int) poSOLN },
 				     { "tableau", 1, (int) poTABLEAU },
 				     { "varmgmt", 1, (int) poVARMGMT }
 				   } ;
@@ -488,6 +489,12 @@ cmd_retval dy_printopt (const char *keywd)
       dflt = opts_dflt->print.setup ;
       lb = opts_lb->print.setup ;
       ub = opts_ub->print.setup ;
+      break ; }
+    case poSOLN:
+    { opt = &main_lpopts->print.soln ;
+      dflt = opts_dflt->print.soln ;
+      lb = opts_lb->print.soln ;
+      ub = opts_ub->print.soln ;
       break ; }
     case poTABLEAU:
     { opt = &main_lpopts->print.tableau ;

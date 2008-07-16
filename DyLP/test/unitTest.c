@@ -154,6 +154,8 @@ int main (int argc, char **argv)
   double z ;
   int cnt ;
 
+  bool dumpsoln = FALSE ;
+
   char *rtnnme = argv[0] ;
 
   /* dy_basis.c */
@@ -165,6 +167,7 @@ int main (int argc, char **argv)
 
   extern consys_struct *dytest_exmip1sys(lptols_struct *tols) ;
   extern consys_struct *dytest_exprimalraysys(lptols_struct *tols) ;
+  extern consys_struct *dytest_exdualraysys(lptols_struct *tols) ;
 
   extern consys_struct *dytest_afirosys(lptols_struct *tols) ;
   extern consys_struct *dytest_boeing2sys(lptols_struct *tols) ;
@@ -180,10 +183,19 @@ int main (int argc, char **argv)
   extern bool dytest_abari(lpprob_struct *lp,
 			   lptols_struct *lptols,lpopts_struct *lpopts) ;
 
+  /* dytest_solutions.c */
+
+  extern bool dytest_rowDuals(lpprob_struct *lp,
+			      lptols_struct *lptols,lpopts_struct *lpopts) ;
+  extern bool dytest_colDuals(lpprob_struct *lp,
+			      lptols_struct *lptols,lpopts_struct *lpopts) ;
+
   /* dytest_rays.c */
 
   extern bool dytest_primalRays(int *p_numRays,lpprob_struct *lp,
 				lptols_struct *lptols,lpopts_struct *lpopts) ;
+  extern bool dytest_dualRays(int *p_numRays,lpprob_struct *lp,
+			      lptols_struct *lptols,lpopts_struct *lpopts) ;
 
   outchn = IOID_INV ;
 /*
@@ -254,10 +266,8 @@ int main (int argc, char **argv)
   main_lpopts->finpurge.cons = TRUE ;
   main_lpopts->coldbasis = ibLOGICAL ;
   main_lpopts->scaling = 2 ;
-/*
   main_lpopts->print.scaling = 2 ;
-  main_lpopts->print.tableau = 5 ;
-
+/*
   Initialise the basis maintenance package. The second parameter controls how
   many basis updates the basis can hold before it requires refactoring.
   Adding 5 to dylp's refactor interval should give a safety margin.
@@ -265,11 +275,11 @@ int main (int argc, char **argv)
   dyio_outfmt(ttyout,dy_gtxecho,"Solving exmip1 ... ") ;
 
   main_lpopts->forcecold = TRUE ;
-  lpretval = do_lp(main_lp,main_lptols,main_lpopts,2) ;
+  lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
 /*
   And the result is ...
 */
-  dyio_outfmt(ttyout,dy_gtxecho,"%s, z = %.12f.\n",
+  dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
 	      dy_prtlpret(lpretval),main_lp->obj) ;
   z = 3.236842105263 ;
   if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
@@ -277,11 +287,14 @@ int main (int argc, char **argv)
 		"  ERROR: z = %g, expected %g, error %g, tol %g.\n",
 		main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
 
-  dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ;
+  if (dumpsoln == TRUE)
+  { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
   dytest_betaj(main_lp,main_lptols,main_lpopts) ;
   dytest_abarj(main_lp,main_lptols,main_lpopts) ;
   dytest_betai(main_lp,main_lptols,main_lpopts) ;
   dytest_abari(main_lp,main_lptols,main_lpopts) ;
+  dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+  dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
 /*
   Call dylp to free internal structures, then free main_sys.
 */
@@ -291,6 +304,7 @@ int main (int argc, char **argv)
   main_sys = NULL ;
   main_lp->consys = NULL ;
   dy_freesoln(main_lp) ;
+
 /*
   Let's try another. Load and solve afiro. Retain the data structures so that
   we can use them to test the tableau routines.
@@ -312,14 +326,15 @@ int main (int argc, char **argv)
   main_lpopts->print.scaling = 2 ;
   dyio_outfmt(ttyout,dy_gtxecho,"Solving afiro ... ") ;
   lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
-  dyio_outfmt(ttyout,dy_gtxecho,"%s, z = %.12f.\n",
+  dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
 	      dy_prtlpret(lpretval),main_lp->obj) ;
   z = -464.753142857143 ;
   if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
   { dyio_outfmt(ttyout,dy_gtxecho,
 		"  ERROR: z = %g, expected %g, error %g, tol %g.\n",
 		main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
-  dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ;
+  if (dumpsoln == TRUE)
+  { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
 /*
   Test the tableau routines. These are mathematical checks, not dependent on
   the specific problem.
@@ -331,6 +346,8 @@ int main (int argc, char **argv)
   dytest_abarj(main_lp,main_lptols,main_lpopts) ;
   dytest_betai(main_lp,main_lptols,main_lpopts) ;
   dytest_abari(main_lp,main_lptols,main_lpopts) ;
+  dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+  dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
 /*
   Call dylp to free internal structures, then free main_sys.
 */
@@ -341,7 +358,6 @@ int main (int argc, char **argv)
   main_lp->consys = NULL ;
   dy_freesoln(main_lp) ;
 
-# if 0
 /*
   Let's try another. Load and solve boeing2. Retain the data structures so that
   we can use them to test the tableau routines.
@@ -368,14 +384,15 @@ int main (int argc, char **argv)
 */
   dyio_outfmt(ttyout,dy_gtxecho,"Solving boeing2 ... ") ;
   lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
-  dyio_outfmt(ttyout,dy_gtxecho,"%s, z = %.12f.\n",
+  dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
 	      dy_prtlpret(lpretval),main_lp->obj) ;
   z = -315.0187280152 ;
   if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
   { dyio_outfmt(ttyout,dy_gtxecho,
 		"  ERROR: z = %g, expected %g, error %g, tol %g.\n",
 		main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
-  dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ;
+  if (dumpsoln == TRUE)
+  { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
 /*
   Test the tableau routines. These are mathematical checks, not dependent on
   the specific problem.
@@ -387,6 +404,8 @@ int main (int argc, char **argv)
   dytest_abarj(main_lp,main_lptols,main_lpopts) ;
   dytest_betai(main_lp,main_lptols,main_lpopts) ;
   dytest_abari(main_lp,main_lptols,main_lpopts) ;
+  dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+  dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
 /*
   Call dylp to free internal structures, then free main_sys.
 */
@@ -396,7 +415,6 @@ int main (int argc, char **argv)
   main_sys = NULL ;
   main_lp->consys = NULL ;
   dy_freesoln(main_lp) ;
-# endif
 
 /*
   Let's try another. Load and solve exprimalray. Retain the data structures
@@ -413,8 +431,8 @@ int main (int argc, char **argv)
   main_lp->colsze = main_sys->colsze ;
   main_lpopts->forcecold = TRUE ;
   main_lpopts->fullsys = TRUE ;
-  main_lpopts->finpurge.vars = TRUE ;
-  main_lpopts->finpurge.cons = TRUE ;
+  main_lpopts->finpurge.vars = FALSE ;
+  main_lpopts->finpurge.cons = FALSE ;
   main_lpopts->coldbasis = ibLOGICAL ;
   main_lpopts->scaling = 2 ;
 /*
@@ -426,30 +444,35 @@ int main (int argc, char **argv)
   main_lpopts->print.tableau = 6 ;
   main_lpopts->print.setup = 4 ;
   main_lpopts->print.crash = 3 ;
+  main_lpopts->print.force = 1 ;
 */
   dyio_outfmt(ttyout,dy_gtxecho,"Solving exprimalray ... ") ;
   lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
-  dyio_outfmt(ttyout,dy_gtxecho,"%s, z = %.12f.\n",
+  dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
 	      dy_prtlpret(lpretval),main_lp->obj) ;
-  z = 9.5 ;
+  z = -21 ;
   if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
   { dyio_outfmt(ttyout,dy_gtxecho,
 		"  ERROR: z = %g, expected %g, error %g, tol %g.\n",
 		main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
-  dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ;
+  if (dumpsoln == TRUE)
+  { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
 /*
   Now let's tweak the objective to 3x1+x2+x3, giving us two rays.
 */
-  main_sys->obj[1] = 3.0 ;
-  main_sys->obj[2] = 1.0 ;
+  main_sys->obj[1] = -1.0 ;
+  main_sys->obj[2] = -4.0 ;
   setflg(main_lp->ctlopts,lpctlOBJCHG) ;
   main_lpopts->forcecold = FALSE ;
-  main_lpopts->print.force = 1 ;
+/*
+  main_lpopts->print.rays = 5 ;
+*/
   dyio_outfmt(dy_logchn,dy_gtxecho,"Resolving exprimalray ...") ;
   lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
-  dyio_outfmt(ttyout,dy_gtxecho,"%s, z = %.12f.\n",
+  dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
 	      dy_prtlpret(lpretval),main_lp->obj) ;
-  dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ;
+  if (dumpsoln == TRUE)
+  { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
 /*
   Test that we have valid primal rays. First ask for just one, then ask for
   five, expecting two.
@@ -469,6 +492,8 @@ int main (int argc, char **argv)
   dytest_abarj(main_lp,main_lptols,main_lpopts) ;
   dytest_betai(main_lp,main_lptols,main_lpopts) ;
   dytest_abari(main_lp,main_lptols,main_lpopts) ;
+  dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+  dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
 /*
   Call dylp to free internal structures, then free main_sys.
 */
@@ -478,6 +503,94 @@ int main (int argc, char **argv)
   main_sys = NULL ;
   main_lp->consys = NULL ;
   dy_freesoln(main_lp) ;
+
+/*
+  Let's try another. Load and solve exdualray. Retain the data structures
+  so that we can use them to test the tableau routines. The symmetry with the
+  previous example should be clear from the output (objective, dual, and primal
+  values are negated, but otherwise identical)
+*/
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "Loading exdualray example from static data.\n") ;
+  main_sys = dytest_exdualraysys(main_lptols) ;
+  dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
+  comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+  main_lp->phase = dyINV ;
+  main_lp->consys = main_sys ;
+  main_lp->rowsze = main_sys->rowsze ;
+  main_lp->colsze = main_sys->colsze ;
+  main_lpopts->forcecold = TRUE ;
+  main_lpopts->fullsys = TRUE ;
+  main_lpopts->finpurge.vars = FALSE ;
+  main_lpopts->finpurge.cons = FALSE ;
+  main_lpopts->coldbasis = ibLOGICAL ;
+  main_lpopts->scaling = 0 ;
+
+  dyio_outfmt(ttyout,dy_gtxecho,"Solving exdualray ... ") ;
+  lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
+  dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
+	      dy_prtlpret(lpretval),main_lp->obj) ;
+  z = 21 ;
+  if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
+  { dyio_outfmt(ttyout,dy_gtxecho,
+		"  ERROR: z = %g, expected %g, error %g, tol %g.\n",
+		main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
+  if (dumpsoln == TRUE)
+  { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
+/*
+  Now tweak the rhs to (-1 -4 1) and look for rays in the dual.
+*/
+/*
+  main_lpopts->print.rays = 6 ;
+  main_lpopts->print.scaling = 2 ;
+  main_lpopts->print.major = 2 ;
+  main_lpopts->print.phase2 = 5 ;
+  main_lpopts->print.rays = 6 ;
+  main_lpopts->print.setup = 5 ;
+  main_lpopts->print.crash = 4 ;
+  main_lpopts->print.dual = 7 ;
+*/
+  main_sys->rhs[2] =  4.0 ;
+  setflg(main_lp->ctlopts,lpctlRHSCHG) ;
+  main_lpopts->forcecold = FALSE ;
+  main_lpopts->print.force = 1 ;
+  dyio_outfmt(dy_logchn,dy_gtxecho,"Resolving exdualray ...") ;
+  lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
+  dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
+	      dy_prtlpret(lpretval),main_lp->obj) ;
+  if (dumpsoln == TRUE)
+  { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
+/*
+  Test that we have valid dual rays. First ask for just one, then ask for
+  five, expecting two.
+*/
+  cnt = 1 ;
+  dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+  cnt = 5 ;
+  dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+/*
+  Test the tableau routines. These are mathematical checks, not dependent on
+  the specific problem.
+
+  Start with columns of the basis inverse, beta<j>. Test that Binv(B) = I.
+  Then do ftran'd columns abar<j>. Test that B(inv(B)A) = A.
+*/
+  dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+  dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+  dytest_betai(main_lp,main_lptols,main_lpopts) ;
+  dytest_abari(main_lp,main_lptols,main_lpopts) ;
+  dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+  dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+/*
+  Call dylp to free internal structures, then free main_sys.
+*/
+  comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+  dylp(main_lp,main_lpopts,main_lptols,NULL) ;
+  consys_free(main_sys) ;
+  main_sys = NULL ;
+  main_lp->consys = NULL ;
+  dy_freesoln(main_lp) ;
+
 /*
   Final cleanup. Free space used by the remaining main_* structures.
 */

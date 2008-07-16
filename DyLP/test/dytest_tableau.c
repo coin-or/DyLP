@@ -97,6 +97,13 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 
   char *rtnnme = "create_basis" ;
 
+# ifndef DYLP_NDEBUG
+  int printlvl ;
+
+  printlvl = maxx(main_lpopts->print.tableau,main_lpopts->print.rays) ;
+  /* printlvl = 3 ; */
+# endif
+
 /*
   Do a little initialisation.
 */
@@ -106,7 +113,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   infty = main_lptols->inf ;
 
 # ifndef DYLP_NDEBUG
-  if (main_lpopts->print.tableau >= 2)
+  if (printlvl >= 2)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"%s: generating basis matrix from %s (%d x %d).\n",
 		rtnnme,sys->nme,m,n) ; }
@@ -118,7 +125,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   basisLen = main_lp->basis->len ;
   basisVec = main_lp->basis->el ;
 # ifndef DYLP_NDEBUG
-  if (main_lpopts->print.tableau >= 3)
+  if (printlvl >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"  basis contains %d entries.\n",basisLen) ; }
 # endif
@@ -130,7 +137,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   { errmsg(152,rtnnme,"basis") ;
     return (FALSE) ; }
 # ifndef DYLP_NDEBUG
-  if (main_lpopts->print.tableau >= 3)
+  if (printlvl >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"  created system %s (%d x %d).\n",
 		basis->nme,basis->rowsze,basis->colsze) ; }
 # endif
@@ -151,7 +158,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       consys_free(basis) ;
       return (NULL) ; }
 # ifndef DYLP_NDEBUG
-  if (main_lpopts->print.tableau >= 5)
+  if (printlvl >= 5)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"  added %s (%d) to basis as row %d.\n",
 		consys_nme(sys,'c',i,FALSE,NULL),i,ai->ndx) ; }
 # endif
@@ -205,7 +212,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 	return (NULL) ; }
       basis2sys[aj->ndx] = -lastRow ;
 #     ifndef DYLP_NDEBUG
-      if (main_lpopts->print.tableau >= 5)
+      if (printlvl >= 5)
       { dyio_outfmt(dy_logchn,dy_gtxecho,
 		    "  fabricated unit column for inactive %s (%d) at %d.\n",
 		    aj->nme,lastRow,aj->ndx) ; }
@@ -233,7 +240,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
     basis2sys[aj->ndx] = j ;
 
 #   ifndef DYLP_NDEBUG
-    if (main_lpopts->print.tableau >= 5)
+    if (printlvl >= 5)
     { if (j < 0)
       { dyio_outfmt(dy_logchn,dy_gtxecho,
 		    "  fabricated unit column for %s (%d) at %d.\n",
@@ -262,7 +269,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       return (NULL) ; }
     basis2sys[aj->ndx] = -k ;
 #   ifndef DYLP_NDEBUG
-    if (main_lpopts->print.tableau >= 5)
+    if (printlvl >= 5)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
 		  "  fabricated unit column for inactive %s (%d) at %d.\n",
 		  aj->nme,k,aj->ndx) ; }
@@ -272,7 +279,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   if (aj != NULL) pkvec_free(aj) ;
 
 # ifndef DYLP_NDEBUG
-  if (main_lpopts->print.tableau >= 3)
+  if (printlvl >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"  Basis matrix is:\n") ;
     dyio_outfmt(dy_logchn,dy_gtxecho,
 		"Pos'n\tConstraint\t  Variable\t  Orig.Col\n") ;

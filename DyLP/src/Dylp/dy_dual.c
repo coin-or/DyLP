@@ -97,9 +97,11 @@
   assumes that a primal optimal but infeasible solution is available. This
   simplifies things, in that we don't need a stage I for the dual.
 
-  Anti-degeneracy in the dual isn't as strong as in the primal --- only the
-  `anti-degen lite' heuristic is implemented, using alignment of the dual
-  constraints (columns of the constraint matrix) with the rhs vector.
+  Anti-degeneracy in the dual works as the primal. The heavyweight tactic is
+  to form a perturbed subproblem incorporating those columns where the
+  unperturbed cbar<k> = 0. There's also an implementation of the `anti-degen
+  lite' heuristic, using alignment of the dual constraints (columns of the
+  constraint matrix) with the rhs vector.
 
   When numeric ill-conditioning is uncovered, we attempt to deal with it by
   boosting the minimum pivot tolerances. This can happen if groombasis has

@@ -71,6 +71,66 @@ static bool dy_unscale_betai(consys_struct *orig_sys, int oxindx,
 
 
 
+/*
+  This routine has been rewritten to provide the the full unscaled vector of
+  reduced costs. I've moved the original code over here and renamed it
+  for future reference.
+*/
+
+static void dy_orig_cbarLocal (int nbcnt, double *cbar, int *vndx)
+
+/*
+  This is a special purpose routine which unscales the vector of selected
+  reduced costs produced by dy_pricenbvars. All we do here is walk the vectors
+  and apply the unscaling.
+
+  sc_cbar<j> = sc_c<j> - sc_c<B>sc_inv(B)sc_a<j>
+	     = c<j>S<j> - c<B>S<B>inv(S<B>)inv(B)inv(R)Ra<j>S<j>
+	     = c<j>S<j> - c<B>inv(B)a<j>S<j>
+	     = cbar<j>S<j>
+
+  To unscale sc_cbar<j>, we simply multiply by 1/S<j>, keeping in mind that
+  if x<j> is a logical for row i, the appropriate factor is R<i>.
+
+  Parameters:
+    nbcnt:	number of entries in cbar, nbvars
+    cbar:	vector of reduced costs
+    vndx:	corresponding variable indices
+
+  Note that cbar and vndx are indexed from 0, and the indices specified in
+  vndx are in the frame of the original constraint system, which is what we
+  need for accesses to the scaling vectors.
+
+  Returns: undefined
+*/
+
+{ int j,k ;
+  double cbarj ;
+  const double *rscale,*cscale ;
+
+/*
+  Is unscaling required? If so, acquire the vectors and go to it.
+*/
+  if (dy_isscaled() == FALSE) return ;
+  dy_scaling_vectors(&rscale,&cscale) ;
+/*
+  Get on with the calculation.  Recall that vndx encodes the index of a
+  logical as -i.
+*/
+  for (k = 0 ; k < nbcnt ; k++)
+  { j = vndx[k] ;
+    cbarj = cbar[k] ;
+    if (j > 0)
+    { cbarj /= cscale[j] ; }
+    else
+    { cbarj *= rscale[-j] ; }
+    setcleanzero(cbarj,dy_tols->dfeas) ;
+    cbar[k] = cbarj ; }
+
+  return ; }
+
+
+
 bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 		     double **p_ocbar, int *p_nbcnt, int **p_nbvars)
 
@@ -117,7 +177,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
   const char *rtnnme = "dy_pricenbvars" ;
 
   /* dy_unscaling.c */
-  extern void dy_orig_cbar (int nbcnt, double *cbar, int *vndx) ;
+  extern void dy_orig_cbarLocal (int nbcnt, double *cbar, int *vndx) ;
 
 # ifdef DYLP_PARANOIA
   if (p_ocbar == NULL)
@@ -250,7 +310,7 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 /*
   Unscale the reduced costs.
 */
-  (void) dy_orig_cbar(nbcnt,ocbar,nbvars) ;
+  (void) dy_orig_cbarLocal(nbcnt,ocbar,nbvars) ;
 /*
   And we're done. Clean up and return.
 */

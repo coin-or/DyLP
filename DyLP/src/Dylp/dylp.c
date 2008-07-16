@@ -587,7 +587,8 @@ static dyphase_enum initial_activation (lpprob_struct *orig_lp)
 	{ if (flgon(xistatus,vstatBUUB)) xindx = -xindx ;
 	  dy_lp->ubnd.ndx = xindx ;
 	  varresult = dy_dualaddvars(orig_sys) ;
-	  if (varresult < 0) break ; } } } }
+	  if (varresult < 0) break ; } }
+      dy_lp->ubnd.ndx = 0 ; } }
 /*
   Figure out the appropriate return value and we're done. Unless something's
   gone wrong, we want to head for the initial simplex phase.
@@ -1529,6 +1530,26 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	       orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.pivs,
 	       "final constraint deactivation") ; } }
   }
+/*
+  If we're infeasible, and the phase I objective is still in place (the
+  normal situation), swap it out for the original objective and recalculate
+  duals and reduced costs. Otherwise our dual variable information is
+  all wrong. We need to pretend the phase is dyPRIMAL2 for this to work.
+*/
+  if (phase == dyDONE && dy_lp->lpret == lpINFEAS)
+  { phase = dyPRIMAL2 ;
+    if (dy_swapobjs(dyPRIMAL2) == FALSE)
+    { phase = dyDONE ;
+      errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	     dy_lp->tot.iters,"remove") ;
+      dy_lp->lpret = lpFATAL ; }
+    dy_calcduals() ;
+    if (dy_calccbar() == FALSE)
+    { phase = dyDONE ;
+      errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	     dy_lp->tot.iters) ;
+      dy_lp->lpret = lpFATAL ; }
+    phase = dyDONE ; }
 /*
   Call dy_finishup to assemble the final answer (as best it can) and clean up
   the working environment.

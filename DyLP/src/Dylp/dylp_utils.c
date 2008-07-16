@@ -317,6 +317,8 @@ bool dy_calcprimals (void)
 # ifndef DYLP_NDEBUG
   if (print >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: recalculated primal variables:",rtnnme) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
 	        "\n\tprim.max = %g, scale = %g, pzero = %g, pfeas = %g.",
 	        dy_lp->prim.max,dy_tols->pfeas_scale,
 	        dy_tols->zero,dy_tols->pfeas) ; }
@@ -360,8 +362,6 @@ bool dy_calcprimals (void)
 */
   if (print >= 5)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
-		"\n%s: recalculated primal variables:",rtnnme) ;
-    dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%8s%20s%16s%16s%16s%8s","pos'n","var (ndx)",
 	        "lb","val","ub","status") ;
     if (degenActive) dyio_outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
@@ -648,6 +648,8 @@ void dy_calcduals (void)
 # ifndef DYLP_NDEBUG
   int print ;
 
+  char *rtnnme = "dy_calcduals" ;
+
   switch (dy_lp->phase)
   { case dyPRIMAL1:
     { print = dy_opts->print.phase1 ;
@@ -722,12 +724,14 @@ void dy_calcduals (void)
 # ifndef DYLP_NDEBUG
   if (print >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: recalculated dual variables:",rtnnme) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
 	        "\n\tdual.max = %g, scale = %g, dzero = %g, dfeas = %g.",
 	        dy_lp->dual.max,dy_tols->dfeas_scale,
 		dy_tols->cost,dy_tols->dfeas) ;
     if (print >= 7)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
-		  "\n\n%8s%20s%16s","pos'n","constraint","val") ;
+		  "\n%8s%20s%16s","pos'n","constraint","val") ;
       if (degenActive)
 	dyio_outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
       for (xkpos = 1 ; xkpos <= dy_sys->concnt ; xkpos++)

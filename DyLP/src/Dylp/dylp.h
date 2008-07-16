@@ -1090,6 +1090,11 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		  1: prints summary messages about vectors found.
 		  3: print information about columns / rows examined.
 		  4: print information about why a column or row was rejected.
+    soln	  Controls print level for routines that generate primal and
+		  dual solutions for use by external clients.
+		  1: prints summary messages about the circumstances
+		  3: prints nonzeros in the final vector
+		  4: prints nonzeros in intermediate vectors
 */
 
 typedef struct
@@ -1154,7 +1159,8 @@ typedef struct
 	   int varmgmt ;
 	   int force ;
 	   int tableau ;
-	   int rays ; } print ; } lpopts_struct ;
+	   int rays ;
+	   int soln ; } print ; } lpopts_struct ;
 
 
 
@@ -1715,6 +1721,7 @@ extern bool dy_initlclsystem(lpprob_struct *orig_lp, bool hotstart) ;
 extern void dy_freelclsystem(lpprob_struct *orig_lp, bool freesys) ;
 extern bool dy_isscaled(void) ;
 extern void dy_scaling_vectors(const double **rscale, const double **cscale) ;
+extern consys_struct *dy_scaled_origsys() ;
 
 /*
   dy_coldstart.c
@@ -1911,6 +1918,15 @@ extern bool dy_abari(lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 
 extern bool dy_primalRays(lpprob_struct *orig_lp,
 			  int *p_numRays, double ***p_rays) ;
+extern bool dy_dualRays(lpprob_struct *orig_lp,
+			int *p_numRays, double ***p_rays) ;
+
+/*
+  dy_solutions.c
+*/
+
+extern void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar) ;
+extern void dy_rowDuals(lpprob_struct *orig_lp, double **p_y) ;
 
 /*
   dylp_io.c

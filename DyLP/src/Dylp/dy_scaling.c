@@ -118,6 +118,19 @@ void dy_scaling_vectors (const double **rscale, const double **cscale)
   return ; }
 
 
+consys_struct *dy_scaled_origsys ()
+/*
+  This routine exposes the scaled original system.
+
+  Parameters: none
+
+  Returns: the scaled original system, or NULL if no scaled local copy exists.
+*/
+
+{ return (local_sys) ; }
+    
+
+
 
 
 bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
@@ -131,6 +144,11 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
   the creation of a local copy, and force or (mostly) forbid the use of
   scaling. If scaling is allowed but not forced, this routine will evaluate
   the constraint matrix and apply scaling if necessary.
+
+  Scaling vectors are attached to the local copy of the original system. This
+  is not really necessary, but it's cheap insurance against the day in the
+  future when I decide to do something that actually changes the local copy of
+  the original system.
 
   If we're doing a hot start, this call is strictly for information hiding.
   All the data structures should exist, and it's just a question of swapping
@@ -322,7 +340,21 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 		    local_sys->minaij,local_sys->maxaij,scaled_scm) ; }
 #     endif
       lcl_rowscale = local_sys->rowscale ;
-      lcl_colscale = local_sys->colscale ; } }
+      lcl_colscale = local_sys->colscale ; }
+/*
+  If we have a local copy, attach it.
+*/
+    if (localcopy == TRUE)
+    { if (consys_attach(local_sys,CONSYS_RSCALE,sizeof(double),
+			(void **) &lcl_rowscale) == FALSE)
+      { errmsg(100,rtnnme,local_sys->nme,
+	       consys_assocnme(NULL,CONSYS_RSCALE)) ;
+	return (FALSE) ; }
+      if (consys_attach(local_sys,CONSYS_CSCALE,sizeof(double),
+			(void **) &lcl_colscale) == FALSE)
+      { errmsg(100,rtnnme,local_sys->nme,
+	       consys_assocnme(NULL,CONSYS_CSCALE)) ;
+	return (FALSE) ; } } }
 /*
   Do we need to scale by -1 to convert >= constraints to <= constraints? If
   we need to do this, we're guaranteed to have a local copy of the constraint
@@ -336,13 +368,15 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 			  (void **) &lcl_rowscale) == FALSE)
 	{ errmsg(100,rtnnme,local_sys->nme,
 		 consys_assocnme(NULL,CONSYS_RSCALE)) ;
-	  return (FALSE) ; } }
+	  return (FALSE) ; }
+	local_sys->rowscale = lcl_rowscale ;}
       if (lcl_colscale == NULL)
       { if (consys_attach(local_sys,CONSYS_CSCALE,sizeof(double),
 			  (void **) &lcl_colscale) == FALSE)
 	{ errmsg(100,rtnnme,local_sys->nme,
 		 consys_assocnme(NULL,CONSYS_CSCALE)) ;
-	  return (FALSE) ; } } }
+	  return (FALSE) ; }
+	local_sys->colscale = lcl_colscale ; } }
     for (i = 1 ; i <= orig_sys->concnt ; i++)
     { if (orig_sys->ctyp[i] == contypGE)
       { lcl_rowscale[i] *= -1.0 ; } } }
@@ -509,9 +543,9 @@ void dy_freelclsystem (lpprob_struct *orig_lp, bool freesys)
   client_sys = NULL ;
   if (freesys == FALSE) return ;
 /*
-  We have work to do. Clear the row and column scaling vectors, if necessary,
-  then free the constraint system. The scaling vectors are associated with
-  some constraint system, so don't free them here.
+  Free the constraint system. The scaling vectors are associated with
+  some constraint system, so don't need to free them here, but we do need to
+  clear the local pointers to be safe.
 */
   lcl_rowscale = NULL ;
   lcl_colscale = NULL ;

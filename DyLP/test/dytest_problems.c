@@ -77,10 +77,11 @@ static const double exmip1_coeff[] = { -42.42,
   The exprimalray example is used to test the routine that returns primal
   rays. The coefficient matrix is:
 
-   12 x1 +  30 x2 +  16 x3 >=  420	face1
-    9 x1 -   6 x2 -   7 x3 <=   30	face2
- -  3 x1 +  21 x2 -   4 x3 <=  180	face3
- -216 x1 + 315 x2 - 136 x3 <= 1218	face4
+     6 x1 +  15 x2 +   8 x3 >=  210	face1
+     9 x1 -   6 x2 -   7 x3 <=   30	face2
+  -  3 x1 +  21 x2 -   4 x3 <=  180	face3
+  -216 x1 + 315 x2 - 136 x3 <= 1218	face4
+    66 x1 + 336 x2 -  83 x3 <= 4305	face5
 
       x1, x2, x3 free
 
@@ -91,36 +92,45 @@ static const double exmip1_coeff[] = { -42.42,
 
   ray12 = ( 1 -2  3)
   ray13 = (-4  0  3)	[ truncated by face4 at (8,10,3/2) ]
-  ray23 = ( 3  1  3)
+  ray23 = ( 3  1  3)	[ truncated by face5 at (13,11,3) ]
 
   ray14 = (-40  -8  45)
   ray34 = (-28   8  63)
 
-  The objective of min x1 + x3 coded into the arrays below will
-  find (8,10,3/2) with z = 9.5. An objective of min x1 + x2 + x3 will want
-  to go unbounded from (8,10,3/2) along ray14. An objective of min 3x1+x2+x3
-  will want to go unbounded from (8,10,3/2) along both of ray14 and ray34.
+  ray25 = (10  1  12)
+  ray35 = ( 7  9  42)
+
+  An objective of min x1 + x2 + 2x3 will find (10,10,0), the base of the cone.
+
+  An objective of min (1 0 1) will find (8,10,3/2) with z = 9.5. An objective
+  of min (1 1 1) will want to go unbounded from (8,10,3/2) along ray14. An
+  objective of min (3 1 1) will want to go unbounded from (8,10,3/2) along
+  both of ray14 and ray34.
+
+  An objective of min (-1 -1 1) (coded below) will find (13,11,3). An
+  objective of min (-1 -4 1) will want to go unbounded along either of ray25
+  or ray35.
 */
 
 
-static const int exprimalray_rowcnt = 5 ;
+static const int exprimalray_rowcnt = 6 ;
 static const int exprimalray_colcnt = 3 ;
-static const int exprimalray_coeffcnt = 15 ;
-static const int exprimalray_maxColLen = 4 ;
+static const int exprimalray_coeffcnt = 18 ;
+static const int exprimalray_maxColLen = 5 ;
 static const char *exprimalray_objname = "obj" ;
 static const int exprimalray_objndx = 1 ;
 
 static const char *exprimalray_rowname[] = { "bogus",
-  "obj", "face1", "face2", "face3", "face4"
+  "obj", "face1", "face2", "face3", "face4", "face5"
   } ;
 static const char exprimalray_rowsense[] = { 'B',
-  'N', 'G', 'L', 'L', 'L'
+  'N', 'G', 'L', 'L', 'L', 'L'
   } ;
 static const double exprimalray_rowlb[] = { -42.42,
-  -1e100, 210, -1e100, -1e100, -1e100
+  -1e100, 210, -1e100, -1e100, -1e100, -1e100
   } ;
 static const double exprimalray_rowub[] = { -42.42,
-  1e100, 1e100, 30, 180, 1218
+  1e100, 1e100, 30, 180, 1218, 4305
   } ;
 
 static const char *exprimalray_colname[] = { "bogus",
@@ -134,18 +144,84 @@ static const double exprimalray_colub[] = { -42.42,
   } ;
 
 static const int exprimalray_rowndx[] = { -42,
-  1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5
+  1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6
   } ;
 static const int exprimalray_colndx[] = { -42,
-  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3
+  1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3
   } ;
 static const double exprimalray_coeff[] = { -42.42,
-    1.0,  6.0,  9.0, -3.0, -216.0,
-   -0.0, 15.0, -6.0, 21.0,  315.0,
-    1.0,  8.0, -7.0, -4.0, -136.0
+   -1.0,  6.0,  9.0, -3.0, -216.0,  66.0,
+   -1.0, 15.0, -6.0, 21.0,  315.0, 336.0,
+    1.0,  8.0, -7.0, -4.0, -136.0, -83.0
   } ;
 
+
 
+/*
+  The exdualray example is used to test the routine that returns dual
+  rays. It uses the polyhedron of exprimalray to define the dual space,
+  resulting in this primal coefficient matrix:
+
+   -6 face1 +   9 face2 -   3 face3 - 216 face4 +  66.0 face5 >=  1.0	x1
+  -15 face1 -   6 face2 +  21 face3 + 315 face4 + 336.0 face5 >=  1.0	x2
+   -8 face1 -   7 face2 +   4 face3 - 136 face4 -  83.0 face5 >= -1.0	x3
+
+      0 <= face1, face2, face3, face4, face5 <= infty
+
+  The objective of c = (-210 30 180 1218 4305) coded into the arrays below
+  completes the definition of the dual polytope. With b = (1 1 -1) as shown,
+  there should be a finite minimum at (13,11,3).
+
+  To translate the primal objective of exprimalray to the rhs of exdualray,
+  note first that the primal min objective is negated to get a max objective,
+  which is then used as the rhs here according to the standard primal -> dual
+  transform. (Specified using rowlb!)
+*/
+
+
+static const int exdualray_rowcnt = 4 ;
+static const int exdualray_colcnt = 5 ;
+static const int exdualray_coeffcnt = 20 ;
+static const int exdualray_maxColLen = 3 ;
+static const char *exdualray_objname = "obj" ;
+static const int exdualray_objndx = 1 ;
+
+static const char *exdualray_rowname[] = { "bogus",
+  "obj", "x1", "x2", "x3"
+  } ;
+static const char exdualray_rowsense[] = { 'B',
+  'N', 'G', 'G', 'G'
+  } ;
+static const double exdualray_rowub[] = { -42.42,
+  1e100, 1e100, 1e100, 1e100
+  } ;
+static const double exdualray_rowlb[] = { -42.42,
+  -1e100, 1.0, 1.0, -1.0
+  } ;
+
+static const char *exdualray_colname[] = { "bogus",
+  "face1", "face2", "face3", "face4", "face5"
+  } ;
+static const double exdualray_collb[] = { -42.42,
+  0, 0, 0, 0, 0
+  } ;
+static const double exdualray_colub[] = { -42.42,
+  1e100, 1e100, 1e100, 1e100, 1e100
+  } ;
+
+static const int exdualray_rowndx[] = { -42,
+  1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4
+  } ;
+static const int exdualray_colndx[] = { -42,
+  1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5
+  } ;
+static const double exdualray_coeff[] = { -42.42,
+    -210.0,   -6.0,  -15.0,   -8.0,
+      30.0,    9.0,   -6.0,   -7.0,
+     180.0,   -3.0,   21.0,   -4.0,
+    1218.0, -216.0,  315.0, -136.0,
+    4305.0,   66.0,  336.0,  -83.0
+  } ;
 
 
 
@@ -911,6 +987,28 @@ consys_struct *dytest_exprimalraysys (lptols_struct *tols)
 		    exprimalray_rowlb,exprimalray_rowub,
 		    exprimalray_colname,exprimalray_collb,exprimalray_colub,
 		    exprimalray_colndx,exprimalray_rowndx,exprimalray_coeff) ;
+  
+  return (sys) ; }
+
+consys_struct *dytest_exdualraysys (lptols_struct *tols)
+/*
+  Create a constraint system loaded with the exdualray example.
+
+  Parameters:
+    tols:	lptols_struct, used to specify infinity
+
+  Returns: pointer to a loaded constraint system, or NULL if there's an error.
+*/
+
+{ consys_struct *sys ;
+
+  sys = load_consys(exdualray_rowcnt,exdualray_colcnt,exdualray_coeffcnt,
+		    exdualray_maxColLen,tols->inf,"exdualray",
+		    exdualray_objndx,exdualray_objname,
+		    exdualray_rowname,exdualray_rowsense,
+		    exdualray_rowlb,exdualray_rowub,
+		    exdualray_colname,exdualray_collb,exdualray_colub,
+		    exdualray_colndx,exdualray_rowndx,exdualray_coeff) ;
   
   return (sys) ; }
 

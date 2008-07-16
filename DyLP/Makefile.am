@@ -45,7 +45,7 @@ EXTRA_DIST = \
 
 test: all
 	cd test ; $(MAKE) test
-	if test -r ../Osi/test/Makefile; then \
+	@if test -r ../Osi/test/Makefile; then \
 	  cd ../Osi/test; \
 	  $(MAKE) test; \
 	else \

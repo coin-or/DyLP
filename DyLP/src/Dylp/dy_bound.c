@@ -1472,7 +1472,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
        version of the usual dual pivoting rules, activate it, pivot it into
        the basis, and then return to dual simplex. There's a real chance
        that we'll be right back here on the next pivot, but c'est la vie.
-       If there are no such variables, then
+       If there are no such variables, then ...
     
     3) There are inactive variables with a<ij> != 0, but they don't satisfy
        the conditions for 1) or 2). We're at a point that's primal infeasible
@@ -1580,8 +1580,6 @@ int dy_dualaddvars (consys_struct *orig_sys)
   Now open up a loop to walk the variables in orig_sys and check the inactive
   ones for activation. If we're here as part of initialisation, we're only
   interested in type 1 activations.
-
-  (This routine not currently used in initialisation. --lh, 051203 --)
 */
   if (dy_lp->phase == dyINIT)
   { acttype = 1 ; }
