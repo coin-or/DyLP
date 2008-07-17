@@ -20,8 +20,8 @@ DyLP/m4/ac_dylp_options.m4 -text
 DyLP/src/Dylp/Makefile.am -text
 DyLP/src/Dylp/Makefile.in -text
 DyLP/src/Dylp/dy_rays.c -text
+DyLP/src/Dylp/dy_solutions.c -text
 DyLP/src/Dylp/dy_tableau.c -text
-DyLP/src/Dylp/dy_unscaling.c -text
 DyLP/src/DylpStdLib/DylpConfig.h -text
 DyLP/src/DylpStdLib/Makefile.am -text
 DyLP/src/DylpStdLib/Makefile.in -text

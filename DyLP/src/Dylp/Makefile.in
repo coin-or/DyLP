@@ -75,10 +75,10 @@ am_libDylp_la_OBJECTS = dy_consys_io.lo dy_consys_mathutils.lo \
 	dy_force.lo dy_hotstart.lo dylp.lo dylp_io.lo dylp_utils.lo \
 	dy_options.lo dy_penalty.lo dy_pivreject.lo dy_primal.lo \
 	dy_primalmultipivot.lo dy_primalpivot.lo dy_rays.lo \
-	dy_scaling.lo dy_setup.lo dy_statistics.lo dy_tableau.lo \
-	dy_unscaling.lo dy_varmgmt.lo dy_warmstart.lo glpinv.lo \
-	glplib1.lo glplib2.lo glplib3.lo glplib4.lo glpluf.lo \
-	dy_vector_utils.lo
+	dy_scaling.lo dy_setup.lo dy_solutions.lo dy_statistics.lo \
+	dy_tableau.lo dy_solutions.lo dy_varmgmt.lo dy_warmstart.lo \
+	glpinv.lo glplib1.lo glplib2.lo glplib3.lo glplib4.lo \
+	glpluf.lo dy_vector_utils.lo
 libDylp_la_OBJECTS = $(am_libDylp_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -286,9 +286,10 @@ libDylp_la_SOURCES = \
 	dy_rays.c \
 	dy_scaling.c \
 	dy_setup.c \
+	dy_solutions.c \
 	dy_statistics.c \
 	dy_tableau.c \
-	dy_unscaling.c \
+	dy_solutions.c \
 	dy_varmgmt.c \
 	dy_warmstart.c \
 	glpinv.c glpinv.h \
@@ -426,9 +427,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_rays.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_scaling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_setup.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_solutions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_statistics.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_tableau.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_unscaling.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_varmgmt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_vector_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_warmstart.Plo@am__quote@
