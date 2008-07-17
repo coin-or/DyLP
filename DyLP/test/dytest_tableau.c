@@ -48,8 +48,8 @@ static int compare_basisel (const void *el1, const void *el2)
 
 static consys_struct *create_basis (lpprob_struct *main_lp,
 				    lptols_struct *main_lptols,
-				    lpopts_struct *main_lpopts,
-				    int **p_basis2sys)
+			     	    lpopts_struct *main_lpopts,
+			     	    int **p_basis2sys)
 /*
   This routine builds a basis matrix to match the basis returned by dylp.
   Very handy for testing dylp's tableau routines.
@@ -123,7 +123,6 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   bare coefficient matrix. None of the usual attached vectors are required.
 */
   basisLen = main_lp->basis->len ;
-  basisVec = main_lp->basis->el ;
 # ifndef DYLP_NDEBUG
   if (printlvl >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -168,12 +167,13 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   Now install the basic columns. As explained at the head of the routine, we
   have some work to do.
 
-  First, sort the basis vector by row index, so that the basis entries we
-  have match the order in sys. Then we can walk the basis and install the
-  columns in order. Basic logicals that were part of the basis in dylp's
-  active system are represented by the negative of the index of the
-  associated constraint. When we encounter one, synthesize a unit column for
-  the logical.
+  First, make a copy of the basis vector and sort it by row index, so that
+  the basis entries we have match the order in sys.
+
+  Then we can walk the basis and install the columns in order. Basic logicals
+  that were part of the basis in dylp's active system are represented by the
+  negative of the index of the associated constraint. When we encounter one,
+  synthesize a unit column for the logical.
 
   Except ... the basis will not mention inactive constraints.  Each time we
   encounter a gap in constraint indices, install unit columns as needed.
@@ -190,6 +190,8 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
     return (NULL) ; }
   basis2sys = *p_basis2sys ;
 
+  basisVec = CALLOC((basisLen+1),sizeof(basisel_struct)) ;
+  memcpy(basisVec,main_lp->basis->el,(basisLen+1)*sizeof(basisel_struct)) ;
   qsort(((void *) &basisVec[1]),
 	basisLen,sizeof(basisel_struct),compare_basisel) ;
 
@@ -208,6 +210,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       { errmsg(112,rtnnme,
 	       basis->nme,"add column","variable",aj->nme,lastRow) ;
 	if (aj != NULL) pkvec_free(aj) ;
+	if (basisVec != NULL) FREE(basisVec) ;
 	consys_free(basis) ;
 	return (NULL) ; }
       basis2sys[aj->ndx] = -lastRow ;
@@ -230,11 +233,13 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       { errmsg(122,rtnnme,sys->nme,"column",
 	       consys_nme(sys,'v',j,FALSE,NULL),j) ;
 	if (aj != NULL) pkvec_free(ai) ;
+	if (basisVec != NULL) FREE(basisVec) ;
 	consys_free(basis) ;
 	return (NULL) ; } }
     if (consys_addcol_pk(basis,vartypCON,aj,0.0,0.0,0.0) == FALSE)
     { errmsg(112,rtnnme,basis->nme,"add column","variable",aj->nme,abs(j)) ;
       if (aj != NULL) pkvec_free(aj) ;
+      if (basisVec != NULL) FREE(basisVec) ;
       consys_free(basis) ;
       return (NULL) ; }
     basis2sys[aj->ndx] = j ;
@@ -252,6 +257,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 #   endif
 
     lastRow++ ; }
+  if (basisVec != NULL) FREE(basisVec) ;
 /*
   There's no guarantee that we've covered all constraints. See if there are
   any left. Those that remain are definitely inactive.

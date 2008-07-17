@@ -1887,8 +1887,7 @@ extern void dy_chkdual(int lvl) ;
 extern bool dy_dupbasis(int dst_basissze, basis_struct **p_dst_basis,
 			basis_struct *src_basis, int dst_statussze,
 			flags **p_dst_status,
-			int src_statuslen, flags *src_status),
-	    dy_expandxopt(lpprob_struct *lp, double **p_xopt) ;
+			int src_statuslen, flags *src_status) ;
 extern void dy_freesoln(lpprob_struct *lpprob) ;
 
 /*
@@ -1927,6 +1926,16 @@ extern bool dy_dualRays(lpprob_struct *orig_lp,
 
 extern void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar) ;
 extern void dy_rowDuals(lpprob_struct *orig_lp, double **p_y) ;
+
+extern void dy_colPrimals(lpprob_struct *orig_lp, double **p_x) ;
+extern void dy_rowPrimals(lpprob_struct *orig_lp,
+			  double **p_xB, int **p_indB) ;
+extern void dy_logPrimals(lpprob_struct *orig_lp, double **p_logx) ;
+
+extern void dy_colStatus(lpprob_struct *orig_lp, flags **p_colstat) ;
+extern void dy_logStatus(lpprob_struct *orig_lp, flags **p_logstat) ;
+
+extern bool dy_expandxopt(lpprob_struct *lp, double **p_xopt) ;
 
 /*
   dylp_io.c
