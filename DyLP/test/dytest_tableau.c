@@ -302,8 +302,8 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 
 
 
-bool dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		   lpopts_struct *main_lpopts)
+int dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		  lpopts_struct *main_lpopts)
 
 /*
   This routine checks the accuracy of the tableau routine dy_betaj (column
@@ -314,7 +314,7 @@ bool dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if Binv(B) = I, FALSE otherwise.
+  Returns: 0 if Binv(B) = I, number of errors otherwise.
 */
 
 { int m,i,j,k ;
@@ -353,7 +353,7 @@ bool dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   { errmsg(152,rtnnme,"basisMtx") ;
     consys_free(basis) ;
     if (basis2sys != NULL) FREE(basis2sys) ;
-    return (FALSE) ; }
+    return (1) ; }
 /*
   Now that we have a basis matrix with columns in the proper order, matching
   the constraints, we can simply call dy_betaj to obtain columns of the basis
@@ -392,16 +392,16 @@ bool dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: found %d errors testing Binv(B).\n",
-	   rtnnme,errcnt) ;
-    return (FALSE) ; }
+	   rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass Binv(B).\n",rtnnme) ;
-    return (TRUE) ; } }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass Binv(B).\n",rtnnme) ; }
+
+  return (errcnt) ; }
 
 
 
-bool dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		   lpopts_struct *main_lpopts)
+int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		  lpopts_struct *main_lpopts)
 
 /*
   This routine checks the accuracy of the tableau routine dy_abarj, where
@@ -412,7 +412,7 @@ bool dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if B(inv(B)A) = A, FALSE otherwise.
+  Returns: 0 if B(inv(B)A) = A, error count otherwise.
 */
 
 { int m,n,i,j,k ;
@@ -453,7 +453,7 @@ bool dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   { errmsg(152,rtnnme,"basisMtx") ;
     consys_free(basis) ;
     if (basis2sys != NULL) FREE(basis2sys) ;
-    return (FALSE) ; }
+    return (1) ; }
 /*
   Now that we have a basis matrix with columns in the proper order, matching
   the constraints, we can simply call dy_abarj to obtain ftran'd columns
@@ -514,16 +514,16 @@ bool dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%s: found %d errors testing B(inv(B)A) = A.\n",
-	   rtnnme,errcnt) ;
-    return (FALSE) ; }
+	   rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass B(inv(B)A).\n",rtnnme) ;
-    return (TRUE) ; } }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass B(inv(B)A).\n",rtnnme) ; }
+  
+  return (errcnt) ; }
 
 
 
-bool dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		   lpopts_struct *main_lpopts)
+int dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		  lpopts_struct *main_lpopts)
 
 /*
   This routine checks the accuracy of the tableau routine dy_betai (row
@@ -534,7 +534,7 @@ bool dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if inv(B)B = I, FALSE otherwise.
+  Returns: 0 if inv(B)B = I, error count otherwise.
 */
 
 { int m,i,j ;
@@ -573,7 +573,7 @@ bool dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
   { errmsg(152,rtnnme,"basisMtx") ;
     consys_free(basis) ;
     if (basis2sys != NULL) FREE(basis2sys) ;
-    return (FALSE) ; }
+    return (1) ; }
 /*
   Now that we have a basis matrix with columns in the proper order, matching
   the constraints, we can simply call dy_betai to obtain rows of the basis
@@ -611,15 +611,15 @@ bool dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: found %d errors testing inv(B)B.\n",
-	   rtnnme,errcnt) ;
-    return (FALSE) ; }
+	   rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass inv(B)B.\n",rtnnme) ;
-    return (TRUE) ; } }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass inv(B)B.\n",rtnnme) ; }
+  
+  return (errcnt) ; }
 
 
-bool dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		   lpopts_struct *main_lpopts)
+int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		  lpopts_struct *main_lpopts)
 
 /*
   This routine checks the accuracy of the tableau routine dy_abari, which
@@ -638,7 +638,7 @@ bool dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if inv(B)B = I, FALSE otherwise.
+  Returns: 0 if inv(B)B = I, error count otherwise.
 */
 
 { int m,n,i,j ;
@@ -720,9 +720,10 @@ bool dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 	  "\n%s: found %d errors testing e<i>(inv(B)A) against inv(B)a<j>.\n",
-	   rtnnme,errcnt) ;
-    return (FALSE) ; }
+	   rtnnme,errcnt) ; }
   else
   { dyio_outfmt(dy_logchn,dy_gtxecho,
-		"\n%s: pass e<i>(inv(B)A) against inv(B)a<j>.\n",rtnnme) ;
-    return (TRUE) ; } }
+		"\n%s: pass e<i>(inv(B)A) against inv(B)a<j>.\n",rtnnme) ; }
+
+  return (errcnt) ; }
+

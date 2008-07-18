@@ -23,9 +23,9 @@ extern bool dy_gtxecho ;
 
 
 
-bool dytest_primalRays (int *p_numRays,
-			lpprob_struct *main_lp, lptols_struct *main_lptols,
-			lpopts_struct *main_lpopts)
+int dytest_primalRays (int *p_numRays,
+		       lpprob_struct *main_lp, lptols_struct *main_lptols,
+		       lpopts_struct *main_lpopts)
 
 /*
   This routine checks the primal rays returned by dy_primalRays. For a ray r
@@ -45,7 +45,7 @@ bool dytest_primalRays (int *p_numRays,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if all rays returned tested as valid rays, FALSE otherwise.
+  Returns: 0 if all rays returned tested as valid rays, error count otherwise.
 */
 
 { int m,n,i,k ;
@@ -86,7 +86,7 @@ bool dytest_primalRays (int *p_numRays,
     { for (k = 0 ; k < rcvRays ; k++)
       { if (rays[k] != NULL) FREE(rays[k]) ; }
       FREE(rays) ; }
-    return (FALSE) ; }
+    return (1) ; }
   *p_numRays = rcvRays ;
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.rays >= 2)
@@ -133,17 +133,17 @@ bool dytest_primalRays (int *p_numRays,
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 	  "\n%s: found %d errors in %d rays testing Ar <= 0.\n",
-	   rtnnme,errcnt,rcvRays) ;
-    return (FALSE) ; }
+	   rtnnme,errcnt,rcvRays) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass Ar <= 0.\n",rtnnme) ;
-    return (TRUE) ; } }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass Ar <= 0.\n",rtnnme) ; }
+
+  return (errcnt) ; }
 
 
 
-bool dytest_dualRays (int *p_numRays,
-		      lpprob_struct *main_lp, lptols_struct *main_lptols,
-		      lpopts_struct *main_lpopts)
+int dytest_dualRays (int *p_numRays,
+		     lpprob_struct *main_lp, lptols_struct *main_lptols,
+		     lpopts_struct *main_lpopts)
 
 /*
   This routine checks the dual rays returned by dy_dualRays. For a ray r
@@ -162,7 +162,7 @@ bool dytest_dualRays (int *p_numRays,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if all rays returned tested as valid rays, FALSE otherwise.
+  Returns: 0 if all rays returned tested as valid rays, error count otherwise.
 */
 
 { int m,n,j,k ;
@@ -203,7 +203,7 @@ bool dytest_dualRays (int *p_numRays,
     { for (k = 0 ; k < rcvRays ; k++)
       { if (rays[k] != NULL) FREE(rays[k]) ; }
       FREE(rays) ; }
-    return (FALSE) ; }
+    return (1) ; }
   *p_numRays = rcvRays ;
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.rays >= 2)
@@ -247,8 +247,9 @@ bool dytest_dualRays (int *p_numRays,
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 	  "\n%s: found %d errors in %d rays testing rA >= 0.\n",
-	   rtnnme,errcnt,rcvRays) ;
-    return (FALSE) ; }
+	   rtnnme,errcnt,rcvRays) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass rA >= 0.\n",rtnnme) ;
-    return (TRUE) ; } }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass rA >= 0.\n",rtnnme) ; }
+
+  return (errcnt) ; }
+

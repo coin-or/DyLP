@@ -23,8 +23,8 @@ extern bool dy_gtxecho ;
 
 
 
-bool dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		      lpopts_struct *main_lpopts)
+int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		     lpopts_struct *main_lpopts)
 /*
   This routine checks the dual variables returned by dy_rowDuals. It checks
   that y<i> = c<B>(inv(B))<i>. Columns of the basis inverse are obtained from
@@ -35,7 +35,7 @@ bool dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if y = c<B>inv(B), FALSE otherwise.
+  Returns: 0 if y = c<B>inv(B), error count otherwise.
 */
 
 { int i,j,k,m,n ;
@@ -160,16 +160,16 @@ bool dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%s: found %d errors testing y = c<B>inv(B).\n",
-		rtnnme,errcnt) ;
-    return (FALSE) ; }
+		rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass y = c<B>inv(B).\n",rtnnme) ;
-    return (TRUE) ; } }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass y = c<B>inv(B).\n",rtnnme) ; }
+
+  return (errcnt) ; }
 
 
 
-bool dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		      lpopts_struct *main_lpopts)
+int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		     lpopts_struct *main_lpopts)
 /*
   This routine checks the dual variables returned by dy_colDuals (more
   usually called the reduced costs of the architectural variables).
@@ -184,7 +184,7 @@ bool dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if cbar<N> = c<N> - yN, FALSE otherwise.
+  Returns: 0 if cbar<N> = c<N> - yN, error count otherwise.
 */
 
 { int j,m,n ;
@@ -278,18 +278,18 @@ bool dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%s: found %d errors testing cbar<N> = c<N> - yN.\n",
-		rtnnme,errcnt) ;
-    return (FALSE) ; }
+		rtnnme,errcnt) ; }
   else
   { dyio_outfmt(dy_logchn,dy_gtxecho,
-		"\n%s: pass cbar<N> = c<N> - yN.\n",rtnnme) ;
-    return (TRUE) ; } }
+		"\n%s: pass cbar<N> = c<N> - yN.\n",rtnnme) ; }
+
+  return (errcnt) ; }
 
 
 
 
-bool dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		        lpopts_struct *main_lpopts)
+int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		       lpopts_struct *main_lpopts)
 /*
   This routine checks the values of the primal architectural variables
   returned by dy_colPrimals.
@@ -312,7 +312,7 @@ bool dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if the values check out, FALSE otherwise.
+  Returns: 0 if the values check out, error count otherwise.
 */
 
 { int i,i_bpos,j,k,m,n ;
@@ -485,23 +485,23 @@ bool dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if ((berrs+nberrs) != 0)
   { if (berrs != 0)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
-		"\n%s: found %d errors testing x<B> = inv(B)b.\n",
-		rtnnme,berrs) ; }
+		  "\n%s: found %d errors testing x<B> = inv(B)b.\n",
+		  rtnnme,berrs) ; }
     if (nberrs != 0)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
 	      "\n%s: found %d errors testing x<N> against bounds & status.\n",
-	      rtnnme,nberrs) ; }
-    return (FALSE) ; }
+	      rtnnme,nberrs) ; } }
   else
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%s: pass test of primal architectural variable values.\n",
-		rtnnme) ;
-    return (TRUE) ; } }
+		rtnnme) ; }
+
+  return (berrs+nberrs) ; }
 
 
 
-bool dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
-		        lpopts_struct *main_lpopts)
+int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		       lpopts_struct *main_lpopts)
 /*
   This routine checks the ind<B> and x<B> vectors returned by dy_rowPrimals.
   It first cross-checks the basis, status and indB arrays, bailing out if the
@@ -522,7 +522,7 @@ bool dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
 
-  Returns: TRUE if the basic variables validate, FALSE otherwise.
+  Returns: 0 if the basic variables validate, error count otherwise.
 */
 
 { int i,j,k,m,n,i_basis ;
@@ -667,7 +667,7 @@ bool dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 		"\tTests of basic variable values not performed.\n") ;
     if (xB != NULL) FREE(xB) ;
     if (indB != NULL) FREE(indB) ;
-    return (FALSE) ; }
+    return (inderrs) ; }
 /*
   Now we know the index arrays are correct and we can use them with
   confidence.  Step through the rows, placing the initial component
@@ -786,11 +786,11 @@ bool dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     if (nberrs != 0)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
 	      "\n%s: found %d errors attempting to use nonbasic variables.\n",
-	      rtnnme,nberrs) ; }
-    return (FALSE) ; }
+	      rtnnme,nberrs) ; } }
   else
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%s: pass test of primal basic variable values.\n",
-		rtnnme) ;
-    return (TRUE) ; } }
+		rtnnme) ; }
+
+  return (berrs+nberrs) ; }
 
