@@ -430,6 +430,7 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
 */
   n_orig = orig_sys->varcnt ;
   m_orig = orig_sys->concnt ;
+  i_orig_ray = -1 ;
   j_orig_ray = (int) orig_lp->obj ;
   if (j_orig_ray < 0)
   { j_orig_ray = -j_orig_ray ;
@@ -866,7 +867,7 @@ bool dy_dualRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
 	   otherwise.
 */
 
-{ int m,n,i,j,m_orig,n_orig,i_orig,j_orig ;
+{ int m,n,i,m_orig,n_orig,i_orig,j_orig ;
   bool error ;
   double *sc_abari ;
 

@@ -145,6 +145,8 @@ void dy_colDuals (lpprob_struct *orig_lp, double **p_cbar)
   if (scaled == TRUE)
   { dy_scaling_vectors(&rscale,&cscale) ;
     scaled_orig_sys = dy_scaled_origsys() ; }
+  else
+  { scaled_orig_sys = NULL ; }
 
   orig_sys = orig_lp->consys ;
   n_orig = orig_sys->varcnt ;
@@ -189,7 +191,7 @@ void dy_colDuals (lpprob_struct *orig_lp, double **p_cbar)
 	cbarj /= cscale[j_orig] ; }
       else
       { cbarj = orig_sys->obj[j_orig] ;
-	cbarj -= consys_dotcol(scaled_orig_sys,j_orig,orig_y) ; } }
+	cbarj -= consys_dotcol(orig_sys,j_orig,orig_y) ; } }
     setcleanzero(cbarj,dy_tols->cost) ;
     cbar[j_orig] = cbarj ; }
 /*
@@ -538,13 +540,15 @@ void dy_rowPrimals (lpprob_struct *orig_lp, double **p_xB, int **p_indB)
   { if (ACTIVE_CON(i_orig))
     { i = dy_origcons[i_orig] ;
       j = dy_basis[i] ;
+      if (j <= m)
+      { j_orig = dy_actcons[j] ; }
+      else
+      { j_orig = dy_actvars[j] ; }
       if (scaled == TRUE)
       { if (j <= m)
-	{ j_orig = dy_actcons[j] ;
-	  xj = (1/rscale[j_orig])*dy_xbasic[i] ; }
+	{ xj = (1/rscale[j_orig])*dy_xbasic[i] ; }
 	else
-	{ j_orig = dy_actvars[j] ;
-	  xj = cscale[j_orig]*dy_xbasic[i] ; } }
+	{ xj = cscale[j_orig]*dy_xbasic[i] ; } }
       else
       { xj = dy_xbasic[i] ; }
       if (j <= m)
