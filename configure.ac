@@ -12,7 +12,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([DyLP],[1.4stable],[coin-dylp@lists.coin-or.org])
+AC_INIT([DyLP],[1.4.4],[coin-dylp@lists.coin-or.org])
 
 AC_COPYRIGHT([
 Copyright 2006 International Business Machines and others.
