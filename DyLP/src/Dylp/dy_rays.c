@@ -943,7 +943,7 @@ bool dy_dualRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   into a vector in row order in the original reference frame.
 */
   n_orig = orig_sys->varcnt ;
-  m_orig = orig_sys->varcnt ;
+  m_orig = orig_sys->concnt ;
   n = dy_sys->varcnt ;
   m = dy_sys->concnt ;
   error = FALSE ;
