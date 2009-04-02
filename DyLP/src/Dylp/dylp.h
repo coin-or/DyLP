@@ -545,7 +545,8 @@ typedef struct
 		For lpINFEAS, the total infeasibility.
 		For lpUNBOUNDED, the index of the unbounded variable, negated
 		  if the variable can decrease without bound, positive if it
-		  can increase without bound.
+		  can increase without bound. The logical for constraint i
+		  is represented as n+i.
 		Otherwise, undefined.
   iters		The number of simplex iterations.
   consys	The constraint system.
@@ -930,12 +931,15 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		If set to FALSE, a copy will be made only if necessary.
 		Scaling will trigger a local copy.
   scaling	Controls whether dylp attempts to scale the original constraint
-		system.
+		system for numeric stability.
 		  0: scaling is forbidden
-		  1: scale the original constraint system using scaling vectors
-		     attached to the system
+		  1: scale the original constraint system using numeric
+		     scaling vectors attached to the system
 		  2: evaluate the original constraint system and scale it if
 		     necessary
+		Note that even if scaling = 0, dylp may install +/-1.0 scaling
+		vectors in order to flip >= constraints to <= constraints. See
+		comments in dy_scaling.c
   print		Substructure for picky printing control. For all print options,
 		a value of 0 suppresses all information messages.
     major	  Controls printing of major phase information.
@@ -1072,6 +1076,25 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		     constraints and variables.
 		  3: additional information about variables and constraints
 		     examined.
+    tableau	  Controls print level for routines that generate tableau
+		  vectors (beta<i>, beta<j>, abar<i>, abar<j>) for use by
+		  external clients.
+		  1: prints summary messages about the circumstances
+		  4: prints nonzeros in the final vector.
+		  5: prints nonzeros in intermediate vectors and (dy_betaj,
+		     dy_abarj only) inactive rows
+		  6: prints nonzeros of active portion in internal reference
+		     frame (dy_betaj only)
+    rays	  Controls print level for routines that generate primal
+		  and dual rays for use by external clients.
+		  1: prints summary messages about vectors found.
+		  3: print information about columns / rows examined.
+		  4: print information about why a column or row was rejected.
+    soln	  Controls print level for routines that generate primal and
+		  dual solutions for use by external clients.
+		  1: prints summary messages about the circumstances
+		  3: prints nonzeros in the final vector
+		  4: prints nonzeros in intermediate vectors
 */
 
 typedef struct
@@ -1134,7 +1157,10 @@ typedef struct
 	   int basis ;
 	   int conmgmt ;
 	   int varmgmt ;
-	   int force ; } print ; } lpopts_struct ;
+	   int force ;
+	   int tableau ;
+	   int rays ;
+	   int soln ; } print ; } lpopts_struct ;
 
 
 
@@ -1569,6 +1595,9 @@ typedef struct
   unpacking a structure on a regular basis. Unless otherwise indicated, indices
   are in the dy_sys (active system) frame of reference.
 
+  dy_retained	TRUE if dylp thinks that the structures below are valid, FALSE
+		otherwise.
+
   Main structures
   ---------------
   dy_lp:	The lp control structure for dylp.
@@ -1669,6 +1698,8 @@ typedef struct
 		0, the constraint is not involved in degeneracy.
 */
 
+extern bool dy_retained ;
+
 extern lp_struct *dy_lp ;
 extern consys_struct *dy_sys ;
 extern lptols_struct *dy_tols ;
@@ -1689,6 +1720,8 @@ extern lpstats_struct *dy_stats ;
 extern bool dy_initlclsystem(lpprob_struct *orig_lp, bool hotstart) ;
 extern void dy_freelclsystem(lpprob_struct *orig_lp, bool freesys) ;
 extern bool dy_isscaled(void) ;
+extern void dy_scaling_vectors(const double **rscale, const double **cscale) ;
+extern consys_struct *dy_scaled_origsys() ;
 
 /*
   dy_coldstart.c
@@ -1841,7 +1874,7 @@ extern void dy_calcduals(void),dy_setbasicstatus(void),
 extern double dy_calcobj(void),dy_calcdualobj(void),dy_calcpinfeas(void) ;
 extern void dy_finishup(lpprob_struct *orig_lp, dyphase_enum phase) ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
 
 extern bool dy_chkstatus(int vndx),
             dy_chkdysys(consys_struct *orig_sys) ;
@@ -1854,8 +1887,7 @@ extern void dy_chkdual(int lvl) ;
 extern bool dy_dupbasis(int dst_basissze, basis_struct **p_dst_basis,
 			basis_struct *src_basis, int dst_statussze,
 			flags **p_dst_status,
-			int src_statuslen, flags *src_status),
-	    dy_expandxopt(lpprob_struct *lp, double **p_xopt) ;
+			int src_statuslen, flags *src_status) ;
 extern void dy_freesoln(lpprob_struct *lpprob) ;
 
 /*
@@ -1868,6 +1900,42 @@ extern bool dy_pricenbvars(lpprob_struct *orig_lp, flags priceme,
 			    double nubi, double xi, double nlbi,
 			    int nbcnt, int *nbvars,
 			    double *cbar, double *p_upeni, double *p_dpeni) ;
+
+/*
+  dy_tableau.c
+*/
+
+extern bool dy_abarj(lpprob_struct *orig_lp, int tgt_j, double **p_abarj) ;
+extern bool dy_betaj(lpprob_struct *orig_lp, int tgt_j, double **p_betaj) ;
+extern bool dy_betai(lpprob_struct *orig_lp, int tgt_i, double **p_betai) ;
+extern bool dy_abari(lpprob_struct *orig_lp, int tgt_i, double **p_abari,
+		     double **p_betai) ;
+
+/*
+  dy_rays.c
+*/
+
+extern bool dy_primalRays(lpprob_struct *orig_lp,
+			  int *p_numRays, double ***p_rays) ;
+extern bool dy_dualRays(lpprob_struct *orig_lp,
+			int *p_numRays, double ***p_rays) ;
+
+/*
+  dy_solutions.c
+*/
+
+extern void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar) ;
+extern void dy_rowDuals(lpprob_struct *orig_lp, double **p_y) ;
+
+extern void dy_colPrimals(lpprob_struct *orig_lp, double **p_x) ;
+extern void dy_rowPrimals(lpprob_struct *orig_lp,
+			  double **p_xB, int **p_indB) ;
+extern void dy_logPrimals(lpprob_struct *orig_lp, double **p_logx) ;
+
+extern void dy_colStatus(lpprob_struct *orig_lp, flags **p_colstat) ;
+extern void dy_logStatus(lpprob_struct *orig_lp, flags **p_logstat) ;
+
+extern bool dy_expandxopt(lpprob_struct *lp, double **p_xopt) ;
 
 /*
   dylp_io.c

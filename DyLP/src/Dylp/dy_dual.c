@@ -97,9 +97,11 @@
   assumes that a primal optimal but infeasible solution is available. This
   simplifies things, in that we don't need a stage I for the dual.
 
-  Anti-degeneracy in the dual isn't as strong as in the primal --- only the
-  `anti-degen lite' heuristic is implemented, using alignment of the dual
-  constraints (columns of the constraint matrix) with the rhs vector.
+  Anti-degeneracy in the dual works as the primal. The heavyweight tactic is
+  to form a perturbed subproblem incorporating those columns where the
+  unperturbed cbar<k> = 0. There's also an implementation of the `anti-degen
+  lite' heuristic, using alignment of the dual constraints (columns of the
+  constraint matrix) with the rhs vector.
 
   When numeric ill-conditioning is uncovered, we attempt to deal with it by
   boosting the minimum pivot tolerances. This can happen if groombasis has
@@ -148,11 +150,11 @@ static dyret_enum preoptimality (dyret_enum lpretval, flags *result)
 { flags checkflags ;
   dyret_enum retval ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "preoptimality" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (!(lpretval == dyrOPTIMAL || lpretval == dyrUNBOUND ||
 	lpretval == dyrPUNT))
   { errmsg(4,rtnnme,"lp return code",dy_prtdyret(lpretval)) ;
@@ -301,7 +303,7 @@ static dyret_enum dual2 (void)
   dyret_enum tmpretval ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_lp->degen != 0)
   { errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
     return (dyrFATAL) ; }
@@ -352,7 +354,7 @@ static dyret_enum dual2 (void)
       { do_pivots = FALSE ;
 	lpretval = outresult ;
 	break ; } }
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (candxi <= 0 && outresult == dyrOK)
     { dyio_outfmt(dy_logchn,TRUE,
 		  "\ndualout: %s(%d) INVALID LEAVING VAR = %d, outresult = %s",
@@ -377,7 +379,7 @@ static dyret_enum dual2 (void)
 */
     for (xindx = candxi ; do_pivots == TRUE ; xindx = candxi)
     { 
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (xindx <= 0)
       { dyio_outfmt(dy_logchn,TRUE,
 		    "\nloop: %s(%d) INVALID LEAVING VAR = %d, outresult = %s",
@@ -690,7 +692,7 @@ lpret_enum dy_dual (void)
 { lpret_enum retval ;
   dyret_enum dyret ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "dy_dual" ;
 # endif
 

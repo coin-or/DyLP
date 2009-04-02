@@ -54,7 +54,7 @@ static char svnid[] UNUSED = "$Id$" ;
 
 
 
-double consys_evalsys (consys_struct *consys)
+bool consys_evalsys (consys_struct *consys, double *p_scm, int *p_gecnt)
 
 /*
   This routine evaluates the constraint system given as a parameter,
@@ -67,70 +67,88 @@ double consys_evalsys (consys_struct *consys)
   The figure of merit is sqrt(amax/amin).
 
   Parameters:
-    consys:	constraint system
+    consys:	constraint system to be evaluated
+    scm:	(o) sqrt(amax/amin)
+    gecnt:	(o) the number of >= inequalities in the constraint system
 
-  Returns: sqrt(amax/amin)
+  Returns: TRUE if the evaluation concludes without error, FALSE otherwise.
+	   A FALSE return is possible only when we're paranoid.
 */
 
-{ int i ;
+{ int i,gecnt ;
   double amax,amin,aij ;
   double *rsc,*csc ;
 
   rowhdr_struct *rowi ;
   coeff_struct *coeffij ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   char *rtnnme = "consys_evalsys" ;
 
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
-    return (quiet_nan(0)) ; }
+    return (FALSE) ; }
   if (consys->mtx.rows == NULL)
   { errmsg(2,rtnnme,"row header") ;
-    return (quiet_nan(0)) ; }
+    return (FALSE) ; }
   if (consys->mtx.cols == NULL)
   { errmsg(2,rtnnme,"column header") ;
-    return (quiet_nan(0)) ; }
+    return (FALSE) ; }
+  if (consys->ctyp == NULL)
+  { errmsg(101,rtnnme,consys->nme,"constraint type vector") ;
+    return (FALSE) ; }
+  if (p_scm == NULL)
+  { errmsg(2,rtnnme,"scm") ;
+    return (FALSE) ; }
+  if (p_gecnt == NULL)
+  { errmsg(2,rtnnme,"gecnt") ;
+    return (FALSE) ; }
 # endif
+
+  *p_scm = quiet_nan(0) ;
+  *p_gecnt = -1 ;
 
   rsc = consys->rowscale ;
   csc = consys->colscale ;
   amax = 0.0 ;
   amin = consys->inf ;
+  gecnt = 0 ;
 
 /*
   Open a loop and scan the rows of the constraint matrix.
 */
   for (i = 1 ; i <= consys->concnt ; i++)
   { rowi = consys->mtx.rows[i] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (rowi == NULL)
     { errmsg(103,rtnnme,consys->nme,"row",i) ;
-      return (quiet_nan(0)) ; }
+      return (FALSE) ; }
     if (rowi->ndx != i)
     { errmsg(126,rtnnme,consys->nme,"row",rowi,rowi->ndx,i,rowi) ;
-      return (quiet_nan(0)) ; }
+      return (FALSE) ; }
     if ((rowi->coeffs == NULL && rowi->len != 0) ||
 	(rowi->coeffs != NULL && rowi->len == 0))
     { errmsg(134,rtnnme,consys->nme,"row",rowi->nme,i,rowi->len,
 	     (rowi->coeffs == NULL)?"null":"non-null") ;
-      return (quiet_nan(0)) ; }
+      return (FALSE) ; }
 #   endif
+    if (consys->ctyp[i] == contypGE)
+    { gecnt++ ; }
 
     for (coeffij = rowi->coeffs ; coeffij != NULL ; coeffij = coeffij->rownxt)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (coeffij->rowhdr != rowi)
       { errmsg(125,rtnnme,"rowhdr",coeffij,"row",rowi->nme,i) ;
-	return (quiet_nan(0)) ; }
+	return (FALSE) ; }
       if (coeffij->colhdr == NULL)
       { errmsg(125,rtnnme,"colhdr",coeffij,"row",rowi->nme,i) ;
-	return (quiet_nan(0)) ; }
+	return (FALSE) ; }
       if (coeffij->colhdr->ndx <= 0 || coeffij->colhdr->ndx > consys->varcnt)
       { errmsg(102,rtnnme,consys->nme,"column",coeffij->colhdr->ndx,1,
 	       consys->varcnt) ;
-	return (quiet_nan(0)) ; }
+	return (FALSE) ; }
 #     endif
 
       aij = coeffij->val ;
@@ -146,13 +164,17 @@ double consys_evalsys (consys_struct *consys)
   or less) legitimate reasons.
 */
   if (consys->concnt == 0)
-  { consys->maxaij = 0 ;
-    consys->minaij = 0 ;
-    return (1.0) ; }
+  { *p_gecnt = 0 ;
+    *p_scm = 1.0 ;
+    consys->maxaij = 0 ;
+    consys->minaij = 0 ; }
   else
-  { consys->maxaij = amax ;
-    consys->minaij = amin ;
-    return (sqrt(amax/amin)) ; } }
+  { *p_gecnt = gecnt ;
+    *p_scm = sqrt(amax/amin) ;
+    consys->maxaij = amax ;
+    consys->minaij = amin ; }
+
+  return (TRUE) ; }
 
 
 
@@ -185,7 +207,7 @@ bool consys_geomscale (consys_struct *consys,
   double *rowscale,*colscale ;
   coeff_struct *coeffij ;
 
-# if defined(PARANOIA) || CONSYS_SCALING_DEBUG >= 1
+# if defined(DYLP_PARANOIA) || CONSYS_SCALING_DEBUG >= 1
 
   char *rtnnme = "consys_geomscale" ;
 
@@ -320,7 +342,7 @@ bool consys_equiscale (consys_struct *consys,
   double *rowscale,*colscale ;
   coeff_struct *coeffij ;
 
-# if defined(PARANOIA) || CONSYS_SCALING_DEBUG >= 1
+# if defined(DYLP_PARANOIA) || CONSYS_SCALING_DEBUG >= 1
 
   char *rtnnme = "consys_equiscale" ;
 
@@ -399,7 +421,7 @@ bool consys_equiscale (consys_struct *consys,
 
 
 
-bool consys_applyscale (consys_struct *consys,
+bool consys_applyscale (consys_struct *consys, bool convctyp,
 			double *rowscale, double *colscale)
 
 /*
@@ -411,10 +433,23 @@ bool consys_applyscale (consys_struct *consys,
   Note that constraint upper and lower bounds are NOT scaled. They should
   be recalculated.
 
+  Note that dylp uses negative rowscale values to convert >= constraints to
+  <= constraints. If this is occuring, convctyp should be TRUE for exactly
+  one call.
+
+  Arguably, this routine could be made more efficient in the case where we're
+  scaling for the sole purpose of flipping >= constraints to <= constraints.
+  Just scan rowscale and change constraint system values only for values that
+  are -1.0. It's not clear that this case occurs often enough to be worth the
+  trouble. Binary coefficient matrices, maybe.
+
   Parameters:
     consys:	constraint system to be scaled
+    convctyp:	TRUE if the routine should scan rowscale for negative values
+		and convert >= constraints to <= constraints; FALSE otherwise
     rowscale:	row scaling matrix
-    colscale:	column scaling matrix
+    colscale:	column scaling matrix (may be NULL under the special condition
+		explained above)
 
   Returns: TRUE if the system is successfully scaled, FALSE otherwise.
 */
@@ -423,7 +458,7 @@ bool consys_applyscale (consys_struct *consys,
   double aij,maxaij,minaij ;
   coeff_struct *coeffij ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   char *rtnnme = "consys_applyscale" ;
 
@@ -457,6 +492,16 @@ bool consys_applyscale (consys_struct *consys,
   if (consys->rhslow != NULL)
   { for (i = 1 ; i <= consys->concnt ; i++)
       consys->rhslow[i] *= rowscale[i] ; }
+  if (convctyp == TRUE && consys->ctyp != NULL)
+  { for (i = 1 ; i <= consys->concnt ; i++)
+    { if (rowscale[i] < 0)
+      { 
+#       ifdef DYLP_PARANOIA
+	if (consys->ctyp[i] != contypGE)
+	{ errmsg(1,rtnnme,__LINE__) ;
+	  return (FALSE) ; }
+#       endif
+	consys->ctyp[i] = contypLE ; } } }
 /*
   Perform column scaling on the coefficient matrix, objective coefficients,
   and bounds. The bounds are scaled by 1/S so that the implicit coefficients

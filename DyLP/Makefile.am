@@ -14,6 +14,14 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src/DylpStdLib src/Dylp examples doc
 
+# We don't want to compile the test subdirectory, unless the test target is
+# specified.  But we need to list it as subdirectory to make sure that it is
+# included in the tarball
+
+if ALWAYS_FALSE
+  SUBDIRS += test
+endif
+
 ########################################################################
 #             Additional files to be included in tarball               #
 ########################################################################
@@ -36,11 +44,12 @@ EXTRA_DIST = \
 ########################################################################
 
 test: all
-	if test -r ../Osi/test/Makefile; then \
+	cd test ; $(MAKE) test
+	@if test -r ../Osi/test/Makefile; then \
 	  cd ../Osi/test; \
 	  $(MAKE) test; \
 	else \
-	  echo "We don't have Osi to run the test"; \
+	  echo "Osi not present; skipping Osi unit test."; \
 	fi
 
 ########################################################################

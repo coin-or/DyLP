@@ -75,7 +75,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
 
   const char *rtnnme = "dbg_scanPrimConBndAct" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
@@ -94,7 +94,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   else
   { dir = -1 ; }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (act_j < 1 || act_j > dy_sys->varcnt)
   { errmsg(102,rtnnme,"active variable",act_j,1,dy_sys->varcnt) ;
     return (-1) ; }
@@ -140,7 +140,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   { k = dy_basis[bpos] ;
     if (k > act_m)
     { j = dy_actvars[k] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
       { errmsg(102,rtnnme,"original variable",j,1,n) ;
 	retval = -1 ;
@@ -151,7 +151,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   { j = dy_actvars[act_j] ;
     orig_etaj[j] = -1.0*dir ; }
   if (abarj != NULL) FREE(abarj) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (j < 1 || j > n)
   { errmsg(102,rtnnme,"original variable",j,1,n) ;
     retval = -1 ; }
@@ -169,7 +169,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   { k = dy_origvars[j] ;
     if (ACTIVE_VAR(j))
     { 
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (k <= act_m || k > dy_sys->varcnt)
       { errmsg(102,rtnnme,"original variable",j,act_m+1,dy_sys->varcnt) ;
 	retval = -1 ;
@@ -178,7 +178,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
       orig_x[j] = dy_x[k] ; }
     else
     { statj = (flags) -k ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
       { errmsg(433,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -192,7 +192,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
       else
       if (flgon(statj,vstatNBLB|vstatNBFX))
       { orig_x[j] = orig_vlb[j] ; } } }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (retval < 0)
   { if (orig_etaj != NULL) FREE(orig_etaj) ;
     if (orig_x != NULL) FREE(orig_x) ;
@@ -360,7 +360,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
 
   const char *rtnnme = "scanPrimConBndAct" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
@@ -379,7 +379,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
   else
   { dir = -1 ; }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (act_j < 1 || act_j > dy_sys->varcnt)
   { errmsg(102,rtnnme,"active variable",act_j,1,dy_sys->varcnt) ;
     return (-1) ; }
@@ -425,7 +425,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
   { k = dy_basis[bpos] ;
     if (k > act_m)
     { j = dy_actvars[k] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
       { errmsg(102,rtnnme,"original variable",j,1,n) ;
 	retval = -1 ;
@@ -436,7 +436,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
   { j = dy_actvars[act_j] ;
     orig_etaj[j] = -1.0*dir ; }
   if (abarj != NULL) FREE(abarj) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (j < 1 || j > n)
   { errmsg(102,rtnnme,"original variable",j,1,n) ;
     retval = -1 ; }
@@ -454,7 +454,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
   { k = dy_origvars[j] ;
     if (k > 0)
     { 
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (k <= act_m || k > dy_sys->varcnt)
       { errmsg(102,rtnnme,"original variable",j,act_m+1,dy_sys->varcnt) ;
 	retval = -1 ;
@@ -463,7 +463,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
       orig_x[j] = dy_x[k] ; }
     else
     { statj = (flags) -k ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
       { errmsg(433,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -477,7 +477,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
       else
       if (flgon(statj,vstatNBLB|vstatNBFX))
       { orig_x[j] = orig_vlb[j] ; } } }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (retval < 0)
   { if (orig_etaj != NULL) FREE(orig_etaj) ;
     if (orig_x != NULL) FREE(orig_x) ;
@@ -667,7 +667,7 @@ int dy_activateBndCons (consys_struct *orig_sys)
 	  else
 	    dyio_outfmt(dy_logchn,dy_gtxecho,"\n    patched.") ; }
 #       endif
-#	ifdef PARANOIA
+#	ifdef DYLP_PARANOIA
 	if (dy_lp->simplex.active == dyPRIMAL2 && factorresult == dyrOK &&
 	    (flgon(calcflgs,ladPRIMFEAS)))
 	{ errmsg(1,rtnnme,__LINE__) ;
@@ -1472,7 +1472,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
        version of the usual dual pivoting rules, activate it, pivot it into
        the basis, and then return to dual simplex. There's a real chance
        that we'll be right back here on the next pivot, but c'est la vie.
-       If there are no such variables, then
+       If there are no such variables, then ...
     
     3) There are inactive variables with a<ij> != 0, but they don't satisfy
        the conditions for 1) or 2). We're at a point that's primal infeasible
@@ -1531,7 +1531,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
   retval = -1 ;
   dir2 = 0 ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (retval) ; }
@@ -1557,7 +1557,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
   else
   { diri = 1 ; }
   xipos = dy_var2basis[xindx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (xipos <= 0 || xipos > dy_sys->concnt)
   { errmsg(102,rtnnme,dy_sys->nme,"constraint",xipos,1,dy_sys->concnt) ;
     return (retval) ; }
@@ -1580,8 +1580,6 @@ int dy_dualaddvars (consys_struct *orig_sys)
   Now open up a loop to walk the variables in orig_sys and check the inactive
   ones for activation. If we're here as part of initialisation, we're only
   interested in type 1 activations.
-
-  (This routine not currently used in initialisation. --lh, 051203 --)
 */
   if (dy_lp->phase == dyINIT)
   { acttype = 1 ; }
@@ -1608,7 +1606,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
 		    consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ; }
 #     endif
       continue ; }
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (flgoff(xkstatus,vstatNBUB|vstatNBLB|vstatNBFR))
     { errmsg(433,rtnnme,
 	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -1733,7 +1731,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
   A little paranoia and we're out of here.
 */
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_chkdysys(orig_sys) == FALSE) retval = -1 ;
 # endif
 

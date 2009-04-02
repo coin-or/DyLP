@@ -80,7 +80,7 @@ bool pkvec_resize (pkvec_struct *pkvec, int sze)
 
   const char *rtnnme = "pkvec_resize" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (pkvec == NULL)
   { errmsg(2,rtnnme,"pkvec") ;
     return (FALSE) ; }
@@ -123,7 +123,7 @@ void pkvec_free (pkvec_struct *pkvec)
 
 { 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "pkvec_free" ;
 
   if (pkvec == NULL)
@@ -174,7 +174,7 @@ bool pkvec_check (pkvec_struct *pkvec, const char *caller)
 { int ndx ;
   const char *rtnnme = "pkvec_check" ; 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (pkvec == NULL)
   { errmsg(2,rtnnme,"pkvec") ;
     return (FALSE) ; }
@@ -231,7 +231,7 @@ double exvec_1norm (double *vec, int len)
 { int ndx ;
   double norm ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "exvec_1norm" ;
 
   if (vec == NULL)
@@ -263,7 +263,7 @@ double exvec_ssq (double *vec, int len)
 { int ndx ;
   double norm ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "exvec_ssq" ;
 
   if (vec == NULL)
@@ -293,7 +293,7 @@ double exvec_2norm (double *vec, int len)
 { int ndx ;
   double norm ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "exvec_2norm" ;
 
   if (vec == NULL)
@@ -323,7 +323,7 @@ double pkvec_2norm (pkvec_struct *vec)
   pkcoeff_struct *coeffs ;
   double norm ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "pkvec_2norm" ;
 
   if (vec == NULL)
@@ -360,7 +360,7 @@ double exvec_infnorm (double *vec, int len, int *p_jmax)
 { int j,jmax ;
   double norm ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "exvec_infnorm" ;
 
   if (vec == NULL)
@@ -406,7 +406,7 @@ double pkvec_dotexvec (pkvec_struct *pkvec, double *exvec)
   double dot ;
   pkcoeff_struct *coeffs ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "pkvec_dotexvec" ;
 
   if (pkvec == NULL)

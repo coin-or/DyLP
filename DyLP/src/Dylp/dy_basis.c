@@ -142,7 +142,7 @@ char *dy_prtpivparms (int lvl)
 { static char buffer[20] ;
   pivtols_struct pivtol ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_prtpivparms" ;
 
   if (luf_basis == NULL)
@@ -186,7 +186,7 @@ bool dy_setpivparms (int curdelta, int mindelta)
 
 { bool minretval,curretval ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_setpivparms" ;
 
   if (luf_basis == NULL)
@@ -292,11 +292,11 @@ double dy_chkpiv (double abarij, double maxabar)
 
 { double ratio,abspiv,stable ;
   
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "dy_chkpiv" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (luf_basis == NULL)
   { errmsg(2,rtnnme,"luf_basis") ;
     return (dyrFATAL) ; }
@@ -505,9 +505,10 @@ static void luf_adjustsize (void)
 void dy_ftran (double *col, bool save)
 
 /*
-  This is a shell that calls inv_ftran to perform inv(B)*col.  The returned
-  vector will be clean because basis initialisation sets glpk's eps_tol equal
-  to dylp's zero_tol
+  This is a shell that calls inv_ftran to perform inv(B)*col. Glpk does not set
+  clean zeros based on its internal zero tolerance, so the returned vector will
+  in general have values < dy_tols->zero. But it's not clear we want to clean
+  them off here.
 
   Parameter:
     col:	The column vector to be ftran'ed.
@@ -533,9 +534,8 @@ void dy_ftran (double *col, bool save)
 void dy_btran (double *col)
 
 /*
-  This is a shell that calls inv_btran to perform col*inv(B).  The returned
-  vector will be clean because basis initialisation sets glpk's eps_tol equal
-  to dylp's zero_tol
+  This is a shell that calls inv_btran to perform col*inv(B). As with ftran,
+  the returned vector is not necessarily clean.
 
   Parameter:
     col:	The column vector to be btran'ed.
@@ -584,7 +584,7 @@ static void adjust_basis (int *p_patchcnt, patch_struct **p_patches)
   patch_struct *patches ;
 
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   const char *rtnnme = "adjust_basis" ;
 
   if (dy_sys == NULL)
@@ -708,7 +708,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
   double vali ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_sys == NULL)
   { errmsg(2,rtnnme,"dy_sys") ;
     return (dyrFATAL) ; }
@@ -725,7 +725,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 
   phase = dy_lp->phase ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (!(phase == dyINIT || phase == dyADDVAR || phase == dyADDCON ||
 	phase == dyPRIMAL1 || phase == dyPRIMAL2 || phase == dyDUAL ||
 	phase == dyFORCEPRIMAL || phase == dyFORCEDUAL))
@@ -845,7 +845,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 #   endif
   }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   If paranoid checks are in place, we need agreement between dy_status, dy_x,
   and dy_xbasic, lest dy_calccbar fail. Call dy_calcprimals and
@@ -985,7 +985,7 @@ static int factor_loadcol (void *p_consys, int i, int *rndx, double *coeff)
 
   const char *rtnnme = "factor_loadcol" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (p_consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (-1) ; }
@@ -1085,7 +1085,7 @@ dyret_enum dy_factor (flags *calcflgs)
 
   const char *rtnnme = "dy_factor" ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (dy_sys == NULL)
   { errmsg(2,rtnnme,"dy_sys") ;
     return (dyrFATAL) ; }

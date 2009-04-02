@@ -174,7 +174,7 @@ static bool forcesuperbasic (void)
       comflg(dy_status[k],statk) ;
       dy_x[k] = valk ; }
 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
 /*
   If we're paranoid, run a status check while we're at it. This << must >>
   follow the code that forces superbasics. dy_chkstatus won't tolerate BLLB
@@ -227,7 +227,7 @@ static dyret_enum preoptimality (dyret_enum lpretval, flags *result)
 { flags checkflags ;
   dyret_enum retval ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "preoptimality" ;
 # endif
 
@@ -235,7 +235,7 @@ static dyret_enum preoptimality (dyret_enum lpretval, flags *result)
   int print ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (!(lpretval == dyrOPTIMAL || lpretval == dyrINFEAS ||
 	lpretval == dyrPUNT || lpretval == dyrUNBOUND))
   { errmsg(4,rtnnme,"lp return code",dy_prtdyret(lpretval)) ;
@@ -374,7 +374,7 @@ bool dy_swapobjs (dyphase_enum phase)
 
 { const char *rtnnme = "dy_swapobjs" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   A little paranoia. The routine will do the right thing (i.e., nothing) if
   called to install the P2 objective and it's already in place. But chances
@@ -547,7 +547,7 @@ bool dy_initp1obj (void)
     } }
   dy_lp->p1obj.infcnt = infcnt ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Any time that we're in here, dy_lp->infeascnt should be accurate --- either
   we're just starting up, or we've kicked back here after discovering a lack
@@ -647,7 +647,7 @@ static dyret_enum tweakp1obj (bool *reselect, int candxj)
   int xkpos ;
   double infeas ;
 # endif
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   double chkz ;
 # endif
 
@@ -657,7 +657,7 @@ static dyret_enum tweakp1obj (bool *reselect, int candxj)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 	        "\n\t  checking feasibility & tweaking phase 1 objective.") ; }
 # endif
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   chkz = dy_calcobj() ;
   if (!withintol(chkz,dy_lp->z,fabs(1000*dy_tols->cost*(1+fabs(chkz)))))
   { warn(405,rtnnme,
@@ -737,7 +737,7 @@ static dyret_enum tweakp1obj (bool *reselect, int candxj)
 	        "\n    reselect; newly feasible %s (%d) selected to enter.",
 	        consys_nme(dy_sys,'v',candxj,FALSE,NULL),candxj) ; }
 # endif
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Are we feeling paranoid? Do a scan to make sure that objective coefficients
   are 0 for all variables that are in bound. (At this point, there may be a
@@ -992,7 +992,7 @@ static dyret_enum primal1 (void)
   dyret_enum tmpretval ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_lp->degen != 0)
   { errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
     return (dyrFATAL) ; }
@@ -1081,7 +1081,7 @@ static dyret_enum primal1 (void)
 */
     for (xjndx = candxj ; do_pivots == TRUE ; xjndx = candxj)
     { 
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (xjndx <= 0)
       { errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters,"entering") ;
@@ -1095,7 +1095,7 @@ static dyret_enum primal1 (void)
       else
       if (cbarj > 0 && flgon(xjstatus,vstatNBUB|vstatSB|vstatNBFR))
       { indir = -1 ; }
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       else
       { errmsg(1,rtnnme,__LINE__) ;
 	return (dyrFATAL) ; }
@@ -1505,7 +1505,7 @@ static dyret_enum primal2 (void)
   dyret_enum tmpretval ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_lp->degen != 0)
   { errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
     return (dyrFATAL) ; }
@@ -1575,7 +1575,7 @@ static dyret_enum primal2 (void)
 */
     for (xjndx = candxj ; do_pivots == TRUE ; xjndx = candxj)
     { 
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (xjndx <= 0)
       { errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters,"entering") ;
@@ -1589,7 +1589,7 @@ static dyret_enum primal2 (void)
       else
       if (cbarj > 0 && flgon(xjstatus,vstatNBUB|vstatSB|vstatNBFR))
       { indir = -1 ; }
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       else
       { errmsg(1,rtnnme,__LINE__) ;
 	return (dyrFATAL) ; }

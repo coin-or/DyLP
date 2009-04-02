@@ -122,7 +122,7 @@ static bool prepcol_pk (consys_struct *orig_sys, int oxjndx,
   const char *rtnnme = "prepcol_pk" ;
 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   We shouldn't be here if x<j> is already active.
 */
@@ -219,7 +219,7 @@ bool dy_actNBPrimArch (consys_struct *orig_sys, int ovndx)
   pkcoeff_struct *aij ;
   const char *rtnnme = "dy_actNBPrimArch" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
@@ -249,7 +249,7 @@ bool dy_actNBPrimArch (consys_struct *orig_sys, int ovndx)
   loadable.
 */
   statj = (flags) (-dy_origvars[ovndx]) ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (!LOADABLE_VAR(ovndx))
   { errmsg(445,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -380,7 +380,7 @@ bool dy_actNBPrimArchList (consys_struct *orig_sys, int cnt, int *ovndxs)
   bool retval ;
   const char *rtnnme = "dy_actNBPrimArchList" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
@@ -408,7 +408,7 @@ bool dy_actNBPrimArchList (consys_struct *orig_sys, int cnt, int *ovndxs)
 	     "activate","variable",
 	     consys_nme(orig_sys,'v',j,TRUE,NULL),j) ; } }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (retval == TRUE)
   { retval = dy_chkdysys(orig_sys) ; }
 # endif
@@ -457,7 +457,7 @@ bool dy_deactBPrimArch (consys_struct *orig_sys, int j)
   Prep intermixed with paranoia. We need to retrieve the status and check that
   it's what we expect.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (j <= dy_sys->logvcnt || j > dy_sys->varcnt)
   { errmsg(102,rtnnme,"active variable",j,dy_sys->logvcnt+1,dy_sys->varcnt) ;
     return (FALSE) ; }
@@ -465,7 +465,7 @@ bool dy_deactBPrimArch (consys_struct *orig_sys, int j)
 
   statj = dy_status[j] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (flgoff(statj,vstatBLLB|vstatBUUB))
   { errmsg(438,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -479,7 +479,7 @@ bool dy_deactBPrimArch (consys_struct *orig_sys, int j)
 */
   for (i = dy_var2basis[j] ; dy_var2basis[i] != 0 ; i = dy_var2basis[i])
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (i <= 0 || i > dy_sys->concnt)
     { errmsg(102,rtnnme,"logical variable",i,1,dy_sys->concnt) ;
       return (FALSE) ; }
@@ -599,7 +599,7 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
   it's appropriate for deactivation, and that we have a valid index in the old
   system.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (j <= dy_sys->logvcnt || j > dy_sys->varcnt)
   { errmsg(102,rtnnme,"active variable",j,dy_sys->logvcnt+1,dy_sys->varcnt) ;
     return (FALSE) ; }
@@ -607,7 +607,7 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
 
   statj = dy_status[j] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (flgoff(statj,vstatNONBASIC|vstatNBFR))
   { errmsg(433,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -618,7 +618,7 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
 
   ovndx = dy_actvars[j] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (ovndx <= 0 || ovndx > orig_sys->varcnt)
   { errmsg(102,rtnnme,"original variable",ovndx,1,orig_sys->varcnt) ;
     return (FALSE) ; }
@@ -708,7 +708,7 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
 */
   if (j <= dy_sys->varcnt)
   { ovndx = dy_actvars[j] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (dy_origvars[ovndx] != dy_sys->varcnt+1)
     { errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; }
@@ -724,7 +724,7 @@ bool dy_deactNBPrimArch (consys_struct *orig_sys, int j)
     i = dy_var2basis[j] ;
     if (i != 0)
     { 
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (dy_basis[i] != dy_sys->varcnt+1)
       { errmsg(1,rtnnme,__LINE__) ;
         return (FALSE) ; }
@@ -770,7 +770,7 @@ static bool deactNBPrimArchList (consys_struct *orig_sys,
   bool retval ;
   const char *rtnnme = "deactNBPrimArchList" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (avndxs == NULL)
   { errmsg(2,rtnnme,"avndxs") ;
     return (FALSE) ; }
@@ -800,7 +800,7 @@ static bool deactNBPrimArchList (consys_struct *orig_sys,
 	     "deactivate","variable",
 	     consys_nme(dy_sys,'v',avndxs[k],TRUE,NULL),avndxs[k]) ; } }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (retval == TRUE)
   { retval = dy_chkdysys(orig_sys) ; }
 # endif
@@ -837,7 +837,7 @@ static int scanPrimVarStdDeact (int **p_avndxs)
   flags statj ;
   bool purge ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "scanPrimVarStdDeact" ;
 
   if (p_avndxs == NULL)
@@ -987,7 +987,7 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
   bool fatal,use_all,activate ;
   flags statj ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "scanPrimVarStdAct" ;
 
   if (orig_sys == NULL)
@@ -1011,7 +1011,7 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
   this. 
 */
   cand_limit = dy_lp->sys.vars.loadable ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (cand_limit == 0)
   { errmsg(1,rtnnme,__LINE__) ;
     return (-1) ; }
@@ -1056,7 +1056,7 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
     scan_cnt = 0 ;
     for (j = 1 ; j <= orig_sys->archvcnt ; j++)
     { if (!LOADABLE_VAR(j)) continue ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       statj = (flags) -dy_origvars[j] ;
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
       { errmsg(433,rtnnme,
@@ -1260,7 +1260,7 @@ int dy_activateVars (consys_struct *orig_sys, int *preset)
   int retval ;
   const char *rtnnme = "dy_addvars" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (dyINV) ; }
@@ -1363,7 +1363,7 @@ int dy_activateVars (consys_struct *orig_sys, int *preset)
   if (candcnt > 0)
   { calcflgs = ladDUALFEAS|ladDFQUIET ;
     factorresult = dy_accchk(&calcflgs) ;
-#   if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+#   if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
     switch (factorresult)
     { case dyrOK:
       { 
@@ -1372,7 +1372,7 @@ int dy_activateVars (consys_struct *orig_sys, int *preset)
 	{ if (factorresult == dyrOK)
 	    dyio_outfmt(dy_logchn,dy_gtxecho,"\n    done.") ; }
 #       endif
-#	ifdef PARANOIA
+#	ifdef DYLP_PARANOIA
 /*
   In spite of the comment above, there's always numerical accuracy, and we
   can run into a situation where we're adding a variable with tol.cost <

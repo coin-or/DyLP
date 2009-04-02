@@ -68,9 +68,9 @@
 
 /*
   But dylp was developed long before COIN came into being, so if you really
-  want the paranoid checks, define PARANOIA. The value isn't important.
+  want the paranoid checks, define DYLP_PARANOIA. The value isn't important.
 */
-/* #define PARANOIA 1 */
+/* #define DYLP_PARANOIA 1 */
 
 /*
   Define to the debug verbosity level (0 is no output)

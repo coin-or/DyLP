@@ -150,7 +150,7 @@ static bool groombasis ()
       { xi = dy_x[i] ;
 	if (dy_degenset[ipos] > 0)
 	{
-#	  ifdef PARANOIA
+#	  ifdef DYLP_PARANOIA
 	  if (dy_lp->degen < dy_degenset[ipos])
 	  { errmsg(390,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		   dy_lp->tot.iters,ipos,dy_degenset[ipos],
@@ -307,7 +307,7 @@ static bool groombasis ()
 	  break ; }
 	case vstatBFR:
 	{ break ; }
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	default:
 	{ errmsg(1,rtnnme,__LINE__) ;
 	  return (FALSE) ;  }
@@ -769,7 +769,7 @@ dyret_enum dy_accchk (flags *checks)
     if (flgon(*checks,ladPRIMFEAS))
     { pinfeas = 0 ;
       pfeascnt = 0 ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       for (xkndx = 1 ; xkndx <= dy_sys->varcnt ; xkndx++)
       { if (!withinbnds(dy_sys->vlb[xkndx],dy_x[xkndx],dy_sys->vub[xkndx]))
 	{ if (belowbnd(dy_x[xkndx],dy_sys->vlb[xkndx]))
@@ -880,13 +880,13 @@ dyret_enum dy_accchk (flags *checks)
 #     endif
       for (xkndx = 1 ; xkndx <= dy_sys->varcnt ; xkndx++)
       { vstat = dy_status[xkndx] ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
         if (flgon(vstat,vstatBASIC)) continue ;
 #       else
         if (flgon(vstat,vstatBASIC|vstatNBFX)) continue ;
 #       endif
         cbarj = consys_dotcol(dy_sys,xkndx,dy_y) ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (isnan(cbarj) == TRUE)
 	{ errmsg(320,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		 dy_lp->tot.iters,"y",xkndx,"dual feasibility check") ;
@@ -1226,7 +1226,7 @@ dyret_enum dy_duenna (dyret_enum pivresult, int xjndx, int xindx,
     case dyrLOSTPFEAS:
     case dyrLOSTDFEAS:
     { setflg(checkflags,ladFACTOR) ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (dy_lp->phase == dyPRIMAL1)
       { errmsg(338,rtnnme,dy_sys->nme,
 	       (pivresult == dyrLOSTPFEAS)?"primal":"dual") ;
@@ -1282,7 +1282,7 @@ dyret_enum dy_duenna (dyret_enum pivresult, int xjndx, int xindx,
     default:
     { errmsg(1,rtnnme,__LINE__) ;
       return (dyrFATAL) ; } }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   retval should be one of dyrOK, dyrREQCHK, or dyrRESELECT, dyrOK means that
   we may refactor, but have no particular accuracy problems nor do we need to
@@ -1440,7 +1440,7 @@ dyret_enum dy_duenna (dyret_enum pivresult, int xjndx, int xindx,
 	if (flgon(checkflags,ladDUALFEAS))
 	  return (dyrLOSTDFEAS) ; } }
     if (retval == dyrREQCHK) retval = dyrOK ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   At this point, return values should be one of dyrOK or dyrRESELECT.
 */

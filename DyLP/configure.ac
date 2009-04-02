@@ -203,6 +203,7 @@ AC_CONFIG_FILES([Makefile
                  examples/Makefile
                  src/DylpStdLib/Makefile
                  src/Dylp/Makefile
+		 test/Makefile
 		 dylp_addlibs.txt])
 
 # Here put the location and name of the configuration header file

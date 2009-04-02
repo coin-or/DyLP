@@ -109,7 +109,7 @@ static char svnid[] UNUSED = "$Id$" ;
   rho. Set to FALSE if you want errors to trigger a fatal error, TRUE to note
   the errors but soldier on. Be aware that this check will almost certainly
   trigger fatal errors if the LP is numerically ill-conditioned. You must
-  also define PARANOIA during the dylp build.
+  also define DYLP_PARANOIA during the dylp build.
 
   #define CHECK_DSE_UPDATES TRUE
 */
@@ -118,7 +118,7 @@ static char svnid[] UNUSED = "$Id$" ;
   As with CHECK_DSE_UPDATES, define this as TRUE if you just want to know
   about errors, FALSE if an error should trigger an abort. Here, too, the check
   will almost certainly trigger fatal errors if the LP has numerical problems.
-  You must also define PARANOIA during the dylp build.
+  You must also define DYLP_PARANOIA during the dylp build.
 
   #define CHECK_DUAL_PIVROW TRUE
 */
@@ -275,7 +275,7 @@ dyret_enum dy_confirmDualPivot (int i, int j, double *abari,
 */
   else
   { 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (!(err > tol*1000))
     { warn(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	   dy_lp->tot.iters+1,i,j,abari_j,abarj_i,err,
@@ -381,7 +381,7 @@ static bool check_dualpivrow (int xipos, const double *abari, double maxabari)
     if (dy_chkstatus(k) == FALSE)
     { retval = CHECK_DUAL_PIVROW ;
       continue ; }
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (flgon(statk,vstatBASIC)) continue ;
 #   else
     if (flgon(statk,vstatBASIC|vstatNBFX)) continue ;
@@ -521,7 +521,7 @@ bool dualpivrow (int xipos, double *betai, double *abari, double *maxabari)
   *maxabari = 0 ;
   for (xkndx = 1 ; xkndx <= dy_sys->varcnt ; xkndx++)
   { xkstatus = dy_status[xkndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (flgon(xkstatus,vstatBASIC)) continue ;
 #   else
     if (flgon(xkstatus,vstatBASIC|vstatNBFX)) continue ;
@@ -592,7 +592,7 @@ static void dualdegenin (void)
   const char *rtnnme = "dualdegenin" ;
 
 
-# if defined(PARANOIA) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
   int degencnt = 0 ;
 # endif
 
@@ -677,7 +677,7 @@ static void dualdegenin (void)
       { errmsg(1,rtnnme,__LINE__) ;
 	return ; } }
     dy_cbar[j] = perturb ;
-#   if defined(PARANOIA) || defined(DYLP_STATISTICS)
+#   if defined(DYLP_PARANOIA) || defined(DYLP_STATISTICS)
     degencnt++ ;
 #   endif
 #   ifndef DYLP_NDEBUG
@@ -688,7 +688,7 @@ static void dualdegenin (void)
 #   endif
   }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (degencnt <= 0)
   { errmsg(327,rtnnme,dy_sys->nme) ;
     return ; }
@@ -1335,7 +1335,7 @@ static dyret_enum dualin (int xindx, int outdir,
   for (xkndx = 1 ; xkndx <= dy_sys->varcnt ; xkndx++)
   { if (dy_lp->degen > 0 && dy_ddegenset[xkndx] != dy_lp->degen) continue ;
     xkstatus = dy_status[xkndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (dy_chkstatus(xkndx) == FALSE) return (dyrFATAL) ;
 #   endif
 /*
@@ -1644,7 +1644,7 @@ static dyret_enum dseupdate (int xindx, int xjndx, int *candxi, double *tau,
   bool pivreject,recalc ;
   dyret_enum retval ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dseupdate" ;
 # endif
 
@@ -1667,7 +1667,7 @@ static dyret_enum dseupdate (int xindx, int xjndx, int *candxi, double *tau,
   cbarj = dy_cbar[xjndx] ;
   xjstatus = dy_status[xjndx] ;
   rhoi = tau[xipos] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   rhok = exvec_ssq(betai,dy_sys->concnt) ;
   if (!withintol(rhoi,rhok,dy_tols->zero*(1+rhok)))
   { if (!withintol(rhoi,rhok,dy_tols->zero+dy_tols->bogus*(1+rhok)))
@@ -1841,7 +1841,7 @@ static dyret_enum dseupdate (int xindx, int xjndx, int *candxi, double *tau,
   for (xkndx = 1 ; xkndx <= dy_sys->varcnt ; xkndx++)
   { if (dy_lp->degen > 0 && dy_ddegenset[xkndx] != dy_lp->degen) continue ;
     xkstatus = dy_status[xkndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (flgon(xkstatus,vstatBASIC)) continue ;
 #   else
     if (flgon(xkstatus,vstatBASIC|vstatNBFX)) continue ;
@@ -1970,7 +1970,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
   double swingratio,maxswing ;
   const char *rtnnme = "dualupdate" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   double epsl,epsu ;
 # endif
 # ifndef DYLP_NDEBUG
@@ -1995,7 +1995,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
   ubi = dy_sys->vub[xindx] ;
   abarij = abarj[xipos] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   The incoming variable should have status NBLB, NBUB, or NBFR. The dual
   simplex isn't prepared to deal with SB (not dual feasible) or NBFX
@@ -2098,7 +2098,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
     stati = dy_status[xindx] ;
     xi = dy_x[xindx] ;
 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
 /*
   Consider the result. x<i> should end up at bound (BLB, BUB, or BFX).
 */
@@ -2265,7 +2265,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
   dy_x[xjndx] = xj ;
   dy_xbasic[xipos] = xj ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   { deltak = dy_calcobj() ;
     if (fabs(deltak-dy_lp->z) > fabs(.001*(1+fabs(deltak))))
     { warn(405,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
@@ -2333,7 +2333,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
   { 
   
     dyio_outfmt(dy_logchn,dy_gtxecho,"\n\trevised objective %g.",dy_lp->z) ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     deltak = dy_calcobj() ;
     if (!atbnd(deltak,dy_lp->z))
       dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -2443,7 +2443,7 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
 				 double *abari, double maxabari,
 				 double **p_abarj) ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   int chkduallvl = 1 ;
 
   dy_chkdual(chkduallvl) ;
@@ -2794,7 +2794,7 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
     { dseretval = dseupdate(xindx,xjndx,p_xicand,tau,betai,abari,abarj) ;
       if (dseretval != dyrOK) retval = dseretval ; }
     if (retval == dyrOK) retval = inretval ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     dy_chkdual(chkduallvl) ;
 #   endif
   }

@@ -567,12 +567,12 @@ extern bool consys_mulaccumcol(consys_struct *consys, int colndx,
   consys_scaling.c
 */
 
-extern double consys_evalsys(consys_struct *consys) ;
+extern bool consys_evalsys(consys_struct *consys, double *scm, int *gecnt) ;
 extern bool consys_geomscale(consys_struct *consys,
 			     double **rowscale, double **colscale),
 	    consys_equiscale(consys_struct *consys,
 			     double **rowscale, double **colscale),
-	    consys_applyscale(consys_struct *consys,
+	    consys_applyscale(consys_struct *consys, bool convctyp,
 			      double *rowscale, double *colscale) ;
 
 /*

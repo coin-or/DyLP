@@ -171,7 +171,7 @@ dyret_enum dy_degenout (int level)
   flags statk,qualk ;
   dyret_enum retval ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_degenout" ;
 # endif
 
@@ -245,7 +245,7 @@ dyret_enum dy_degenout (int level)
 	    statk = vstatBUUB ;
 	  else
 	    statk = vstatB ;
-#         ifdef PARANOIA
+#         ifdef DYLP_PARANOIA
 	  if (withintol(val,vub[xkndx],
 			  1000*dy_tols->pfeas*(1+fabs(vub[xkndx]))))
 	  { warn(342,rtnnme,dy_sys->nme,
@@ -348,11 +348,11 @@ static void dy_degenin (void)
   double base,perturb,xk,ubk,lbk,toobig ;
   flags xkstatus ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   char *rtnnme = "dy_degenin" ;
 # endif
 
-# if defined(PARANOIA) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || defined(DYLP_STATISTICS) || !defined(DYLP_NDEBUG)
   int degencnt ;
 
   degencnt = 0 ;
@@ -427,7 +427,7 @@ static void dy_degenin (void)
       { dy_brkout[xkpos] = 0 ;
 	setflg(dy_status[xkndx],vstatNOPER) ;
 	break ; } }
-#   if defined(PARANOIA) || defined(DYLP_STATISTICS)
+#   if defined(DYLP_PARANOIA) || defined(DYLP_STATISTICS)
     degencnt++ ;
 #   endif
 #   ifndef DYLP_NDEBUG
@@ -448,7 +448,7 @@ static void dy_degenin (void)
 #   endif
   }
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (degencnt <= 0)
   { errmsg(327,rtnnme,dy_sys->nme) ;
     return ; }
@@ -684,11 +684,11 @@ dyret_enum dy_primalin (int startcol, int scan, int *xjndx, int *nextcol)
   double ncbarj ;
   dyret_enum retval ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "dy_primalin" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_cbar == NULL)
   { errmsg(101,rtnnme,dy_sys->nme,"dy_cbar") ;
     return (dyrFATAL) ; }
@@ -727,7 +727,7 @@ dyret_enum dy_primalin (int startcol, int scan, int *xjndx, int *nextcol)
     this_blk = minn(this_blk,dy_sys->varcnt-xkndx+1) ;
     for (scanned = 0 ; scanned < this_blk ; scanned++,xkndx++)
     { xkstatus = dy_status[xkndx] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (dy_chkstatus(xkndx) == FALSE) return (dyrFATAL) ;
 #     endif
 /*
@@ -761,7 +761,7 @@ dyret_enum dy_primalin (int startcol, int scan, int *xjndx, int *nextcol)
   find any candidates to enter we should have scanned all the columns, hence
   total_scanned should equal dy_sys->varcnt and xkndx should equal startcol.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (*xjndx == 0)
   { if (total_scanned != dy_sys->varcnt || xkndx != startcol)
     { errmsg(1,rtnnme,__LINE__) ;
@@ -928,7 +928,7 @@ static double pdirdothyper (int xjndx, double *abarj, int dirj,
 
 { double dotprod,normak,abarkj ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   int pkndx,xqndx,xqpos ;
   double xqcoeff ;
   pkvec_struct *ak ;
@@ -944,7 +944,7 @@ static double pdirdothyper (int xjndx, double *abarj, int dirj,
 */
   if (xkndx <= dy_sys->concnt)
   { 
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
 /*
   Retrieve the constraint normal a<k> and do the dot product. The procedure
   is to walk the (sparse) row, translating each column coefficient to a basis
@@ -1109,7 +1109,7 @@ static dyret_enum primalout (int xjndx, int indir,
   { *deltaj = dy_x[xjndx]-dy_sys->vlb[xjndx] ; }
   else
   { *deltaj = dy_sys->vub[xjndx]-dy_x[xjndx] ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (*deltaj < -dy_tols->zero)
   { errmsg(325,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	   dy_lp->tot.iters+1,consys_nme(dy_sys,'v',xjndx,FALSE,NULL),
@@ -1616,7 +1616,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 		 eps0*dy_tols->bogus,eps0*dy_tols->bogus-val) ;
 #	  endif
 	}
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (flgon(xkstatus,vstatBFX) && fabs(deltak) > dy_tols->pfeas)
 	{ errmsg(345,rtnnme,dy_sys->nme,
 		 consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,val,
@@ -1745,7 +1745,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	    swingndx = xkndx ; } }
 	dy_xbasic[xkpos] = val ;
 	if (dy_lp->degen == 0) dy_x[xkndx] = val ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 /*
   Check that x<i> has acquired the proper status after the update of basic
   variables.
@@ -1903,7 +1903,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
         case vstatNBFR:
 	{ dy_status[xjndx] = vstatBFR ;
 	  break ; }
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	default:
 	{ errmsg(1,rtnnme,__LINE__) ;
 	  return (dyrFATAL) ; }
@@ -1924,7 +1924,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	case vstatNBFR:
 	{ dy_status[xjndx] = vstatBFR ;
 	  break ; }
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	default:
 	{ errmsg(1,rtnnme,__LINE__) ;
 	  return (dyrFATAL) ; }
@@ -1947,7 +1947,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 */
   if (dirtyz == TRUE)
   { dy_lp->z = dy_calcobj() ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   else
   { val = dy_calcobj() ;
     if (fabs(val-dy_lp->z) > fabs(.001*(1+fabs(val))))
@@ -2008,7 +2008,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
   { bool first,all ;
   
     dyio_outfmt(dy_logchn,dy_gtxecho,"\n\trevised objective %g.",dy_lp->z) ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (dy_lp->phase == dyPRIMAL2)
     { deltak = dy_calcobj() ;
       if (!atbnd(deltak,dy_lp->z))
@@ -2229,7 +2229,7 @@ static dyret_enum pseupdate (int xjndx, int xindx, int *candxj,
   bool reset,pivreject ;
   dyret_enum retval ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "pseupdate" ;
 # endif
 
@@ -2295,7 +2295,7 @@ static dyret_enum pseupdate (int xjndx, int xindx, int *candxj,
 #     endif
       continue ; }
     abarik = consys_dotcol(dy_sys,xkndx,betai) ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (isnan(abarik) == TRUE)
     { errmsg(320,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	     dy_lp->tot.iters,"beta<i>",xkndx,"PSE update") ;
@@ -2303,7 +2303,7 @@ static dyret_enum pseupdate (int xjndx, int xindx, int *candxj,
 #   endif
     alphak = abarik/abarij ;
     setcleanzero(alphak,dy_tols->zero) ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
 /*
   Since x<i> was basic when we extracted betai, abar<i,i> should be 1.0.
   While we don't check for it explicitly, alpha<i> should not be 0 --- it
@@ -2348,7 +2348,7 @@ static dyret_enum pseupdate (int xjndx, int xindx, int *candxj,
     { if (xkndx != xindx)
       { cbark = dy_cbar[xkndx]-cbarj*alphak ;
 	akdotv = consys_dotcol(dy_sys,xkndx,v) ;
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	if (isnan(akdotv) == TRUE)
 	{ errmsg(320,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		     dy_lp->tot.iters,"v",xkndx,"PSE update") ;

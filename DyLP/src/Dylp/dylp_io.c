@@ -463,7 +463,7 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
   basis_struct *basis ;
   const char *rtnnme = "dy_dumpcompact" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (soln == NULL)
   { errmsg(2,rtnnme,"solution") ;
     return (FALSE) ; }
@@ -505,7 +505,7 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
 	else
 	{ vndx = (int) soln->obj ;
 	  bpos = 1 ; }
-	dyio_outfmt(chn,echo,"\t\tunbounded variable %s (%d) (%s)",
+        dyio_outfmt(chn,echo,"\t\tunbounded variable %s (%d) (%s)",
 		    consys_nme(sys,'v',vndx,FALSE,NULL),vndx,
 		    (bpos < 0)?"decreasing":"increasing") ; }
       break ; }

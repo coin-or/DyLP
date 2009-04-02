@@ -177,7 +177,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
   int k ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
@@ -210,7 +210,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
   { noload = (int *) MALLOC((orig_sys->concnt+1)*sizeof(int)) ; }
   else
   { noload = *p_noload ; }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (ineqs->angles == NULL)
   { errmsg(2,rtnnme,"angle array") ;
     return (FALSE) ; }
@@ -294,7 +294,7 @@ static bool cold_sortcons (consys_struct *orig_sys,
 		  noloadcnt) ; }
     dyio_outchr(dy_logchn,dy_gtxecho,'.') ; }
 # endif
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_lp->sys.cons.loadable+dy_lp->sys.cons.unloadable != orig_sys->concnt)
   { errmsg(1,rtnnme,__LINE__) ;
     retval = FALSE ; }
@@ -453,7 +453,7 @@ static bool cold_createdysys (consys_struct *orig_sys, int eqcnt, int ineqcnt)
   Returns: TRUE if the system is created without error, FALSE otherwise.
 */
 
-{ int j,m_sze,n_sze ;
+{ int m_sze,n_sze ;
 
   char nmebuf[50] ;
 
@@ -718,7 +718,7 @@ static bool cold_scanvars (consys_struct *orig_sys)
 	    flippable,uj*100) ; }
 #   endif
   }
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_lp->sys.vars.unloadable+dy_lp->sys.vars.loadable != orig_sys->varcnt)
   { errmsg(1,rtnnme,__LINE__) ;
     retval = FALSE ; }
@@ -747,7 +747,7 @@ static bool cold_loadfull (consys_struct *orig_sys,
   Returns: TRUE if all constraints are loaded successfully, FALSE otherwise.
 */
 
-{ int i,act_i,ndx,eqcnt,ineqcnt ;
+{ int i,ndx,eqcnt,ineqcnt ;
   bool retval ;
 
   angle_struct *angles ;
@@ -1142,7 +1142,7 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
   Paranoid checks and informational print statements. Apologies for abusing
   previously declared variables for the print loop.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_chkdysys(orig_sys) == FALSE) return (dyrFATAL) ;
 # endif
 # ifndef DYLP_NDEBUG
@@ -1379,7 +1379,7 @@ static bool ib_archvrank (int *p_cnt, ibrank_struct **p_archvars)
     vubj = vub[j] ;
     if (vlbj > -dy_tols->inf && vubj < dy_tols->inf)
     { archvars[eligible].bndcnt = 2 ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (vlbj == vubj)
       { errmsg(1,rtnnme,__LINE__) ;
 	retval = FALSE ;
@@ -1729,7 +1729,7 @@ static bool ib_populatebasis (void)
   int i,j ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (!(dy_opts->coldbasis >= ibLOGICAL && dy_opts->coldbasis <= ibARCH))
   { errmsg(5,rtnnme,"initial basis type",dy_opts->coldbasis) ;
     return (FALSE) ; }
@@ -1869,7 +1869,7 @@ dyret_enum dy_crash (void)
   int cndx ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_lp == NULL)
   { errmsg(2,rtnnme,"dy_lp") ;
     return (dyrFATAL) ; }

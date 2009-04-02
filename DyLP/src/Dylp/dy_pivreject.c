@@ -193,7 +193,7 @@ bool dy_clrpivrej (int *entries)
 
   const char *rtnnme = "dy_clrpivrej" ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   flags chkflgs ;
 
 /*
@@ -236,7 +236,7 @@ bool dy_clrpivrej (int *entries)
     for (ndx = 0 ; ndx <= last ; ndx++)
     { j = pivrejlst[ndx].ndx ;
       statj = dy_status[j] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
       { errmsg(102,rtnnme,dy_sys->nme,"rejected variable",j,1,n) ;
 	return (FALSE) ; }
@@ -269,7 +269,7 @@ bool dy_clrpivrej (int *entries)
     { qsort(&entries[1],elast,sizeof(int),int_nonincreasing) ; }
     for (endx = 1 ; endx <= elast ; endx++)
     { ndx = entries[endx] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (ndx < 0 || ndx >= pivrej_ctl.cnt)
       { errmsg(102,rtnnme,dy_sys->nme,"pivrej list index",ndx,
 	       0,pivrej_ctl.cnt-1) ;
@@ -277,7 +277,7 @@ bool dy_clrpivrej (int *entries)
 #     endif
       j = pivrejlst[ndx].ndx ;
       statj = dy_status[j] ;
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
       { errmsg(102,rtnnme,dy_sys->nme,"rejected variable",j,1,n) ;
 	return (FALSE) ; }
@@ -365,7 +365,7 @@ dyret_enum dy_addtopivrej (int j, dyret_enum why,
 # ifndef DYLP_NDEBUG
   dy_opts->print.pivoting = saveprint ;
 # endif
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (j < 1 || j > n)
   { errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,n) ;
     return (dyrFATAL) ; }

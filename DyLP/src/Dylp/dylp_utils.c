@@ -107,7 +107,7 @@ bool dy_reducerhs (double *rhs, bool init)
   pkvec_struct *pkcol ;
   const char *rtnnme = "dy_reducerhs" ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (rhs == NULL)
   { errmsg(2,rtnnme,"rhs") ;
     return (FALSE) ; }
@@ -137,7 +137,7 @@ bool dy_reducerhs (double *rhs, bool init)
   for (vndx = 1 ; vndx <= dy_sys->varcnt ; vndx++)
     if (flgon(dy_status[vndx],vstatNONBASIC) && dy_x[vndx] != 0.0)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       if (fabs(dy_x[vndx]) >= dy_tols->inf)
       { errmsg(315,rtnnme,consys_nme(dy_sys,'v',vndx,TRUE,NULL),vndx,
 	       dy_prtvstat(dy_status[vndx])) ;
@@ -214,7 +214,7 @@ bool dy_calcprimals (void)
       break ; } }
 # endif
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (dy_xbasic == NULL)
   { errmsg(2,rtnnme,"xbasic") ;
     return (FALSE) ; }
@@ -279,7 +279,7 @@ bool dy_calcprimals (void)
       { vndx = dy_basis[bndx] ;
 	if (flgon(dy_status[vndx],vstatBFX))
 	{ 
-#         ifdef PARANOIA
+#         ifdef DYLP_PARANOIA
 	  if (!withintol(xvec[bndx],dy_sys->vub[vndx],dy_tols->zero))
 	  { if (!withintol(xvec[bndx],dy_sys->vub[vndx],dy_tols->pfeas*100))
 	    { errmsg(333,rtnnme,dy_sys->nme,
@@ -317,12 +317,14 @@ bool dy_calcprimals (void)
 # ifndef DYLP_NDEBUG
   if (print >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: recalculated primal variables:",rtnnme) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
 	        "\n\tprim.max = %g, scale = %g, pzero = %g, pfeas = %g.",
 	        dy_lp->prim.max,dy_tols->pfeas_scale,
 	        dy_tols->zero,dy_tols->pfeas) ; }
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Check the nonbasic variables to see that their value agrees with their
   status.
@@ -360,8 +362,6 @@ bool dy_calcprimals (void)
 */
   if (print >= 5)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
-		"\n%s: recalculated primal variables:",rtnnme) ;
-    dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%8s%20s%16s%16s%16s%8s","pos'n","var (ndx)",
 	        "lb","val","ub","status") ;
     if (degenActive) dyio_outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
@@ -648,6 +648,8 @@ void dy_calcduals (void)
 # ifndef DYLP_NDEBUG
   int print ;
 
+  char *rtnnme = "dy_calcduals" ;
+
   switch (dy_lp->phase)
   { case dyPRIMAL1:
     { print = dy_opts->print.phase1 ;
@@ -722,12 +724,14 @@ void dy_calcduals (void)
 # ifndef DYLP_NDEBUG
   if (print >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: recalculated dual variables:",rtnnme) ;
+    dyio_outfmt(dy_logchn,dy_gtxecho,
 	        "\n\tdual.max = %g, scale = %g, dzero = %g, dfeas = %g.",
 	        dy_lp->dual.max,dy_tols->dfeas_scale,
 		dy_tols->cost,dy_tols->dfeas) ;
     if (print >= 7)
     { dyio_outfmt(dy_logchn,dy_gtxecho,
-		  "\n\n%8s%20s%16s","pos'n","constraint","val") ;
+		  "\n%8s%20s%16s","pos'n","constraint","val") ;
       if (degenActive)
 	dyio_outfmt(dy_logchn,dy_gtxecho,"%16s","perturbation") ;
       for (xkpos = 1 ; xkpos <= dy_sys->concnt ; xkpos++)
@@ -755,7 +759,7 @@ double dy_calcobj (void)
 { int vndx ;
   double z ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_calcobj" ;
 
   if (dy_x == NULL)
@@ -801,7 +805,7 @@ double dy_calcdualobj (void)
 
   const char *rtnnme = "dy_calcdualobj" ;
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
   if (dy_x == NULL)
   { errmsg(2,rtnnme,"dy_x") ;
     return (quiet_nan(0)) ; }
@@ -948,7 +952,7 @@ bool dy_calccbar (void)
 { int xjndx ;
   double cbarj ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   flags xjstatus ;
   const char *rtnnme = "dy_calccbar" ;
 # endif
@@ -958,7 +962,7 @@ bool dy_calccbar (void)
 */
   for (xjndx = 1 ; xjndx <= dy_sys->varcnt ; xjndx++)
   {
-#   ifndef PARANOIA
+#   ifndef DYLP_PARANOIA
 /* The expedient decision: basic or not? */
     if (dy_var2basis[xjndx] > 0)
     { dy_cbar[xjndx] = 0 ;
@@ -980,7 +984,7 @@ bool dy_calccbar (void)
   Calculate the reduced cost and store it in cbar<j>.
 */
     cbarj = consys_dotcol(dy_sys,xjndx,dy_y) ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (isnan(cbarj) == TRUE)
     { errmsg(320,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	     dy_lp->tot.iters,"y",xjndx,"reduced cost") ;
@@ -1135,7 +1139,7 @@ void dy_pseinit (void)
 
 
 
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
 
 bool dy_chkstatus (int vndx)
 
@@ -1972,7 +1976,7 @@ bool dy_chkdysys (consys_struct *orig_sys)
   return (retval) ; }
 
 
-#endif /* PARANOIA */
+#endif /* DYLP_PARANOIA */
 
 bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
 		  basis_struct *src_basis, int dst_statussze,
@@ -2012,7 +2016,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
   bool want_basis,want_status ;
 
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_dupbasis" ;
 
   if (p_dst_basis == NULL && p_dst_status == NULL)
@@ -2053,7 +2057,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
 
     if (dst_basissze < src_basis->len)
     {
-#     ifdef PARANOIA
+#     ifdef DYLP_PARANOIA
       warn(404,rtnnme,"basis",dst_basissze,src_basis->len) ;
 #     endif
       dst_basissze = src_basis->len ; }
@@ -2073,7 +2077,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
     {
       if (dst_statussze < src_statuslen)
       {
-#       ifdef PARANOIA
+#       ifdef DYLP_PARANOIA
 	warn(404,rtnnme,"status",dst_statussze,src_statuslen) ;
 #       endif
 	dst_statussze = src_statuslen ; }
@@ -2118,8 +2122,8 @@ static void build_soln (lpprob_struct *orig_lp)
   consys_struct *orig_sys ;
   const char *rtnnme = "build_soln" ;
 
-  /* scaling.c */
-  extern void dy_unscale_soln(double *x, double *y) ;
+  /* dy_unscaling.c */
+  extern void dy_orig_soln(double *x, double *y) ;
 
 /*
   Grab the necessary space, if the user hasn't provided it or the space
@@ -2182,9 +2186,9 @@ static void build_soln (lpprob_struct *orig_lp)
   clients to limit computational effort; they still expect a valid objective.
 
   When the solution is unbounded, the objective is overloaded to hold the
-  index of the variable that was discovered to be unbounded (which we need to
-  convert to the orig_sys frame, with the usual convention that a logical is
-  represented as the negative of the index of it's constraint).
+  index of the variable that was discovered to be unbounded. Since we're using
+  sign to indicate the direction of unboundedness, represent the logical for
+  constraint i as n+i, in the original system frame of reference.
 */
   switch (dy_lp->lpret)
   { case lpOPTIMAL:
@@ -2211,8 +2215,11 @@ static void build_soln (lpprob_struct *orig_lp)
       if (ubndndx > dy_sys->concnt)
       { orig_ubndndx = dy_actvars[ubndndx] ; }
       else
-      { orig_ubndndx = -dy_actcons[ubndndx] ; }
-      orig_lp->obj = (double) orig_ubndndx ;
+      { orig_ubndndx = orig_sys->varcnt+dy_actcons[ubndndx] ; }
+      if (dy_lp->ubnd.ndx < 0)
+      { orig_lp->obj = -((double) orig_ubndndx) ; }
+      else
+      { orig_lp->obj = ((double) orig_ubndndx) ; }
       break ; }
     case lpINFEAS:
     { orig_lp->obj = dy_lp->infeas ;
@@ -2283,7 +2290,7 @@ static void build_soln (lpprob_struct *orig_lp)
 /*
   Unscale the solution.
 */
-  dy_unscale_soln(orig_lp->x,orig_lp->y) ;
+  dy_orig_soln(orig_lp->x,orig_lp->y) ;
 /*
   Set the basis length and we're out of here.
 */
@@ -2403,7 +2410,7 @@ void dy_finishup (lpprob_struct *orig_lp, dyphase_enum phase)
   else
   { setflg(orig_lp->ctlopts,lpctlDYVALID) ;
     dy_freelclsystem(orig_lp,FALSE) ;
-    dy_retained = TRUE ;}
+    dy_retained = TRUE ; }
 
   return ; }
 
@@ -2445,93 +2452,3 @@ void dy_freesoln (lpprob_struct *lpprob)
 
   return ; }
 
-
-
-bool dy_expandxopt (lpprob_struct *lp, double **p_xopt)
-
-/*
-  This is a utility routine to load an expanded vector with the optimal
-  solution to an lp relaxation. If the client supplies the vector, it's
-  assumed it's large enough to hold the result.
-
-  Note that unscaling is not required here. lp->x should have been unscaled
-  when it was generated, and the client's constraint system (lp->consys) is
-  not touched when dylp scales.
-
-  Parameters:
-    lp:		lpprob_struct with optimal solution attached
-    p_xopt:	(i) vector to be filled in (created if null)
-		(o) vector filled with optimal solution from lp
-
-  Returns: TRUE if there's no problem translating the solution, FALSE
-	   otherwise.
-*/
-
-{ int j,jpos ;
-  consys_struct *consys ;
-  flags *status,jstat ;
-  double *xopt ;
-
-  const char *rtnnme = "dy_expandxopt" ;
-
-# ifdef PARANOIA
-  if (p_xopt == NULL)
-  { errmsg(2,rtnnme,"&x<opt>") ;
-    return (FALSE) ; }
-  if (lp == NULL)
-  { errmsg(2,rtnnme,"lp problem") ;
-    return (FALSE) ; }
-  if (lp->lpret != lpOPTIMAL)
-  { errmsg(4,rtnnme,"lp return code",dy_prtlpret(lp->lpret)) ;
-    return (FALSE) ; }
-  if (lp->consys == NULL)
-  { errmsg(2,rtnnme,"lp constraint system") ;
-    return (FALSE) ; }
-  if (lp->basis == NULL)
-  { errmsg(2,rtnnme,"lp basis") ;
-    return (FALSE) ; }
-  if (lp->basis->el == NULL)
-  { errmsg(2,rtnnme,"lp basis vector") ;
-    return (FALSE) ; }
-  if (lp->status == NULL)
-  { errmsg(2,rtnnme,"lp status") ;
-    return (FALSE) ; }
-# endif
-
-  consys = lp->consys ;
-  status = lp->status ;
-/*
-  If the user didn't supply a solution vector, allocate one now.
-*/
-  if (*p_xopt == NULL)
-  { xopt = (double *) MALLOC((consys->varcnt+1)*sizeof(double)) ; }
-  else
-  { xopt = *p_xopt ; }
-
-  for (j = 1 ; j <= consys->varcnt ; j++)
-  { if (((int ) status[j]) < 0)
-    { jstat = vstatB ;
-      jpos = -((int) status[j]) ;
-      xopt[j] = lp->x[jpos] ; }
-    else
-    { jstat = status[j] ;
-      switch (jstat)
-      { case vstatNBFX:
-	case vstatNBLB:
-	{ xopt[j] = consys->vlb[j] ;
-	  break ; }
-	case vstatNBUB:
-	{ xopt[j] = consys->vub[j] ;
-	  break ; }
-	case vstatNBFR:
-	{ xopt[j] = 0 ;
-	  break ; }
-	default:
-	{ errmsg(359,rtnnme,consys->nme,
-		 consys_nme(consys,'v',j,FALSE,NULL),j,dy_prtvstat(jstat)) ;
-	  if (*p_xopt == NULL) FREE(xopt) ;
-	  return (FALSE) ; } } } }
-
-  *p_xopt = xopt ;
-
-  return (TRUE) ; }

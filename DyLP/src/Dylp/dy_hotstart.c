@@ -82,7 +82,7 @@ void dy_setfinalstatus (void)
 { int aindx, xkndx ;
   double xk,lbk,ubk ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "dy_setfinalstatus" ;
 # endif
 
@@ -107,7 +107,7 @@ void dy_setfinalstatus (void)
     xk = dy_xbasic[aindx] ;
     lbk = dy_sys->vlb[xkndx] ;
     ubk = dy_sys->vub[xkndx] ;
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (xkndx <= 0 || xkndx > dy_sys->varcnt)
     { errmsg(303,rtnnme,dy_sys->nme,aindx,1,xkndx,dy_sys->varcnt) ;
       continue ; }
@@ -218,7 +218,7 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
 
   xkstatus = getflg(orig_lp->status[oxkndx],vstatSTATUS) ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 /*
   Any inactive variable should be nonbasic, and the paranoid check is looking
   to make sure of this.
@@ -384,7 +384,7 @@ static void process_active (lpprob_struct *orig_lp, int oxkndx)
   flags xkstatus ;
   consys_struct *orig_sys ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   const char *rtnnme = "process_active" ;
 # endif
 
@@ -397,7 +397,7 @@ static void process_active (lpprob_struct *orig_lp, int oxkndx)
   xkndx = dy_origvars[oxkndx] ;
   xkstatus = dy_status[xkndx] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if ((flgon(xkstatus,vstatBASIC) &&
        ((int) orig_lp->status[oxkndx]) > 0) ||
       (flgon(xkstatus,vstatNONBASIC|vstatNBFR) &&
@@ -520,15 +520,19 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
 
 { int oxkndx,xkndx,oaindx,aindx ;
   double *ogvlb,*dyvlb,*ogvub,*dyvub,*ogobj,*dyobj,*dyrhs,*ogrhs ;
-  double lbj,ubj,cj ;
+  double lbj,ubj ;
   consys_struct *orig_sys ;
   flags *ogstatus,calcflgs,statk ;
   dyret_enum retval ;
   lpret_enum lpret ;
+  dyphase_enum phase ;
   const char *rtnnme = "dy_hotstart" ;
 
   /* dy_scaling.c */
   extern void dy_refreshlclsystem(flags what) ;
+
+  /* dy_force.c */
+  extern dyphase_enum dy_forceFull(consys_struct *orig_sys) ;
 
 /*
   It could happen that there are no changes, in which case there's no point
@@ -702,8 +706,41 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
   And that should do it. Let's make a paranoid check or two, then we're
   off and running.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (dy_chkdysys(orig_sys) == FALSE) return (dyrFATAL) ;
 # endif
+/*
+  Now, is the client forcing the full system on top of the hot start? If so,
+  do it here. We're up and running at this point, so dy_forceFull can do its
+  thing.
 
-  return (dyrOK) ; }
+  Normally, dy_forceFull is called when we've failed at primal simplex with a
+  partial system, then tried and failed to force dual feasibility. Make it
+  look like this while we're working.  Reset phase to dyINIT and dy_lp->lpret
+  to dyrINV when we're done so that dylp() sees the codes it expects.
+
+  This is an exceptional activity, so I'm not going out of my way to do this
+  in the most efficient manner. There really isn't a legitimate reason for
+  this --- it's most likely careless coding on the part of the client, but we
+  can cope without too much trouble.
+*/
+  if (dy_opts->fullsys == TRUE &&
+      (dy_lp->sys.cons.loadable > 0 || dy_lp->sys.vars.loadable > 0))
+  {
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.force >= 1)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  Forcing full system.") ; }
+#   endif
+    dy_lp->lpret = lpFORCEDUAL ;
+    dy_lp->phase = dyFORCEFULL ;
+    phase = dy_forceFull(orig_sys) ;
+    if (phase == dyINV)
+    { retval = dyrFATAL ; }
+    else
+    { dy_lp->lpret = lpINV ;
+      dy_lp->phase = dyINIT ;
+      retval = dyrOK ; } }
+  else
+  { retval = dyrOK ; }
+
+  return (retval) ; }

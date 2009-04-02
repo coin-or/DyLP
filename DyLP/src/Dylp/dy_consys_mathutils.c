@@ -45,11 +45,11 @@ double consys_dotrow (consys_struct *consys, int rowndx, double *vec)
   rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_dotrow" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -63,7 +63,7 @@ double consys_dotrow (consys_struct *consys, int rowndx, double *vec)
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
@@ -78,7 +78,7 @@ double consys_dotrow (consys_struct *consys, int rowndx, double *vec)
   dotprod = 0 ;
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -116,11 +116,11 @@ double consys_dotcol (consys_struct *consys, int colndx, double *vec)
   colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_dotcol" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -134,7 +134,7 @@ double consys_dotcol (consys_struct *consys, int colndx, double *vec)
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
@@ -149,7 +149,7 @@ double consys_dotcol (consys_struct *consys, int colndx, double *vec)
   dotprod = 0 ;
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -185,11 +185,11 @@ double consys_1normrow (consys_struct *consys, int rowndx)
   rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_1normrow" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -203,7 +203,7 @@ double consys_1normrow (consys_struct *consys, int rowndx)
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
@@ -215,7 +215,7 @@ double consys_1normrow (consys_struct *consys, int rowndx)
   norm = 0 ;
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#ifdef PARANOIA
+#ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -251,14 +251,14 @@ double consys_ssqrow (consys_struct *consys, int rowndx)
   rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_ssqrow" ;
 # endif
 
 /*
   The usual paranoia, plus an honest index check.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -272,7 +272,7 @@ double consys_ssqrow (consys_struct *consys, int rowndx)
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
@@ -284,7 +284,7 @@ double consys_ssqrow (consys_struct *consys, int rowndx)
   norm = 0 ;
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -319,14 +319,14 @@ double consys_2normrow (consys_struct *consys, int rowndx)
   rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_2normrow" ;
 # endif
 
 /*
   The usual paranoia, plus an honest index check.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -340,7 +340,7 @@ double consys_2normrow (consys_struct *consys, int rowndx)
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
@@ -352,7 +352,7 @@ double consys_2normrow (consys_struct *consys, int rowndx)
   norm = 0 ;
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -387,14 +387,14 @@ double consys_infnormrow (consys_struct *consys, int rowndx)
   rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_infnormrow" ;
 # endif
 
 /*
   The usual paranoia, plus an honest index check.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -408,7 +408,7 @@ double consys_infnormrow (consys_struct *consys, int rowndx)
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
@@ -420,7 +420,7 @@ double consys_infnormrow (consys_struct *consys, int rowndx)
   norm = 0 ;
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -456,11 +456,11 @@ double consys_1normcol (consys_struct *consys, int colndx)
   colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_1normcol" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -474,7 +474,7 @@ double consys_1normcol (consys_struct *consys, int colndx)
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
@@ -486,7 +486,7 @@ double consys_1normcol (consys_struct *consys, int colndx)
   norm = 0 ;
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -522,11 +522,11 @@ double consys_ssqcol (consys_struct *consys, int colndx)
   colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_ssqcol" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -540,7 +540,7 @@ double consys_ssqcol (consys_struct *consys, int colndx)
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
@@ -552,7 +552,7 @@ double consys_ssqcol (consys_struct *consys, int colndx)
   norm = 0 ;
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -587,11 +587,11 @@ double consys_2normcol (consys_struct *consys, int colndx)
   colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_2normcol" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -605,7 +605,7 @@ double consys_2normcol (consys_struct *consys, int colndx)
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
@@ -617,7 +617,7 @@ double consys_2normcol (consys_struct *consys, int colndx)
   norm = 0 ;
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -652,11 +652,11 @@ double consys_infnormcol (consys_struct *consys, int colndx)
   colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_infnormcol" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
@@ -670,7 +670,7 @@ double consys_infnormcol (consys_struct *consys, int colndx)
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
@@ -682,7 +682,7 @@ double consys_infnormcol (consys_struct *consys, int colndx)
   norm = 0 ;
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -739,7 +739,7 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
 /*
   The usual paranoia, plus an honest index check.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -755,7 +755,7 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
 
   rowhdr = consys->mtx.rows[rowndx] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
@@ -776,7 +776,7 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
 */
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -882,7 +882,7 @@ bool consys_divrow (consys_struct *consys, int rowndx, double scalar)
 /*
   The usual paranoia, plus an honest index check.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -898,7 +898,7 @@ bool consys_divrow (consys_struct *consys, int rowndx, double scalar)
 
   rowhdr = consys->mtx.rows[rowndx] ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
@@ -918,7 +918,7 @@ bool consys_divrow (consys_struct *consys, int rowndx, double scalar)
 */
   for (coeff = rowhdr->coeffs ; coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -1008,14 +1008,14 @@ int consys_gcdrow (consys_struct *consys, int rowndx)
   rowhdr_struct *rowhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_gcdrow" ;
 # endif
 
 /*
   The usual paranoia, plus an honest index check.
 */
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (-1) ; }
@@ -1029,7 +1029,7 @@ int consys_gcdrow (consys_struct *consys, int rowndx)
     return (-1) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (-1) ; }
@@ -1042,7 +1042,7 @@ int consys_gcdrow (consys_struct *consys, int rowndx)
 */
   if (rowhdr->len == 0) return (1) ;
   coeff = rowhdr->coeffs ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (coeff == NULL)
   { errmsg(116,rtnnme,consys->nme,rowhdr->nme,rowhdr->ndx,rowhdr->len,0) ;
     return (-1) ; }
@@ -1072,7 +1072,7 @@ int consys_gcdrow (consys_struct *consys, int rowndx)
   gcd = a1 ;
   for (coeff = coeff->rownxt ; gcd > 1 && coeff != NULL ; coeff = coeff->rownxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
 	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
@@ -1126,11 +1126,11 @@ bool consys_accumcol (consys_struct *consys, int colndx, double *vec)
 { colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_accumcol" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1144,7 +1144,7 @@ bool consys_accumcol (consys_struct *consys, int colndx, double *vec)
     return (FALSE) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
@@ -1158,7 +1158,7 @@ bool consys_accumcol (consys_struct *consys, int colndx, double *vec)
 
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
@@ -1198,11 +1198,11 @@ bool consys_mulaccumcol (consys_struct *consys, int colndx,
 { colhdr_struct *colhdr ;
   coeff_struct *coeff ;
 
-# if defined(PARANOIA) || !defined(DYLP_NDEBUG)
+# if defined(DYLP_PARANOIA) || !defined(DYLP_NDEBUG)
   const char *rtnnme = "consys_accumcol" ;
 # endif
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (consys == NULL)
   { errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
@@ -1216,7 +1216,7 @@ bool consys_mulaccumcol (consys_struct *consys, int colndx,
     return (FALSE) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (colhdr == NULL)
   { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
@@ -1230,7 +1230,7 @@ bool consys_mulaccumcol (consys_struct *consys, int colndx,
 
   for (coeff = colhdr->coeffs ; coeff != NULL ; coeff = coeff->colnxt)
   {
-#   ifdef PARANOIA
+#   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
     { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
 	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;

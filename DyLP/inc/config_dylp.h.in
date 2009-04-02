@@ -39,6 +39,9 @@
 /* Define this variable to disable dylp's informational printing features. */
 #undef DYLP_NDEBUG
 
+/* Define this variable to enable dylp's paranoid checks. */
+#undef DYLP_PARANOIA
+
 /* Define this variable to enable dylp's statistics collection features. */
 #undef DYLP_STATISTICS
 
@@ -101,9 +104,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* Define this variable to enable dylp's paranoid checks. */
-#undef PARANOIA
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

@@ -66,7 +66,7 @@ void dy_initstats (lpstats_struct **p_lpstats, consys_struct *orig_sys)
 { int k,m,n ;
   lpstats_struct *lpstats ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "dy_initstats" ;
 
@@ -204,7 +204,7 @@ void dy_freestats (lpstats_struct **p_lpstats)
 
 { lpstats_struct *lpstats ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "dy_freestats" ;
 
@@ -216,7 +216,7 @@ void dy_freestats (lpstats_struct **p_lpstats)
   lpstats = *p_lpstats ;
   *p_lpstats = NULL ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
   if (lpstats == NULL)
   { errmsg(2,rtnnme,"lpstats") ;
     return ; }
@@ -255,7 +255,7 @@ void dy_finalstats (lpstats_struct *lpstats)
 
 { int i,k ;
 
-# ifdef PARANOIA
+# ifdef DYLP_PARANOIA
 
   const char *rtnnme = "dy_finalstats" ;
 

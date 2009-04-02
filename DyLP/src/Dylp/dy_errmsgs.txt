@@ -158,7 +158,8 @@
 @135@[%s]: scaling failure.@
 @136@[%s]: %s error while duplicating %s, src = %d, dst = %d.@
 @137@[%s]: failed to duplicate constraint system.@
-@138:149@<<open>>@
+@138@[%s]: failed to evaluate constraint system for scaling.@
+@139:149@<<open>>@
 
   Error messages used primarily by the MPS i/o package.
 
@@ -787,3 +788,13 @@
 @903@<<open>>@
 @904@(T%d:#%d\@%d): could not install cut %s.@
 @905@(T%d:#%d\@%d): error while evaluating MMS branching candidates.@
+@906:949@<<open>>@
+
+	Error messages related to dylp's simplex/tableau and ray routines
+
+@950@[%s]: inactive %s %s (%d); cannot %s.@
+@951@[%s]: nonbasic variable %s (%d); cannot %s.@
+@952@[%s]: error calculating basis inverse %s %d, %s %s (%d).@
+@953@[%s]: error calculating %s %s, %s (%d).@
+@954@[%s]: cannot calculate %s rays; incompatible lp return code %s.@
+@955@[%s]: error while generating %s rays.@
