@@ -48,13 +48,13 @@ EXTRA_DIST = \
 test: all
 	@echo "Building and running dylp unit test."
 	@cd test ; $(MAKE) test
-	@if test -r ../Osi/test/Makefile; then \
-	  echo "Building and running OsiDylp unit test." \
-	  cd ../Osi/test; \
-	  $(MAKE) test; \
-	else \
-	  echo "Osi not present; skipping Osi unit test."; \
-	fi
+#	@if test -r ../Osi/test/Makefile; then \
+#	  echo "Building and running OsiDylp unit test." \
+#	  cd ../Osi/test; \
+#	  $(MAKE) test; \
+#	else \
+#	  echo "Osi not present; skipping Osi unit test."; \
+#	fi
 
 # Autotools does a good job on code, but it doesn't deal well with LaTeX
 # documentation. A few rules to help it along. Note that we don't delete

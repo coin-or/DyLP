@@ -45,7 +45,7 @@ host_triplet = @host@
 subdir = doc
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/build_dylpdoc.in $(srcdir)/dylpabsdir.tex.in \
-	$(srcdir)/makefile.dylpdoc.in TODO
+	$(srcdir)/makefile.dylpdoc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
 	$(top_srcdir)/m4/ac_c_get_sunpro_libs.m4 \
