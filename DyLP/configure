@@ -24026,15 +24026,26 @@ fi
 ##############################################################################
 
 # Here list all the files that configure should create (except for the
-# configuration header file)
-                                                                      ac_config_files="$ac_config_files Makefile doc/Makefile examples/Makefile src/DylpStdLib/Makefile src/Dylp/Makefile test/Makefile dylp_addlibs.txt"
+# configuration header file). First the usual stuff: DyLP's top-level Makefile,
+# the code Makefiles (src/*/Makefile), and the test Makefile.
+
+                                                            ac_config_files="$ac_config_files Makefile examples/Makefile src/DylpStdLib/Makefile src/Dylp/Makefile test/Makefile dylp_addlibs.txt"
+
+
+# And all the stuff that goes into building the documentation.
+
+                                                  ac_config_files="$ac_config_files doc/Makefile doc/dylpabsdir.tex doc/makefile.dylpdoc doc/Figures/Makefile doc/TexMF/Makefile"
+
+          ac_config_files="$ac_config_files doc/build_dylpdoc"
 
 
 # Here put the location and name of the configuration header file
+
           ac_config_headers="$ac_config_headers inc/config_dylp.h"
 
 
 # Finally, we let configure write all the output...
+
 
 
 
@@ -24691,12 +24702,17 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-  "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "examples/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
   "src/DylpStdLib/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/DylpStdLib/Makefile" ;;
   "src/Dylp/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Dylp/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "dylp_addlibs.txt" ) CONFIG_FILES="$CONFIG_FILES dylp_addlibs.txt" ;;
+  "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+  "doc/dylpabsdir.tex" ) CONFIG_FILES="$CONFIG_FILES doc/dylpabsdir.tex" ;;
+  "doc/makefile.dylpdoc" ) CONFIG_FILES="$CONFIG_FILES doc/makefile.dylpdoc" ;;
+  "doc/Figures/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Figures/Makefile" ;;
+  "doc/TexMF/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/TexMF/Makefile" ;;
+  "doc/build_dylpdoc" ) CONFIG_FILES="$CONFIG_FILES doc/build_dylpdoc" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "inc/config_dylp.h" ) CONFIG_HEADERS="$CONFIG_HEADERS inc/config_dylp.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -25139,6 +25155,10 @@ s,@INSTALL@,$ac_INSTALL,;t t
     rm -f $tmp/out
   fi
 
+  # Run the commands associated with the file.
+  case $ac_file in
+    doc/build_dylpdoc ) chmod +x doc/build_dylpdoc ;;
+  esac
 done
 _ACEOF
 cat >>$CONFIG_STATUS <<\_ACEOF
