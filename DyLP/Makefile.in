@@ -54,8 +54,9 @@ host_triplet = @host@
 
 # We don't want to compile the test subdirectory, unless the test target is
 # specified.  But we need to list it as subdirectory to make sure that it is
-# included in the tarball
-@ALWAYS_FALSE@am__append_1 = test
+# included in the tarball. Similarly, we don't want to attempt to build the
+# documentation unless specifically requested.
+@ALWAYS_FALSE@am__append_1 = test doc doc/Figures doc/TexMF
 DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/../BuildTools/Makemain.inc $(srcdir)/../config.guess \
 	$(srcdir)/../config.sub $(srcdir)/../install-sh \
@@ -92,7 +93,8 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src/DylpStdLib src/Dylp examples doc test
+DIST_SUBDIRS = src/DylpStdLib src/Dylp examples test doc doc/Figures \
+	doc/TexMF
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -257,7 +259,7 @@ AUTOMAKE_OPTIONS = foreign
 ########################################################################
 #                          Subdirectories                              #
 ########################################################################
-SUBDIRS = src/DylpStdLib src/Dylp examples doc $(am__append_1)
+SUBDIRS = src/DylpStdLib src/Dylp examples $(am__append_1)
 
 ########################################################################
 #             Additional files to be included in tarball               #
@@ -489,7 +491,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/../BuildTools $(distdir)/examples $(distdir)/inc $(distdir)/m4
+	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/../BuildTools $(distdir)/doc $(distdir)/examples $(distdir)/inc $(distdir)/m4
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -660,13 +662,13 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool clean-local mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f Makefile
 distclean-am: clean-am distclean-generic distclean-hdr \
-	distclean-libtool distclean-tags
+	distclean-libtool distclean-local distclean-tags
 
 dvi: dvi-recursive
 
@@ -692,11 +694,13 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
 	-rm -f Makefile
-maintainer-clean-am: distclean-am maintainer-clean-generic
+maintainer-clean-am: distclean-am maintainer-clean-generic \
+	maintainer-clean-local
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-generic mostlyclean-libtool
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool \
+	mostlyclean-local
 
 pdf: pdf-recursive
 
@@ -711,18 +715,19 @@ uninstall-am: uninstall-info-am uninstall-local
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am am--refresh check \
-	check-am clean clean-generic clean-libtool clean-recursive \
-	ctags ctags-recursive dist dist-all dist-bzip2 dist-gzip \
-	dist-shar dist-tarZ dist-zip distcheck distclean \
+	check-am clean clean-generic clean-libtool clean-local \
+	clean-recursive ctags ctags-recursive dist dist-all dist-bzip2 \
+	dist-gzip dist-shar dist-tarZ dist-zip distcheck distclean \
 	distclean-generic distclean-hdr distclean-libtool \
-	distclean-recursive distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-exec \
-	install-exec-am install-exec-local install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic maintainer-clean-recursive \
-	mostlyclean mostlyclean-generic mostlyclean-libtool \
+	distclean-local distclean-recursive distclean-tags \
+	distcleancheck distdir distuninstallcheck dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am \
+	install-exec-local install-info install-info-am install-man \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	maintainer-clean-local maintainer-clean-recursive mostlyclean \
+	mostlyclean-generic mostlyclean-libtool mostlyclean-local \
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-info-am uninstall-local
 
@@ -732,13 +737,37 @@ uninstall-info: uninstall-info-recursive
 ########################################################################
 
 test: all
-	cd test ; $(MAKE) test
+	@echo "Building and running dylp unit test."
+	@cd test ; $(MAKE) test
 	@if test -r ../Osi/test/Makefile; then \
+	  echo "Building and running OsiDylp unit test." \
 	  cd ../Osi/test; \
 	  $(MAKE) test; \
 	else \
 	  echo "Osi not present; skipping Osi unit test."; \
 	fi
+
+# Autotools does a good job on code, but it doesn't deal well with LaTeX
+# documentation. A few rules to help it along. Note that we don't delete
+# dylp.ps and dylp.pdf until maintainer-clean; these come prebuilt with the
+# distribution.
+
+.PHONY: doc mostlyclean-local clean-local distclean-local \
+	maintainer-clean-local
+doc:
+	@echo "Attempting to build dylp typeset documentation."
+	@cd doc ; build_dylpdoc --ps --pdf dylp
+mostlyclean-local:
+	@cd doc ; if test -x build_dylpdoc ; then build_dylpdoc --clean ; fi
+
+clean-local: mostlyclean-local
+
+distclean-local: clean-local
+	@cd doc ; rm -f build_dylpdoc dylpabsdir.tex makefile.dylpdoc
+	@cd doc ; rm -f Makefile Figures/Makefile TexMF/Makefile
+
+maintainer-clean-local: distclean-local
+	@cd doc ; rm -f dylp.pdf dylp.ps
 
 install-exec-local: install-doc
 	$(install_sh_DATA) $(addlibsfile) $(DESTDIR)$(addlibsdir)/$(addlibsfile)

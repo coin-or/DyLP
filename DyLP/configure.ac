@@ -5,6 +5,7 @@
 ## $Id: configure.ac,v 1.1.2.1 2006/04/19 23:25:12 andreasw Exp $
 
 # Author:  Andreas Waechter            IBM    2006-04-13
+# 	   Lou Hafer		       SFU    many mods since then
 
 #############################################################################
 #                       Names and other basic things                        #
@@ -197,17 +198,29 @@ AC_COIN_VPATH_LINK(examples/plain)
 ##############################################################################
 
 # Here list all the files that configure should create (except for the
-# configuration header file)
+# configuration header file). First the usual stuff: DyLP's top-level Makefile,
+# the code Makefiles (src/*/Makefile), and the test Makefile.
+
 AC_CONFIG_FILES([Makefile
-		 doc/Makefile
                  examples/Makefile
                  src/DylpStdLib/Makefile
                  src/Dylp/Makefile
 		 test/Makefile
 		 dylp_addlibs.txt])
 
+# And all the stuff that goes into building the documentation.
+
+AC_CONFIG_FILES([doc/Makefile
+		 doc/dylpabsdir.tex
+		 doc/makefile.dylpdoc
+		 doc/Figures/Makefile
+		 doc/TexMF/Makefile])
+AC_CONFIG_FILES([doc/build_dylpdoc],[chmod +x doc/build_dylpdoc])
+
 # Here put the location and name of the configuration header file
+
 AC_CONFIG_HEADERS([inc/config_dylp.h])
 
 # Finally, we let configure write all the output...
+
 AC_COIN_FINALIZE
