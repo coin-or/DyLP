@@ -65,9 +65,9 @@ test: all
 	maintainer-clean-local
 doc:
 	@echo "Attempting to build dylp typeset documentation."
-	@cd doc ; build_dylpdoc --ps --pdf dylp
+	@cd doc ; ./build_dylpdoc --ps --pdf dylp
 mostlyclean-local:
-	@cd doc ; if test -x build_dylpdoc ; then build_dylpdoc --clean ; fi
+	@cd doc ; if test -x build_dylpdoc ; then ./build_dylpdoc --clean ; fi
 
 clean-local: mostlyclean-local
 
