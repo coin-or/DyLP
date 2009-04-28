@@ -208,7 +208,9 @@ AC_CONFIG_FILES([Makefile
 		 test/Makefile
 		 dylp_addlibs.txt])
 
-# And all the stuff that goes into building the documentation.
+# And all the stuff that goes into building the documentation. See the note in
+# Makefile.am with respect to CONFIG_CLEAN_FILES and the distclean and
+# distclean-local targets.
 
 AC_CONFIG_FILES([doc/Makefile
 		 doc/dylpabsdir.tex

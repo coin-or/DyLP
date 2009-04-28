@@ -24032,7 +24032,9 @@ fi
                                                             ac_config_files="$ac_config_files Makefile examples/Makefile src/DylpStdLib/Makefile src/Dylp/Makefile test/Makefile dylp_addlibs.txt"
 
 
-# And all the stuff that goes into building the documentation.
+# And all the stuff that goes into building the documentation. See the note in
+# Makefile.am with respect to CONFIG_CLEAN_FILES and the distclean and
+# distclean-local targets.
 
                                                   ac_config_files="$ac_config_files doc/Makefile doc/dylpabsdir.tex doc/makefile.dylpdoc doc/Figures/Makefile doc/TexMF/Makefile"
 

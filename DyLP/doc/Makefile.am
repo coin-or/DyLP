@@ -8,6 +8,10 @@
 
 AUTOMAKE_OPTIONS = foreign
 
+# See the comment for distclean-local in ../Makefile.am
+
+CONFIG_CLEAN_FILES =
+
 DyLPDocInstalldir = @DYLPDOCDIR@
 
 DyLPDocInstall_DATA = dylp.pdf dylp.ps

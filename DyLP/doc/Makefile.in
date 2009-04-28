@@ -58,7 +58,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
-CONFIG_CLEAN_FILES = dylpabsdir.tex makefile.dylpdoc build_dylpdoc
 SOURCES =
 DIST_SOURCES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -220,6 +219,9 @@ sol_cc_compiler = @sol_cc_compiler@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
+
+# See the comment for distclean-local in ../Makefile.am
+CONFIG_CLEAN_FILES = 
 DyLPDocInstalldir = @DYLPDOCDIR@
 DyLPDocInstall_DATA = dylp.pdf dylp.ps
 

@@ -71,6 +71,14 @@ mostlyclean-local:
 
 clean-local: mostlyclean-local
 
+# Normally, automake would remove build_dylpdoc, dylpabsdir.tex, and
+# makefile.dylpdoc as part of distclean, because they're generated during
+# configuration. But we can't allow that --- distclean-local runs *after*
+# distclean, and it needs build_dylpdoc and makefile.dylpdoc. Down in
+# doc/Makefile.am, the variable CONFIG_CLEAN_FILES is cleared to prevent
+# distclean from removing these files. That means that if ever I generate new
+# files from configure.ac, they need to be listed here.
+
 distclean-local: clean-local
 	@cd doc ; rm -f build_dylpdoc dylpabsdir.tex makefile.dylpdoc
 	@cd doc ; rm -f Makefile Figures/Makefile TexMF/Makefile
