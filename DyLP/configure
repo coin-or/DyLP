@@ -473,7 +473,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os ADDLIBS FADDLIBS ALWAYS_FALSE_TRUE ALWAYS_FALSE_FALSE CDEFS ADD_CFLAGS DBG_CFLAGS OPT_CFLAGS sol_cc_compiler CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT MPICC CXXDEFS ADD_CXXFLAGS DBG_CXXFLAGS OPT_CXXFLAGS CXX CXXFLAGS ac_ct_CXX MPICXX EGREP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LIBTOOLM4 have_autoconf have_automake have_svn BUILDTOOLSDIR AUX_DIR abs_source_dir abs_lib_dir abs_include_dir abs_bin_dir HAVE_EXTERNALS_TRUE HAVE_EXTERNALS_FALSE host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL ac_c_preproc_warn_flag ac_cxx_preproc_warn_flag RPATH_FLAGS LT_LDFLAGS DYLPSRCDIR DYLPOBJDIR DYLPDOCDIR COIN_HAS_DYLP_TRUE COIN_HAS_DYLP_FALSE COINUTILSSRCDIR COINUTILSOBJDIR COINUTILSDOCDIR COIN_HAS_COINUTILS_TRUE COIN_HAS_COINUTILS_FALSE OSISRCDIR OSIOBJDIR OSIDOCDIR COIN_HAS_OSI_TRUE COIN_HAS_OSI_FALSE DYLP_ERRMSGDIR LIBEXT VPATH_DISTCLEANFILES LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os ADDLIBS FADDLIBS ALWAYS_FALSE_TRUE ALWAYS_FALSE_FALSE CDEFS ADD_CFLAGS DBG_CFLAGS OPT_CFLAGS sol_cc_compiler CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT MPICC CXXDEFS ADD_CXXFLAGS DBG_CXXFLAGS OPT_CXXFLAGS CXX CXXFLAGS ac_ct_CXX MPICXX EGREP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LIBTOOLM4 have_autoconf have_automake have_svn BUILDTOOLSDIR AUX_DIR abs_source_dir abs_lib_dir abs_include_dir abs_bin_dir HAVE_EXTERNALS_TRUE HAVE_EXTERNALS_FALSE host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL ac_c_preproc_warn_flag ac_cxx_preproc_warn_flag RPATH_FLAGS LT_LDFLAGS DYLPSRCDIR DYLPOBJDIR DYLPDOCDIR DYLPINSTDIR COIN_HAS_DYLP_TRUE COIN_HAS_DYLP_FALSE COIN_HAS_DYLP_INSTALLED_TRUE COIN_HAS_DYLP_INSTALLED_FALSE COINUTILSSRCDIR COINUTILSOBJDIR COINUTILSDOCDIR COINUTILSINSTDIR COIN_HAS_COINUTILS_TRUE COIN_HAS_COINUTILS_FALSE COIN_HAS_COINUTILS_INSTALLED_TRUE COIN_HAS_COINUTILS_INSTALLED_FALSE OSISRCDIR OSIOBJDIR OSIDOCDIR OSIINSTDIR COIN_HAS_OSI_TRUE COIN_HAS_OSI_FALSE COIN_HAS_OSI_INSTALLED_TRUE COIN_HAS_OSI_INSTALLED_FALSE DYLP_ERRMSGDIR LIBEXT VPATH_DISTCLEANFILES LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1113,6 +1113,24 @@ Optional Packages:
                           both]
   --with-tags[=TAGS]
                           include additional configurations [automatic]
+  --with-dylp-instdir prefix of installation directory for precompiled DyLP
+                          package
+  --with-dylp-srcdir source directory for DyLP package
+  --with-dylp-objdir object directory for DyLP package (if different from
+                          source directory in VPATH compilation)
+  --with-coin-instdir     prefix of installation directory for precompiled
+                          COIN packages
+  --with-coinutils-instdir
+                          prefix of installation directory for precompiled
+                          CoinUtils package
+  --with-coinutils-srcdir source directory for CoinUtils package
+  --with-coinutils-objdir object directory for CoinUtils package (if different
+                          from source directory in VPATH compilation)
+  --with-osi-instdir prefix of installation directory for precompiled Osi
+                          package
+  --with-osi-srcdir source directory for Osi package
+  --with-osi-objdir object directory for Osi package (if different from source
+                          directory in VPATH compilation)
 
 Some influential environment variables:
   CDEFS       Additional -D flags to be used when compiling C code.
@@ -5796,7 +5814,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5799 "configure"' > conftest.$ac_ext
+  echo '#line 5817 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -6930,7 +6948,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6933:" \
+echo "$as_me:6951:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -7997,11 +8015,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8000: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8018: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8004: \$? = $ac_status" >&5
+   echo "$as_me:8022: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8265,11 +8283,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8268: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8286: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8272: \$? = $ac_status" >&5
+   echo "$as_me:8290: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8369,11 +8387,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8372: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8390: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8376: \$? = $ac_status" >&5
+   echo "$as_me:8394: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10714,7 +10732,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10717 "configure"
+#line 10735 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10814,7 +10832,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10817 "configure"
+#line 10835 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13158,11 +13176,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13161: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13179: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13165: \$? = $ac_status" >&5
+   echo "$as_me:13183: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13262,11 +13280,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13265: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13283: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13269: \$? = $ac_status" >&5
+   echo "$as_me:13287: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14832,11 +14850,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14835: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14853: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14839: \$? = $ac_status" >&5
+   echo "$as_me:14857: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14936,11 +14954,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14939: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14957: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14943: \$? = $ac_status" >&5
+   echo "$as_me:14961: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17143,11 +17161,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17146: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17164: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17150: \$? = $ac_status" >&5
+   echo "$as_me:17168: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17411,11 +17429,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17414: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17432: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17418: \$? = $ac_status" >&5
+   echo "$as_me:17436: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17515,11 +17533,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17518: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17536: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17522: \$? = $ac_status" >&5
+   echo "$as_me:17540: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -20414,7 +20432,7 @@ echo $ECHO_N "checking for COIN project DyLP... $ECHO_C" >&6
 # First check, if the sub-project is actually available (ToDo: allow
 # other locations)
 
-coin_has_dylp=unavailable
+coin_has_dylp=notGiven
 if test x"$COIN_SKIP_PROJECTS" != x; then
   for dir in $COIN_SKIP_PROJECTS; do
     if test $dir = DyLP; then
@@ -20423,17 +20441,99 @@ if test x"$COIN_SKIP_PROJECTS" != x; then
   done
 fi
 
+
+
+
+
+DYLPSRCDIR=This_Variable_Is_Not_Set
+DYLPOBJDIR=This_Variable_Is_Not_Set
+DYLPDOCDIR=This_Variable_Is_Not_Set
+DYLPINSTDIR=This_Variable_Is_Not_Set
+
 if test $coin_has_dylp != skipping; then
   if test $PACKAGE_TARNAME = dylp; then
     coin_has_dylp=.
   else
-    if test -d $srcdir/../DyLP; then
-      coin_has_dylp=../DyLP
+
+# Check whether --with-m4_tolower(DyLP)-instdir or --without-m4_tolower(DyLP)-instdir was given.
+if test "${with_dylp_instdir+set}" = set; then
+  withval="$with_dylp_instdir"
+  coin_has_dylp=installed
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-dylp-instdir not a directory" >&5
+echo "$as_me: error: argument for --with-dylp-instdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+                 DYLPINSTDIR=`cd $withval; pwd`
+fi;
+
+
+# Check whether --with-m4_tolower(DyLP)-srcdir or --without-m4_tolower(DyLP)-srcdir was given.
+if test "${with_dylp_srcdir+set}" = set; then
+  withval="$with_dylp_srcdir"
+  if test "$coin_has_dylp" = installed; then
+		   { { echo "$as_me:$LINENO: error: --with-$dylp-srcdir cannot be given together with --with-dylp-instdir" >&5
+echo "$as_me: error: --with-$dylp-srcdir cannot be given together with --with-dylp-instdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-dylp-srcdir not a directory" >&5
+echo "$as_me: error: argument for --with-dylp-srcdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 coin_has_dylp=$withval
+                 DYLPSRCDIR=`cd $withval; pwd`
+fi;
+
+
+# Check whether --with-m4_tolower(DyLP)-objdir or --without-m4_tolower(DyLP)-objdir was given.
+if test "${with_dylp_objdir+set}" = set; then
+  withval="$with_dylp_objdir"
+  if test "$coin_has_dylp" = installed; then
+		   { { echo "$as_me:$LINENO: error: --with-dylp-objdir cannot be given together with --with-dylp-instdir" >&5
+echo "$as_me: error: --with-dylp-objdir cannot be given together with --with-dylp-instdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test "$coin_has_dylp" = notGiven; then
+		   { { echo "$as_me:$LINENO: error: --with-dylp-objdir must be accompanied by --with-dylp-srcdir" >&5
+echo "$as_me: error: --with-dylp-objdir must be accompanied by --with-dylp-srcdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-dylp-objdir not a directory" >&5
+echo "$as_me: error: argument for --with-dylp-objdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+                 DYLPOBJDIR=`cd $withval; pwd`
+else
+  DYLPOBJDIR="$DYLPSRCDIR"
+fi;
+
+    # if we still don't have a location, check for generic flag
+    if test "$coin_has_dylp" = notGiven; then
+
+# Check whether --with-coin-instdir or --without-coin-instdir was given.
+if test "${with_coin_instdir+set}" = set; then
+  withval="$with_coin_instdir"
+  coin_has_dylp=installed
+		   if test -d "$withval"; then : ; else
+		     { { echo "$as_me:$LINENO: error: argument for --with-coin-instdir not a directory" >&5
+echo "$as_me: error: argument for --with-coin-instdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		   fi
+                   DYLPINSTDIR=`cd $withval; pwd`
+fi;
+    fi
+
+    if test "$coin_has_dylp" = notGiven; then
+      if test -d $srcdir/../DyLP; then
+        coin_has_dylp=../DyLP
+      fi
     fi
   fi
 fi
 
-if test $coin_has_dylp != unavailable &&
+if test $coin_has_dylp != notGiven &&
    test $coin_has_dylp != skipping; then
   # Set the #define if the component is available
 
@@ -20442,19 +20542,25 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 
-  # Set the variables for source and object code location
-
-  DYLPSRCDIR=`cd $srcdir/$coin_has_dylp; pwd`
-
-  DYLPOBJDIR=`pwd`/$coin_has_dylp
-
-  DYLPDOCDIR=$abs_lib_dir/../share/doc/coin/DyLP
+  if test $coin_has_dylp = installed; then
+    DYLPDOCDIR=$DYLPINSTDIR/share/doc/coin/DyLP
+  else
+    if test "$DYLPOBJDIR" = This_Variable_Is_Not_Set; then
+      # Set the variables for source and object code location
+      DYLPSRCDIR=`cd $srcdir/$coin_has_dylp; pwd`
+      DYLPOBJDIR=`pwd`/$coin_has_dylp
+      DYLPDOCDIR=$abs_lib_dir/../share/doc/coin/DyLP
+    else
+      # This is just a guess:
+      DYLPDOCDIR=$DYLPOBJDIR/../share/doc/coin/DyLP
+    fi
+  fi
 fi
 
   # Define the Makefile conditional
 
 
-if test $coin_has_dylp != unavailable &&
+if test $coin_has_dylp != notGiven &&
                 test $coin_has_dylp != skipping; then
   COIN_HAS_DYLP_TRUE=
   COIN_HAS_DYLP_FALSE='#'
@@ -20463,8 +20569,28 @@ else
   COIN_HAS_DYLP_FALSE=
 fi
 
-echo "$as_me:$LINENO: result: $coin_has_dylp" >&5
+
+
+if test $coin_has_dylp = installed; then
+  COIN_HAS_DYLP_INSTALLED_TRUE=
+  COIN_HAS_DYLP_INSTALLED_FALSE='#'
+else
+  COIN_HAS_DYLP_INSTALLED_TRUE='#'
+  COIN_HAS_DYLP_INSTALLED_FALSE=
+fi
+
+
+if test $coin_has_dylp = installed; then
+  echo "$as_me:$LINENO: result: installed in $DYLPINSTDIR" >&5
+echo "${ECHO_T}installed in $DYLPINSTDIR" >&6
+  # Check for header
+
+  # Check for library (this is not qo reliable)
+
+else
+  echo "$as_me:$LINENO: result: $coin_has_dylp" >&5
 echo "${ECHO_T}$coin_has_dylp" >&6
+fi
 
 echo "$as_me:$LINENO: checking for COIN project CoinUtils" >&5
 echo $ECHO_N "checking for COIN project CoinUtils... $ECHO_C" >&6
@@ -20472,7 +20598,7 @@ echo $ECHO_N "checking for COIN project CoinUtils... $ECHO_C" >&6
 # First check, if the sub-project is actually available (ToDo: allow
 # other locations)
 
-coin_has_coinutils=unavailable
+coin_has_coinutils=notGiven
 if test x"$COIN_SKIP_PROJECTS" != x; then
   for dir in $COIN_SKIP_PROJECTS; do
     if test $dir = CoinUtils; then
@@ -20481,17 +20607,99 @@ if test x"$COIN_SKIP_PROJECTS" != x; then
   done
 fi
 
+
+
+
+
+COINUTILSSRCDIR=This_Variable_Is_Not_Set
+COINUTILSOBJDIR=This_Variable_Is_Not_Set
+COINUTILSDOCDIR=This_Variable_Is_Not_Set
+COINUTILSINSTDIR=This_Variable_Is_Not_Set
+
 if test $coin_has_coinutils != skipping; then
   if test $PACKAGE_TARNAME = coinutils; then
     coin_has_coinutils=.
   else
-    if test -d $srcdir/../CoinUtils; then
-      coin_has_coinutils=../CoinUtils
+
+# Check whether --with-m4_tolower(CoinUtils)-instdir or --without-m4_tolower(CoinUtils)-instdir was given.
+if test "${with_coinutils_instdir+set}" = set; then
+  withval="$with_coinutils_instdir"
+  coin_has_coinutils=installed
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-coinutils-instdir not a directory" >&5
+echo "$as_me: error: argument for --with-coinutils-instdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+                 COINUTILSINSTDIR=`cd $withval; pwd`
+fi;
+
+
+# Check whether --with-m4_tolower(CoinUtils)-srcdir or --without-m4_tolower(CoinUtils)-srcdir was given.
+if test "${with_coinutils_srcdir+set}" = set; then
+  withval="$with_coinutils_srcdir"
+  if test "$coin_has_coinutils" = installed; then
+		   { { echo "$as_me:$LINENO: error: --with-$coinutils-srcdir cannot be given together with --with-coinutils-instdir" >&5
+echo "$as_me: error: --with-$coinutils-srcdir cannot be given together with --with-coinutils-instdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-coinutils-srcdir not a directory" >&5
+echo "$as_me: error: argument for --with-coinutils-srcdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 coin_has_coinutils=$withval
+                 COINUTILSSRCDIR=`cd $withval; pwd`
+fi;
+
+
+# Check whether --with-m4_tolower(CoinUtils)-objdir or --without-m4_tolower(CoinUtils)-objdir was given.
+if test "${with_coinutils_objdir+set}" = set; then
+  withval="$with_coinutils_objdir"
+  if test "$coin_has_coinutils" = installed; then
+		   { { echo "$as_me:$LINENO: error: --with-coinutils-objdir cannot be given together with --with-coinutils-instdir" >&5
+echo "$as_me: error: --with-coinutils-objdir cannot be given together with --with-coinutils-instdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test "$coin_has_coinutils" = notGiven; then
+		   { { echo "$as_me:$LINENO: error: --with-coinutils-objdir must be accompanied by --with-coinutils-srcdir" >&5
+echo "$as_me: error: --with-coinutils-objdir must be accompanied by --with-coinutils-srcdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-coinutils-objdir not a directory" >&5
+echo "$as_me: error: argument for --with-coinutils-objdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+                 COINUTILSOBJDIR=`cd $withval; pwd`
+else
+  COINUTILSOBJDIR="$COINUTILSSRCDIR"
+fi;
+
+    # if we still don't have a location, check for generic flag
+    if test "$coin_has_coinutils" = notGiven; then
+
+# Check whether --with-coin-instdir or --without-coin-instdir was given.
+if test "${with_coin_instdir+set}" = set; then
+  withval="$with_coin_instdir"
+  coin_has_coinutils=installed
+		   if test -d "$withval"; then : ; else
+		     { { echo "$as_me:$LINENO: error: argument for --with-coin-instdir not a directory" >&5
+echo "$as_me: error: argument for --with-coin-instdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		   fi
+                   COINUTILSINSTDIR=`cd $withval; pwd`
+fi;
+    fi
+
+    if test "$coin_has_coinutils" = notGiven; then
+      if test -d $srcdir/../CoinUtils; then
+        coin_has_coinutils=../CoinUtils
+      fi
     fi
   fi
 fi
 
-if test $coin_has_coinutils != unavailable &&
+if test $coin_has_coinutils != notGiven &&
    test $coin_has_coinutils != skipping; then
   # Set the #define if the component is available
 
@@ -20500,19 +20708,25 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 
-  # Set the variables for source and object code location
-
-  COINUTILSSRCDIR=`cd $srcdir/$coin_has_coinutils; pwd`
-
-  COINUTILSOBJDIR=`pwd`/$coin_has_coinutils
-
-  COINUTILSDOCDIR=$abs_lib_dir/../share/doc/coin/CoinUtils
+  if test $coin_has_coinutils = installed; then
+    COINUTILSDOCDIR=$COINUTILSINSTDIR/share/doc/coin/CoinUtils
+  else
+    if test "$COINUTILSOBJDIR" = This_Variable_Is_Not_Set; then
+      # Set the variables for source and object code location
+      COINUTILSSRCDIR=`cd $srcdir/$coin_has_coinutils; pwd`
+      COINUTILSOBJDIR=`pwd`/$coin_has_coinutils
+      COINUTILSDOCDIR=$abs_lib_dir/../share/doc/coin/CoinUtils
+    else
+      # This is just a guess:
+      COINUTILSDOCDIR=$COINUTILSOBJDIR/../share/doc/coin/CoinUtils
+    fi
+  fi
 fi
 
   # Define the Makefile conditional
 
 
-if test $coin_has_coinutils != unavailable &&
+if test $coin_has_coinutils != notGiven &&
                 test $coin_has_coinutils != skipping; then
   COIN_HAS_COINUTILS_TRUE=
   COIN_HAS_COINUTILS_FALSE='#'
@@ -20521,8 +20735,28 @@ else
   COIN_HAS_COINUTILS_FALSE=
 fi
 
-echo "$as_me:$LINENO: result: $coin_has_coinutils" >&5
+
+
+if test $coin_has_coinutils = installed; then
+  COIN_HAS_COINUTILS_INSTALLED_TRUE=
+  COIN_HAS_COINUTILS_INSTALLED_FALSE='#'
+else
+  COIN_HAS_COINUTILS_INSTALLED_TRUE='#'
+  COIN_HAS_COINUTILS_INSTALLED_FALSE=
+fi
+
+
+if test $coin_has_coinutils = installed; then
+  echo "$as_me:$LINENO: result: installed in $COINUTILSINSTDIR" >&5
+echo "${ECHO_T}installed in $COINUTILSINSTDIR" >&6
+  # Check for header
+
+  # Check for library (this is not qo reliable)
+
+else
+  echo "$as_me:$LINENO: result: $coin_has_coinutils" >&5
 echo "${ECHO_T}$coin_has_coinutils" >&6
+fi
 
 echo "$as_me:$LINENO: checking for COIN project Osi" >&5
 echo $ECHO_N "checking for COIN project Osi... $ECHO_C" >&6
@@ -20530,7 +20764,7 @@ echo $ECHO_N "checking for COIN project Osi... $ECHO_C" >&6
 # First check, if the sub-project is actually available (ToDo: allow
 # other locations)
 
-coin_has_osi=unavailable
+coin_has_osi=notGiven
 if test x"$COIN_SKIP_PROJECTS" != x; then
   for dir in $COIN_SKIP_PROJECTS; do
     if test $dir = Osi; then
@@ -20539,17 +20773,99 @@ if test x"$COIN_SKIP_PROJECTS" != x; then
   done
 fi
 
+
+
+
+
+OSISRCDIR=This_Variable_Is_Not_Set
+OSIOBJDIR=This_Variable_Is_Not_Set
+OSIDOCDIR=This_Variable_Is_Not_Set
+OSIINSTDIR=This_Variable_Is_Not_Set
+
 if test $coin_has_osi != skipping; then
   if test $PACKAGE_TARNAME = osi; then
     coin_has_osi=.
   else
-    if test -d $srcdir/../Osi; then
-      coin_has_osi=../Osi
+
+# Check whether --with-m4_tolower(Osi)-instdir or --without-m4_tolower(Osi)-instdir was given.
+if test "${with_osi_instdir+set}" = set; then
+  withval="$with_osi_instdir"
+  coin_has_osi=installed
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-osi-instdir not a directory" >&5
+echo "$as_me: error: argument for --with-osi-instdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+                 OSIINSTDIR=`cd $withval; pwd`
+fi;
+
+
+# Check whether --with-m4_tolower(Osi)-srcdir or --without-m4_tolower(Osi)-srcdir was given.
+if test "${with_osi_srcdir+set}" = set; then
+  withval="$with_osi_srcdir"
+  if test "$coin_has_osi" = installed; then
+		   { { echo "$as_me:$LINENO: error: --with-$osi-srcdir cannot be given together with --with-osi-instdir" >&5
+echo "$as_me: error: --with-$osi-srcdir cannot be given together with --with-osi-instdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-osi-srcdir not a directory" >&5
+echo "$as_me: error: argument for --with-osi-srcdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 coin_has_osi=$withval
+                 OSISRCDIR=`cd $withval; pwd`
+fi;
+
+
+# Check whether --with-m4_tolower(Osi)-objdir or --without-m4_tolower(Osi)-objdir was given.
+if test "${with_osi_objdir+set}" = set; then
+  withval="$with_osi_objdir"
+  if test "$coin_has_osi" = installed; then
+		   { { echo "$as_me:$LINENO: error: --with-osi-objdir cannot be given together with --with-osi-instdir" >&5
+echo "$as_me: error: --with-osi-objdir cannot be given together with --with-osi-instdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test "$coin_has_osi" = notGiven; then
+		   { { echo "$as_me:$LINENO: error: --with-osi-objdir must be accompanied by --with-osi-srcdir" >&5
+echo "$as_me: error: --with-osi-objdir must be accompanied by --with-osi-srcdir" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+		 if test -d "$withval"; then : ; else
+		   { { echo "$as_me:$LINENO: error: argument for --with-osi-objdir not a directory" >&5
+echo "$as_me: error: argument for --with-osi-objdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		 fi
+                 OSIOBJDIR=`cd $withval; pwd`
+else
+  OSIOBJDIR="$OSISRCDIR"
+fi;
+
+    # if we still don't have a location, check for generic flag
+    if test "$coin_has_osi" = notGiven; then
+
+# Check whether --with-coin-instdir or --without-coin-instdir was given.
+if test "${with_coin_instdir+set}" = set; then
+  withval="$with_coin_instdir"
+  coin_has_osi=installed
+		   if test -d "$withval"; then : ; else
+		     { { echo "$as_me:$LINENO: error: argument for --with-coin-instdir not a directory" >&5
+echo "$as_me: error: argument for --with-coin-instdir not a directory" >&2;}
+   { (exit 1); exit 1; }; }
+		   fi
+                   OSIINSTDIR=`cd $withval; pwd`
+fi;
+    fi
+
+    if test "$coin_has_osi" = notGiven; then
+      if test -d $srcdir/../Osi; then
+        coin_has_osi=../Osi
+      fi
     fi
   fi
 fi
 
-if test $coin_has_osi != unavailable &&
+if test $coin_has_osi != notGiven &&
    test $coin_has_osi != skipping; then
   # Set the #define if the component is available
 
@@ -20558,19 +20874,25 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 
-  # Set the variables for source and object code location
-
-  OSISRCDIR=`cd $srcdir/$coin_has_osi; pwd`
-
-  OSIOBJDIR=`pwd`/$coin_has_osi
-
-  OSIDOCDIR=$abs_lib_dir/../share/doc/coin/Osi
+  if test $coin_has_osi = installed; then
+    OSIDOCDIR=$OSIINSTDIR/share/doc/coin/Osi
+  else
+    if test "$OSIOBJDIR" = This_Variable_Is_Not_Set; then
+      # Set the variables for source and object code location
+      OSISRCDIR=`cd $srcdir/$coin_has_osi; pwd`
+      OSIOBJDIR=`pwd`/$coin_has_osi
+      OSIDOCDIR=$abs_lib_dir/../share/doc/coin/Osi
+    else
+      # This is just a guess:
+      OSIDOCDIR=$OSIOBJDIR/../share/doc/coin/Osi
+    fi
+  fi
 fi
 
   # Define the Makefile conditional
 
 
-if test $coin_has_osi != unavailable &&
+if test $coin_has_osi != notGiven &&
                 test $coin_has_osi != skipping; then
   COIN_HAS_OSI_TRUE=
   COIN_HAS_OSI_FALSE='#'
@@ -20579,8 +20901,28 @@ else
   COIN_HAS_OSI_FALSE=
 fi
 
-echo "$as_me:$LINENO: result: $coin_has_osi" >&5
+
+
+if test $coin_has_osi = installed; then
+  COIN_HAS_OSI_INSTALLED_TRUE=
+  COIN_HAS_OSI_INSTALLED_FALSE='#'
+else
+  COIN_HAS_OSI_INSTALLED_TRUE='#'
+  COIN_HAS_OSI_INSTALLED_FALSE=
+fi
+
+
+if test $coin_has_osi = installed; then
+  echo "$as_me:$LINENO: result: installed in $OSIINSTDIR" >&5
+echo "${ECHO_T}installed in $OSIINSTDIR" >&6
+  # Check for header
+
+  # Check for library (this is not qo reliable)
+
+else
+  echo "$as_me:$LINENO: result: $coin_has_osi" >&5
 echo "${ECHO_T}$coin_has_osi" >&6
+fi
 
 
 #############################################################################
@@ -24243,6 +24585,13 @@ echo "$as_me: error: conditional \"COIN_HAS_DYLP\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${COIN_HAS_DYLP_INSTALLED_TRUE}" && test -z "${COIN_HAS_DYLP_INSTALLED_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"COIN_HAS_DYLP_INSTALLED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"COIN_HAS_DYLP_INSTALLED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${COIN_HAS_COINUTILS_TRUE}" && test -z "${COIN_HAS_COINUTILS_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"COIN_HAS_COINUTILS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
@@ -24250,10 +24599,24 @@ echo "$as_me: error: conditional \"COIN_HAS_COINUTILS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${COIN_HAS_COINUTILS_INSTALLED_TRUE}" && test -z "${COIN_HAS_COINUTILS_INSTALLED_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"COIN_HAS_COINUTILS_INSTALLED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"COIN_HAS_COINUTILS_INSTALLED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 if test -z "${COIN_HAS_OSI_TRUE}" && test -z "${COIN_HAS_OSI_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"COIN_HAS_OSI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"COIN_HAS_OSI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${COIN_HAS_OSI_INSTALLED_TRUE}" && test -z "${COIN_HAS_OSI_INSTALLED_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"COIN_HAS_OSI_INSTALLED\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"COIN_HAS_OSI_INSTALLED\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -24902,18 +25265,27 @@ s,@LT_LDFLAGS@,$LT_LDFLAGS,;t t
 s,@DYLPSRCDIR@,$DYLPSRCDIR,;t t
 s,@DYLPOBJDIR@,$DYLPOBJDIR,;t t
 s,@DYLPDOCDIR@,$DYLPDOCDIR,;t t
+s,@DYLPINSTDIR@,$DYLPINSTDIR,;t t
 s,@COIN_HAS_DYLP_TRUE@,$COIN_HAS_DYLP_TRUE,;t t
 s,@COIN_HAS_DYLP_FALSE@,$COIN_HAS_DYLP_FALSE,;t t
+s,@COIN_HAS_DYLP_INSTALLED_TRUE@,$COIN_HAS_DYLP_INSTALLED_TRUE,;t t
+s,@COIN_HAS_DYLP_INSTALLED_FALSE@,$COIN_HAS_DYLP_INSTALLED_FALSE,;t t
 s,@COINUTILSSRCDIR@,$COINUTILSSRCDIR,;t t
 s,@COINUTILSOBJDIR@,$COINUTILSOBJDIR,;t t
 s,@COINUTILSDOCDIR@,$COINUTILSDOCDIR,;t t
+s,@COINUTILSINSTDIR@,$COINUTILSINSTDIR,;t t
 s,@COIN_HAS_COINUTILS_TRUE@,$COIN_HAS_COINUTILS_TRUE,;t t
 s,@COIN_HAS_COINUTILS_FALSE@,$COIN_HAS_COINUTILS_FALSE,;t t
+s,@COIN_HAS_COINUTILS_INSTALLED_TRUE@,$COIN_HAS_COINUTILS_INSTALLED_TRUE,;t t
+s,@COIN_HAS_COINUTILS_INSTALLED_FALSE@,$COIN_HAS_COINUTILS_INSTALLED_FALSE,;t t
 s,@OSISRCDIR@,$OSISRCDIR,;t t
 s,@OSIOBJDIR@,$OSIOBJDIR,;t t
 s,@OSIDOCDIR@,$OSIDOCDIR,;t t
+s,@OSIINSTDIR@,$OSIINSTDIR,;t t
 s,@COIN_HAS_OSI_TRUE@,$COIN_HAS_OSI_TRUE,;t t
 s,@COIN_HAS_OSI_FALSE@,$COIN_HAS_OSI_FALSE,;t t
+s,@COIN_HAS_OSI_INSTALLED_TRUE@,$COIN_HAS_OSI_INSTALLED_TRUE,;t t
+s,@COIN_HAS_OSI_INSTALLED_FALSE@,$COIN_HAS_OSI_INSTALLED_FALSE,;t t
 s,@DYLP_ERRMSGDIR@,$DYLP_ERRMSGDIR,;t t
 s,@LIBEXT@,$LIBEXT,;t t
 s,@VPATH_DISTCLEANFILES@,$VPATH_DISTCLEANFILES,;t t
