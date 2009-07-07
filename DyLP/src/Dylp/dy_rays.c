@@ -112,10 +112,10 @@ static bool testForPrimalRay (int j, int *p_dir, double **p_abarj)
   Returns: TRUE if the evaluation completes without error, FALSE otherwise.
 */
 
-{ int k,m,kpos,dir ;
+{ int k = 0,m,kpos,dir ;
   flags statj,statk ;
   double *abarj ;
-  double abarkj,cbarj ;
+  double abarkj = 0.0,cbarj ;
   bool rayUp,rayDown ;
   
   const char *rtnnme = "testForPrimalRay" ;
@@ -630,8 +630,8 @@ static void testForDualRay (int i, int *p_dir, double **p_abari)
 */
 
 { int bvi,j,k,m,n,dir ;
-  flags stati,statk ;
-  double abarik ;
+  flags stati,statk = 0 ;
+  double abarik = 0.0 ;
   bool rayUp,rayDown ;
 
   double *betai,*abari ;
