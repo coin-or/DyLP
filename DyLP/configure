@@ -20519,9 +20519,10 @@ if test "${with_coin_instdir+set}" = set; then
 echo "$as_me: error: argument for --with-coin-instdir not a directory" >&2;}
    { (exit 1); exit 1; }; }
 		   fi
-		   { echo "$as_me:$LINENO: WARNING: Cannot verify availability of DyLP with --with-coin-instdir flag.  Project manager needs to provide name of header to look for" >&5
-echo "$as_me: WARNING: Cannot verify availability of DyLP with --with-coin-instdir flag.  Project manager needs to provide name of header to look for" >&2;}
-
+		   if test -r $withval/share/doc/coin/DyLP/README; then
+		     coin_has_dylp=installed
+		     DYLPINSTDIR=`cd $withval; pwd`
+		   fi
 fi;
     fi
 
@@ -20583,13 +20584,30 @@ fi
 if test $coin_has_dylp = installed; then
   echo "$as_me:$LINENO: result: installed in $DYLPINSTDIR" >&5
 echo "${ECHO_T}installed in $DYLPINSTDIR" >&6
-  # Check for header
+  if test -r $DYLPINSTDIR/share/doc/coin/DyLP/README; then
 
-  # Check for library (this is not qo reliable)
+  :
+else
+  { { echo "$as_me:$LINENO: error: $DYLPINSTDIR/share/doc/coin/DyLP/README should be available if DyLP is installed" >&5
+echo "$as_me: error: $DYLPINSTDIR/share/doc/coin/DyLP/README should be available if DyLP is installed" >&2;}
+   { (exit 1); exit 1; }; }
+  :
+fi
 
 else
   echo "$as_me:$LINENO: result: $coin_has_dylp" >&5
 echo "${ECHO_T}$coin_has_dylp" >&6
+  if test $coin_has_dylp != notGiven &&
+     test $coin_has_dylp != skipping; then
+    echo "$as_me:$LINENO: checking for source code location of DyLP" >&5
+echo $ECHO_N "checking for source code location of DyLP... $ECHO_C" >&6
+    echo "$as_me:$LINENO: result: $DYLPSRCDIR" >&5
+echo "${ECHO_T}$DYLPSRCDIR" >&6
+    echo "$as_me:$LINENO: checking for object code location of DyLP" >&5
+echo $ECHO_N "checking for object code location of DyLP... $ECHO_C" >&6
+    echo "$as_me:$LINENO: result: $DYLPOBJDIR" >&5
+echo "${ECHO_T}$DYLPOBJDIR" >&6
+  fi
 fi
 
 echo "$as_me:$LINENO: checking for COIN project CoinUtils" >&5
@@ -20685,9 +20703,10 @@ if test "${with_coin_instdir+set}" = set; then
 echo "$as_me: error: argument for --with-coin-instdir not a directory" >&2;}
    { (exit 1); exit 1; }; }
 		   fi
-		   { echo "$as_me:$LINENO: WARNING: Cannot verify availability of CoinUtils with --with-coin-instdir flag.  Project manager needs to provide name of header to look for" >&5
-echo "$as_me: WARNING: Cannot verify availability of CoinUtils with --with-coin-instdir flag.  Project manager needs to provide name of header to look for" >&2;}
-
+		   if test -r $withval/share/doc/coin/CoinUtils/README; then
+		     coin_has_coinutils=installed
+		     COINUTILSINSTDIR=`cd $withval; pwd`
+		   fi
 fi;
     fi
 
@@ -20749,13 +20768,30 @@ fi
 if test $coin_has_coinutils = installed; then
   echo "$as_me:$LINENO: result: installed in $COINUTILSINSTDIR" >&5
 echo "${ECHO_T}installed in $COINUTILSINSTDIR" >&6
-  # Check for header
+  if test -r $COINUTILSINSTDIR/share/doc/coin/CoinUtils/README; then
 
-  # Check for library (this is not qo reliable)
+  :
+else
+  { { echo "$as_me:$LINENO: error: $COINUTILSINSTDIR/share/doc/coin/CoinUtils/README should be available if CoinUtils is installed" >&5
+echo "$as_me: error: $COINUTILSINSTDIR/share/doc/coin/CoinUtils/README should be available if CoinUtils is installed" >&2;}
+   { (exit 1); exit 1; }; }
+  :
+fi
 
 else
   echo "$as_me:$LINENO: result: $coin_has_coinutils" >&5
 echo "${ECHO_T}$coin_has_coinutils" >&6
+  if test $coin_has_coinutils != notGiven &&
+     test $coin_has_coinutils != skipping; then
+    echo "$as_me:$LINENO: checking for source code location of CoinUtils" >&5
+echo $ECHO_N "checking for source code location of CoinUtils... $ECHO_C" >&6
+    echo "$as_me:$LINENO: result: $COINUTILSSRCDIR" >&5
+echo "${ECHO_T}$COINUTILSSRCDIR" >&6
+    echo "$as_me:$LINENO: checking for object code location of CoinUtils" >&5
+echo $ECHO_N "checking for object code location of CoinUtils... $ECHO_C" >&6
+    echo "$as_me:$LINENO: result: $COINUTILSOBJDIR" >&5
+echo "${ECHO_T}$COINUTILSOBJDIR" >&6
+  fi
 fi
 
 echo "$as_me:$LINENO: checking for COIN project Osi" >&5
@@ -20851,9 +20887,10 @@ if test "${with_coin_instdir+set}" = set; then
 echo "$as_me: error: argument for --with-coin-instdir not a directory" >&2;}
    { (exit 1); exit 1; }; }
 		   fi
-		   { echo "$as_me:$LINENO: WARNING: Cannot verify availability of Osi with --with-coin-instdir flag.  Project manager needs to provide name of header to look for" >&5
-echo "$as_me: WARNING: Cannot verify availability of Osi with --with-coin-instdir flag.  Project manager needs to provide name of header to look for" >&2;}
-
+		   if test -r $withval/share/doc/coin/Osi/README; then
+		     coin_has_osi=installed
+		     OSIINSTDIR=`cd $withval; pwd`
+		   fi
 fi;
     fi
 
@@ -20915,13 +20952,30 @@ fi
 if test $coin_has_osi = installed; then
   echo "$as_me:$LINENO: result: installed in $OSIINSTDIR" >&5
 echo "${ECHO_T}installed in $OSIINSTDIR" >&6
-  # Check for header
+  if test -r $OSIINSTDIR/share/doc/coin/Osi/README; then
 
-  # Check for library (this is not qo reliable)
+  :
+else
+  { { echo "$as_me:$LINENO: error: $OSIINSTDIR/share/doc/coin/Osi/README should be available if Osi is installed" >&5
+echo "$as_me: error: $OSIINSTDIR/share/doc/coin/Osi/README should be available if Osi is installed" >&2;}
+   { (exit 1); exit 1; }; }
+  :
+fi
 
 else
   echo "$as_me:$LINENO: result: $coin_has_osi" >&5
 echo "${ECHO_T}$coin_has_osi" >&6
+  if test $coin_has_osi != notGiven &&
+     test $coin_has_osi != skipping; then
+    echo "$as_me:$LINENO: checking for source code location of Osi" >&5
+echo $ECHO_N "checking for source code location of Osi... $ECHO_C" >&6
+    echo "$as_me:$LINENO: result: $OSISRCDIR" >&5
+echo "${ECHO_T}$OSISRCDIR" >&6
+    echo "$as_me:$LINENO: checking for object code location of Osi" >&5
+echo $ECHO_N "checking for object code location of Osi... $ECHO_C" >&6
+    echo "$as_me:$LINENO: result: $OSIOBJDIR" >&5
+echo "${ECHO_T}$OSIOBJDIR" >&6
+  fi
 fi
 
 
