@@ -483,7 +483,7 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   Returns: TRUE if the calculation is successful, FALSE otherwise.
 */
 
-{ int n,m,i,j,k,j_bpos,n_orig,m_orig,i_orig,j_orig,k_orig,v ;
+{ int n,m,i,j,k,j_bpos,n_orig,m_orig,i_orig = 0,j_orig = 0,k_orig,v ;
   double *sc_abarj,*abarj ;
   const double *rscale,*cscale ;
   double Sj,abarij,agj ;
