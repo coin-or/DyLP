@@ -12,27 +12,23 @@
 */
 
 /*
-  We're getting close to the O/S here. Microsoft does it differently, of
-  course. There's some disagreement in the unix community about what goes
-  where, but I'm hoping that sys/time.h and sys/resource.h together will
-  cover it.
+  This is the main routine for the dylp unit test. The following defines
+  select the test problems, a convenience during code development. Normally,
+  you'll want them all set to 1 for a thorough test.
 */
-#include <time.h>
-#if defined(_MSC_VER) || defined(__MSVCRT__)
-  /* Nothing to do here. */
-#else
-# include <sys/time.h>
-# include <sys/resource.h>
-#endif
 
-/*
-  This is the main routine for the dylp unit test.
-*/
+#define RUN_EXMIP1 1
+#define RUN_AFIRO 1
+#define RUN_BOEING2 1
+#define RUN_EXPRIMALRAY 1
+#define RUN_EXDUALRAY 1
+#define RUN_GALENETBNDS 1
+#define RUN_GALENETLEQ 1
+#define RUN_GALENETMIXED 1
+#define RUN_GALENET 1
+
 
 #include "dylp.h"
-
-const char *osidylp_version = "1.10" ;			/* sccs! */
-const char *osidylp_time ;
 
 /*
   Macro cleverness to specify a default error message file. Depends on ANSI
@@ -157,7 +153,7 @@ int main (int argc, char **argv)
 /*
   Set this to TRUE if you want to see the solutions for the test lp problems.
 */
-  bool dumpsoln = FALSE ;
+  bool dumpsoln = TRUE ;
 
   char *rtnnme = argv[0] ;
 
@@ -171,6 +167,10 @@ int main (int argc, char **argv)
   extern consys_struct *dytest_exmip1sys(lptols_struct *tols) ;
   extern consys_struct *dytest_exprimalraysys(lptols_struct *tols) ;
   extern consys_struct *dytest_exdualraysys(lptols_struct *tols) ;
+  extern consys_struct *dytest_galenetbndssys(lptols_struct *tols) ;
+  extern consys_struct *dytest_galenetleqsys(lptols_struct *tols) ;
+  extern consys_struct *dytest_galenetmixedsys(lptols_struct *tols) ;
+  extern consys_struct *dytest_galenetsys(lptols_struct *tols) ;
 
   extern consys_struct *dytest_afirosys(lptols_struct *tols) ;
   extern consys_struct *dytest_boeing2sys(lptols_struct *tols) ;
@@ -190,6 +190,8 @@ int main (int argc, char **argv)
 
   extern int dytest_rowDuals(lpprob_struct *lp,
 			     lptols_struct *lptols,lpopts_struct *lpopts) ;
+  extern int dytest_allDuals(lpprob_struct *lp,
+			      lptols_struct *lptols,lpopts_struct *lpopts) ;
   extern int dytest_colDuals(lpprob_struct *lp,
 			     lptols_struct *lptols,lpopts_struct *lpopts) ;
   extern int dytest_colPrimals(lpprob_struct *lp,
@@ -252,10 +254,12 @@ int main (int argc, char **argv)
 */
   dy_initbasis(50,main_lpopts->factor+5,0.0) ;
 
+#if RUN_EXMIP1 > 0
 /*
   Load the exmip1 example and see if we can solve it.
 */
-  dyio_outfmt(ttyout,dy_gtxecho,"Loading exmip1 example from static data.\n") ;
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "\n\nLoading exmip1 example from static data.\n") ;
   main_sys = dytest_exmip1sys(main_lptols) ;
   if (main_sys == NULL)
   { dyio_outfmt(ttyout,dy_gtxecho,
@@ -320,6 +324,7 @@ int main (int argc, char **argv)
     errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 /*
@@ -331,11 +336,14 @@ int main (int argc, char **argv)
     main_sys = NULL ;
     main_lp->consys = NULL ;
     dy_freesoln(main_lp) ; }
+#endif
 
+#if RUN_AFIRO > 0
 /*
   Let's try another. Load and solve afiro.
 */
-  dyio_outfmt(ttyout,dy_gtxecho,"Loading afiro example from static data.\n") ;
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "\n\nLoading afiro example from static data.\n") ;
   main_sys = dytest_afirosys(main_lptols) ;
   if (main_sys == NULL)
   { dyio_outfmt(ttyout,dy_gtxecho,
@@ -374,6 +382,7 @@ int main (int argc, char **argv)
     errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
@@ -383,11 +392,14 @@ int main (int argc, char **argv)
     main_sys = NULL ;
     main_lp->consys = NULL ;
     dy_freesoln(main_lp) ; }
+#endif
 
+#if RUN_BOEING2 > 0
 /*
   Let's try another. Load and solve boeing2.
 */
-  dyio_outfmt(ttyout,dy_gtxecho,"Loading boeing2 example from static data.\n") ;
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "\n\nLoading boeing2 example from static data.\n") ;
   main_sys = dytest_boeing2sys(main_lptols) ;
   if (main_sys == NULL)
   { dyio_outfmt(ttyout,dy_gtxecho,
@@ -406,6 +418,16 @@ int main (int argc, char **argv)
     main_lpopts->finpurge.cons = TRUE ;
     main_lpopts->coldbasis = ibLOGICAL ;
     main_lpopts->scaling = 2 ;
+
+    main_lpopts->print.phase2 = 0 ;
+/*
+    main_lpopts->print.major = 1 ;
+    main_lpopts->print.phase1 = 4 ;
+    main_lpopts->print.dual = 4 ;
+    main_lpopts->print.tableau = 4 ;
+    main_lpopts->print.soln = 3 ;
+    main_lpopts->print.rays = 5 ;
+*/
 
     dyio_outfmt(ttyout,dy_gtxecho,"Solving boeing2 ... ") ;
     lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
@@ -426,6 +448,7 @@ int main (int argc, char **argv)
     errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
@@ -435,7 +458,9 @@ int main (int argc, char **argv)
     main_sys = NULL ;
     main_lp->consys = NULL ;
     dy_freesoln(main_lp) ; }
+#endif
 
+#if RUN_EXPRIMALRAY > 0
 /*
   Let's try another. Load and solve exprimalray.  The polyhedron for
   exprimalray is carefully crafted to provide an initial bounded optimum
@@ -444,7 +469,7 @@ int main (int argc, char **argv)
   purging, lest we miss the point and rays we're aiming for.
 */
   dyio_outfmt(ttyout,dy_gtxecho,
-	      "Loading exprimalray example from static data.\n") ;
+	      "\n\nLoading exprimalray example from static data.\n") ;
   main_sys = dytest_exprimalraysys(main_lptols) ;
   if (main_sys == NULL)
   { dyio_outfmt(ttyout,dy_gtxecho,
@@ -518,6 +543,7 @@ int main (int argc, char **argv)
     errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
@@ -527,7 +553,9 @@ int main (int argc, char **argv)
     main_sys = NULL ;
     main_lp->consys = NULL ;
     dy_freesoln(main_lp) ; }
+#endif
 
+#if RUN_EXDUALRAY > 0
 /*
   Let's try another. Load and solve exdualray. Exdualray takes advantage of
   duality: The dual polyhedron is exactly the primal polyhedron of the
@@ -535,7 +563,7 @@ int main (int argc, char **argv)
   dual, and primal values are negated, but otherwise identical)
 */
   dyio_outfmt(ttyout,dy_gtxecho,
-	      "Loading exdualray example from static data.\n") ;
+	      "\n\nLoading exdualray example from static data.\n") ;
   main_sys = dytest_exdualraysys(main_lptols) ;
   if (main_sys == NULL)
   { dyio_outfmt(ttyout,dy_gtxecho,
@@ -554,6 +582,15 @@ int main (int argc, char **argv)
     main_lpopts->finpurge.cons = FALSE ;
     main_lpopts->coldbasis = ibLOGICAL ;
     main_lpopts->scaling = 2 ;
+/*
+    main_lpopts->print.major = 1 ;
+    main_lpopts->print.phase1 = 4 ;
+    main_lpopts->print.phase2 = 4 ;
+    main_lpopts->print.dual = 4 ;
+    main_lpopts->print.tableau = 4 ;
+    main_lpopts->print.soln = 3 ;
+    main_lpopts->print.rays = 5 ;
+*/
 
     dyio_outfmt(ttyout,dy_gtxecho,"Solving exdualray ... ") ;
     lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
@@ -568,7 +605,7 @@ int main (int argc, char **argv)
     if (dumpsoln == TRUE)
     { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
 /*
-  Tweak the rhs to (-1 -4 1) to produce a pair of rays in the dual.
+  Tweak the rhs to (-1)*(-1 -4 1) to produce a pair of rays in the dual.
 */
     main_sys->rhs[2] =  4.0 ;
     setflg(main_lp->ctlopts,lpctlRHSCHG) ;
@@ -583,6 +620,377 @@ int main (int argc, char **argv)
 /*
   Test that we have valid dual rays. First ask for just one, then ask for
   five, expecting two.
+*/
+    errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
+    cnt = 1 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 1)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,1) ; }
+    cnt = 5 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 2)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,2) ; }
+/*
+  Run the remainder of the tests, to make sure they run without error when
+  dylp finishes infeasible.
+*/
+    errcnt += dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_betai(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
+
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    dylp(main_lp,main_lpopts,main_lptols,NULL) ;
+    consys_free(main_sys) ;
+    main_sys = NULL ;
+    main_lp->consys = NULL ;
+    dy_freesoln(main_lp) ; }
+#endif
+
+#if RUN_GALENETBNDS > 0
+/*
+  Now a sequence of three problems based on galenet that really exercise the
+  dual ray code. Galenet is a straightforward primal infeasible / dual
+  unbounded problem. The objective is identically zero, so it's a pure
+  feasibility problem. The objective returned from dylp will be z = 48, the
+  amount of primal infeasibility.
+
+  The first version is galenetbnds. All equalities from galenet are converted
+  to inequalities, all implicit bounds are converted to explicit bound
+  constraints, and then all >= constraints are converted to <= constraints.
+  This is the simplest possible case for returning dual rays.
+*/
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "\n\nLoading galenetbnds example from static data.\n") ;
+  main_sys = dytest_galenetbndssys(main_lptols) ;
+  if (main_sys == NULL)
+  { dyio_outfmt(ttyout,dy_gtxecho,
+		"Failed to load galenetbnds constraint system.\n") ;
+    errcnt++ ; }
+  else
+  { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lp->phase = dyINV ;
+    main_lp->consys = main_sys ;
+    main_lp->rowsze = main_sys->rowsze ;
+    main_lp->colsze = main_sys->colsze ;
+    main_lpopts->forcecold = TRUE ;
+    main_lpopts->fullsys = TRUE ;
+    main_lpopts->finpurge.vars = FALSE ;
+    main_lpopts->finpurge.cons = FALSE ;
+    main_lpopts->coldbasis = ibLOGICAL ;
+    main_lpopts->scaling = 2 ;
+/*
+    main_lpopts->print.major = 1 ;
+    main_lpopts->print.phase1 = 4 ;
+    main_lpopts->print.phase2 = 4 ;
+    main_lpopts->print.dual = 4 ;
+    main_lpopts->print.tableau = 4 ;
+    main_lpopts->print.soln = 3 ;
+    main_lpopts->print.rays = 5 ;
+*/
+
+    dyio_outfmt(ttyout,dy_gtxecho,"Solving galenetbnds ... ") ;
+    lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
+    dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
+		dy_prtlpret(lpretval),main_lp->obj) ;
+    z = 48.0 ;
+    if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: z = %g, expected %g, error %g, tol %g.\n",
+		  main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
+    dumpsoln = TRUE ;
+    if (dumpsoln == TRUE)
+    { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
+/*
+  Test that we have valid dual rays. First ask for just one, then ask for
+  five, expecting three.
+*/
+    cnt = 1 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 1)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,1) ; }
+    cnt = 5 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 3)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,2) ; }
+/*
+  Run the remainder of the tests, to make sure they run without error when
+  dylp finishes infeasible.
+*/
+    errcnt += dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_betai(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
+
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    dylp(main_lp,main_lpopts,main_lptols,NULL) ;
+    consys_free(main_sys) ;
+    main_sys = NULL ;
+    main_lp->consys = NULL ;
+    dy_freesoln(main_lp) ; }
+#endif
+
+#if RUN_GALENETLEQ > 0
+/*
+  Now load and solve galenetleq --- galenetbnds, but the
+  bound constraints on variables are now handled in the usual manner, as
+  implicit bounds. We'll need the full ray (explicit duals y = c<B>inv(B)
+  as well as duals associated with nonbasic bounded variables) in order to pass
+  the mathematical tests rb < 0, rA > 0.
+*/
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "\n\nLoading galenetleq example from static data.\n") ;
+  main_sys = dytest_galenetleqsys(main_lptols) ;
+  if (main_sys == NULL)
+  { dyio_outfmt(ttyout,dy_gtxecho,
+		"Failed to load galenetleq constraint system.\n") ;
+    errcnt++ ; }
+  else
+  { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lp->phase = dyINV ;
+    main_lp->consys = main_sys ;
+    main_lp->rowsze = main_sys->rowsze ;
+    main_lp->colsze = main_sys->colsze ;
+    main_lpopts->forcecold = TRUE ;
+    main_lpopts->fullsys = TRUE ;
+    main_lpopts->finpurge.vars = FALSE ;
+    main_lpopts->finpurge.cons = FALSE ;
+    main_lpopts->coldbasis = ibLOGICAL ;
+    main_lpopts->scaling = 2 ;
+/*
+    main_lpopts->print.major = 1 ;
+    main_lpopts->print.phase1 = 4 ;
+    main_lpopts->print.phase2 = 4 ;
+    main_lpopts->print.dual = 4 ;
+    main_lpopts->print.tableau = 4 ;
+    main_lpopts->print.soln = 3 ;
+    main_lpopts->print.rays = 5 ;
+*/
+
+    dyio_outfmt(ttyout,dy_gtxecho,"Solving galenetleq ... ") ;
+    lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
+    dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
+		dy_prtlpret(lpretval),main_lp->obj) ;
+    z = 48.0 ;
+    if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: z = %g, expected %g, error %g, tol %g.\n",
+		  main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
+    dumpsoln = TRUE ;
+    if (dumpsoln == TRUE)
+    { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
+/*
+  Test that we have valid dual rays. First ask for just one, then ask for
+  five, expecting three.
+*/
+    cnt = 1 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 1)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,1) ; }
+    cnt = 5 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 3)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,2) ; }
+/*
+  Run the remainder of the tests, to make sure they run without error when
+  dylp finishes infeasible.
+*/
+    errcnt += dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_betai(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
+
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    dylp(main_lp,main_lpopts,main_lptols,NULL) ;
+    consys_free(main_sys) ;
+    main_sys = NULL ;
+    main_lp->consys = NULL ;
+    dy_freesoln(main_lp) ; }
+#endif
+
+#if RUN_GALENETMIXED > 0
+/*
+  Now load and solve galenetmixed --- bound constraints on variables are
+  handled implicitly, and the constraint system is a mix of <= and >=
+  constraints (the equalities are handled as a pair of inequalities).  As
+  with galenetleq, we'll need the full ray (explicit duals y = c<B>inv(B) as
+  well as duals associated with nonbasic bounded variables) in order to pass
+  the mathematical tests rb < 0, rA > 0.
+*/
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "\n\nLoading galenetmixed example from static data.\n") ;
+  main_sys = dytest_galenetmixedsys(main_lptols) ;
+  if (main_sys == NULL)
+  { dyio_outfmt(ttyout,dy_gtxecho,
+		"Failed to load galenetmixed constraint system.\n") ;
+    errcnt++ ; }
+  else
+  { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lp->phase = dyINV ;
+    main_lp->consys = main_sys ;
+    main_lp->rowsze = main_sys->rowsze ;
+    main_lp->colsze = main_sys->colsze ;
+    main_lpopts->forcecold = TRUE ;
+    main_lpopts->fullsys = TRUE ;
+    main_lpopts->finpurge.vars = FALSE ;
+    main_lpopts->finpurge.cons = FALSE ;
+    main_lpopts->coldbasis = ibLOGICAL ;
+    main_lpopts->scaling = 2 ;
+/*
+    main_lpopts->print.major = 1 ;
+    main_lpopts->print.phase1 = 4 ;
+    main_lpopts->print.phase2 = 4 ;
+    main_lpopts->print.dual = 4 ;
+    main_lpopts->print.tableau = 4 ;
+    main_lpopts->print.soln = 3 ;
+    main_lpopts->print.rays = 5 ;
+*/
+
+    dyio_outfmt(ttyout,dy_gtxecho,"Solving galenetmixed ... ") ;
+    lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
+    dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
+		dy_prtlpret(lpretval),main_lp->obj) ;
+    z = 48.0 ;
+    if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: z = %g, expected %g, error %g, tol %g.\n",
+		  main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
+    dumpsoln = TRUE ;
+    if (dumpsoln == TRUE)
+    { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
+/*
+  Test that we have valid dual rays. First ask for just one, then ask for
+  five, expecting three.
+*/
+    cnt = 1 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 1)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,1) ; }
+    cnt = 5 ;
+    errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
+    if (cnt != 3)
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: %d dual rays returned, expected %d.\n",
+		  cnt,2) ; }
+/*
+  Run the remainder of the tests, to make sure they run without error when
+  dylp finishes infeasible.
+*/
+    errcnt += dytest_betaj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abarj(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_betai(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
+
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    dylp(main_lp,main_lpopts,main_lptols,NULL) ;
+    consys_free(main_sys) ;
+    main_sys = NULL ;
+    main_lp->consys = NULL ;
+    dy_freesoln(main_lp) ; }
+#endif
+
+#if RUN_GALENET > 0
+/*
+  Now load and solve the original galenet --- bound constraints on variables
+  are handled implicitly, and the constraint system is a mix of <=, =, and >=
+  constraints.  As with galenetleq, we'll need the full ray (explicit duals y
+  = c<B>inv(B) as well as duals associated with nonbasic bounded variables)
+  in order to pass the mathematical tests rb < 0, rA > 0.
+*/
+  dyio_outfmt(ttyout,dy_gtxecho,
+	      "\n\nLoading galenet example from static data.\n") ;
+  main_sys = dytest_galenetsys(main_lptols) ;
+  if (main_sys == NULL)
+  { dyio_outfmt(ttyout,dy_gtxecho,
+		"Failed to load galenet constraint system.\n") ;
+    errcnt++ ; }
+  else
+  { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
+    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lp->phase = dyINV ;
+    main_lp->consys = main_sys ;
+    main_lp->rowsze = main_sys->rowsze ;
+    main_lp->colsze = main_sys->colsze ;
+    main_lpopts->forcecold = TRUE ;
+    main_lpopts->fullsys = TRUE ;
+    main_lpopts->finpurge.vars = FALSE ;
+    main_lpopts->finpurge.cons = FALSE ;
+    main_lpopts->coldbasis = ibLOGICAL ;
+    main_lpopts->scaling = 2 ;
+/*
+    main_lpopts->print.major = 1 ;
+    main_lpopts->print.phase1 = 4 ;
+    main_lpopts->print.phase2 = 4 ;
+    main_lpopts->print.dual = 4 ;
+    main_lpopts->print.tableau = 4 ;
+    main_lpopts->print.soln = 3 ;
+    main_lpopts->print.rays = 5 ;
+*/
+
+    dyio_outfmt(ttyout,dy_gtxecho,"Solving galenet ... ") ;
+    lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
+    dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
+		dy_prtlpret(lpretval),main_lp->obj) ;
+    z = 46.0 ;
+    if (!(fabs(main_lp->obj-z) <= main_lptols->cost))
+    { errcnt++ ;
+      dyio_outfmt(ttyout,dy_gtxecho,
+		  "  ERROR: z = %g, expected %g, error %g, tol %g.\n",
+		  main_lp->obj,z,fabs(main_lp->obj-z),main_lptols->cost) ; }
+    dumpsoln = TRUE ;
+    if (dumpsoln == TRUE)
+    { dy_dumpcompact(dy_logchn,dy_gtxecho,main_lp,FALSE) ; }
+/*
+  Test that we have valid dual rays. First ask for just one, then ask for
+  five, expecting two. Note that we end up at a different vertex than the
+  previous expanded versions of galenet.
 */
     cnt = 1 ;
     errcnt += dytest_dualRays(&cnt,main_lp,main_lptols,main_lpopts) ;
@@ -608,6 +1016,7 @@ int main (int argc, char **argv)
     errcnt += dytest_abari(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colDuals(main_lp,main_lptols,main_lpopts) ;
+    errcnt += dytest_allDuals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
@@ -617,6 +1026,7 @@ int main (int argc, char **argv)
     main_sys = NULL ;
     main_lp->consys = NULL ;
     dy_freesoln(main_lp) ; }
+#endif
 
 /*
   Report the result before we shut down.

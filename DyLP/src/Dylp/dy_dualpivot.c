@@ -62,16 +62,16 @@
   in one of three states: at its lower bound, at its upper bound, or in
   between. Interpreting ya<k> - w<k> + v<k> = -c<k> in this light, we have:
 
-    Primal 	       w	 v	  constraint
-   x<k> = lb<k>	    nonzero	zero	  ya<k> - w<k> = 0 => ya<k> >= c<k>
-   x<k> = ub<k>	     zero      nonzero	  ya<k> + v<k> = 0 => ya<k> <= c<k>
-     between	     zero	zero	  ya<k> = c<k>
+    Primal 	   w        v	       constraint
+   x<k> = lb<k>	 nonzero   zero	    ya<k> - w<k> = -c<k> => ya<k> >= -c<k>
+   x<k> = ub<k>	  zero    nonzero   ya<k> + v<k> = -c<k> => ya<k> <= -c<k>
+     between	  zero     zero	    ya<k> = -c<k>
  
   So, for a dual pivot where w<k> decreases to 0 and goes nonbasic (x<k>
   increases from lb<k> to some intermediate value), the dual inequality
-  ya<k> >= 0 is made tight. When v<k> decreases to 0 and goes nonbasic
-  (x<k> decreases from ub<k>), the dual inequality ya<k> <= 0 is made tight.
-  While x<k> is strictly between bounds, ya<k> = c<k> must hold.
+  ya<k> >= -c<k> is made tight. When v<k> decreases to 0 and goes nonbasic
+  (x<k> decreases from ub<k>), the dual inequality ya<k> <= -c<k> is made
+  tight.  While x<k> is strictly between bounds, ya<k> = c<k> must hold.
 
   What's the dual direction of motion, zeta<k>? The portion matching the
   basic dual variables (all of y, those w for variables at lb, those v for
@@ -1326,8 +1326,8 @@ static dyret_enum dualin (int xindx, int outdir,
 
   Note that we shouldn't see superbasics here, as we're primal infeasible
   while running dual simplex and superbasics should not be created. Nor
-  should we see nonbasic free variables; they can't be nonbasic in a dual
-  feasible solution. dy_chkstatus enforces this when we're paranoid.
+  should we see nonbasic free variables except when their reduced cost is
+  zero.  dy_chkstatus enforces this when we're paranoid.
 */
   newxj = FALSE ;
   degencnt = 0 ;
@@ -2004,7 +2004,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
   The outgoing variable should have status BUUB or BLLB (i.e., it's primal
   infeasible).
 */
-  if (!flgon(statj,vstatNBLB|vstatNBUB))
+  if (!flgon(statj,vstatNBLB|vstatNBUB|vstatNBFR))
   { errmsg(355,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',xjndx,FALSE,NULL),
 	   xjndx,dy_prtvstat(statj)) ;
     return (dyrFATAL) ; }
@@ -2444,7 +2444,7 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
 				 double **p_abarj) ;
 
 # ifdef DYLP_PARANOIA
-  int chkduallvl = 1 ;
+  int chkduallvl = 2 ;
 
   dy_chkdual(chkduallvl) ;
 # endif

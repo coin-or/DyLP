@@ -72,12 +72,12 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
     main_lp:	 the lp problem structure
     main_lptols: the lp tolerance structure
     main_lpopts: the lp options structure
-    basis2sys:	 (i) vector to hold translation from basis column order to
+    p_basis2sys: (i) vector to hold translation from basis column order to
 		     external system column order; allocated if NULL.
 		 (o) completed translation vector
 
-    Note that basis2sys is an attached vector for basis and will be freed when
-    the constraint system is freed.
+    Note that basis2sys is an attached vector for basis and will be freed
+    when the constraint system is freed.
 
   Returns: pointer to a basis matrix, or NULL if an error occurs during
 	   construction
@@ -695,21 +695,21 @@ int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
 /*
   Now test the columns for the logical variables.
 */
-  for (j = 1 ; j <= m ; j++)
-  { if (dy_abarj(main_lp,-j,&abarj) == FALSE)
-    { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	     consys_nme(sys,'v',n+j,FALSE,NULL),j) ;
-      errcnt++ ;
-      continue ; }
-    expected = abarj[i] ;
-    abarij = betai[j] ;
-    if (fabs(abarij-expected) > main_lptols->zero)
-    { errcnt++ ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
-		  "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
-		  i,-j,abarij,expected) ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
-		  (abarij-expected),main_lptols->zero) ; } } }
+    for (j = 1 ; j <= m ; j++)
+    { if (dy_abarj(main_lp,-j,&abarj) == FALSE)
+      { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+	       consys_nme(sys,'v',n+j,FALSE,NULL),j) ;
+	errcnt++ ;
+	continue ; }
+      expected = abarj[i] ;
+      abarij = betai[j] ;
+      if (fabs(abarij-expected) > main_lptols->zero)
+      { errcnt++ ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
+		    i,-j,abarij,expected) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+		    (abarij-expected),main_lptols->zero) ; } } }
 /*
   We're done. Do a bit of cleanup.
 */

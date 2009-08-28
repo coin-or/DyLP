@@ -85,10 +85,13 @@ static const double exmip1_coeff[] = { -42.42,
 
       x1, x2, x3 free
 
-  The overall shape is a cone formed by face1, face2, and face3, with orgin
+  The overall shape is a cone formed by face1, face2, and face3, with origin
   at (10,10,0), opening upward (increasing x3). Face4 forms an extreme point
   with faces 1 and 3 at (8,10,3/2), cutting off ray13 emanating from
-  (10,10,0) and forming two more rays emanating from (8,10,3/2).
+  (10,10,0) and forming two more rays emanating from (8,10,3/2). Face5 forms
+  an extreme point with faces 2 and 3 at (13,11,3), cutting off ray 23
+  emanating from (10,10,0) and forming two more rays emanating from
+  (13,11,3).
 
   ray12 = ( 1 -2  3)
   ray13 = (-4  0  3)	[ truncated by face4 at (8,10,3/2) ]
@@ -109,7 +112,8 @@ static const double exmip1_coeff[] = { -42.42,
 
   An objective of min (-1 -1 1) (coded below) will find (13,11,3). An
   objective of min (-1 -4 1) will want to go unbounded along either of ray25
-  or ray35.
+  or ray35. This portion of the polytope works better in exdualray (we don't
+  run afoul of the orthant constraints in the dual).
 */
 
 
@@ -164,13 +168,13 @@ static const double exprimalray_coeff[] = { -42.42,
 
    -6 face1 +   9 face2 -   3 face3 - 216 face4 +  66.0 face5 >=  1.0	x1
   -15 face1 -   6 face2 +  21 face3 + 315 face4 + 336.0 face5 >=  1.0	x2
-   -8 face1 -   7 face2 +   4 face3 - 136 face4 -  83.0 face5 >= -1.0	x3
+   -8 face1 -   7 face2 -   4 face3 - 136 face4 -  83.0 face5 >= -1.0	x3
 
       0 <= face1, face2, face3, face4, face5 <= infty
 
   The objective of c = (-210 30 180 1218 4305) coded into the arrays below
   completes the definition of the dual polytope. With b = (1 1 -1) as shown,
-  there should be a finite minimum at (13,11,3).
+  there should be a finite minimum at y = (13,11,3).
 
   To translate the primal objective of exprimalray to the rhs of exdualray,
   note first that the primal min objective is negated to get a max objective,
@@ -198,6 +202,17 @@ static const double exdualray_rowub[] = { -42.42,
 static const double exdualray_rowlb[] = { -42.42,
   -1e100, 1.0, 1.0, -1.0
   } ;
+/*
+static const char exdualray_rowsense[] = { 'B',
+  'N', 'L', 'G', 'G'
+  } ;
+static const double exdualray_rowub[] = { -42.42,
+  1e100, -1.0, 1e100, 1e100
+  } ;
+static const double exdualray_rowlb[] = { -42.42,
+  -1e100, -1e100, 1.0, -1.0
+  } ;
+*/
 
 static const char *exdualray_colname[] = { "bogus",
   "face1", "face2", "face3", "face4", "face5"
@@ -221,6 +236,247 @@ static const double exdualray_coeff[] = { -42.42,
      180.0,   -3.0,   21.0,   -4.0,
     1218.0, -216.0,  315.0, -136.0,
     4305.0,   66.0,  336.0,  -83.0
+  } ;
+/* Correct for constraint x1 a G constraint
+static const double exdualray_coeff[] = { -42.42,
+    -210.0,    6.0,  -15.0,   -8.0,
+      30.0,   -9.0,   -6.0,   -7.0,
+     180.0,    3.0,   21.0,   -4.0,
+    1218.0,  216.0,  315.0, -136.0,
+    4305.0,  -66.0,  336.0,  -83.0
+  } ;
+*/
+
+
+/*
+  galenet, from Data/Infeas.
+
+  This problem is a small network flow problem: three sources, two
+  intermediate nodes, three sinks. It's a feasibility problem (objective
+  coefficients are all zero, hence duals and reduced costs are also zero)
+  and it's primal infeasible and dual unbounded.
+
+  It was used in the OsiClp unit test, and it turns out to be good from several
+  viewpoints. It's small enough to do manual checks, it has a nice mix of <=,
+  =, and >= constraints, and it has bounded variables.
+
+  Three more versions of this problem follow:
+    * galenetmixed, in which the equalities are converted to a pair of <= and
+      >= constraints;
+    * galenetleq, in which all constraints are converted to <= constraints;
+      and
+    * galenetbnds, in which all bounds are converted to explicit inequalities,
+      then all inequalities are converted to <= constraints.
+
+  Galenetbnds is the easy case for dual ray generation, with all constraints
+  explicit. This makes it easy to recreate the canonical dual without worrying
+  about handling implicit bound constraints.
+
+  Galenetbnds and galenetleq both exercise the unscaled alternatives in the
+  various solution generation routines.
+
+  Galenetmixed turns out to exercise some interesting cases. In addition to
+  the inversion required to convert to >= constraints in the original system,
+  there's one case where dylp's BLLB slack attached to the internal <=
+  constraint must be viewed as a BUUB surplus in order to successfully generate
+  the correct ray.
+*/
+
+/*
+  First galenet as originally formulated, with a mix of >=, =, and <=
+  constraints.
+*/
+
+static const int galenet_rowcnt = 9 ;
+static const int galenet_colcnt = 8 ;
+static const int galenet_coeffcnt = 16 ;
+static const int galenet_maxColLen = 2 ;
+static const char *galenet_objname = "COST" ;
+static const int galenet_objndx = 9 ;
+
+static const char *galenet_rowname[] = { "bogus",
+  "S1", "S2", "S3", "NODE4", "NODE5", "D6", "D7", "D8", "COST"
+  } ;
+static const char galenet_rowsense[] = { 'B',
+  'L', 'L', 'L', 'E', 'E', 'G', 'G', 'G', 'N'
+  } ;
+static const double galenet_rowlb[] = { -42.42,
+  -1e100, -1e100, -1e100, 0.0, 0.0, 10., 20., 30., -1e100
+  } ;
+static const double galenet_rowub[] = { -42.42,
+  20., 20., 20., 0.0, 0.0, 1e100, 1e100, 1e100, 1e100
+  } ;
+
+static const char *galenet_colname[] = { "bogus",
+  "T14", "T24", "T25", "T35", "T46", "T47", "T57", "T58"
+  } ;
+static const double galenet_collb[] = { -42.42,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+  } ;
+static const double galenet_colub[] = { -42.42,
+  30., 20., 10., 10., 10., 2., 20., 30.
+  } ;
+
+static const int galenet_rowndx[] = {-42,
+  1, 4, 2, 4, 2, 5, 3, 5, 6, 4, 7, 4, 7, 5, 8, 5
+  } ;
+static const int galenet_colndx[] = {-42,
+  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8
+  } ;
+static const double galenet_coeff[] = { -42.42,
+  1., 1., 1., 1., 1., 1., 1., 1., 1., -1., 1., -1., 1., -1., 1., -1.
+  } ;
+
+/*
+  Galenetmixed, with the equalities converted to a pair of inequalities.
+*/
+
+static const int galenetmixed_rowcnt = 11 ;
+static const int galenetmixed_colcnt = 8 ;
+static const int galenetmixed_coeffcnt = 24 ;
+static const int galenetmixed_maxColLen = 3 ;
+static const char *galenetmixed_objname = "COST" ;
+static const int galenetmixed_objndx = 11 ;
+
+static const char *galenetmixed_rowname[] = { "bogus",
+  "S1", "S2", "S3", "NODE4U", "NODE4L", "NODE5U", "NODE5L", "D6", "D7", "D8",
+  "COST"
+  } ;
+static const char galenetmixed_rowsense[] = { 'B',
+  'L', 'L', 'L', 'L', 'G', 'L', 'G', 'G', 'G', 'G', 'N'
+  } ;
+static const double galenetmixed_rowlb[] = { -42.42,
+  -1e100, -1e100, -1e100, -1e100, 0.0, -1e100, 0.0, 10., 20., 30., -1e100
+  } ;
+static const double galenetmixed_rowub[] = { -42.42,
+  20., 20., 20., 0.0, 1e100, 0.0, 1e100, 1e100, 1e100, 1e100, 1e100
+  } ;
+
+static const char *galenetmixed_colname[] = { "bogus",
+  "T14", "T24", "T25", "T35", "T46", "T47", "T57", "T58"
+  } ;
+static const double galenetmixed_collb[] = { -42.42,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+  } ;
+static const double galenetmixed_colub[] = { -42.42,
+  30., 20., 10., 10., 10., 2., 20., 30.
+  } ;
+
+static const int galenetmixed_rowndx[] = {-42,
+  1, 4, 5, 2, 4, 5, 2, 6, 7, 3, 6, 7, 8, 4, 5, 9, 4, 5, 9, 6, 7, 10, 6, 7
+  } ;
+static const int galenetmixed_colndx[] = {-42,
+  1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8
+  } ;
+static const double galenetmixed_coeff[] = { -42.42,
+  1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., -1., -1., 1., -1., -1.,
+  1., -1., -1., 1., -1., -1.
+  } ;
+
+/*
+  Galenetleq, with equalities converted to inequalities and >= constraints
+  converted to <= constraints.
+*/
+
+static const int galenetleq_rowcnt = 11 ;
+static const int galenetleq_colcnt = 8 ;
+static const int galenetleq_coeffcnt = 24 ;
+static const int galenetleq_maxColLen = 3 ;
+static const char *galenetleq_objname = "COST" ;
+static const int galenetleq_objndx = 11 ;
+
+static const char *galenetleq_rowname[] = { "bogus",
+  "S1", "S2", "S3", "NODE4U", "NODE4L", "NODE5U", "NODE5L", "D6", "D7", "D8",
+  "COST"
+  } ;
+static const char galenetleq_rowsense[] = { 'B',
+  'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'N'
+  } ;
+static const double galenetleq_rowlb[] = { -42.42,
+  -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100,
+  -1e100, -1e100
+  } ;
+static const double galenetleq_rowub[] = { -42.42,
+  20., 20., 20., 0.0, 0.0, 0.0, 0.0, -10., -20., -30., 1e100
+  } ;
+
+static const char *galenetleq_colname[] = { "bogus",
+  "T14", "T24", "T25", "T35", "T46", "T47", "T57", "T58"
+  } ;
+static const double galenetleq_collb[] = { -42.42,
+  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+  } ;
+static const double galenetleq_colub[] = { -42.42,
+  30., 20., 10., 10., 10., 2., 20., 30.
+  } ;
+
+static const int galenetleq_rowndx[] = {-42,
+  1, 4, 5, 2, 4, 5, 2, 6, 7, 3, 6, 7, 8, 4, 5, 9, 4, 5, 9, 6, 7, 10, 6, 7
+  } ;
+static const int galenetleq_colndx[] = {-42,
+  1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8
+  } ;
+static const double galenetleq_coeff[] = { -42.42,
+  1., 1., -1.0, 1., 1., -1.0, 1., 1., -1., 1., 1., -1., -1., -1., 1.0, -1., -1.,
+  1.0, -1., -1., 1., -1., -1., 1.
+  } ;
+
+
+/*
+  Galenetbnds, with bounds on variables made into explicit <= constraints.
+  Useful when checking just how rA > 0 fails in the presence of implicit
+  bounds.
+*/
+
+static const int galenetbnds_rowcnt = 27 ;
+static const int galenetbnds_colcnt = 8 ;
+static const int galenetbnds_coeffcnt = 40 ;
+static const int galenetbnds_maxColLen = 5 ;
+static const char *galenetbnds_objname = "COST" ;
+static const int galenetbnds_objndx = 27 ;
+
+static const char *galenetbnds_rowname[] = { "bogus",
+  "S1", "S2", "S3", "NODE4U", "NODE4L", "NODE5U", "NODE5L", "D6", "D7", "D8",
+  "T14UB", "T14LB", "T24UB", "T24LB", "T25UB", "T25LB", "T35UB", "T35LB",
+  "T46UB", "T46LB", "T47UB", "T47LB", "T57UB", "T57LB", "T58UB", "T58LB",
+  "COST"
+  } ;
+static const char galenetbnds_rowsense[] = { 'B',
+  'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L',
+  'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'L', 'N'
+  } ;
+static const double galenetbnds_rowlb[] = { -42.42,
+  -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100,
+  -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100,
+  -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100
+  } ;
+static const double galenetbnds_rowub[] = { -42.42,
+  20., 20., 20., 0.0, 0.0, 0.0, 0.0, -10., -20., -30., 30., 0.0, 20., 0.0, 10.,
+  0.0, 10., 0.0, 10., 0.0, 2., 0.0, 20., 0.0, 30., 0.0, 1e100
+  } ;
+
+static const char *galenetbnds_colname[] = { "bogus",
+  "T14", "T24", "T25", "T35", "T46", "T47", "T57", "T58"
+  } ;
+static const double galenetbnds_collb[] = { -42.42,
+  -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100, -1e100
+  } ;
+static const double galenetbnds_colub[] = { -42.42,
+  1e100, 1e100, 1e100, 1e100, 1e100, 1e100, 1e100, 1e100
+  } ;
+
+static const int galenetbnds_rowndx[] = {-42,
+  1, 4, 5, 11, 12, 2, 4, 5, 13, 14, 2, 6, 7, 15, 16, 3, 6, 7, 17, 18, 8, 4, 5,
+  19, 20, 9, 4, 5, 21, 22, 9, 6, 7, 23, 24, 10, 6, 7, 25, 26
+  } ;
+static const int galenetbnds_colndx[] = {-42,
+  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6,
+  6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8
+  } ;
+static const double galenetbnds_coeff[] = { -42.42,
+  1., 1., -1.0, 1., -1., 1., 1., -1.0, 1., -1., 1., 1., -1., 1., -1., 1., 1.,
+  -1., 1., -1., -1., -1., 1.0, 1., -1., -1., -1., 1.0, 1., -1., -1., -1., 1.,
+  1., -1., -1., -1., 1., 1., -1.
   } ;
 
 
@@ -1009,6 +1265,96 @@ consys_struct *dytest_exdualraysys (lptols_struct *tols)
 		    exdualray_rowlb,exdualray_rowub,
 		    exdualray_colname,exdualray_collb,exdualray_colub,
 		    exdualray_colndx,exdualray_rowndx,exdualray_coeff) ;
+  
+  return (sys) ; }
+
+consys_struct *dytest_galenetsys (lptols_struct *tols)
+/*
+  Create a constraint system loaded with the galenet example.
+
+  Parameters:
+    tols:	lptols_struct, used to specify infinity
+
+  Returns: pointer to a loaded constraint system, or NULL if there's an error.
+*/
+
+{ consys_struct *sys ;
+
+  sys = load_consys(galenet_rowcnt,galenet_colcnt,galenet_coeffcnt,
+		    galenet_maxColLen,tols->inf,"galenet",
+		    galenet_objndx,galenet_objname,
+		    galenet_rowname,galenet_rowsense,
+		    galenet_rowlb,galenet_rowub,
+		    galenet_colname,galenet_collb,galenet_colub,
+		    galenet_colndx,galenet_rowndx,galenet_coeff) ;
+  
+  return (sys) ; }
+
+consys_struct *dytest_galenetmixedsys (lptols_struct *tols)
+/*
+  Create a constraint system loaded with the galenetmixed example.
+
+  Parameters:
+    tols:	lptols_struct, used to specify infinity
+
+  Returns: pointer to a loaded constraint system, or NULL if there's an error.
+*/
+
+{ consys_struct *sys ;
+
+  sys = load_consys(galenetmixed_rowcnt,galenetmixed_colcnt,
+		    galenetmixed_coeffcnt,
+		    galenetmixed_maxColLen,tols->inf,"galenetmixed",
+		    galenetmixed_objndx,galenetmixed_objname,
+		    galenetmixed_rowname,galenetmixed_rowsense,
+		    galenetmixed_rowlb,galenetmixed_rowub,
+		    galenetmixed_colname,galenetmixed_collb,galenetmixed_colub,
+		    galenetmixed_colndx,galenetmixed_rowndx,
+		    galenetmixed_coeff) ;
+  
+  return (sys) ; }
+
+consys_struct *dytest_galenetleqsys (lptols_struct *tols)
+/*
+  Create a constraint system loaded with the galenetleq example.
+
+  Parameters:
+    tols:	lptols_struct, used to specify infinity
+
+  Returns: pointer to a loaded constraint system, or NULL if there's an error.
+*/
+
+{ consys_struct *sys ;
+
+  sys = load_consys(galenetleq_rowcnt,galenetleq_colcnt,galenetleq_coeffcnt,
+		    galenetleq_maxColLen,tols->inf,"galenetleq",
+		    galenetleq_objndx,galenetleq_objname,
+		    galenetleq_rowname,galenetleq_rowsense,
+		    galenetleq_rowlb,galenetleq_rowub,
+		    galenetleq_colname,galenetleq_collb,galenetleq_colub,
+		    galenetleq_colndx,galenetleq_rowndx,galenetleq_coeff) ;
+  
+  return (sys) ; }
+
+consys_struct *dytest_galenetbndssys (lptols_struct *tols)
+/*
+  Create a constraint system loaded with the galenetbnds example.
+
+  Parameters:
+    tols:	lptols_struct, used to specify infinity
+
+  Returns: pointer to a loaded constraint system, or NULL if there's an error.
+*/
+
+{ consys_struct *sys ;
+
+  sys = load_consys(galenetbnds_rowcnt,galenetbnds_colcnt,galenetbnds_coeffcnt,
+		    galenetbnds_maxColLen,tols->inf,"galenetbnds",
+		    galenetbnds_objndx,galenetbnds_objname,
+		    galenetbnds_rowname,galenetbnds_rowsense,
+		    galenetbnds_rowlb,galenetbnds_rowub,
+		    galenetbnds_colname,galenetbnds_collb,galenetbnds_colub,
+		    galenetbnds_colndx,galenetbnds_rowndx,galenetbnds_coeff) ;
   
   return (sys) ; }
 

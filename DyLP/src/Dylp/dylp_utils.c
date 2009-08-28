@@ -635,8 +635,12 @@ void dy_calcduals (void)
 
 /*
   This routine calculates the values of the dual variables as y = c<B>inv(B).
-  If antidegeneracy is active, updates are restricted to duals that correspond
-  to logicals included in the restricted subproblem.
+  Note that these duals have the correct sign for the primal min cx problem.
+  To be correct for the dual problem, multiply by -1. See the written
+  documentation or the comments at the head of dy_dual.c
+  
+  If antidegeneracy is active, updates are restricted to duals that
+  correspond to logicals included in the restricted subproblem.
 
   The routine also updates dfeas, the scaled zero tolerance for reduced costs.
 */
@@ -788,8 +792,13 @@ double dy_calcdualobj (void)
   This routine calculates the dual objective z = yb, taking into account
   nonbasic variables at nonzero bounds. NOTE that the value returned will not
   reflect the contribution due to inactive variables. Also, unlike the primal
-  case, we need to correct dy_y on the fly to compensate for duals involved in
-  a perturbed subproblem when antidegeneracy is active.
+  case, we need to correct dy_y on the fly to exclude duals involved in a
+  perturbed subproblem when antidegeneracy is active.
+
+  Remember that dy_y holds duals with the correct sign for the min cx primal.
+  We have to take care when pulling values for dual variables from cbar, as
+  cbar (when interpreted as a dual variable value) has the correct sign for
+  the min yb dual problem.
 
   Parameters: none
 
@@ -845,15 +854,18 @@ double dy_calcdualobj (void)
     { z += dy_y[i]*rhs[i] ; } }
 /*
   Now the harder part: the contribution due to variables nonbasic at nonzero
-  bounds. For the standard max primal/min dual setup, the math tells us that
-  the reduced cost cbar<j> of a variable x<j> that is NBUB is in fact the
-  negative of the dual that would be basic if the bound constraint on x<j>
-  were explicit in the constraint system. For x<j> NBLB, we're really dealing
-  with a >= constraint, and a sign flip is needed to get the value of the
-  dual that would be associated with the explicit constraint of -x<j> <=
-  -l<j>.  But we'll acheive that by using l<j> instead of -l<j>. Finally,
-  because dylp actually uses a min primal/min dual setup, we need one more
-  sign flip.
+  bounds.
+  
+  For the min primal/min dual setup in dylp, the math tells us that the
+  reduced cost cbar<j> of a variable x<j> NBUB is really the negative of the
+  correct dual value. For x<j> NBLB, the reduced cost is the correct dual
+  value.
+
+  But we're not done yet! The values of cbar are the correct dual values for
+  the dual algorithm, but they have the wrong sign for the primal algorithm.
+  A multiplication by -1; now cbar<j> is correct for x<j> NBUB, incorrect for
+  x<j> NBLB.  We'll fix the value for x<j> NBLB that by using l<j> instead of
+  -l<j> (remember that a lower bound constraint looks like -x<j> <= -l<j>).
 
   We need to scan the logicals because range constraints can result in a
   slack with a finite nonzero upper bound.
@@ -1161,7 +1173,7 @@ bool dy_chkstatus (int vndx)
 
 { int first,last,xkndx,iter ;
   flags xkstatus ;
-  double xk,xbk,ubk,lbk,normxb,tolu,bogusu,toll,bogusl ;
+  double xk,xbk,ubk,lbk,normxb,tolu,bogusu,toll,bogusl,cbark ;
   bool retval,primDegen,dualDegen ;
   char *statk ;
   const char *nmek,*phase ;
@@ -1442,8 +1454,9 @@ bool dy_chkstatus (int vndx)
     concerned about maintaining feasibility. During primal phase I or dual
     simplex, we force nonbasic variables to bound and live with any loss of
     feasibility.
-  * Nonbasic free variables should not occur during dual simplex -- we
-    shouldn't have been able to make a feasible start if they're present.
+  * Nonbasic free variables should not occur during dual simplex unless the
+    reduced cost is zero -- we shouldn't have been able to make a feasible
+    start otherwise.
 */
     switch (xkstatus)
     { case vstatSB:
@@ -1453,8 +1466,10 @@ bool dy_chkstatus (int vndx)
 	break ; }
       case vstatNBFR:
       { if (dy_lp->phase == dyDUAL)
-	{ errmsg(346,rtnnme,dy_sys->nme,phase,iter,statk,nmek,xkndx) ;
-	  retval = FALSE ; }
+	{ cbark = dy_cbar[xkndx] ;
+	  if (cbark != 0)
+	  { errmsg(346,rtnnme,dy_sys->nme,phase,iter,statk,nmek,xkndx) ;
+	    retval = FALSE ; } }
 	break ; } } }
 
   return (retval) ; }
@@ -1621,7 +1636,7 @@ void dy_chkdual (int lvl)
     cbarj = dy_cbar[j] ;
     if ((flgon(statj,vstatNBLB) && cbarj < -dy_tols->dfeas) ||
 	(flgon(statj,vstatNBUB) && cbarj > dy_tols->dfeas) ||
-	flgon(statj,vstatNBFR|vstatSB))
+	(flgon(statj,vstatNBFR) && cbarj != 0) || flgon(statj,vstatSB))
     { if (lvl >= 2)
       { warn(347,rtnnme,dy_sys->nme,
 	     dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
@@ -1632,7 +1647,7 @@ void dy_chkdual (int lvl)
     { cbarj = cbar[j] ;
       if ((flgon(statj,vstatNBLB) && cbarj < -dy_tols->dfeas) ||
 	  (flgon(statj,vstatNBUB) && cbarj > dy_tols->dfeas) ||
-	  flgon(statj,vstatNBFR|vstatSB))
+	  (flgon(statj,vstatNBFR) && cbarj != 0) || flgon(statj,vstatSB))
       { if (lvl >= 2)
 	{ warn(347,rtnnme,dy_sys->nme,
 	       dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,

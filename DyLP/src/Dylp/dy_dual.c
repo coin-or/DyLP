@@ -13,8 +13,9 @@
 
 /*
   This file contains the routines specific to dylp's dual simplex algorithm.
-  It's a pretty straightforward implementation of dual phase II, with dual
-  steepest edge (DSE) pricing.
+  It began life as a pretty straightforward implementation of dual phase II,
+  with dual steepest edge (DSE) pricing. Subsequently, it's been augmented
+  with perturbation-based antidegeneracy and multipivoting.
 
   It's difficult to give good, clear explanations for this code from the
   viewpoint of running a simplex algorithm on the dual problem. The root of
@@ -31,34 +32,38 @@
 
   If you look in a text, they all assume 0 <= x <= +inf when explaining the
   dual algorithm. Hence the contribution for y<m+j> is 0, all y<m+n+j> don't
-  exist, and the whole problem is sort of conveniently swept under the rug.
-  Just try and find a detailed explanation for bounded variables, l <= x <=
-  u, where l != 0 and u != +inf.
+  exist, and the whole problem is conveniently swept under the rug.  Just try
+  and find a detailed explanation for bounded variables, l <= x <= u, where
+  some l != 0 or some u != +inf.
 
   So, why does revised dual simplex work at all running off the primal
-  tableaux?
+  tableaux? Let's start with the standard dual pair
 
-  The first point to make is that the dual objective will, in fact, be
-  wrong.  The necessary dual variables are missing from y = c<B>inv(B), which
-  contains only those duals associated with the constraints present in the
-  primal matrix, A. And the necessary lower and upper bounds are missing from
-  the rhs vector, b. The values of the missing duals can be extracted from
-  the reduced costs, if desired, since the reduced costs cbar<j> are the
-  negative of the values of (all) the basic dual variables, and from this the
-  objective can be calculated correctly.
+    max cx			min yb
+	Ax <= b		<=>	    yA >= c
+    l <= x <= u			    y  >= 0
 
-  Anyway, if you slog through the algebra, what you eventually find is that
-  the dual surplus variable, call it sigma<j>, associated with x<j> through
-  the dual constraint dot(y,a<j>) - sigma<j> = c<j>,  gets pressed into
-  service as a surrogate for y<m+j> and y<m+n+j>. You could say that the dual
-  simplex algorithm decides which one it'll be, as part of the rules of the
-  algorithm. In the case of sigma<j> acting as surrogate for y<m+n+j>,
-  there's the added complication that the sign is wrong in the primal
-  tableaux, so that where we would have y<m+n+j> >= 0 if the upper bound
-  constraint was explicit, we have sigma<j> <= 0 when it's handled
-  implicitly. This works out rather neatly (if coincidentally), in the sense
-  that (for a max primal) we want a positive reduced cost at optimality for a
-  variable at upper bound.
+  The first point to make is that straightforward calculation of the dual
+  objective will, in fact, be wrong if primal architectural variables are
+  nonbasic at a nonzero bound.  The necessary dual variables are missing from
+  y = c<B>inv(B), which contains only those duals associated with the
+  constraints present in the primal matrix, A. And the necessary lower and
+  upper bounds are missing from the rhs vector, b. The values of the missing
+  duals can be found in the reduced costs cbar, since the reduced costs are
+  the negative of the values of (all) the basic dual variables. From this the
+  dual objective can be calculated correctly.
+
+  If you slog through the algebra, what you eventually find is that the dual
+  surplus variable, call it sigma<j>, associated with column j in the dual
+  constraint dot(y,a<j>) - sigma<j> = c<j>,  gets pressed into service as a
+  surrogate for y<m+j> and y<m+n+j>. The dual simplex algorithm decides which
+  role it will play, as part of the rules of the algorithm. In the case of
+  sigma<j> acting as surrogate for y<m+n+j>, there's the added complication
+  that the sign is wrong in the primal tableau, so that where we would have
+  y<m+n+j> >= 0 if the upper bound constraint was explicit, we have sigma<j>
+  <= 0 when it's handled implicitly. This works out rather neatly (if
+  coincidentally), in the sense that (for a max primal) we want a positive
+  reduced cost at optimality for a variable at upper bound.
 
   Generally speaking, one gets a negative dual for variables out at an upper
   bound. The other place where this can occur is when a range constraint
@@ -67,28 +72,40 @@
   To really understand dual simplex with bounded variables as simplex working
   on the dual problem, you should work the math. When you're done, you'll
   appreciate why texts never get into details. And with that in mind, I'm
-  going to comment the code in terms of the results that are required in the
-  primal problem.
+  going to (mostly) comment the code in terms of the results that are required
+  in the primal problem.
 
-  One last thing -- the usual comment in texts is that you read the dual
-  variables as the negative tranpose of the primal variables. This assumes
-  that the primal/dual pair is
+  One more very important point -- dylp runs a min cx primal simplex.  The
+  proper way to handle the conversion is to ask what would happen if the
+  primal was max -cx.
 
-    max cx			min yb
-	Ax <= b			    yA >= c
-    l <= x <= u			    y >= 0
+    max (-c)x				min yb
+	   Ax <= b			    yA >= (-c)
+       l <= x <= u			    y >= 0
  
-  Here, the primal is min cx. The proper way to handle the conversion is to
-  ask what would happen if the primal was max -cx. The result is that the
-  primal reduced costs are the correct values of the dual variables (i.e.,
-  no sign inversions required). When we're hunting for the leaving dual
-  variable, we're working on finding the minimum delta_y using
-    y<k> = ybar<k> - delta_y<i>(-beta<i>N)
-  where ybar<i> is a reduced cost and beta<i> is row k of inv(B). The value
-  of the entering dual will be -ybar<j>/abar<i,j> = cbar<j>. The comments
-  in dy_dualin sort of gloss over why we're looking for the minimum delta_y
-  and concentrate on explaining the operation in terms of getting the correct
-  sign for cbar<j>.
+  The result, once you work the linear algebra, is that the primal reduced
+  costs calculated for min cx are in fact the correct duals (no sign
+  inversion required) for min yb. But they are *not* the correct duals for
+  the min cx problem -- we still need y = c<B>inv(B) there. Put another way,
+  the correct duals for min cx are the negative of the correct duals for min
+  yb. (Has to be that way --- we did negate the objective, after all!) You'll
+  notice that dy_y holds c<B>inv(B). When doing calculations here in the dual
+  simplex, we don't use them! Instead, we consult dy_cbar for dual variable
+  values.
+
+  Keep in mind also that (dualN)inv(dualB) = - inv(B)N. We're working the dual
+  off the primal structures, so we have inv(B)N available to work with.
+
+  When we're hunting for the leaving dual variable, we're working on finding
+  the minimum delta_y using y<k> = ybar<k> - delta_y<i>(beta<i>dualN), where
+  ybar<i> is a reduced cost, beta<i> is row k of inv(dualB). Taking all the
+  above into consideration, this becomes y<k> = cbar<k> + delta_y<i>(beta<i>N)
+  where beta<i> is a row of inv(B).
+  
+  The value of the entering dual will be -cbar<j>/abar<i,j> = cbar<i>.  The
+  comments in dy_dualin sort of gloss over why we're looking for the minimum
+  delta_y and concentrate on explaining the operation in terms of getting the
+  correct sign for cbar<i>.
 
   In the context of dylp, the dual algorithm is strictly subordinate, used to
   reoptimise after the addition of constraints. More, the assumption is that

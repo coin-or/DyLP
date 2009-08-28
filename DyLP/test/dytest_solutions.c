@@ -13,7 +13,7 @@
 
 /*
   This file contains routines to test dylp's solution routines: dy_colPrimals,
-  dy_rowPrimals, dy_colDuals, and dy_rowDuals.
+  dy_rowPrimals, dy_colDuals, dy_rowDuals, and dy_allDuals.
 */
 
 #include "dylp.h"
@@ -72,10 +72,11 @@ int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 		  "  basis contains %d entries.\n",main_lp->basis->len) ; } }
 # endif
 /*
-  Acquire the row duals and the status vector.
+  Acquire the row duals and the status vector. For this check, we can use
+  the min primal sign convention.
 */
   y = NULL ;
-  dy_rowDuals(main_lp,&y) ;
+  dy_rowDuals(main_lp,&y,FALSE) ;
   status = main_lp->status ;
 /*
   Make a vector c<B> of objective coefficients in basis order. This is
@@ -218,16 +219,19 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 		rtnnme,sys->nme,m,n) ; }
 # endif
 /*
-  Acquire the row duals, column duals, status vector, and objective.
+  Acquire the row duals, column duals, status vector, and objective.  We want
+  both the (row) duals and reduced costs (column duals) to come through with
+  sign unchanged, appropriate for a minimisation primal.
 */
   y = NULL ;
-  dy_rowDuals(main_lp,&y) ;
+  dy_rowDuals(main_lp,&y,FALSE) ;
   cbarN = NULL ;
-  dy_colDuals(main_lp,&cbarN) ;
-  status = main_lp->status ;
+  dy_colDuals(main_lp,&cbarN,FALSE) ;
+  status = NULL ;
+  dy_colStatus(main_lp,&status) ;
   obj = sys->obj ;
 /*
-  Now step through the columns checking that cbar<j> = c<j> = dot(y,a<j>).
+  Now step through the columns checking that cbar<j> = c<j> - dot(y,a<j>).
   Also check to see that the sign is correct for the status of the variable
   in a minimisation problem.  For status values not listed (vstatSB and any
   of the basic status codes), there's no `correct' sign.
@@ -235,7 +239,7 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   errcnt = 0 ;
   for (j = 1 ; j <= n ; j++)
   { cbarj = obj[j] - consys_dotcol(sys,j,y) ;
-    statj = getflg(status[j],vstatSTATUS) ;
+    statj = status[j] ;
     if (fabs(cbarj-cbarN[j]) > main_lptols->cost)
     { errcnt++ ;
       dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -274,6 +278,7 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 */
   if (y != NULL) FREE(y) ;
   if (cbarN != NULL) FREE(cbarN) ;
+  if (status != NULL) FREE(status) ;
 
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -282,6 +287,139 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   else
   { dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n%s: pass cbar<N> = c<N> - yN.\n",rtnnme) ; }
+
+  return (errcnt) ; }
+
+
+
+int dytest_allDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
+		     lpopts_struct *main_lpopts)
+/*
+  This routine uses the dual variables returned by dy_rowDuals and
+  dy_colDuals and checks that yA >= (-c) (row duals only) and y'A' = (-c),
+  where y' is both row and column duals and A' is A, expanded as needed with
+  coefficients to add explicit bound constraints for nonbasic architecturals.
+
+  As with so many things involving faking dual simplex on the primal
+  constraint system with implicit bounds, we have to be a bit careful when
+  working with the duals corresponding to nonbasic primal variables. Consider
+  a primal variable x<j> NBUB. The reduced cost cbar<j> will be negative at
+  optimality in dylp's min primal world. This is not correct for the sign
+  convention of the true dual problem, where all duals are positive, so it's
+  negated when we ask for the true dual sign convention. But then only a
+  little thought reveals that we're considering yA + y<j> = (-c), and if y<j>
+  >= 0 it's clear that yA <= (-c). So we have to invert the sense of that
+  test when processing a column with an NBUB primal. Since the sign of the
+  reduced cost for an NBFX variable can go either way, no test is possible
+  using only the row duals.
+
+  Parameters:
+    main_lp:	 the lp problem structure
+    main_lptols: the lp tolerance structure
+    main_lpopts: the lp options structure
+
+  Returns: 0 if yA = c, error count otherwise.
+*/
+
+{ int i,j,k,m,n ;
+  consys_struct *sys ;
+  double *obj ;
+
+  double *y,*cbar ;
+  double ydotaj,cj,cbarj ;
+
+  flags *status ;
+  flags statj ;
+
+  int errcnt ;
+
+  char *rtnnme = "dytest_allDuals" ;
+
+/*
+  Do a little initialisation. Mention that we've started.
+*/
+  sys = main_lp->consys ;
+  m = sys->concnt ;
+  n = sys->varcnt ;
+  obj = sys->obj ;
+
+# ifndef DYLP_NDEBUG
+  if (main_lpopts->print.soln >= 1)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: checking yA = c using %s (%d x %d).",
+		rtnnme,sys->nme,m,n) ; }
+# endif
+/*
+  Acquire the row and column duals and column status. Go with the sign
+  convention that matches the true dual problem.
+*/
+  y = NULL ;
+  dy_rowDuals(main_lp,&y,TRUE) ;
+  cbar = NULL ;
+  dy_colDuals(main_lp,&cbar,TRUE) ;
+  status = NULL ;
+  dy_colStatus(main_lp,&status) ;
+/*
+  Open a loop to walk the columns. First check that yA >= (-c) for a column
+  with an NBLB primal variable, yA <= (-c) for a column with an NBUB primal
+  variable. For an NBFX variable, the dual could go either way, so we can't
+  check.
+*/
+  errcnt = 0 ;
+  for (j = 1 ; j <= n ; j++)
+  { statj = status[j] ;
+    cj = -obj[j] ;
+    ydotaj = consys_dotcol(sys,j,y) ;
+    if ((flgon(statj,vstatNBLB) && ydotaj-cj < -main_lptols->cost) ||
+	(flgon(statj,vstatNBUB) && ydotaj-cj > main_lptols->cost))
+    { errcnt++ ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n  ERROR: %s (%d) y dot a<j> = %g; ",
+		    consys_nme(sys,'v',j,FALSE,NULL),j,ydotaj) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"expected %s %g; err %g, tol %g.",
+		    (flgon(statj,vstatNBUB)?"<=":">="),
+		    cj,ydotaj-cj,main_lptols->cost) ; }
+/*
+  Now add any contribution due to an architectural at bound. After this we
+  should have equality. For an upper bound, we have x<j> <= u<j>.
+  For a lower bound, it's -x<j> <= -l<j>. For a fixed variable, it's an
+  equality x<j> = u<j>, so lump NBFX with NBUB.
+*/
+    if (flgon(statj,vstatNONBASIC))
+    { cbarj = cbar[j] ;
+      switch (statj)
+      { case vstatNBLB:
+	{ ydotaj -= cbarj ;
+	  break ; }
+	case vstatNBUB:
+	case vstatNBFX:
+	{ ydotaj += cbarj ;
+	  break ; }
+	default:
+	{ errmsg(1,rtnnme,__LINE__) ;
+	  errcnt += 10000 ;
+	  ydotaj = quiet_nan(42.0L) ;
+	  break ; } } }
+    if (fabs(ydotaj-cj) > main_lptols->cost)
+    { errcnt++ ;
+      dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n  ERROR: %s (%d) y dot a<j> = %g; ",
+		    consys_nme(sys,'v',j,FALSE,NULL),j,ydotaj) ;
+	dyio_outfmt(dy_logchn,dy_gtxecho,"expected %g; err %g, tol %g.",
+		    cj,fabs(ydotaj-cj),main_lptols->cost) ; } }
+/*
+  Free up space and report the result.
+*/
+  if (y != NULL) FREE(y) ;
+  if (cbar != NULL) FREE(cbar) ;
+  if (status != NULL) FREE(status) ;
+
+  if (errcnt != 0)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: found %d errors testing yA = c.\n",
+		rtnnme,errcnt) ; }
+  else
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass yA = c.\n",rtnnme) ; }
 
   return (errcnt) ; }
 

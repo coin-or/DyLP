@@ -1090,6 +1090,7 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		  1: prints summary messages about vectors found.
 		  3: print information about columns / rows examined.
 		  4: print information about why a column or row was rejected.
+		  5: print nonzeros for each ray
     soln	  Controls print level for routines that generate primal and
 		  dual solutions for use by external clients.
 		  1: prints summary messages about the circumstances
@@ -1917,15 +1918,17 @@ extern bool dy_abari(lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 
 extern bool dy_primalRays(lpprob_struct *orig_lp,
 			  int *p_numRays, double ***p_rays) ;
-extern bool dy_dualRays(lpprob_struct *orig_lp,
-			int *p_numRays, double ***p_rays) ;
+extern bool dy_dualRays(lpprob_struct *orig_lp, bool fullRay,
+			int *p_numRays, double ***p_rays, bool trueDuals) ;
 
 /*
   dy_solutions.c
 */
 
-extern void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar) ;
-extern void dy_rowDuals(lpprob_struct *orig_lp, double **p_y) ;
+extern void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar,
+			bool trueDuals) ;
+extern void dy_rowDuals(lpprob_struct *orig_lp, double **p_y,
+			bool trueDuals) ;
 
 extern void dy_colPrimals(lpprob_struct *orig_lp, double **p_x) ;
 extern void dy_rowPrimals(lpprob_struct *orig_lp,

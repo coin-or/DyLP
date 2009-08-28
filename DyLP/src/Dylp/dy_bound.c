@@ -711,9 +711,9 @@ int dy_activateBndCons (consys_struct *orig_sys)
 /* Routines to bound an unbounded dual problem. */
 
 
-static int type1var(consys_struct *orig_sys,
-		    int xindx, int diri, int oxkndx, flags xkstatus,
-		    double abarik, double cbark)
+static int type1var (consys_struct *orig_sys,
+		     int xindx, int diri, int oxkndx, flags xkstatus,
+		     double abarik, double cbark)
 /*
   This routine evaluates x<k> to see if it qualifies as a type 1 variable.
   A type 1 variable will bound the dual problem (its associated dual can be

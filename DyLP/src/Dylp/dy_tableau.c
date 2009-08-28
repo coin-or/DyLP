@@ -807,7 +807,7 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
   system.
 
   In particular, note that dy_origvars and dy_origcons may well be attached to
-  the scaled local copy of the original system. The WILL NOT be updated by
+  the scaled local copy of the original system. They WILL NOT be updated by
   changes to the client's unscaled copy.
 
   Parameters:
@@ -892,8 +892,8 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
 # endif
 
 /*
-  For an active constraint, we can retrieve the row as e<i> inv(B). But, we
-  really have the scaled basis inverse inv(S) inv(B) inv(R).  Hence it's
+  For an active constraint, we can retrieve the row as e<i>inv(B). But, we
+  really have the scaled basis inverse inv(S)inv(B)inv(R).  Hence it's
   convenient to use a vector with S<i> in place of a unit coefficient to
   cancel the leading scale factor. We have to be careful to get the right
   scale factor --- the column scale factor for the logical for constraint i
@@ -1042,13 +1042,18 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 { int m_orig,n_orig,j_orig ;
   int i,j,j_bpos ;
 
-  bool active,dologicals ;
+  bool active,dologicals,retval ;
 
   double *betai,*abari ;
 
   consys_struct *orig_sys ;
 
   char *rtnnme = "dy_betai" ;
+
+# ifndef DYLP_NDEBUG
+  int save_printlvl = dy_opts->print.tableau ;
+  int v ;
+# endif
 
 # if DYLP_PARANOIA > 0
   if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
@@ -1103,7 +1108,14 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
   Call dy_betai to get row beta<i> of the basis inverse.
 */
   betai = *p_betai ;
-  if (dy_betai(orig_lp,tgt_i,&betai) == FALSE)
+# ifndef DYLP_NDEBUG
+  dy_opts->print.tableau = 0 ;
+  retval = dy_betai(orig_lp,tgt_i,&betai) ;
+  dy_opts->print.tableau = save_printlvl ;
+# else
+  retval = dy_betai(orig_lp,tgt_i,&betai) ;
+# endif
+  if (retval == FALSE)
   { errmsg(952,rtnnme,orig_sys->nme,"row",tgt_i,"constraint",
 	   consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
     if (betai != NULL) FREE(betai) ;
@@ -1135,6 +1147,20 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 	{ abari[j_orig] = 0.0 ; }
 	continue ; } }
     abari[j_orig] = consys_dotcol(orig_sys,j_orig,betai) ; }
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.tableau >= 4)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  nonzeros:") ;
+    v = 0 ;
+    for (j_orig = 1 ; j_orig <= n_orig ; j_orig++)
+    { if (abari[j_orig] != 0)
+      { dyio_outfmt(dy_logchn,dy_gtxecho," (%s %d %g)",
+		    consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig,
+		    abari[j_orig]) ;
+	v++ ;
+	if (v%3 == 0) dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t\t  ") ; } } }
+# endif
+
 /*
   Did the client ask for the columns corresponding to logicals? If so, hand
   back beta<i>. Otherwise, we're done with it.
@@ -1143,6 +1169,7 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
   { *p_betai = betai ; }
   else
   { if (betai != NULL) FREE(betai) ; }
+
 /*
   That's it, we're done.
 */
