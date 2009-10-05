@@ -201,7 +201,7 @@ void dy_colDuals (lpprob_struct *orig_lp, double **p_cbar, bool trueDuals)
   { cbar = *p_cbar ;
     memset(cbar,0,(n_orig+1)*sizeof(double)) ; }
   else
-  { cbar = (double *) CALLOC((n+1),sizeof(double)) ; }
+  { cbar = (double *) CALLOC((n_orig+1),sizeof(double)) ; }
 /*
   Make a vector of duals that matches orig_sys, for efficient pricing of
   inactive columns.
@@ -524,8 +524,11 @@ void dy_rowPrimals (lpprob_struct *orig_lp, double **p_xB, int **p_indB)
   logicals, recall that S<i> = 1/R<i>.
 
   By construction, the basic variable for inactive constraints is the logical
-  for the constraint. Obtaining beta<i> for an inactive row and calculating
-  dot(beta<i>,b) is a lot of work. Use b<i> - dot(a<i>,x) instead.
+  for the constraint. Generating beta<i> = [ -a<B,i>inv(B) 1 ] for an inactive
+  row, correcting b<i> for nonbasic, nonzero variables (active and inactive),
+  and calculating dot(beta<i>,b) is a lot of work. Much easier to call
+  colPrimals for the complete solution vector and calculate b<i> - dot(a<i>,x)
+  in the original system.
 
   Parameters:
     orig_lp:	the original lp problem
@@ -536,7 +539,9 @@ void dy_rowPrimals (lpprob_struct *orig_lp, double **p_xB, int **p_indB)
     p_indB:	(i) vector to hold the indices of the primal basic variables;
 		    if NULL, a vector of appropriate size will be allocated
 		(o) indices of the primal basic variables, unscaled, in the
-		    original system frame of reference
+		    original system frame of reference; indices of logical
+		    variables are encoded as the negative of the constraint
+		    index
 
   Returns: undefined
 */
@@ -600,9 +605,9 @@ void dy_rowPrimals (lpprob_struct *orig_lp, double **p_xB, int **p_indB)
   else
   { indB = (int *) CALLOC((m_orig+1),sizeof(int)) ; }
 /*
-  Walk the columns of the original system. For each constraint that's active,
-  we can obtain the value from dy_xbasic. For each inactive constraint, we
-  need to calculate the value of the logical.
+  Walk the constraints of the original system. For each constraint that's
+  active, we can obtain the value from dy_xbasic. For each inactive constraint,
+  we need to calculate the value of the logical.
 
   Indices of logicals are recorded in indB as the negative of the constraint
   index.

@@ -842,7 +842,7 @@ dyret_enum dy_accchk (flags *checks)
 	for (xkndx = 1 ; xkndx <= dy_sys->varcnt ; xkndx++)
 	  if (!withinbnds(dy_sys->vlb[xkndx],dy_x[xkndx],dy_sys->vub[xkndx]))
 	  { dyio_outfmt(dy_logchn,dy_gtxecho,
-		        "\n\t%s (%d) = %g, status %s, lb = %g, ub = %g,",
+		        "\n\t%s (%d) = %g, status %s, lb = %g, ub = %g, ",
 		        consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,
 			dy_x[xkndx],dy_prtvstat(dy_status[xkndx]),
 			dy_sys->vlb[xkndx],dy_sys->vub[xkndx]) ;

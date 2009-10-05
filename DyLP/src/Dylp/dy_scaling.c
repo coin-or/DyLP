@@ -38,16 +38,15 @@
   for instance), all bets are off.
 
   The net effect is that the rest of dylp is completely unaware that scaling
-  has ever happened. In particular, logical variables are inserted with the
-  coefficient +/- 1.0, as appropriate. This isn't an issue for the rest of
-  dylp, but it *is* an issue if we ever have to supply unscaled results to
-  the outside world (e.g., the routines that generate a solution, or the
-  tableau routines). To make this work, if column i represents the logical
-  for constraint i, colscale[i] must be 1/rowscale[i]. The colscale array is
-  not physically lengthened to make this happen.  When processing columns,
-  it's necessary to check whether the column requested corresponds to a
-  logical and scale accordingly.
-
+  has ever happened. In particular, all logical variables are inserted with
+  the coefficient +1.0. This isn't an issue for the rest of dylp, but it *is*
+  an issue if we ever have to supply unscaled results to the outside world
+  (e.g., the routines that generate a solution, or the tableau routines). To
+  make this work, if column i represents the logical for constraint i,
+  colscale[i] must be 1/rowscale[i]. The colscale array is not physically
+  lengthened to make this happen.  When processing columns, it's necessary to
+  check whether the column requested corresponds to a logical and scale
+  accordingly.
 */
 
 

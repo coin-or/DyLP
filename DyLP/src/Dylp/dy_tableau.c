@@ -1034,7 +1034,7 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 		(o) e<i> inv(B) A,  unscaled
     p_betai:	(i) vector to hold beta<i>; if NULL, one will be allocated;
 		if non-NULL, will be cleared to zero.
-		(o) e<i> inv(B) I,  unscaled
+		(o) e<i> inv(B),  unscaled
 
   Returns: TRUE if the calculation is successful, FALSE otherwise.
 */
@@ -1048,7 +1048,7 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 
   consys_struct *orig_sys ;
 
-  char *rtnnme = "dy_betai" ;
+  char *rtnnme = "dy_abari" ;
 
 # ifndef DYLP_NDEBUG
   int save_printlvl = dy_opts->print.tableau ;
