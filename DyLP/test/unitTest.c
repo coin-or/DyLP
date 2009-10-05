@@ -293,8 +293,17 @@ int main (int argc, char **argv)
     main_lpopts->finpurge.vars = TRUE ;
     main_lpopts->finpurge.cons = TRUE ;
     main_lpopts->coldbasis = ibLOGICAL ;
-    main_lpopts->scaling = 2 ;
+    main_lpopts->scaling = 0 ;
     main_lpopts->forcecold = TRUE ;
+/*
+    main_lpopts->print.major = 1 ;
+    main_lpopts->print.scaling = 1 ;
+    main_lpopts->print.setup = 6 ;
+    main_lpopts->print.crash = 3 ;
+    main_lpopts->print.conmgmt = 3 ;
+    main_lpopts->print.varmgmt = 3 ;
+    main_lpopts->print.soln = 3 ;
+*/
 /*
   Solve.
 */

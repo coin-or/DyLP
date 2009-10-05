@@ -28,9 +28,10 @@ int dytest_primalRays (int *p_numRays,
 		       lpopts_struct *main_lpopts)
 
 /*
-  This routine checks the primal rays returned by dy_primalRays. For a ray r
-  and a constraint ax <= b, the test is that dot(a,r) <= 0. For a constraint
-  ax >= b, the test is dot(a,r) >= 0.
+  This routine checks the primal rays returned by dy_primalRays. For a ray r,
+  the first test is that dot(c,r) < 0 (remember, dylp minimises). Then, for a
+  constraint ax <= b, we should have dot(a,r) <= 0. For a constraint ax >= b,
+  the test is dot(a,r) >= 0.
 
   It's up to the calling routine to determine if the number of rays is as
   expected. In particular, it's not an error if dy_primalRays returns fewer
@@ -48,7 +49,7 @@ int dytest_primalRays (int *p_numRays,
   Returns: 0 if all rays returned tested as valid rays, error count otherwise.
 */
 
-{ int m,n,i,k ;
+{ int m,n,i,j,k ;
   consys_struct *sys ;
 
   double **rays ;
@@ -95,7 +96,8 @@ int dytest_primalRays (int *p_numRays,
 # endif
 /*
   Now test each ray. Check first that we actually have a nonzero ray, then
-  check dot(a,r) <= 0 (for ax >= b, dot(a,r) >= 0).
+  check dot(c,r) < 0, and finally that dot(a<i>,r) <= 0 for a<i>x <= b<i>
+  (dot(a<i>,r) >= 0 for a<i>x >= b<i>).
 */
   errcnt = 0 ;
   for (k = 0 ; k < rcvRays ; k++)
@@ -110,13 +112,39 @@ int dytest_primalRays (int *p_numRays,
       FREE(rayk) ;
       rays[k] = NULL ;
       continue ; }
+/*
+  Check dot(c,r) < 0.
+*/
+      aidotrayk = 0 ;
+      if (main_lpopts->print.rays >= 5)
+      { dyio_outchr(dy_logchn,dy_gtxecho,'\n') ; }
+      for (j = 1 ; j <= n ; j++)
+      { if (rayk[j] != 0.0)
+	{ aidotrayk += rayk[j]*sys->obj[j] ;
+	  if (main_lpopts->print.rays >= 5)
+	  { dyio_outfmt(dy_logchn,dy_gtxecho," (%s (%d) %g*%g)",
+			consys_nme(sys,'v',j,FALSE,NULL),
+			j,rayk[j],sys->obj[j]) ; } } }
+      if (aidotrayk >= 0)
+      { dyio_outfmt(dy_logchn,dy_gtxecho,
+		    "\n  ERROR: dot(c,ray[%d]) = %g; should be < 0.",
+		    k,aidotrayk) ;
+	errcnt++ ; }
+      else
+      { if (main_lpopts->print.rays >= 2)
+	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n    dot(c,ray[%d]) = %g.",
+		      k,aidotrayk) ; } }
+/*
+  Check dot(a<i>,r) <= 0 or >= 0, as appropriate for the constraint. We need
+  dot(a<i>,r) = 0 for range constraints and equalities.
+*/
     for (i = 1 ; i <= m ; i++)
     { aidotrayk = consys_dotrow(sys,i,rayk) ;
       error = FALSE ;
-      if (sys->ctyp[i] == contypGE)
+      if (sys->ctyp[i] != contypLE)
       { if (aidotrayk < -main_lptols->zero)
 	{ error = TRUE ; } }
-      else
+      if (sys->ctyp[i] != contypGE)
       { if (aidotrayk > main_lptols->zero)
 	{ error = TRUE ; } }
       if (error == TRUE)
@@ -132,10 +160,11 @@ int dytest_primalRays (int *p_numRays,
   FREE(rays) ;
   if (errcnt != 0)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
-	  "\n%s: found %d errors in %d rays testing Ar <= 0.\n",
+	  "\n%s: found %d errors in %d rays testing cr < 0, Ar <= 0.\n",
 	   rtnnme,errcnt,rcvRays) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass Ar <= 0.\n",rtnnme) ; }
+  { dyio_outfmt(dy_logchn,dy_gtxecho,
+		"\n%s: pass cr < 0, Ar <= 0.\n",rtnnme) ; }
 
   return (errcnt) ; }
 
@@ -179,7 +208,7 @@ int dytest_dualRays (int *p_numRays,
   double **rays ;
   int reqRays,rcvRays ;
   double *rayk ;
-  double aidotrayk ;
+  double ajdotrayk ;
 
   bool fullRay ;
 
@@ -240,8 +269,8 @@ int dytest_dualRays (int *p_numRays,
       { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  ERROR: ray %d is NULL.",k) ;
 	errcnt++ ;
 	continue ; }
-      aidotrayk = exvec_1norm(rayk,m) ;
-      if (fabs(aidotrayk) <= 0.0)
+      ajdotrayk = exvec_1norm(rayk,m) ;
+      if (fabs(ajdotrayk) <= 0.0)
       { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  ERROR: ray %d is zero.",k) ;
 	FREE(rayk) ;
 	rays[k] = NULL ;
@@ -273,14 +302,12 @@ int dytest_dualRays (int *p_numRays,
   Check dot(r,b) < 0. For the first m elements, it's just a straightforward
   dot product of ray elements with the rhs values.
 */
-      aidotrayk = 0 ;
-      status = main_lp->status ;
-      x = main_lp->x ;
+      ajdotrayk = 0 ;
       if (main_lpopts->print.rays >= 5)
       { dyio_outchr(dy_logchn,dy_gtxecho,'\n') ; }
       for (i = 1 ; i <= m ; i++)
       { if (rayk[i] != 0.0)
-	{ aidotrayk += rayk[i]*sys->rhs[i] ;
+	{ ajdotrayk += rayk[i]*sys->rhs[i] ;
 	  if (main_lpopts->print.rays >= 5)
 	  { dyio_outfmt(dy_logchn,dy_gtxecho," (%s (%d) %g*%g)",
 			consys_nme(sys,'c',i,FALSE,NULL),
@@ -292,6 +319,8 @@ int dytest_dualRays (int *p_numRays,
   -l<j>.  Check that ray components are zero for variables that are not NBLB,
   NBUB, or NBFX. Serious confusion if it's otherwise, eh?
 */
+      status = main_lp->status ;
+      x = main_lp->x ;
       if (fullRay == TRUE)
       { if (main_lpopts->print.rays >= 5)
 	  dyio_outchr(dy_logchn,dy_gtxecho,'\n') ;
@@ -304,14 +333,14 @@ int dytest_dualRays (int *p_numRays,
 			  consys_nme(sys,'v',j,FALSE,NULL),j,
 			  dy_prtvstat(statj)) ; }
 	    if (flgon(statj,vstatNBUB|vstatNBFX))
-	    { aidotrayk += rayk[m+j]*sys->vub[j] ;
+	    { ajdotrayk += rayk[m+j]*sys->vub[j] ;
 	      if (main_lpopts->print.rays >= 5 &&
 		  (sys->vub[j] != 0.0 || rayk[m+j] != 0))
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*%g)",
 			  rayk[m+j],sys->vub[j]) ; } }
 	    else
 	    if (flgon(statj,vstatNBLB))
-	    { aidotrayk -= rayk[m+j]*sys->vlb[j] ;
+	    { ajdotrayk -= rayk[m+j]*sys->vlb[j] ;
 	      if (main_lpopts->print.rays >= 5 &&
 		  (sys->vlb[j] != 0.0 || rayk[m+j] != 0))
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*(-%g))",
@@ -339,13 +368,13 @@ int dytest_dualRays (int *p_numRays,
 			  consys_nme(sys,'v',j,FALSE,NULL),j,
 			  dy_prtvstat(vstatB)) ; }
 	    if (xj > sys->vub[j])
-	    { aidotrayk += rayk[m+j]*sys->vub[j] ;
+	    { ajdotrayk += rayk[m+j]*sys->vub[j] ;
 	      if (main_lpopts->print.rays >= 5)
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*%g)",
 			  rayk[m+j],sys->vub[j]) ; } }
 	    else
 	    if (xj < sys->vlb[j])
-	    { aidotrayk -= rayk[m+j]*sys->vlb[j] ;
+	    { ajdotrayk -= rayk[m+j]*sys->vlb[j] ;
 	      if (main_lpopts->print.rays >= 5)
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*(-%g))",
 			  rayk[m+j],sys->vlb[j]) ; } }
@@ -373,15 +402,15 @@ int dytest_dualRays (int *p_numRays,
   Ok, we've added the contribution of the row and column duals. What's the
   result?
 */
-      if (aidotrayk >= 0)
+      if (ajdotrayk >= 0)
       { dyio_outfmt(dy_logchn,dy_gtxecho,
 		    "\n  ERROR: dot(ray[%d],b) = %g; should be < 0.",
-		    k,aidotrayk) ;
+		    k,ajdotrayk) ;
 	errcnt++ ; }
       else
       { if (main_lpopts->print.rays >= 2)
 	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n    dot(ray[%d],b) = %g.",
-		      k,aidotrayk) ; } }
+		      k,ajdotrayk) ; } }
 /*
   Now test dot(r,a<j>) > 0. Again, it's straightforward for the explicit
   component.  Then, look at the entry in the full ray which matches the
@@ -392,10 +421,10 @@ int dytest_dualRays (int *p_numRays,
   to redo the ray coefficient consistency tests.
 */
       for (j = 1 ; j <= n ; j++)
-      { aidotrayk = consys_dotcol(sys,j,rayk) ;
+      { ajdotrayk = consys_dotcol(sys,j,rayk) ;
 	if (main_lpopts->print.rays >= 5)
 	{ dyio_outfmt(dy_logchn,dy_gtxecho,
-		      "\n\t  dotcol = %g",aidotrayk) ; }
+		      "\n\t  dotcol = %g",ajdotrayk) ; }
 	if (fullRay == TRUE)
 	{ statj = status[j] ;
 	  if (((int) statj) > 0)
@@ -404,13 +433,13 @@ int dytest_dualRays (int *p_numRays,
 			consys_nme(sys,'v',j,FALSE,NULL),j,
 			dy_prtvstat(statj)) ; }
 	    if (flgon(statj,vstatNBUB|vstatNBFX))
-	    { aidotrayk += rayk[m+j] ;
+	    { ajdotrayk += rayk[m+j] ;
 	      if (main_lpopts->print.rays >= 5)
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*%g)",
 			    rayk[m+j],1.0) ; } }
 	    else
 	    if (flgon(statj,vstatNBLB))
-	    { aidotrayk -= rayk[m+j] ;
+	    { ajdotrayk -= rayk[m+j] ;
 	      if (main_lpopts->print.rays >= 5)
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*(%g))",
 			    rayk[m+j],-1.0) ; } } }
@@ -422,26 +451,26 @@ int dytest_dualRays (int *p_numRays,
 			  consys_nme(sys,'v',j,FALSE,NULL),j,
 			  dy_prtvstat(vstatB)) ; }
 	    if (xj > sys->vub[j])
-	    { aidotrayk += rayk[m+j] ;
+	    { ajdotrayk += rayk[m+j] ;
 	      if (main_lpopts->print.rays >= 5)
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*%g)",
 			    rayk[m+j],1.0) ; } }
 	    else
 	    if (xj < sys->vlb[j])
-	    { aidotrayk -= rayk[m+j] ;
+	    { ajdotrayk -= rayk[m+j] ;
 	      if (main_lpopts->print.rays >= 5)
 	      { dyio_outfmt(dy_logchn,dy_gtxecho," %g*(%g))",
 			    rayk[m+j],-1.0) ; } } } }
-	if (aidotrayk < -main_lptols->zero)
+	if (ajdotrayk < -main_lptols->zero)
 	{ dyio_outfmt(dy_logchn,dy_gtxecho,
 		"\n  ERROR: dot(ray<%d>, a<%s (%d)>) = %g ; should be >= 0.",
-		k,consys_nme(sys,'v',j,FALSE,NULL),j,aidotrayk) ;
+		k,consys_nme(sys,'v',j,FALSE,NULL),j,ajdotrayk) ;
 	  errcnt++ ; }
 	else
 	{ if (main_lpopts->print.rays >= 3)
 	  { dyio_outfmt(dy_logchn,dy_gtxecho,
 		      "\n      dot(ray<%d>, a<%s (%d)>) = %g.",
-		      k,consys_nme(sys,'v',j,FALSE,NULL),j,aidotrayk) ; } } }
+		      k,consys_nme(sys,'v',j,FALSE,NULL),j,ajdotrayk) ; } } }
       FREE(rayk) ;
       rays[k] = NULL ; } }
 /*
