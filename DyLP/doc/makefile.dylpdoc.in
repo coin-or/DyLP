@@ -39,6 +39,7 @@ DYLPSRC = $(SRCDIR)/accuracy.tex \
 	$(SRCDIR)/pricing.tex \
 	$(SRCDIR)/primal.tex \
 	$(SRCDIR)/scaling.tex \
+	$(SRCDIR)/solutions.tex \
 	$(SRCDIR)/startup.tex \
 	$(SRCDIR)/statistics.tex \
 	$(SRCDIR)/updateformulae.tex \
@@ -112,3 +113,6 @@ clean:
 	@rm -f $(patsubst $(SRCDIR)/%.tex,%.log,$(DYLPSRC) $(DYLPFIGSRC))
 	@rm -f $(patsubst %.tex,%.bbl,dylp.tex dylpfigs.tex)
 	@rm -f $(patsubst %.tex,%.blg,dylp.tex dylpfigs.tex)
+	@rm -f $(patsubst %.tex,%.toc,dylp.tex)
+	@rm -f $(patsubst %.tex,%.lof,dylp.tex)
+	@rm -f $(patsubst %.tex,%.lot,dylp.tex)

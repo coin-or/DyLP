@@ -2,10 +2,16 @@
 \label{sec:DylpInterface}
 
 This section describes the native interface for \dylp.
-In addition to the main routine, \pgmid{dylp}, various pricing, printing, and
-utility routines are provided.
-These routines, and the major interface structures, are described briefly
-in this section.
+In addition to the main routine, \pgmid{dylp}, routines are provided
+for access to the solution, including rays and tableau vectors; for pricing; 
+for printing; and for a few miscellaneous services.
+Sections~\ref{sec:SimplexSolver}~--~\ref{sec:StartUpShutdownSummary} document
+the basic use of \dylp.
+Sections~\ref{sec:SolutionRoutines}~--~\ref{sec:UtilityRoutines} describe the
+routines used to access the solution, and the routines provided for pricing,
+printing, and miscellaneous services.
+Sections ~\ref{sec:LPProbSpec}~--~\ref{sec:DylpTolerances} describe the
+parameters, options, and tolerances provided by \dylp.
 For additional details on how to use \dylp, consult the comments
 in the source, particularly in \coderef{dylp.h}{} and \coderef{dy_setup.c}{},
 and the example drivers supplied in the distribution.
@@ -14,12 +20,12 @@ and the example drivers supplied in the distribution.
 Many individuals will find it more convenient to use \dylp as an
 embedded component within the software infrastructure provided by
 the \coin project \cite{COIN}.
-For details of the \textsc{Coin osi} layer for \dylp, OsiDylp, please consult
+For details of the \coin OSI layer for \dylp, OsiDylp, please consult
 the \textsc{Coin}
 documentation.
-An added advantage of this approach is that the \textsc{Coin osi} API provides
+An added advantage of this approach is that the OSI API provides
 a solver-independent interface.
-The underlying solver can be easily changed because the \textsc{osi} layer
+The underlying solver can be easily changed because the OSI layer
 insulates
 the client from the details of the solver's native interface.
 
@@ -34,7 +40,7 @@ On occasion, it must return values for logical variables; in such cases,
 it will use the negative of the index of the associated constraint.
 
 \subsection{Simplex Solver}
-\label{SimplexSolver}
+\label{sec:SimplexSolver}
 
 \dylp is called as
 
@@ -44,18 +50,18 @@ it will use the negative of the index of the associated constraint.
 	{lpprob_struct *orig_lp, lpopts_struct *orig_opts,
          lptols_struct *orig_tols, \\ lpstats_struct *orig_stats}
 
-The \pgmid{orig_lp} structure (\secref{LPProbSpec}) specifies the constraint
+The \pgmid{orig_lp} structure (\secref{sec:LPProbSpec}) specifies the constraint
 system, control options, and (optionally) an initial basis and status vector
 and an initial active variable set.
 It is used to return the final status, primal and dual variable values,
 basis, and status vector, and (optionally) the active variables.
 
-The \pgmid{orig_opts} structure (\secref{DylpOptions}) specifies option
+The \pgmid{orig_opts} structure (\secref{sec:DylpOptions}) specifies option
 settings to control \dylp's actions.
-The \pgmid{orig_tols} structure (\secref{DylpTolerances}) specifies
+The \pgmid{orig_tols} structure (\secref{sec:DylpTolerances}) specifies
 numeric tolerances and related control information.
 
-The optional structure \pgmid{orig_stats} (\secref{DylpStatistics}) can
+The optional structure \pgmid{orig_stats} (\secref{sec:DylpStatistics}) can
 be used (in conjunction with
 conditionally compiled code) to return detailed statistics about \dylp's
 actions.
@@ -251,6 +257,7 @@ the i/o package.
 At termination, the i/o package should be shut down first.
 
 \subsection{Summary of \dylp Startup and Shutdown}
+\label{sec:StartUpShutdownSummary}
 
 Pulling together the information from the previous sections, the sequence of
 actions required to use \dylp is listed below.
@@ -293,14 +300,226 @@ actions required to use \dylp is listed below.
 \end{enumerate}
 Consult the sample drivers provided with \dylp for example implementations.
 
+\subsection{Solution, Ray, and Tableau Routines}
+\label{sec:SolutionRoutines}
+
+\dylp's natural inclination is to return a compact version of the basis
+and the primal and dual solutions
+within the \pgmid{lpprob_struct} passed as the \pgmid{orig_lp} parameter to
+\pgmid{dylp}.
+This is not always convenient or sufficient for the client, so \dylp also
+provides a variety of routines to return individual components of the
+solution, rays (when present), and tableau vectors.
+
+\subheading[l]{Solution Routines}
+
+The following routines return the values of primal and dual variables and the
+status of primal variables.
+In all cases, if the client does not provide a vector for the result, a vector
+will be allocated.
+
+\begin{subrdoc}
+  \item
+  \subrhdr{void dy_colDuals}%
+	  {lpprob_struct *orig_lp, double **p_cbar, bool trueDuals}
+
+  Returns the values of the dual variables associated with nonbasic primal
+  variables, $\overline{c}^N = c^N - c^B B^{\,-1}N$, in column order.
+  Put another way, the dual variables associated with
+  architecturals at bound (tight implicit bound constraints) and 
+  logicals at bound (tight explicit constraints).
+  If \pgmid{trueDuals} is false, the sign convention is that of the
+  minimisation primal problem with implicit bounds solved by \dylp,
+  hence the vector returned is precisely the reduced costs.
+  If \pgmid{trueDuals} is true, the sign convention is that of the true
+  dual problem with all implicit bound constraints made explicit, hence
+  reduced costs corresponding to primal variables nonbasic at upper bound are
+  negated to get the correct value for the dual variable.
+
+  \item
+  \subrhdr{void dy_rowDuals}%
+	  {lpprob_struct *orig_lp, double **p_y, bool trueDuals}
+
+  Returns the values of the dual variables associated with the constraints,
+  $y = c^B B^{\,-1}$, in row order.
+  If \pgmid{trueDuals} is false, the sign convention is that of the
+  minimisation primal problem solved by \dylp.
+  If \pgmid{trueDuals} is true, the sign convention is that of the true
+  dual problem.
+  In either case, dual variables associated with `$\geq$' constraints are
+  negated.
+  (This convention is adopted so that $yA$ `just works' on a constraint
+  system with a mix of `$\leq$' and `$\geq$' constraints.)
+
+  \item
+  \subrhdr{void dy_colPrimals}%
+	  {lpprob_struct *orig_lp, double **p_x}
+
+  Returns the values of all primal variables, in column order.
+  (See also \pgmid{dy_expandxopt}.)
+
+  \item
+  \subrhdr{void dy_rowPrimals}%
+	  {lpprob_struct *orig_lp, double **p_xB, int **p_indB}
+
+  Returns the values of the basic primal variables, in row (basis) order.
+  The indices of the variables are returned in \pgmid{p_indB}.
+  The indices of basic logical variables are encoded as the negative of the
+  index of the associated constraint.
+
+  \item
+  \subrhdr{void dy_logPrimals}%
+	  {lpprob_struct *orig_lp, double **p_logx}
+
+  Returns the values of the primal logical variables, in row order.
+
+  \item
+  \subrhdr{void dy_colStatus}%
+	  {lpprob_struct *orig_lp, flags **p_colstat}
+
+  Returns the status of all primal variables, in column order.
+  Note that this routine returns the full range of status codes used by
+  \dylp.
+
+  \item
+  \subrhdr{void dy_logStatus}%
+	  {lpprob_struct *orig_lp, flags **p_logstat}
+
+  Returns the status of all logical variables, in row order.
+  Note that this routine returns the full range of status codes used by
+  \dylp.
+
+  \item
+  \subrhdr{bool dy_expandxopt}%
+	  {lpprob_struct *lp, double **p_xopt}
+
+  This routine examines the \pgmid{lp} data structure and assembles the values
+  of the basic and nonbasic primal variables into a single vector.
+  (See also \pgmid{dy_colPrimals}.)
+\end{subrdoc}
+
+\subheading[l]{Ray Routines}
+
+This pair of routines return the rays emanating from the current primal or
+dual extreme point, when available, up to the number specified by the
+client.
+The number of rays returned will be less than or equal to the number
+requested.
+\dylp always returns a status code in the context of the primal problem.
+An indication of primal unbounded guarantees the existence of primal rays.
+An indication of primal infeasibility will \textit{almost always} indicate dual
+unboundedness, but keep in mind that it is possible for a problem to be both
+primal and dual infeasible.
+
+\begin{subrdoc}
+  \item
+  \subrhdr{bool dy_primalRays}%
+	  {lpprob_struct *orig_lp, int *p_numRays, double ***p_rays}
+
+  Returns all primal rays emanating from the current extreme point, up to the
+  limit specified by \pgmid{p_numRays}.
+  On return, \pgmid{p_numRays} will be set to the number of rays actually
+  returned, and each entry in \pgmid{p_rays} will point to a vector containing
+  one ray with components in column order.
+  If no vector is supplied for \pgmid{p_rays}, one will be allocated.
+  Do not supply vectors for individual rays, these are allocated as needed.
+
+  This routine should only be called when \dylp has found the problem to be
+  primal unbounded.
+  If the problem was solved to optimality or found to be primal infeasible,
+  a warning will be issued but the routine will still return true.
+  If the routine is called for any other result, it will print an error
+  message and return false.
+
+  \item
+  \subrhdr{bool dy_dualRays}%
+	  {lpprob_struct *orig_lp, bool fullRay, int *p_numRays,
+	   double ***p_rays, \\ bool trueDuals}
+
+  Returns all dual rays emanating from the current extreme point, up to the
+  limit specified by \pgmid{p_numRays}.
+  On return, \pgmid{p_numRays} will be set to the number of rays actually
+  returned.
+
+  If \pgmid{fullRay} is false, each ray is returned as an $m$-vector
+  containing only the components associated with the row duals, in row order.
+  If \pgmid{fullRay} is true, each ray is returned as an $(m+n$)-vector.
+  The first $m$ entries contain the components associated
+  with the row duals.
+  The remaining $n$ entries contain the components associated with nonbasic
+  primal variables (\ie, the ray components associated with tight
+  implicit bounds).
+  If no vector is supplied for \pgmid{p_rays}, one will be allocated.
+  Do not supply vectors for individual rays, these are allocated as needed.
+
+  If \pgmid{trueDuals} is false, the sign convention used is appropriate for a
+  minimisation primal with implicit bounds (matching the values returned by
+  \pgmid{dy_rowDuals} and \pgmid{dy_colDuals}).
+  If \pgmid{trueDuals} is true, the sign convention used is appropriate for the
+  true dual problem with all implicit bound constraints made explicit.
+  In either case, duals associated with explicit `$\geq$' constraints are
+  negated.
+
+  This routine should only be called when \dylp has returned an indication
+  that the problem is primal infeasible.
+  As mentioned above, this will almost always correspond to dual unboundedness.
+  If the problem was solved to optimality or found to be primal unbounded
+  (hence dual infeasible),
+  a warning will be issued but the routine will still return true.
+  If the routine is called for any other result, it will print an error
+  message and return false.
+  
+\end{subrdoc}
+
+
+\subheading[l]{Tableau Routines}
+
+These four routines return rows and columns of the basis inverse and rows
+and columns of the constraint matrix multiplied by the basis inverse.
+
+\begin{subrdoc}
+  \item
+  \subrhdr{bool dy_abarj}%
+	  {lpprob_struct *orig_lp, int tgt_j, double **p_abarj}
+
+  Returns $\overline{a}_j = B^{\,-1}a_j$ for a column $a_j$ of the constraint
+  matrix.
+
+  \item
+  \subrhdr{bool dy_betaj}%
+	  {lpprob_struct *orig_lp, int tgt_j, double **p_betaj}
+
+  Returns column $j$ of the basis inverse, $\overline{\beta}_j = B^{\,-1}e_j$.
+
+  \item
+  \subrhdr{bool dy_abari}%
+	  {lpprob_struct *orig_lp, int tgt_i, double **p_abari,
+	   double **p_betai}
+
+  Returns $\overline{a}_i = a_i B^{\,-1}$ for a row $a_i$ of the constraint
+  matrix.
+
+  Since the routine actually calculates $\beta_i A$, it can return
+  $\beta_i$ at no extra computational cost.
+  If \pgmid{p_betai} is provided, it will be loaded with $\beta_i$ on return.
+
+  \item
+  \subrhdr{bool dy_betai}%
+	  {lpprob_struct *orig_lp, int tgt_i, double **p_betai}
+
+  Returns row $i$ of the basis inverse, $\overline{\beta}_i = e_i B^{\,-1}$.
+\end{subrdoc}
+
 \subsection{Pricing Routines}
-\label{PricingRoutines}
+\label{sec:PricingRoutines}
 
 \dylp provides two additional routines which are useful in a mixed-integer
 linear programming environment.
-\pgmid{dy_pricenbvars} will calculate the reduced cost for nonbasic variables
-and \pgmid{dy_pricedualpiv} will calculate the cost of a dual pivot
-(a generalised penalty calculation).
+\pgmid{dy_pricenbvars} will calculate the reduced cost for a specified set of
+nonbasic variables
+and \pgmid{dy_pricedualpiv} will calculate the cost of the first dual pivot
+(a generalised penalty calculation) given a specified set of candidate nonbasic
+variables.
 
 \begin{subrdoc}
   \item
@@ -379,7 +598,7 @@ and \pgmid{dy_pricedualpiv} will calculate the cost of a dual pivot
 \end{subrdoc}
 
 \subsection{Print Routines}
-\label{PrintRoutines}
+\label{sec:PrintRoutines}
 
 There are three routines to supply strings for \dylp status, phase, and return
 codes, a routine to print the compact solution returned by \pgmid{dylp},
@@ -430,9 +649,9 @@ and a routine to print the contents of the statistics structure.
 \end{subrdoc}
 
 \subsection{Utility Routines}
-\label{UtilityRoutines}
+\label{sec:UtilityRoutines}
 
-An eclectic trio of additional interface routines.
+And a final pair of utility routines.
 
 \begin{subrdoc}
   \item
@@ -446,14 +665,6 @@ An eclectic trio of additional interface routines.
   parameters.
 
   \item
-  \subrhdr{bool dy_expandxopt}%
-	  {lpprob_struct *lp, double **p_xopt}
-
-  This routine will expand the compact form of the solution in \pgmid{lp}
-  into a single vector \pgmid{p_xopt}.
-  The vector will be allocated if one is not supplied as a parameter.
-
-  \item
   \subrhdr{dy_freesoln}%
 	  {lpprob_struct *lpprob}
 
@@ -464,7 +675,7 @@ An eclectic trio of additional interface routines.
 
 
 \subsection{The LP Problem Specification}
-\label{LPProbSpec}
+\label{sec:LPProbSpec}
 
 The structure \pgmid{lpprob_struct *orig_lp} is used to define the LP
 problem to \dylp and to return the answer to the client.
@@ -638,7 +849,7 @@ the file \coderef{dylp.h}{}.
 
 
 \subsection{\dylp Options}
-\label{DylpOptions}
+\label{sec:DylpOptions}
 
 \dylp is intended to be a flexible testbed, and as such has a large number of
 options.
@@ -1227,7 +1438,7 @@ The remainder of the entry describes the action of the option.
 \end{codedoc}
 
 \subsection{\dylp Tolerances}
-\label{DylpTolerances}
+\label{sec:DylpTolerances}
 
 \dylp has a number of numeric tolerances and related control information
 which are used in equality and accuracy checks and associated algorithms
@@ -1293,7 +1504,8 @@ interrelationships between the tolerances.
   Default: $1.0 \times 10^{s-4}$,
       where $s = \max (0, \floor{\log \pgmid{archccnt} + .5}-2$
 
-  The dual accuracy check tolerance, as described in \secref{AccuracyChecks}.
+  The dual accuracy check tolerance, as described in
+  \secref{sec:AccuracyChecks}.
   The adjustment by $s$ progressively loosens the accuracy check tolerance
   for systems with more than $10^{2.5} \approx 300$ dual variables.
   In english, when there are many dual variables, accumulating numerical
@@ -1303,7 +1515,7 @@ interrelationships between the tolerances.
   \item\varhdr{dfeas}
 
   The dual feasibility check tolerance, dynamically calculated using
-  \pgmid{cost} as the base value, as described in \secref{AccuracyChecks}.
+  \pgmid{cost} as the base value, as described in \secref{sec:AccuracyChecks}.
 
   \item\varhdr{dfeas_scale}
   \kw{lpcontrol dfeas} \te{double} \kw{;}
@@ -1352,7 +1564,8 @@ interrelationships between the tolerances.
   Default: $1.0 \times 10^{s-5}$,
       where $s = \max (0, \floor{\log \pgmid{archvcnt} + .5}-2$
 
-  The primal accuracy check tolerance, as described in \secref{AccuracyChecks}.
+  The primal accuracy check tolerance, as described in
+  \secref{sec:AccuracyChecks}.
   The adjustment by $s$ progressively loosens the accuracy check tolerance
   for systems with more than $10^{2.5} \approx 300$ variables.
   In english, when there are many variables, accumulating numerical inaccuracy
@@ -1362,7 +1575,7 @@ interrelationships between the tolerances.
   \item\varhdr{pfeas}
 
   The primal feasibility check tolerance, dynamically calculated using
-  \pgmid{zero} as the base value, as described in \secref{AccuracyChecks}.
+  \pgmid{zero} as the base value, as described in \secref{sec:AccuracyChecks}.
 
   \item\varhdr{pfeas_scale}
   \kw{lpcontrol pfeas} \te{double} \kw{;}
@@ -1371,7 +1584,7 @@ interrelationships between the tolerances.
       where $s = \max (0, \floor{\log \pgmid{archvcnt} + .5}-2$
 
   A decoupling multiplier used to adjust the separation of \pgmid{pfeas}
-  and \pgmid{zero} as described in \secref{AccuracyChecks}.
+  and \pgmid{zero} as described in \secref{sec:AccuracyChecks}.
   This multiplier may be increased if the constraint system contains many
   variables or if the constraint system is scaled.
 

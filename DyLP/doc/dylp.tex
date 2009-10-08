@@ -6,7 +6,7 @@
 \usepackage{loumath}
 \usepackage{codedocn}
 
-%\newcommand{\mypath}{/cs/mitacs1/lou/Bonsai/Doc/Dylp.Coin090412}
+%\newcommand{\mypath}{/cs/mitacs1/lou/Bonsai/Doc/Dylp.Coin091002}
 \input{dylpabsdir}
 \newcommand{\figures}{\mypath/Figures}
 
@@ -16,6 +16,7 @@
 \newcommand{\glpk}{GLPK\xspace}
 \newcommand{\consys}{\textsc{consys}\xspace}
 \newcommand{\dylp}{\textsc{dylp}\xspace}
+\newcommand{\Dylp}{\textsc{Dylp}\xspace}
 \newcommand{\bonsaiG}{\textbf{bonsaiG}\xspace}
 \newcommand{\coin}{\textsc{Coin-OR}\xspace}
 
@@ -27,10 +28,41 @@
 \renewcommand{\topfraction}{.9}
 \renewcommand{\bottomfraction}{\topfraction}
 
+\makeatletter
+
+% numberline amounts to \hbox to \@tempdima {box contents}. This change
+% will set the section number (#1) right-justified, with a bit more space
+% before the section title. See texmf-dist/tex/latex/base/latex.ltx.
+
+\renewcommand{\numberline}[1]{\hb@xt@\@tempdima{\hfil#1\hspace{1.5ex}}}
+
+% In order to accommodate the extra space for numberline, we have to go in
+% and change the space for l@section and l@subsection. (Don't need
+% l@subsubsection so far, but it's here if needed.) See texmf-dist/tex/latex/
+% base/article.cls and Sec. 2.3.2 in the Latex Companion, 2e.
+
+\renewcommand*{\l@section}[2]{%
+  \ifnum \c@tocdepth >\z@
+    \addpenalty\@secpenalty
+    \addvspace{1.0em \@plus\p@}%
+    \setlength\@tempdima{3.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode \bfseries
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      #1\nobreak\hfil \nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+    \endgroup
+  \fi}
+\renewcommand*{\l@subsection}{\@dottedtocline{2}{3.5em}{3.5em}}
+\renewcommand*{\l@subsubsection}{\@dottedtocline{3}{3.8em}{3.2em}}
+\makeatother
+
 
 \title{\bfseries \dylp: a dynamic LP code}
 \author{Lou Hafer}
-\date{December, 2005}
+\date{October, 2009}
 
 
 \begin{document}
@@ -44,7 +76,7 @@
 Copyright (C) 2005, 2006, 2007, 2008, 2009 Lou Hafer
 
 \noindent
-This document is also available as SFU-CMPT TR 2005-18.
+An earlier version of this document is available as SFU-CMPT TR 2005-18.
 
 \noindent
 All rights reserved. This documentation is made available under the terms of
@@ -64,6 +96,13 @@ using dual simplex to reoptimise after updating the constraint set and primal
 simplex to reoptimise after updating the variable set.
 \end{abstract}
 
+\tableofcontents
+
+\pagebreak
+
+\listoffigures
+\listoftables
+
 \include{intro}
 \include{notation}
 \include{updateformulae}
@@ -73,6 +112,7 @@ simplex to reoptimise after updating the variable set.
 \include{lpbasis}
 \include{accuracy}
 \include{scaling}
+\include{solutions}
 \include{startup}
 \include{dynamic}
 \include{dual}

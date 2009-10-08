@@ -38,22 +38,25 @@ slack variables, and partitioned as
 \begin{bmatrix} c^B & 0 & c^N & 0 \end{bmatrix}
 \end{math}.
 The basis inverse will be 
-\begin{equation*}
-B^{\,-1} = \begin{bmatrix}
-	     (B^t)^{-1} & 0 \\
-	     -B^l(B^t)^{-1} & I^l
-	    \end{bmatrix}.
-\end{equation*}
+\begin{equation}
+\inv{B} = \begin{bmatrix}
+	     \inv[0]{(B^t)} & 0 \\
+	     -B^l\inv[0]{(B^t)} & I^l
+	    \end{bmatrix}
+	    \label{Eqn:PrimalBasisInverse}
+\end{equation}
 We then have
 \begin{equation}
 \begin{split}
 \begin{bmatrix} x^B \\ s^B \end{bmatrix} & = \,
-B^{\,-1}b - B^{\,-1} N \begin{bmatrix} x^N \\ s^N \end{bmatrix} \\
+\inv{B}b - \inv{B} N \begin{bmatrix} x^N \\ s^N \end{bmatrix} \\
 %
-& = \begin{bmatrix} (B^t)^{-1} b^t \\ b^l - B^l(B^t)^{-1} b^t \end{bmatrix} -
+& = \begin{bmatrix}
+      \inv[0]{(B^t)} b^t \\ b^l - B^l\inv[0]{(B^t)} b^t
+    \end{bmatrix} -
     \begin{bmatrix}
-      (B^t)^{-1} N^t & (B^t)^{-1} \\
-      N^l - B^l(B^t)^{-1}N^t & -B^l(B^t)^{-1}
+      \inv[0]{(B^t)} N^t & \inv[0]{(B^t)} \\
+      N^l - B^l\inv[0]{(B^t)}N^t & -B^l\inv[0]{(B^t)}
     \end{bmatrix}
     \begin{bmatrix} x^N \\ s^N \end{bmatrix}
 \end{split} \label{Eqn:PrimalBasicVars}
@@ -65,32 +68,33 @@ z & = \begin{bmatrix} c^B & 0 \end{bmatrix}
       \trans{\begin{bmatrix} x^B & s^B \end{bmatrix}} +
       \begin{bmatrix} c^N & 0 \end{bmatrix}
       \trans{\begin{bmatrix} x^N & s^N \end{bmatrix}} \\
-  & = \begin{bmatrix} c^B & 0 \end{bmatrix}B^{\,-1}b +
+  & = \begin{bmatrix} c^B & 0 \end{bmatrix}\inv{B}b +
       \left(
         \begin{bmatrix} c^N & 0 \end{bmatrix} -
-        \begin{bmatrix} c^B & 0 \end{bmatrix} B^{\,-1} N
+        \begin{bmatrix} c^B & 0 \end{bmatrix} \inv{B} N
       \right)
       \trans{\begin{bmatrix} x^N & s^N \end{bmatrix}} \\
-  & = c^B (B^t)^{-1} b^t +
-      \begin{bmatrix} c^N - c^B (B^t)^{-1} N^t & -c^B(B^t)^{-1} \end{bmatrix}
+  & = c^B \inv[0]{(B^t)} b^t +
+      \begin{bmatrix}
+	c^N - c^B \inv[0]{(B^t)} N^t & -c^B\inv[0]{(B^t)} \end{bmatrix}
       \trans{\begin{bmatrix} x^N & s^N \end{bmatrix}}
 \end{split} \label{Eqn:PrimalObj}
 \end{equation}
 The quantities
 $\trans{\begin{bmatrix} x^B & s^B \end{bmatrix}} =
-\overline{b} = B^{\,-1}b$ are the values of the basic
+\overline{b} = \inv{B}b$ are the values of the basic
 variables, the quantities
-$y = \begin{bmatrix} c^B & 0 \end{bmatrix}B^{\,-1}$ are the dual
+$y = \begin{bmatrix} c^B & 0 \end{bmatrix}\inv{B}$ are the dual
 variables, and the quantities
 $\overline{c} = \left(
 		  \begin{bmatrix} c^N & 0 \end{bmatrix} -
-		  \begin{bmatrix} c^B & 0 \end{bmatrix} B^{\,-1} N
+		  \begin{bmatrix} c^B & 0 \end{bmatrix} \inv{B} N
 		\right)$
 are the reduced costs.
-A row or column of $B^{\,-1}N$ (as appropriate to the context) will be
+A row or column of $\inv{B}N$ (as appropriate to the context) will be
 denoted $\overline{a}_k$ (the single subscript distinguishes it from an
 individual element $\overline{a}_{ij}$).
-A row or column of $B^{\,-1}$ (as appropriate to the context) will be
+A row or column of $\inv{B}$ (as appropriate to the context) will be
 denoted $\beta_k$.
 When discussing pivot selection calculations, $\Delta_j$ will be the
 change in nonbasic variable $x_j$ or $s_j$.
@@ -138,9 +142,9 @@ surplus variables and partitioned as
 \end{math}.
 The basis inverse will be 
 \begin{equation*}
-\mathcal{B}^{\,-1} =
+\inv[-2]{\mathcal{B}} =
 \begin{bmatrix}
-  (B^t)^{-1} N^t & (B^t)^{-1} \\
+  \inv[0]{(B^t)} N^t & \inv[0]{(B^t)} \\
   -I^\mathcal{B} & 0
 \end{bmatrix}.
 \end{equation*}
@@ -148,14 +152,16 @@ We then have
 \begin{equation}
 \begin{split}
 \begin{bmatrix} \sigma^\mathcal{B} & y^\mathcal{B} \end{bmatrix} & =
-    (-c)\mathcal{B}^{\,-1} -
+    (-c)\inv[-2]{\mathcal{B}} -
     \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
-    \mathcal{N}\mathcal{B}^{\,-1} \\
-& = \begin{bmatrix} c^N - c^B (B^t)^{-1} N^t & -c^B (B^t)^{-1} \end{bmatrix} -
+    \mathcal{N}\inv[-2]{\mathcal{B}} \\
+& = \begin{bmatrix}
+      c^N - c^B \inv[0]{(B^t)} N^t & -c^B \inv[0]{(B^t)}
+    \end{bmatrix} -
     \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
     \begin{bmatrix}
-      -(B^t)^{-1} N^t & -(B^t)^{-1} \\
-      B^l(B^t)^{-1} N^t - N^l & B^l(B^t)^{-1}
+      -\inv[0]{(B^t)} N^t & -\inv[0]{(B^t)} \\
+      B^l\inv[0]{(B^t)} N^t - N^l & B^l\inv[0]{(B^t)}
     \end{bmatrix} \label{Eqn:DualBasicVars}
 \end{split}
 \end{equation}
@@ -166,17 +172,39 @@ z & = \begin{bmatrix} \sigma^\mathcal{B} & y^\mathcal{B} \end{bmatrix}
       \trans{\begin{bmatrix} 0 & b^t \end{bmatrix}} +
       \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
       \trans{\begin{bmatrix} 0 & b^l \end{bmatrix}} \\
-  & = (-c)\mathcal{B}^{\,-1} b^\mathcal{B} +
+  & = (-c)\inv[-2]{\mathcal{B}} b^\mathcal{B} +
       \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
-      (b^\mathcal{N} - \mathcal{N}\mathcal{B}^{\,-1} b^\mathcal{B}) \\
-  & = -c^B (B^t)^{-1} b^t +
+      (b^\mathcal{N} - \mathcal{N}\inv[-2]{\mathcal{B}} b^\mathcal{B}) \\
+  & = -c^B \inv[0]{(B^t)} b^t +
       \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
-      \begin{bmatrix} (B^t)^{-1} b^t \\ b^l - B^l(B^t)^{-1} b^t \end{bmatrix}
+      \begin{bmatrix}
+	\inv[0]{(B^t)} b^t \\ b^l - B^l\inv[0]{(B^t)} b^t
+      \end{bmatrix}
 \end{split} \label{Eqn:DualObj}
 \end{equation}
 When discussing pivot selection calculations, $\delta_j$ will be the
 change in nonbasic dual variable $y_j$ or $\sigma_j$.
 
-Let $e_k \in R^d$ be a row or column vector of appropriate
+There are several points to note about the relationship between primal and dual
+simplex in the \dylp implementation.
+
+First, \dylp does not solve $\max \; -cx$ as a surrogate for $\min \, cx$.
+It minimises $cx$ directly by algorithmic design.
+Hence the dual variables $y = c^B \inv{B}$ have the wrong sign for the dual
+problem, and are calculated solely as a convenience.
+The dual algorithm actually works with the reduced costs
+$\overline{c}^N = c^N - c^B \inv{B} N$, which are the correct dual variable
+values
+(compare \eqnref{Eqn:PrimalObj} with \eqnref{Eqn:DualBasicVars}).
+
+Second, because primal simplex provides
+$\inv{B} N = - \mathcal{N} \inv[-2]{\mathcal{B}}$
+(compare \eqnref{Eqn:PrimalBasicVars} with \eqnref{Eqn:DualBasicVars}),
+the relevant calculation when determining the leaving dual variable is
+$\overline{c}_k + \overline{a}_{ik} \delta_i$, rather than
+$ \overline{c}_k - \overline{a}_{ik} \delta_i$.
+
+Throughout the remainder of the report, let $e_k \in R^d$ be a row or
+column vector of appropriate
 dimension (as determined by the context), with a 1 in
 position $k$ and 0's in all other positions.

@@ -248,6 +248,7 @@ dylpdoc_SOURCES = accuracy.tex \
 		  pricing.tex \
 		  primal.tex \
 		  scaling.tex \
+		  solutions.tex \
 		  startup.tex \
 		  statistics.tex \
 		  updateformulae.tex \

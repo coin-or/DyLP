@@ -52,7 +52,8 @@ builds on a method described by Ryan \& Osborne \cite{Rya88}.
 The dual simplex algorithm provides only a second phase with
 dual steepest edge (DSE) pricing \cite[algorithm `steepest 1']{For92},
 standard or generalised pivoting,
-and an implementation of anti-degeneracy lite in the dual space.
+and implementations of anti-degeneracy lite and perturbation-based
+antidegeneracy in the dual space.
 In the context of \dylp, it is the subordinate simplex, used for
 reoptimisation after adding constraints and as the initial simplex when the
 problem is dual feasible but not primal feasible.
@@ -72,11 +73,12 @@ reoptimise a constraint system that is incrementally modified between calls.
 On request, it will maintain its internal state (constraint system,
 basis inverse, and support data structures) between calls to support
 efficient hot starts for reoptimisation.
-\dylp provides interface routines to support two queries commonly required in
-a branch-and-cut context, pricing a new variable and pricing a dual pivot.
 Because \dylp maintains this internal state, it does not provide a native
 capability to interleave optimisation and reoptimisation of distinct
 constraint systems.
+\dylp provides two specialised interface routines to support two queries
+commonly required in
+a branch-and-cut context, pricing a new variable and pricing a dual pivot.
 
 \dylp can be used with \coin \cite{COIN} software through
 the C++ \coderef{}{OsiDylp} OSI interface class.

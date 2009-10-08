@@ -12,27 +12,27 @@ the algorithm used is described as dynamic projected steepest edge
 To understand the operation of projected steepest edge (PSE) pricing, it
 will be helpful to start with the definition of a direction of motion.
 The values of the basic and nonbasic variables can be expressed as
-\begin{equation*}
+\begin{equation} \label{eqn:allPrimalDirs}
 \begin{bmatrix} x^B \\ x^N \end{bmatrix} =
   \begin{bmatrix} b \\ l/u \end{bmatrix} -
-  \begin{bmatrix} B^{\,-1}A^N \\ -I \end{bmatrix} \Delta
-\end{equation*}
+  \begin{bmatrix} \inv{B} A^N \\ -I \end{bmatrix} \Delta
+\end{equation}
 where $l/u$ is intended to indicate use of the lower or upper bound as
 appropriate for the particular nonbasic variable.
 When a given nonbasic variable $x_j$ is moved by an amount $\Delta_j$, the
 values of $x$ will change as
-\begin{equation*}
-  -\begin{bmatrix} B^{\,-1}a_j \\ -e_j \end{bmatrix} \Delta_j =
+\begin{equation} \label{eqn:onePrimalDir}
+  -\begin{bmatrix} \inv{B} a_j \\ -e_j \end{bmatrix} \Delta_j =
   -\begin{bmatrix} \overline{a}_j \\ -e_j \end{bmatrix} \Delta_j =
   \eta_j\Delta_j
-\end{equation*}
+\end{equation}
 The vector $\eta_j$ is the direction of motion as $x_j$ is changed;
 alternatively, it is the edge of the polyhedron which is traversed as $x_j$ is
 changed.
 Let $\gamma_j = \norm{\eta_j}$ be the norm of $\eta_j$.
 
 For pricing, it can be immediately seen that
-$c\eta_j = c_j - c^B \overline{a}_j$ is the reduced cost $\overline{c}_j$.
+$c\eta_j = c_j - c^B \, \overline{a}_j$ is the reduced cost $\overline{c}_j$.
 Dantzig pricing chooses an entering variable $x_j$ such
 that $\overline{c}_j$ has appropriate sign and the largest magnitude over all
 reduced costs, but it can be misled by differences in scaling from
@@ -57,12 +57,12 @@ To derive the update formul\ae{} for $\tilde{\gamma}_j$, it is useful to start
 with the update formul\ae{} for the full vector $\eta_j$.
 As mentioned in \secref{sec:DualUpdates},
 for $x_i$ leaving basis position $k$ and
-$x_j$ entering, $B(B')^{-1} = I + a_i(\beta')_k - a_j(\beta')_k$.
+$x_j$ entering, $B\inv[0]{(B')} = I + a_i(\beta')_k - a_j(\beta')_k$.
 Taking this one step further, 
-$(B')^{-1} = B^{\,-1} + \overline{a}_i(\beta')_k - \overline{a}_j(\beta')_k$.
+$\inv[0]{(B')} = \inv{B} + \overline{a}_i(\beta')_k - \overline{a}_j(\beta')_k$.
 Then for an arbitrary column $a_p$,
 \begin{align}
-(B')^{-1}a_p & = B^{\,-1}a_p + \overline{a}_i(\beta')_k a_p -
+\inv[0]{(B')} a_p & = \inv{B} a_p + \overline{a}_i(\beta')_k a_p -
 	\overline{a}_j(\beta')_k a_p \notag \\
 \overline{a}'_p & = \overline{a}_p +
 	e_k ( \frac{\overline{a}_{kp}}{\overline{a}_{kj}} ) -
@@ -120,7 +120,7 @@ are straightforward:
       ( \frac{\overline{a}_{kp}}{\overline{a}_{kj}} )^2 \gamma_j^{\,2} \\
   & = \gamma_p^{\,2} -
       2( \frac{\overline{a}_{kp}}{\overline{a}_{kj}} )
-      (\overline{a}^T_j B^{\,-1}) a_p +
+      (\overline{a}^T_j \inv{B}) a_p +
       ( \frac{\overline{a}_{kp}}{\overline{a}_{kj}} )^2 \gamma_j^{\,2}
       \label{Eqn:gammapupdate}
 \end{split} \\[.5ex]
@@ -157,14 +157,14 @@ The dual simplex in \dylp uses dual steepest edge (DSE) pricing; the algorithm
 used is described as dual algorithm 1 (`steepest 1') in
 Forrest and Goldfarb \cite{For92}.
 
-The values $\overline{b} = B^{-1}b$ are the reduced costs of the nonbasic dual
-variables.
+The values $\overline{b} = \inv{B}b$ are the reduced costs of the nonbasic
+dual variables.
 Analogous to Dantzig pricing in the primal case, one can choose a entering
 dual variable $y_i$ such that $\overline{b}_i$ has appropriate sign and the
 largest magnitude over all reduced costs, but there is the same problem with
 scaling.
 The version of dual steepest edge (DSE) pricing implemented in \dylp
-scales $\overline{b}_i$ by $\rho_i = \norm{\beta_i}$,
+scales $\overline{b}_i = \beta_i b$ by $\rho_i = \norm{\beta_i}$,
 choosing
 a leaving variable $x_i$ with $\overline{b}_i$ of appropriate sign
 and the largest $\displaystyle \abs{\frac{\beta_i b}{\norm{\beta_i}}}$,
@@ -186,14 +186,16 @@ tableau, we can refer back to equations \eqnref{Eqn:DualBasicVars} and
 \begin{equation}
 \begin{split}
 \begin{bmatrix} \sigma^\mathcal{B} & y^\mathcal{B} \end{bmatrix} & =
-    (-c)\mathcal{B}^{\,-1} -
+    (-c)\inv[-2]{\mathcal{B}} -
     \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
-    \mathcal{N}\mathcal{B}^{\,-1} \\
-& = \begin{bmatrix} c^N - c^B (B^t)^{-1} N^t & -c^B (B^t)^{-1} \end{bmatrix} -
-    \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
+    \mathcal{N}\inv[-2]{\mathcal{B}} \\
+  & = \begin{bmatrix}
+	c^N - c^B \inv[0]{(B^t)} N^t & -c^B \inv[0]{(B^t)}
+      \end{bmatrix} -
+      \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
     \begin{bmatrix}
-      -(B^t)^{-1} N^t & -(B^t)^{-1} \\
-      B^l(B^t)^{-1} N^t - N^l & B^l(B^t)^{-1}
+      -\inv[0]{(B^t)} N^t & -\inv[0]{(B^t)} \\
+      B^l\inv[0]{(B^t)} N^t - N^l & B^l\inv[0]{(B^t)}
     \end{bmatrix}
 \end{split} \tag{\ref{Eqn:DualBasicVars}}
 \end{equation}
@@ -204,12 +206,14 @@ z & = \begin{bmatrix} \sigma^\mathcal{B} & y^\mathcal{B} \end{bmatrix}
       \begin{bmatrix} 0 & b^t \end{bmatrix}^T +
       \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
       \begin{bmatrix} 0 & b^l \end{bmatrix}^T \\
-  & = (-c)\mathcal{B}^{\,-1} b^\mathcal{B} +
+  & = (-c)\inv[-2]{\mathcal{B}} b^\mathcal{B} +
       \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
-      (b^\mathcal{N} - \mathcal{N}\mathcal{B}^{\,-1} b^\mathcal{B}) \\
-  & = -c^B (B^t)^{-1} b^t +
+      (b^\mathcal{N} - \mathcal{N}\inv[-2]{\mathcal{B}} b^\mathcal{B}) \\
+  & = -c^B \inv[0]{(B^t)} b^t +
       \begin{bmatrix} \sigma^\mathcal{N} & y^\mathcal{N} \end{bmatrix}
-      \begin{bmatrix} (B^t)^{-1} b^t \\ b^l - B^l(B^t)^{-1} b^t \end{bmatrix}
+      \begin{bmatrix}
+	 \inv[0]{(B^t)} b^t \\ b^l - B^l\inv[0]{(B^t)} b^t
+      \end{bmatrix}
 \end{split} \tag{\ref{Eqn:DualObj}}
 \end{equation}
 Recall that the values of the dual basic variables are the reduced costs of
@@ -230,26 +234,27 @@ If the nonbasic dual is to decrease, its reduced cost must be greater than
 This corresponds to the case of a primal variable which will be decreased and
 driven out of the basis at its upper bound with a negative primal reduced cost.
 
-The actual direction of motion in the full dual space ($y$ and $\sigma$) would
-be specified by a row of
+The actual direction of motion in the full dual space ($y$ and $\sigma$) is
+specified by a row of
 \begin{equation*}
-\mathcal{NB}^{\,-1} = \begin{bmatrix}
-			-(B^t)^{-1} N^t & -(B^t)^{-1} \\
-			B^l(B^t)^{-1} N^t - N^l & B^l(B^t)^{-1}
+\mathcal{N}\inv[-2]{\mathcal{B}} = \begin{bmatrix}
+			-\inv[0]{(B^t)} N^t & -\inv[0]{(B^t)} \\
+			B^l\inv[0]{(B^t)} N^t - N^l & B^l\inv[0]{(B^t)}
 		      \end{bmatrix},
 \end{equation*}
 a vector which is not readily available in the revised
-primal simplex.
-(Moreover, for the typical problem in which the number of variables greatly
-exceeds the number of constraints, the norm of this vector is expensive to
+primal simplex\footnote{%
+It's necessary to calculate one such row $\overline{a}_i$ once the entering
+dual variable has been selected, but only one.
+For the typical problem in which the number of variables greatly
+exceeds the number of constraints, the norms of these vectors are expensive to
 calculate when initialising the pricing algorithm, and the updates are
 expensive.
-This is the algorithm which Forrest and Goldfarb describe
-as dual algorithm 2.)
-
+The algorithm which uses the full dual direction of motion is the one that
+Forrest and Goldfarb describe as dual algorithm 2.}.
 However, one can make an argument that there's no need to consider the
 component of the direction of motion in the subspace of the dual surplus
-variables.
+variables when choosing the entering dual variable.
 (More positively, we can take the view that we're only interested in motion
 in the polyhedron $\{y \in R^m \mid yA \geq -c, y \geq 0\}$ defined by the
 dual variables.)
@@ -257,36 +262,38 @@ Changes in the surplus variables cannot affect the objective directly, as
 they account for the 0's in the augmented and partitioned $b$ vector.
 Algebraically, we can see that the dual basic portion
 of $b$, $\begin{bmatrix}0 & b^t \end{bmatrix}^T$, guarantees that there will
-never be any contribution from the columns
-of $\mathcal{NB}^{\,-1}$ involving $N$.
+never be any direct contribution from the columns
+of $\mathcal{N}\inv[-2]{\mathcal{B}}$ involving $N$.
 The component of motion in the space of the dual variables $y$ is then simply
-the rows $\beta_l$ of $B^{\,-1}$, which are easily available from the primal
+the rows $\beta_i$ of $\inv{B}$, which are easily available from the primal
 tableau.
 (The analogous action in the primal problem --- ignore the component of
 $\eta_j$ in the subspace of the primal slack variables --- offers no
 computational advantage.)
 
-Given a rationale for taking the rows $\beta_l$ of $B^{\,-1}$ as the
-edges of interest, what remains is to work out the details.
+Given a rationale for taking the rows $\beta_i$ of $\inv{B}$ as the
+component of interest in the dual direction of motion, what remains is to work
+out the details.
 Since we're aiming for a steepest edge algorithm, we'll be interested in
-iteratively updating $\norm{\beta_l}^2 = \beta_l \cdot \beta_l$, the square
-of the norm of a row $\beta_l$.
-Given the update formul\ae{} for $\beta_l$ derived in
+iteratively updating $\norm{\beta_i}^2 = \beta_i \cdot \beta_i$, the square
+of the norm of a row $\beta_i$.
+Given the update formul\ae{} for $\beta_i$ derived in
 \secref{sec:BasisUpdates},
-the development of the update formul\ae{} for $\rho_l = \norm{\beta_l}^2$ is
+the development of the update formul\ae{} for $\rho_i = \norm{\beta_i}^2$ is
 straightforward algebra.
 Let $x_i$ be the leaving variable and $x_j$ be the entering variable, and
 assume $x_i$ occupies row $k$ of the basis $B$ before the update.
 We have
 \begin{align}
 \begin{alignedat}{2}
-\rho'_l & = \rho_l -
-	    2\frac{\overline{a}_{lj}}{\overline{a}_{kj}}\beta_l\cdot\beta_k +
+\rho'_i & = \rho_i -
+	    2\frac{\overline{a}_{lj}}{\overline{a}_{kj}}\beta_i\cdot\beta_k +
 	    (\frac{\overline{a}_{lj}}{\overline{a}_{kj}})^2\rho_k &
-	    \qquad\qquad l \neq k \\
+	    \qquad\qquad i \neq k \\
 \rho'_k & = (\frac{1}{\overline{a}_{kj}})^2\rho_k
 \end{alignedat}
 \end{align}
 Since the update will be performed for all rows in the basis, it's worth
-calculating the vector $\tau = B^{\,-1}\beta^T_k$ to obtain all the inner
-products $\beta_l \cdot \beta_k$ in one calculation.
+calculating the vector $\tau = \inv{B}\beta^T_k$ to obtain all the inner
+products $\beta_i \cdot \beta_k$ in one calculation.
+

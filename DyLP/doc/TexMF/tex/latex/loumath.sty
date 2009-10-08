@@ -106,3 +106,19 @@
 % Matrix transpose
 
 \newcommand{\trans}[1]{\ensuremath{#1^\top}}
+
+% Matrix inverse --- the problem here is picky spacing at the top of the
+% italic capital that's typically used for a matrix variable. The default
+% 2mu is about right at the top of an italic `B'. The second bit of spacing
+% pulls the `1' closer to the `-' in `-1'.
+
+\newcommand{\inv}[2][2]{\ensuremath{#2^{\mspace{#1mu}-\mspace{-2mu}1}}}
+
+% A general macro for things of the form F(k), where `F' is something in roman
+% type. There are specific convenience macros for `big-O' complexity and
+% Fibonacci numbers F(k)
+
+\newcommand{\romanFunc}[2]{\ensuremath{\mathrm{#1}(#2)}}
+\newcommand{\bigO}[1]{\romanFunc{O}{#1}}
+\newcommand{\fib}[1]{\romanFunc{F}{#1}}
+
