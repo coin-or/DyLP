@@ -149,6 +149,7 @@ DyLP/doc/perturbed.tex -text
 DyLP/doc/pricing.tex -text
 DyLP/doc/primal.tex -text
 DyLP/doc/scaling.tex -text
+DyLP/doc/solutions.tex -text
 DyLP/doc/startup.tex -text
 DyLP/doc/statistics.tex -text
 DyLP/doc/updateformulae.tex -text

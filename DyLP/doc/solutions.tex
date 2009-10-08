@@ -1,0 +1,341 @@
+\section{Generating Solutions, Rays, and Tableau Vectors}
+\label{sec:Solutions}
+
+The dynamic simplex algorithm implemented by \dylp introduces some unique
+challenges when generating solution values, rays, and tableau vectors.
+The client expects an answer that corresponds to the full, unscaled constraint
+system.
+In addition to the standard calculations associated with unscaling, \dylp must
+often synthesize portions of the answer corresponding to inactive constraints
+or variables, and position the components of the answer to match the original
+constraint system.
+This becomes even more interesting when the client is asking for answers in the
+context of the dual problem.
+
+\subsection{Solution Vectors}
+\label{sec:SolutionVectors}
+
+Calculating the values of the unscaled primal variables is the simplest
+request.
+We have $\breve{x}^B = \inv{\breve{B}}\breve{b}$.
+Then
+$\breve{x}^B = \inv[0]{(S^B)}\inv{B}\inv{R} R b = \inv[0]{(S^B)}\inv{B}b$
+and
+$x^B = S^B \breve{x}^B$.
+Recall that the column scaling factor for a logical variable will be the
+inverse of the row scaling factor, as explained in \secref{sec:Scaling}.
+The unscaled values of the nonbasic primal variables (architectural or logical)
+can be read directly from the original unscaled $l$ and $u$ vectors.
+
+There is one subtle point about the column scaling factor for logicals which is
+not immediately apparent from the simplified presentation in the previous
+paragraphs.
+Logical variables can be basic for the row occupied by their associated
+constraint~---~the `natural' position.
+They can also be basic for some other row~---~an `unnatural' position; this is
+achieved by a column permutation in the basis.
+The correct column scaling factor, when required, is the one associated with
+the natural row.
+This is more apparent when the column permutation matrix $P$ is made explicit:
+\begin{align*}
+\breve{B} & = (R B S^B) P \\
+\inv{\breve{B}} & = \inv{P}\inv[0]{(S^B)}\inv{B}\inv{R}
+\end{align*}
+
+By definition, inactive architectural variables are nonbasic, so their value is
+also easily read from the original unscaled $l$ and $u$ vectors.
+By definition, inactive constraints are loose and the corresponding logical
+would be basic.
+Rather than expand the basis inverse,
+the value of the logical for an inactive constraint $i$ is calculated
+directly as $a_i x$.
+
+Turning to the dual variables, recall first the observation from
+\secref{sec:Notation} that the dual variables $y = c^B \inv{B}$ calculated by
+\dylp during primal and dual simplex are in fact the negative of the correct
+dual variables, a consequence of implementing the relationship
+\begin{align*}
+\min cx & & \max \; (-c)x & & \min yb & \\
+Ax & \leq b & Ax & \leq b &  yA & \geq (-c)
+\end{align*}
+by algorithmic design rather than actually negating $c$.
+When generating dual variable values to return to the client, there is a
+choice: should the dual variables be returned with a sign convention
+appropriate for \dylp's $\min cx$ problem, or should they be returned with a
+sign convention appropriate for the true dual problem?
+For all routines returning values associated with the dual problem, \dylp
+allows the client to choose the sign convention.
+
+There are two further details to consider: The canonical relationship assumes
+all constraints are `$\leq$' constraints and
+all primal constraints are explicit.
+In reality, the primal problem presented to \dylp typically contains `$\geq$'
+constraints, and bounds on variables are usually handled by the algorithm
+rather than stated as explicit constraints.
+There are a number of possible implementation choices; \dylp chooses the
+following:
+\begin{itemize}
+  \item
+  For the duals associated with `$\geq$' constraints, the sign of the dual
+  value returned is always negated to match the `$\geq$' that's actually
+  present in the constraint matrix.
+  This choice is intended to make it easy for the client to use the dual
+  variable values with the coefficient matrix as written.
+
+  \item
+  For the duals associated with variables that are nonbasic at their upper
+  bound (hence negative in \dylp's $\min$ primal convention), the value is
+  negated if the user chooses the true dual sign convention.
+  This matches the conversion of the implicit upper bound to an explicit
+  `$\leq$' constraint in the dual problem.
+
+  To extend this point to upper and lower bounds, when the client requests
+  dual variables using the true dual sign convention, \dylp assumes that
+  implicit upper bounds are made explicit as $x_j \leq u_j$ and implicit
+  lower bounds are made explicit as $-x_j \leq -l_j$.
+\end{itemize}
+
+
+To calculate the values of the unscaled row dual variables $y$, start with
+$\breve{y} = \breve{c}^B \inv{\breve{B}}$.
+Then
+$\breve{y} = c^B S^B \inv[0]{(S^B)} \inv{B} \inv{R} = c^B \inv{B} \inv{R} =
+y \inv{R}$
+and
+$y = \breve{y} R$.
+These values must be negated to be correct for the dual problem.
+By definition, inactive constraints are not tight, hence the value of the
+associated dual variable is zero.
+
+The values of the column dual variables are the primal reduced costs
+$\overline{c}_j$.
+Starting from $\breve{\overline{c}}_j$, we have
+\begin{align*}
+\breve{\overline{c}}_j &
+    = \breve{c}_j - \breve{c}^B \inv{\breve{B}}\breve{a}_j \\
+  & = c_j S_j - c^B S^B \inv[0]{(S^B)}\inv{B}\inv{R} R a_j S_j \\
+  & = (c_j - c^B \inv{B} a_j) S_j \\
+  & = \overline{c}_j S_j
+\end{align*}
+hence $c_j = \breve{\overline{c}}_j\inv{(S_j)}$.
+For active variables, the value of $\breve{\overline{c}}_j$ is immediately
+available.
+For inactive variables, \dylp first calculates $\breve{\overline{c}}_j =
+\breve{y}\breve{a}_j$.
+
+\subsection{Tableau Vectors}
+\label{sec:TableauVectors}
+
+\Dylp implements routines to return four tableau vectors: rows $\beta_i$ and
+columns $\beta_j$ of the basis inverse \inv{B}, and rows $\overline{a}_i$ and
+columns $\overline{a}_j$ of the transformed constraint matrix $\inv{B}A$.
+
+Given the scaled basis inverse
+$\inv{\breve{B}} = \inv[0]{(S^B)}\inv{B}\inv{R}$, the unscaled column of the
+basis inverse corresponding to basic variable $x_j$, basic for row $k$,
+will be
+\begin{equation} \label{eqn:unscaledBetaj}
+\beta_j =  S^B \inv{\breve{B}} R e_k = S^B \breve{\beta}_j r_{kk}
+\end{equation}
+
+Because \dylp periodically deactivates loose constraints, it is in general
+necessary to synthesize the rows of the basis inverse for these
+inactive constraints.
+The necessary algebra is shown in \eqnref{Eqn:PrimalBasisInverse} and repeated
+here for convenience:
+\begin{equation} \tag{\ref{Eqn:PrimalBasisInverse}}
+\inv{B} = \begin{bmatrix}
+	     \inv[0]{(B^t)} & 0 \\
+	     -B^l\inv[0]{(B^t)} & I^l
+	  \end{bmatrix}
+\end{equation}
+Let the partition $B^t$ correspond to $B$ in \eqnref{eqn:unscaledBetaj},
+$\beta_j$ to a column of $\inv[0]{(B^t)}$, and let the
+partition $B^l$ be the coefficients of basic variables in the inactive
+constraints.
+By definition, the basic variable for an inactive constraint is the logical
+associated with the constraint.
+Given the unscaled column $\beta_j$ for the active system
+from \eqnref{eqn:unscaledBetaj},
+\dylp generates the necessary
+coefficients from $-B^l\inv[0]{(B^t)}$ by calculating $-B^l\beta_j$.
+
+For all inactive logical variables (\ie, logical variables for inactive
+constraints), and active logical variables basic in the natural position,
+$\beta_j = e_j$; this is detected as a special case.
+
+Generating the transformed column $\overline{a}_j = \inv{B}a_j$ follows a
+similar pattern, with the added complication that the requested column
+may not be active.
+Given the scaled transformed column
+\begin{equation*}
+\breve{\overline{a}}_j = \inv{\breve{B}}\breve{N}e_j =
+  \inv[0]{(S^B)}\inv{B}\inv{R} R a_j s_{jj} =
+  \inv[0]{(S^B)}\inv{B}  a_j s_{jj}
+\end{equation*}
+the unscaled column $\overline{a}_j$ will be
+\begin{equation} \label{eqn:unscaledAbarj}
+S^B \; \breve{\overline{a}}_j (1/s_{jj})
+\end{equation}
+
+If there are inactive constraints, the remaining coefficients in the column
+must be synthesized.
+Using the same notation as above for basis inverse columns, we have
+\begin{equation*}
+\inv{B} = \begin{bmatrix}
+	     \inv[0]{(B^t)} & 0 \\[.4ex]
+	     -B^l\inv[0]{(B^t)} & I^l
+	  \end{bmatrix}
+	  \begin{bmatrix} a^t_j \\[.4ex] a^l_j \end{bmatrix}
+        = \begin{bmatrix}
+	     \inv[0]{(B^t)} a^t_j \\[.4ex]
+	     a^l_j - B^l\inv[0]{(B^t)} a^t_j
+	  \end{bmatrix}
+\end{equation*}
+Given the unscaled column $\overline{a}_j$ for the active system
+from \eqnref{eqn:unscaledAbarj},
+\dylp generates the necessary
+coefficients from $a^l_j - B^l\inv[0]{(B^t)} a^t_j$ by calculating
+$a^l_j - B^l\overline{a}_j$.
+
+If the requested column is not active, \dylp first generates the portion of the
+column $R a_j$ that matches the active constraints, and then proceeds as
+described in the previous paragraphs.
+Inactive logical variables will be basic in natural position, hence
+$\overline{a}_j = e_j$; this is detected as a special case.
+The user is cautioned that active basic variables are \textit{not} handled as a
+special case.
+
+
+The work required to generate a row $\beta_i$ of the basis inverse is
+similar to that required for a column $\beta_j$.
+Given the scaled basis inverse
+$\inv{\breve{B}} = \inv[0]{(S^B)}\inv{B}\inv{R}$, the unscaled row of the
+basis inverse corresponding to basic variable $x_j$, basic for row $i$,
+will be
+\begin{equation*}
+\beta_i = e_i S^B \inv{\breve{B}} R = s_{jj} \breve{\beta}_i R
+\end{equation*}
+If the requested row is not active, the basis must be extended as outlined in
+previous paragraphs.
+\Dylp creates the partially scaled row vector $a^l_i S^B$, calculates an
+intermediate vector $a^l_i S^B \inv[0]{(\breve{B}^t)}$ and then completes the
+calculation by postmultiplying by $R$ to remove the row scaling still present
+in \inv[0]{(\breve{B}^t)}.
+
+Regrettably, there's no easy way to calculate $\overline{a}_i$, a row of
+the transformed matrix $\inv{B}A$.
+\Dylp implements this operation as $\overline{a}_i = \beta_i A$.
+The calculation is performed entirely in the original unscaled system.
+
+
+\subsection{Rays}
+\label{sec:Rays}
+
+In several aspects, rays prove to be the most challenging of the three
+solution components.
+Careful attention to sign reversals is required for both primal and dual rays,
+and the virtual nature of the dual problem adds yet another layer to the
+challenge of generating coefficients for inactive portions of the constraint
+system.
+The routines implemented in \dylp will return all rays emanating from the
+current extreme point up to a limit specified by the client.
+
+For a primal ray $r$, it must be the case that $c r < 0$,
+and $a_i r \leq 0$ for a `$\leq$' constraint,
+$a_i r \geq 0$ for a `$\geq$' constraint, and
+$a_i r = 0$ for range constraints and equalities.
+The task of identifying a ray is easy; indeed, it's a simplified version of the
+algorithm used to select the leaving variable in a primal pivot, where the only
+concern is that no basic variable is driven to bound.
+Getting the sign right requires a bit of thought, however.
+The relevant mathematics is shown in equations \eqnref{eqn:allPrimalDirs} and
+\eqnref{eqn:onePrimalDir}; \eqnref{eqn:onePrimalDir} is repeated here for
+convenience:
+\begin{equation} \tag{\ref{eqn:onePrimalDir}}
+  -\begin{bmatrix} B^{\,-1}a_j \\ -e_j \end{bmatrix} \Delta_j =
+  -\begin{bmatrix} \overline{a}_j \\ -e_j \end{bmatrix} \Delta_j =
+  \eta_j\Delta_j
+\end{equation}
+As can be immediately seen, $r$ is precisely
+$\eta_j = -\trans{\begin{bmatrix} \overline{a}_j & -e_j \end{bmatrix}}$;
+the operations
+required for unscaling have been discussed in \secref{sec:TableauVectors}.
+
+In addition to the obvious negation required to produce $\eta_j$, there are
+two other possible negations to consider.
+\begin{itemize}
+  \item
+  If the nonbasic variable $x_j$ is actually decreasing from its upper bound
+  $u_j$, the ray must be negated to compensate.
+
+  \item
+  If the nonbasic variable is a logical $s_i$ associated with a `$\geq$'
+  constraint in the original system, \dylp's input transformations have
+  converted
+  $a_i x \geq b_i \Rightarrow (-a_i)x \leq (-b_i)
+    \Rightarrow (-a_i)x + s_i = (-b_i)$
+  for $0 \leq s_i \leq \infty$.
+  The inverse converts
+  $(-a_i)x + s_i = (-b_i) \Rightarrow a_i x + s'_i = b_i
+    \Rightarrow a_i x \geq b_i$
+  for $-\infty \leq s_i' \leq 0$.
+  What appears to be a slack variable increasing from its lower bound is
+  actually a surplus variable decreasing from its upper bound; accordingly, the
+  ray must be negated.
+\end{itemize}
+
+There's no need to synthesize the components of $\eta_j$ that would be
+associated with inactive constraints.
+By definition, the basic variable for an inactive constraint is the associated
+logical.
+The ray $r$ contains only the components associated with architectural
+variables.
+
+For a dual ray $r$, it must be the case that $rb < 0$ and $rA \geq 0$ for the
+true dual problem.
+Unfortunately, as outlined in \secref{sec:SolutionVectors}, the primal~--~dual
+transform implemented in \dylp does not match the ideal, and this introduces
+complications.
+Neither mathematical test is guaranteed to work unless the dual variables
+associated with tight implicit bound constraints (\ie, nonbasic primal
+variables) are handled explicitly.
+
+As with primal rays, the task of identifying a dual ray is easy, a simplified
+version of the algorithm used to select the leaving dual variable in a dual
+pivot.
+The only concern is that no dual basic variable be driven to bound.
+Again, it's getting the sign right that requires some thought.
+
+As discussed in \secref{sec:Notation}, the vector $\overline{a}_k$ is the
+proper starting point; the initial negation which would normally be required is
+built in by $\mathcal{N}\inv[-2]{\mathcal{B}} = -\inv{B}N$.
+The operations required for unscaling have been discussed in
+\secref{sec:TableauVectors}.
+It's necessary to add a coefficient of 1.0 for the nonbasic dual that's
+driving the ray.
+
+There are three other sources of negation to consider:
+\begin{itemize}
+  \item
+  If the leaving dual is apparently decreasing because it's associated with a
+  primal variable that's decreasing to its upper bound (and hence must have a
+  negative reduced cost when it becomes nonbasic), the ray must be negated
+  to compensate.
+
+  \item
+  If the ray is derived from a `$\geq$' constraint in the original system,
+  the coefficients of the constraint have been negated; this is encoded in the
+  row scaling.
+  However, as noted for primal rays, the logical must really be interpreted as
+  a surplus variable with an upper bound of zero, and if it's basic for this
+  row we have the case described in the previous item.
+  The ray must be negated.
+
+  \item
+  As explained in \secref{sec:SolutionVectors},
+  if an individual ray coefficient corresponds to a variable that is nonbasic
+  at its upper bound, the ray coefficient must be negated if the client has
+  requested the true dual sign convention.
+\end{itemize}
+
