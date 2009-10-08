@@ -478,6 +478,11 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   at the least). A call when the result of optimisation was anything other
   than unbounded will return zero rays.
 
+  Note that we don't have to worry about synthesizing ray elements for
+  inactive constraints. By definition, the basic variable for an inactive
+  constraint is the associated logical, and we don't report any ray
+  components for logical variables.
+
   Parameters:
     orig_lp:	the lp problem structure
     p_numRays:	(i) the maximum number of rays to return
@@ -626,8 +631,8 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   testing x<B> = inv(B)b - abar<j>x<j>, so ray<j> = -abar<j>. Then, if x<j>
   is decreasing, that's another factor of -1 (encoded in rayDir). Finally, if
   the constraint in question is a >= constraint in the original system,
-  there's another factor of -1 folded into the row scaling (but we can't use
-  that directly; we want only the sign).
+  there's another factor of -1 folded into the direction of change of the
+  logical (which is really headed toward -inf in the original >= constraint).
 
   In terms of change of reference frame, we're moving from active system
   basis order to original system variable order. The translation is basis
@@ -1162,9 +1167,11 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
   (rayDir).
 
   TO THINK ABOUT: What about range constraints? And should we be checking for
-  the scaling factor associated with the basic logical instead of the scaling
-  factor associated with this constraint? I need to come up with an example
-  that's dual unbounded and has a foreign logical basic on a >= constraint.
+  the scaling factor associated with this constraint (i_orig_ray) instead of
+  the basic logical (bv_orig_ray)? This could be an unnatural logical, after
+  all. I need to come up with an example that's dual unbounded and has an
+  unnatural logical basic on a >= constraint.
+
 */
     i_orig_ray = dy_actcons[i_ray] ;
     if (bv_ray <= m)
@@ -1240,8 +1247,8 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
 	  setcleanzero(rayk,dy_tols->zero) ;
 	  ray[m_orig+j_orig] = rayk ; } } }
 /*
-  The same, but without scaling. We still need to cope with rayDir and >=
-  constraints.
+  The same, but without scaling. We still need to cope with rayDir and NBUB
+  variables.
 */
     else
     { for (i = 1 ; i <= m ; i++)

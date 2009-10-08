@@ -124,10 +124,10 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   and no longer matches dylp's idea of the original system.
 
   In particular, note that dy_origvars and dy_origcons may well be attached to
-  the scaled local copy of the original system. The WILL NOT be updated by
+  the scaled local copy of the original system. They WILL NOT be updated by
   changes to the client's unscaled copy.
 
-  Suppose that x<j> is basic in pos'n k, which correspondes to row i_orig.
+  Suppose that x<j> is basic in pos'n k, which corresponds to row i_orig.
   The approach is to calculate the partially unscaled basis column sc_beta<k>
   as inv(B)R<i_orig>e<k>, then finish unscaling with S<B> as we drop the
   coefficients into their proper positions in a vector indexed in the
@@ -246,7 +246,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
       return (FALSE) ; } }
 /*
   Special case: The basis inverse column for a logical is simply a unit
-  vector with 1.0 in the appropriate position, *if* the logical is in it's
+  vector with 1.0 in the appropriate position, *if* the logical is in its
   `natural' position as the basic variable for the associated constraint.
   This holds whether the logical is active or inactive. After the analysis
   above, i_orig holds the correct position.
@@ -325,9 +325,12 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
 # endif
 
 /*
-  Change reference frame, and complete the unscaling, if necessary. Recall that
-  for the logical for row i, the column scaling factor is 1/R[i]. So that
-  we're not testing for scaling in the loop body, replicate the loop.
+  Change reference frame, and complete the unscaling, if necessary. Recall
+  that for the logical for row k, the column scaling factor is 1/R[k]. Be
+  careful with unnatural logicals! The correct column scaling factor is
+  1/R[k] where k is the natural row for the logical, which may not be the
+  row i where it's currently basic. So that we're not testing for scaling
+  in the loop body, replicate the loop.
 */
   if (*p_betaj == NULL)
   { betaj = (double *) CALLOC((m_orig+1),sizeof(double)) ;
@@ -376,11 +379,12 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   active system.  Of course, if there are no loadable constraints, we can
   skip all this.
 
-  The trek between reference frames is arduous. Given a<g,j_orig>, to find the
-  appropriate row of beta<j>, we do j_orig -> j -> j_bpos -> k_orig. In
+  The trek between reference frames is arduous. Given a<g,j_orig>, to find
+  the appropriate row of beta<j>, we do j_orig -> j -> j_bpos -> k_orig. In
   words, column in original system to column in active system to basis
   position (row) in active system to row in original system, which is the
-  element we want in beta<j>.
+  element we want in beta<j>. At least we don't have to unscale at the same
+  time.
 */
   if (dy_lp->sys.cons.loadable > 0)
   { ai = pkvec_new(orig_sys->maxrowlen) ;
@@ -577,7 +581,9 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
 # endif
 /*
   Special case: If the specified column represents the logical for an inactive
-  constraint, the algebra says the answer is a unit vector.
+  constraint, the algebra says the answer is a unit vector. Arguably we should
+  handle a column corresponding to any active basic variable here, but hey, the
+  client should *think* a moment before calling this routine.
 */
   if (active == FALSE && logical == TRUE)
   { if (*p_abarj == NULL)
@@ -664,9 +670,9 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
 /*
   Copy over the values, doing the final unscaling if needed.  This cancels a
   scaling factor (1/S) attached to the scaled basis inverse. The only trick
-  here is that we need to account for logicals out of natural position and
-  acquire the correct scaling factor for the logical actually occupying
-  position i of the basis.
+  here is that we need to account for logicals out of natural position. The
+  correct scaling factor is 1/R[k], where k is the natural row for the
+  logical, which may not be the row i where it's currently basic.
 */
   if (scaled == TRUE)
   { for (i = 1 ; i <= m ; i++)
@@ -897,7 +903,8 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
   convenient to use a vector with S<i> in place of a unit coefficient to
   cancel the leading scale factor. We have to be careful to get the right
   scale factor --- the column scale factor for the logical for constraint i
-  is 1/R<i>, and logicals need not be in natural position.
+  is 1/R<i>, and this is true even if the logical is basic for some other
+  constraint k.
 */
   sc_betai = (double *) CALLOC((m+1),sizeof(double)) ;
   if (active == TRUE)
