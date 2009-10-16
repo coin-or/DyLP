@@ -791,11 +791,6 @@ static bool cold_loadfull (consys_struct *orig_sys,
 */
   if (ineqcnt > 0)
   { angles = ineqs->angles ;
-#   ifndef DYLP_NDEBUG
-    if (dy_opts->print.setup >= 2)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
-		  "\n    transferred %d inequalities ...",ineqcnt) ; }
-#   endif
     for (ndx = 0 ; ndx < ineqcnt ; ndx++)
     { i = angles[ndx].ndx ;
 #     ifndef DYLP_NDEBUG
@@ -813,7 +808,13 @@ static bool cold_loadfull (consys_struct *orig_sys,
 	       "activate","constraint",
 	       consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
 	retval = FALSE ;
-	break ; } } }
+	break ; } }
+#   ifndef DYLP_NDEBUG
+    if (dy_opts->print.setup >= 2)
+    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		  "\n    transferred %d inequalities ...",ineqcnt) ; }
+#   endif
+  }
 
   return (retval) ; }
 
@@ -1081,7 +1082,7 @@ dyret_enum dy_coldstart (consys_struct *orig_sys)
   client is negligent and passes in a constraint system which contains
   nonbinding rows and variables which are referenced only in the nonbinding
   rows. If we're running in dynamic mode, these variables will be found during
-  normal variable activation. But it we're running in fullsys mode, there will
+  normal variable activation. But if we're running in fullsys mode, there will
   be no second chance. Check for the situation and deal with it.
 */
   if (dy_opts->fullsys == TRUE)

@@ -722,7 +722,7 @@ static bool lpctl_finpurge (void)
       mkcref(zfinpurge_conminus1),mkcref(zpurge_ref),mkcref(zfinpurge_what) } ;
   static gdef(zfinpurge_def,
 	      sizeof(struct finpurge_struct),NULL,zfinpurge_alt) ;
-  static gref(zfinpurge,zfinpurge_def,bnfdebug,NULL,NULLP) ;
+  static gref(zfinpurge,zfinpurge_def,NULL,NULL,NULLP) ;
 
   dy_exposeOptDefaults(&opts_lb,&opts_dflt,&opts_ub) ;
 /*
