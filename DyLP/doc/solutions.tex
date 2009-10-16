@@ -182,7 +182,7 @@ If there are inactive constraints, the remaining coefficients in the column
 must be synthesized.
 Using the same notation as above for basis inverse columns, we have
 \begin{equation*}
-\inv{B} = \begin{bmatrix}
+\inv{B} a_j = \begin{bmatrix}
 	     \inv[0]{(B^t)} & 0 \\[.4ex]
 	     -B^l\inv[0]{(B^t)} & I^l
 	  \end{bmatrix}
@@ -218,8 +218,8 @@ will be
 \end{equation*}
 If the requested row is not active, the basis must be extended as outlined in
 previous paragraphs.
-\Dylp creates the partially scaled row vector $a^l_i S^B$, calculates an
-intermediate vector $a^l_i S^B \inv[0]{(\breve{B}^t)}$ and then completes the
+\Dylp creates the partially scaled row vector $e_i B^l S^B$, calculates an
+intermediate vector $e_i B^l S^B \inv[0]{(\breve{B}^t)}$ and then completes the
 calculation by postmultiplying by $R$ to remove the row scaling still present
 in \inv[0]{(\breve{B}^t)}.
 
@@ -318,8 +318,9 @@ driving the ray.
 There are three other sources of negation to consider:
 \begin{itemize}
   \item
-  If the leaving dual is apparently decreasing because it's associated with a
-  primal variable that's decreasing to its upper bound (and hence must have a
+  If the entering dual is apparently decreasing because it's associated with a
+  leaving primal variable that's decreasing to its upper bound (and hence
+  must have a
   negative reduced cost when it becomes nonbasic), the ray must be negated
   to compensate.
 
