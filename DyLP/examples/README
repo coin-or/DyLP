@@ -4,7 +4,7 @@
   `make examples' will build the dylp wrapper programs osi_dylp and
   odsi+dylp. You must have Dylp, OSI and OsiDylp built and installed before
   the makefile in this directory will work properly. Be sure to execute
-  `make install' in the top level directory of the distribution before
+  `make install' in the top level directory of the Dylp distribution before
   trying to build the examples.
 
   After building the sample wrapper programs, you should have two wrappers:

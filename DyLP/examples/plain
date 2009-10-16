@@ -123,7 +123,7 @@ else
   set unzipmpsfile = $mpsfile
 endif
 
-# Check for example.spc in the directory whee the mps file was located, and in
+# Check for example.spc in the directory where the mps file was located, and in
 # the current directory. Failing that, look for generic.spc in the same
 # places.
 

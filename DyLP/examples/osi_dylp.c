@@ -2,7 +2,7 @@
   This file is a portion of the Dylp LP distribution.
 
         Copyright (C) 2004 Lou Hafer, Stephen Tse
-        Copyright (C) 2005 -- 2007 Lou Hafer
+        Copyright (C) 2005 -- 2009 Lou Hafer
 
         School of Computing Science
         Simon Fraser University
@@ -456,15 +456,14 @@ static void stats_lp (const char *outpath, bool echo, lpprob_struct *lp,
 
 
 
-static lpret_enum do_lp_all (struct timeval *elapsed, int printlvl)
+static lpret_enum do_lp (struct timeval *elapsed, int printlvl)
 
 /*
-  This routine is a wrapper which makes up the difference between the
-  setup completed in the main program and the setup expected by dylp_dolp.
-  Structures are created for the lp problem, options, tolerances, and
-  statistics, and passed to dylp_dolp. Once the lp completes, the stats are
-  printed and the statistics structure is released. Other cleanup is handled
-  in main.
+  This routine is a wrapper which makes up the difference between the setup
+  completed in the main program and the setup expected by dylp.  Structures
+  are created for the lp problem, options, tolerances, and statistics, and
+  passed to dylp. Once the lp completes, the stats are printed and the
+  statistics structure is released. Other cleanup is handled in main.
 
   Returns: lp status code; lpINV is used in the event of a fatal error that's
 	   not really dylp's fault.
@@ -480,7 +479,7 @@ static lpret_enum do_lp_all (struct timeval *elapsed, int printlvl)
 
   struct timeval diff,before,after ;
 
-  const char *rtnnme = "do_lp_all" ;
+  const char *rtnnme = "do_lp" ;
 
   lpret = lpINV ;
 
@@ -493,29 +492,15 @@ static lpret_enum do_lp_all (struct timeval *elapsed, int printlvl)
   main_lp->rowsze = main_sys->rowsze ;
   main_lp->colsze = main_sys->colsze ;
 /*
-  Step through the constraints and replace ax >= b constraints with (-a)x <=
-  -b constraints. consys_mulrow will take care of the necessary
-  modifications. Normally this would be handled in mpsin, along with the
-  deletion of empty constraints, but the OSI test suite isn't tolerant of
-  changing the sense of constraints, let alone removing a few. Arguably a
-  good thing.
-*/
-  flipped = (bool *) CALLOC(main_sys->concnt+1,sizeof(bool)) ;
-  flips = 0 ;
-  for (ndx = main_sys->concnt ; ndx > 0 ; ndx--)
-  { if (main_sys->ctyp[ndx] == contypGE)
-    { if (consys_mulrow(main_sys,ndx,-1.0) == FALSE)
-      { errmsg(112,rtnnme,main_sys->nme,"scalar multiply","row",
-	       consys_nme(main_sys,'c',ndx,FALSE,NULL),ndx) ;
-	FREE(flipped) ;
-	return (lpFATAL) ; }
-      flipped[ndx] = TRUE ;
-      flips++ ; } }
-/*
   Set up options, statistics, and solve the lp. After we're done, dump the
-  statistics and free the dylp statistics structure. The options specified
-  here (cold start using a logical basis and the full constraint system) are
-  appropriate for the initial solution of an LP.
+  statistics and free the dylp statistics structure. The options specified in
+  the main routine (cold start using a logical basis and the full constraint
+  system) are appropriate for the initial solution of an LP.
+
+  In particular, if you're modifying this driver to do more than just solve
+  the LP (for example, if you want access to tableau information after dylp
+  returns with an answer) you really want to set the lpctlNOFREE flag in
+  main_lp->ctlopts. See the comments in dylp.h for the available flags.
 */
   initial_lpopts = (lpopts_struct *) MALLOC(sizeof(lpopts_struct)) ;
   memcpy(initial_lpopts,main_lpopts,sizeof(lpopts_struct)) ;
@@ -539,28 +524,6 @@ static lpret_enum do_lp_all (struct timeval *elapsed, int printlvl)
 # ifdef DYLP_STATISTICS
   dy_freestats(&initial_lpstats) ;
 # endif
-
-/*
-  Time to undo any constraint flips. We also have to tweak the corresponding
-  duals --- flipping the sign of a row in the basis corresponds to flipping the
-  sign of a column in the basis inverse, which means that the sign of the
-  corresponding dual is flipped. This requires a little care --- if we're in
-  dynamic mode, some constraints may be inactive.
-*/
-  if (flips > 0)
-  { for (ndx = main_sys->concnt ; ndx > 0 ; ndx--)
-    { if (flipped[ndx] == TRUE)
-      { if (consys_mulrow(main_sys,ndx,-1.0) == FALSE)
-	{ errmsg(112,rtnnme,main_sys->nme,"scalar multiply","row",
-		 consys_nme(main_sys,'c',ndx,FALSE,NULL),ndx) ;
-	  FREE(flipped) ;
-	  return (lpFATAL) ; } } }
-    if (main_lp->y != NULL)
-    { basis = main_lp->basis ;
-      for (ndx = 0 ; ndx < basis->len ; ndx++)
-      { i = basis->el[ndx].cndx ;
-	if (flipped[i] == TRUE) main_lp->y[ndx] = -main_lp->y[ndx] ; } } }
-  FREE(flipped) ;
 
   if (initial_lpopts != NULL) FREE(initial_lpopts) ;
 
@@ -857,7 +820,7 @@ int main (int argc, char *argv[])
 /*
   Run the lp.
 */
-  if (do_lp_all(&lptime,printlvl) == FALSE)
+  if (do_lp(&lptime,printlvl) == FALSE)
   { errmsg(443,rtnnme,main_sys->nme,dy_prtlpphase(main_lp->phase,TRUE),
 	   main_lp->iters) ; }
 /*
@@ -917,3 +880,4 @@ int main (int argc, char *argv[])
 */
 
   return (0) ; }
+
