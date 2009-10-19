@@ -20,8 +20,9 @@
   
   The dylp documentation makes heavy use of my highly customised local TeX
   environment. In particular, I don't like Computer Modern and have gone to
-  great lengths to remove it.  I've tried to include all the necessary TeX
-  style and font files (in the TexMF subdirectory) but expect problems.
+  great lengths to remove it.  I've tried to include all the necessary custom
+  TeX style and font files in the TexMF subdirectory, but expect problems.
+  See the README there.
 
   COIN distributions are set up so that they can be built in a build
   directory, distinct from the distribution directory. This is very useful
@@ -54,7 +55,8 @@
   The general sequence is to build the figures in Figures, then run latex,
   then run bibtex, then run latex two more times. By the end of all this, all
   references should be correctly resolved. This gets DVI output; to generate
-  PDF output, a final run of pdflatex is executed.
+  PDF output, a final run of pdflatex is executed. PostScript is generated
+  using dvips.
 
   The figures in the dylp documentation were originally created with a
   proprietary program, IslandDraw from Island Graphics. For purposes of

@@ -8,7 +8,8 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST = doxydoc/doxygen.conf
+EXTRA_DIST = doxydoc/doxygen.conf \
+	     INSTALL LICENSE README
 
 ########################################################################
 #                          Subdirectories                              #

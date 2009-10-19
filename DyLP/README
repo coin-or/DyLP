@@ -16,11 +16,11 @@
   checks to catch errors during program development.
 
   Dylp development takes place in a Sun Solaris/Workshop programming
-  environment, most recently Solaris 10 and Sun Studio C 5.8.  It is also
-  tested in Linux and Windows environments.  COIN-OR places some importance
-  on Windows compatibility, and if you can build COIN at all, then dylp
-  should run. If it doesn't, please report the problem by filing a ticket at
-  https://projects.coin-or.org/DyLP/
+  environment, most recently Solaris 10 and Sun Studio 12 (cc 5.9).  It is
+  also tested in Linux and Windows environments.  COIN-OR places some
+  importance on Windows compatibility, and if you can build COIN at all, then
+  dylp should run. If it doesn't, please report the problem by filing a
+  ticket at https://projects.coin-or.org/DyLP/
 
   Generally speaking, if your computing environment supports IEEE floating
   point then it should be possible to port dylp with very little effort.
@@ -44,18 +44,28 @@
 
    Here's a selection of resources:
    
-   http://www.coin-or.org/projects.html	The main COIN-OR projects page.
+   http://www.coin-or.org/projects	The main COIN-OR projects page.
    
-   http://projects.coin-or.org/DyLP	Dylp's Trac page. From here, you can
+   https://projects.coin-or.org/DyLP	Dylp's Trac page. From here, you can
 					read about dylp, browse the code, and
 					file tickets for bug reports.
 
   SVN repository:
 
-  http://www.coin-or.org/svn/DyLP/stable	stable branch
-  http://www.coin-or.org/svn/DyLP/trunk		development branch
+  https://www.coin-or.org/svn/DyLP/trunk	development branch
+  https://www.coin-or.org/svn/DyLP/stable	stable branches
+  https://www.coin-or.org/svn/DyLP/releases	releases
+ 
+  The releases are frozen snapshots of the corresponding stable branches.
+  Stable branches get bug fixes, which eventually trigger a new release. Unless
+  you have some good reason to do otherwise, pick the highest numbered stable
+  branch or release.
 
 
   Mailing list:
 
   http://list.coin-or.org/mailman/listinfo/dylp
+
+  If you're using DyLP via the OsiDylp interface, you probably want to monitor
+  the Osi mailing list.
+

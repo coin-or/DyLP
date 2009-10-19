@@ -224,7 +224,8 @@ subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = doxydoc/doxygen.conf $(am__append_1)
+EXTRA_DIST = doxydoc/doxygen.conf INSTALL LICENSE README \
+	$(am__append_1)
 
 ########################################################################
 #                          Subdirectories                              #

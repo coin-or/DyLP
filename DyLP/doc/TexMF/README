@@ -1,0 +1,30 @@
+
+  This TexMF directory tree contains various original and customised files
+  used in the course of building dylp's documentation. Here's what you'll
+  find:
+
+  * Under bibtex, the bibliography file dylp.bib, and a slightly tweaked
+    version of the plain bibliography style in louplain.bst.
+
+  * Under fonts, a bevy of .tfm and .vf files.  As mentioned in the top-level
+    README, I'm not a fan of Computer Modern and have gone to a fair bit of
+    trouble to avoid using it. For text, this is relatively straightforward.
+    For math, it takes real work.
+
+    The .tfm and .vf files in this directory are all used in some way to
+    avoid Computer Modern and make the result look decent in Bookman (with a
+    selection of glyphs from other fonts thrown in on the math side). The
+    .tfm files are used while LaTeX is typesetting.  The .vf files are used
+    by dvips (and xdvi, if memory serves) to find the underlying glyph shapes.
+
+    To regenerate these files (and the .fd files in the tex subtree) you
+    should be comfortable with font manipulation and virtual font generation
+    using fontinst. Email me (lou@cs.sfu.ca) and I'll forward the necessary
+    sources and makefiles.
+
+  * Under tex, there are a number of style files that I use and yet more font
+    files --- .fd files that specify how LaTeX font directives should map to
+    the underlying fonts.
+
+						Lou Hafer, 091019
+

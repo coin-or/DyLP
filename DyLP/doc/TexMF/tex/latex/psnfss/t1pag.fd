@@ -4,6 +4,8 @@
 
 %THIS FILE SHOULD BE PUT IN A TEX INPUTS DIRECTORY
 
+% Modified to shrink the font by .9 to match the x height with Bookman.
+
 \ProvidesFile{T1pag.fd}
    [1995/08/11 Fontinst v1.335 font definitions for T1/pag.]
 

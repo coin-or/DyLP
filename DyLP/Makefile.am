@@ -31,6 +31,7 @@ endif
 # Here we need include all files that are not mentioned in other Makefiles
 
 EXTRA_DIST = \
+	AUTHORS LICENSE README NEWS \
 	examples/generic.spc \
 	examples/greenbeb.spc \
 	examples/Makefile.in \

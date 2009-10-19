@@ -64,7 +64,7 @@ DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/dylp_addlibs.txt.in $(top_srcdir)/configure \
 	$(top_srcdir)/examples/Makefile.in \
-	$(top_srcdir)/inc/config_dylp.h.in AUTHORS
+	$(top_srcdir)/inc/config_dylp.h.in AUTHORS NEWS
 @HAVE_EXTERNALS_TRUE@am__append_2 = Externals
 @HAVE_EXTERNALS_TRUE@am__append_3 = .Externals-stamp
 subdir = .
@@ -266,10 +266,11 @@ SUBDIRS = src/DylpStdLib src/Dylp examples $(am__append_1)
 ########################################################################
 
 # Here we need include all files that are not mentioned in other Makefiles
-EXTRA_DIST = examples/generic.spc examples/greenbeb.spc \
-	examples/Makefile.in examples/mpsio.c examples/odsi+dylp.cpp \
-	examples/osi_dylp.c examples/osi+dylp.cpp examples/plain \
-	examples/README $(am__append_2)
+EXTRA_DIST = AUTHORS LICENSE README NEWS examples/generic.spc \
+	examples/greenbeb.spc examples/Makefile.in examples/mpsio.c \
+	examples/odsi+dylp.cpp examples/osi_dylp.c \
+	examples/osi+dylp.cpp examples/plain examples/README \
+	$(am__append_2)
 
 ########################################################################
 #                  Installation of the addlibs file                    #
