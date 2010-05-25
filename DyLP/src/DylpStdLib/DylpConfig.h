@@ -27,10 +27,6 @@
 #ifndef __DYLPCONFIG_H__
 #define __DYLPCONFIG_H__
 
-#ifndef DYLP_VERSION
-#define DYLP_VERSION "1.6"
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "config_dylp.h"
 
