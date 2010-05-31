@@ -52,6 +52,11 @@
 #include "configall_system.h"
 
 /*
+  Dylp version.
+*/
+#define DYLPVERSION trunk
+
+/*
   Defines specific to dylp.
 */
 
