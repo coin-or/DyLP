@@ -220,8 +220,7 @@ AC_CONFIG_FILES([Makefile
                  src/DylpStdLib/Makefile
                  src/Dylp/Makefile
                  src/OsiDylp/Makefile
-		 test/Makefile
-		 dylp_addlibs.txt])
+                 test/Makefile])
 
 # The pkg-config data files
 

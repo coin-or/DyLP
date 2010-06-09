@@ -65,8 +65,8 @@ DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/../install-sh $(srcdir)/../ltmain.sh \
 	$(srcdir)/../missing $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/dylp-uninstalled.pc.in \
-	$(srcdir)/dylp.pc.in $(srcdir)/dylp_addlibs.txt.in \
-	$(top_srcdir)/configure $(top_srcdir)/examples/Makefile.in \
+	$(srcdir)/dylp.pc.in $(top_srcdir)/configure \
+	$(top_srcdir)/examples/Makefile.in \
 	$(top_srcdir)/inc/config_dylp.h.in \
 	$(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in AUTHORS \
 	NEWS
@@ -88,8 +88,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
-CONFIG_CLEAN_FILES = examples/Makefile dylp_addlibs.txt dylp.pc \
-	dylp-uninstalled.pc osi-dylp-uninstalled.pc
+CONFIG_CLEAN_FILES = examples/Makefile dylp.pc dylp-uninstalled.pc \
+	osi-dylp-uninstalled.pc
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -383,8 +383,6 @@ $(top_srcdir)/inc/config_dylp.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 distclean-hdr:
 	-rm -f inc/config_dylp.h inc/stamp-h1
 examples/Makefile: $(top_builddir)/config.status $(top_srcdir)/examples/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-dylp_addlibs.txt: $(top_builddir)/config.status $(srcdir)/dylp_addlibs.txt.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 dylp.pc: $(top_builddir)/config.status $(srcdir)/dylp.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

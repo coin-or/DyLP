@@ -25369,7 +25369,7 @@ fi
 # configuration header file). First the usual stuff: DyLP's top-level Makefile,
 # the code Makefiles (src/*/Makefile), and the test Makefile.
 
-                                                                      ac_config_files="$ac_config_files Makefile examples/Makefile src/DylpStdLib/Makefile src/Dylp/Makefile src/OsiDylp/Makefile test/Makefile dylp_addlibs.txt"
+                                                            ac_config_files="$ac_config_files Makefile examples/Makefile src/DylpStdLib/Makefile src/Dylp/Makefile src/OsiDylp/Makefile test/Makefile"
 
 
 # The pkg-config data files
@@ -26124,7 +26124,6 @@ do
   "src/Dylp/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Dylp/Makefile" ;;
   "src/OsiDylp/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/OsiDylp/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
-  "dylp_addlibs.txt" ) CONFIG_FILES="$CONFIG_FILES dylp_addlibs.txt" ;;
   "dylp.pc" ) CONFIG_FILES="$CONFIG_FILES dylp.pc" ;;
   "dylp-uninstalled.pc" ) CONFIG_FILES="$CONFIG_FILES dylp-uninstalled.pc" ;;
   "src/OsiDylp/osi-dylp.pc" ) CONFIG_FILES="$CONFIG_FILES src/OsiDylp/osi-dylp.pc" ;;

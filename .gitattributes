@@ -134,7 +134,6 @@ DyLP/doc/updateformulae.tex -text
 DyLP/doc/varmgmt.tex -text
 DyLP/dylp-uninstalled.pc.in -text
 DyLP/dylp.pc.in -text
-DyLP/dylp_addlibs.txt.in -text
 DyLP/examples/Makefile.in -text
 DyLP/examples/generic.spc -text
 DyLP/inc/config_dylp.h.in -text

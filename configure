@@ -21145,8 +21145,6 @@ echo "$as_me: configuring doxygen documentation options" >&6;}
 
 # Check to see if doxygen is available.
 
-echo "$as_me:$LINENO: checking for doxygen" >&5
-echo $ECHO_N "checking for doxygen... $ECHO_C" >&6
 # Extract the first word of "doxygen", so it can be a program name with args.
 set dummy doxygen; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -21183,8 +21181,6 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-echo "$as_me:$LINENO: result: $coin_cv_have_doxygen" >&5
-echo "${ECHO_T}$coin_cv_have_doxygen" >&6
 
 # Look for the dot tool from the graphviz package, unless the user has
 # disabled it.
@@ -21195,16 +21191,12 @@ if test "${with_dot+set}" = set; then
   withval="$with_dot"
 
 else
-  withval=yes
+  withval=dot
 fi;
-  if test x$withval = xno ; then
-    coin_cv_use_dot=no
-    echo "$as_me:$LINENO: result: disabled" >&5
-echo "${ECHO_T}disabled" >&6
-  else
-    echo "$as_me:$LINENO: checking for dot" >&5
-echo $ECHO_N "checking for dot... $ECHO_C" >&6
-    # Extract the first word of "$withval", so it can be a program name with args.
+if test x$withval = xno ; then
+  coin_cv_use_dot=no
+else
+  # Extract the first word of "$withval", so it can be a program name with args.
 set dummy $withval; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
@@ -21240,9 +21232,7 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-    echo "$as_me:$LINENO: result: $coin_cv_use_dot" >&5
-echo "${ECHO_T}$coin_cv_use_dot" >&6
-  fi
+fi
 
 
 
