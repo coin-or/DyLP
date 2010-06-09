@@ -12,7 +12,11 @@ AUTOMAKE_OPTIONS = foreign
 #                          Subdirectories                              #
 ########################################################################
 
-SUBDIRS = src/DylpStdLib src/Dylp examples
+SUBDIRS = src/DylpStdLib src/Dylp
+if COIN_HAS_OSI
+  SUBDIRS += src/OsiDylp
+endif
+SUBDIRS += examples
 
 # We don't want to compile the test subdirectory, unless the test target is
 # specified.  But we need to list it as subdirectory to make sure that it is
@@ -49,13 +53,6 @@ EXTRA_DIST = \
 test: all
 	@echo "Building and running dylp unit test."
 	@cd test ; $(MAKE) test
-	@if test -r ../Osi/test/Makefile; then \
-	   echo "Building and running OsiDylp unit test." ; \
-	   cd ../Osi/test; \
-	   $(MAKE) test; \
-	 else \
-	   echo "Osi not present; skipping Osi unit test."; \
-	 fi
 
 # Autotools does a good job on code, but it doesn't deal well with LaTeX
 # documentation. A few rules to help it along. Note that we don't delete
@@ -91,14 +88,21 @@ maintainer-clean-local: distclean-local
 #                  Installation of the addlibs file                    #
 ########################################################################
 
-addlibsfile = dylp_addlibs.txt
-addlibsdir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)/
+if COIN_HAS_PKGCONFIG
+addlibsdir = $(datadir)/coin/doc/DyLP
+addlibs_DATA = dylp_addlibs.txt
+
+dylp_addlibs.txt : dylp.pc
+	PKG_CONFIG_PATH=.:@COIN_PKG_CONFIG_PATH@ $(PKG_CONFIG) --libs dylp > dylp_addlibs.txt
+endif
+
+pkgconfiglibdir = $(libdir)/pkgconfig
+pkgconfiglib_DATA = dylp.pc
+
 
 install-exec-local: install-doc
-	$(install_sh_DATA) $(addlibsfile) $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 uninstall-local: uninstall-doc
-	rm -f $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 ########################################################################
 #                         Maintainer Stuff                             #
@@ -111,4 +115,4 @@ ACLOCAL_AMFLAGS = -I m4
 # Files that are generated and should be cleaned with make distclean
 DISTCLEANFILES =
 
-include ../BuildTools/Makemain.inc
+include ../../BuildTools/Makemain.inc

@@ -26,6 +26,8 @@ SUBDIRS = $(subdirs)
 test: all
 	cd DyLP; $(MAKE) test
 
+unitTest: test
+
 tests: all
 	for dir in $(subdirs); do \
 	  if test -r $$dir/test/Makefile; then \
@@ -38,7 +40,7 @@ unitTests: tests
 doxydoc:
 	cd $(srcdir); doxygen doxydoc/doxygen.conf
 
-.PHONY: tests unitTests doxydoc
+.PHONY: test unitTest tests unitTests doxydoc
 
 ########################################################################
 #                         Maintainer Stuff                             #
@@ -47,4 +49,5 @@ doxydoc:
 # Files that are generated and should be cleaned with make distclean
 DISTCLEANFILES =
 
-include BuildTools/Makemain.inc
+include ../BuildTools/Makemain.inc
+

@@ -12,8 +12,9 @@ AUTOMAKE_OPTIONS = foreign
 #                            libDylpStdLib                             #
 ########################################################################
 
-# Name of the library compiled in this directory.  We don't want it to be installed
-# since it will be included in the libDylp library
+# Name of the library compiled in this directory.  We don't want it to be
+# installed since it will be included in the libDylp library
+
 noinst_LTLIBRARIES = libDylpStdLib.la
 
 # List all source files for this library, including headers

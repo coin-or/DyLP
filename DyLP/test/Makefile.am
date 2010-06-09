@@ -9,7 +9,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 ########################################################################
-#                      unitTest for DyLP                          #
+#                      unitTest for DyLP                               #
 ########################################################################
 
 noinst_PROGRAMS = unitTest
@@ -21,8 +21,9 @@ unitTest_SOURCES = \
 	dytest_tableau.c \
 	unitTest.c
 
-# List libraries of COIN projects
-unitTest_LDADD = $(DYLPOBJDIR)/src/Dylp/libDylp.la
+# List libraries of COIN projects required for the unitTest
+
+unitTest_LDADD = ../src/Dylp/libDylp.la
 
 # List additional libraries
 LIBS += $(ADDLIBS)
@@ -34,13 +35,45 @@ AM_CPPFLAGS = \
         -I`$(CYGPATH_W) $(srcdir)/../src/DylpStdLib` \
         -I`$(CYGPATH_W) $(srcdir)/../src/Dylp`
 
+########################################################################
+#                      unitTest for OsiDyLP                            #
+########################################################################
+
+if COIN_HAS_OSITESTS
+
+noinst_PROGRAMS += osiUnitTest
+
+osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
+
+osiUnitTest_LDADD = ../src/Dylp/libDylp.la ../src/OsiDylp/libOsiDylp.la \
+	$(COINUTILS_LIBS) $(OSITESTS_LIBS)
+
+AM_CPPFLAGS += -I`$(CYGPATH_W) $(srcdir)/../src/OsiDylp` \
+	$(COINUTILS_CFLAGS) $(OSITESTS_CFLAGS)
+
+osiTestDep = osiUnitTest$(EXEEXT)
+
+osiunittestflags = -mpsDir=`$(CYGPATH_W) $(SAMPLE_DATA)`
+if COIN_HAS_NETLIB
+  osiunittestflags += -netlibDir=`$(CYGPATH_W) $(NETLIB_DATA)` \
+		      -testOsiSolverInterface
+endif
+endif
+
+########################################################################
+#                          test target                                 #
+########################################################################
+
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin
 
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 
-test: unitTest$(EXEEXT)
-	./unitTest$(EXEEXT)
+test: unitTest$(EXEEXT) $(osiTestDep)
+	./unitTest$(EXEEXT) ; \
+	if test -e osiUnitTest$(EXEEXT) ; then \
+	  ./osiUnitTest$(EXEEXT) $(osiunittestflags) ; \
+	fi
 
 .PHONY: test
 

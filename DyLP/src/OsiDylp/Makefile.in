@@ -19,6 +19,8 @@
 # This file is distributed under the Common Public License.
 
 # Author:  Andreas Waechter           IBM    2006-04-13
+#	   Lou Hafer		      SFU    many modifications since
+
 
 
 srcdir = @srcdir@
@@ -43,9 +45,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = src/Dylp
+subdir = src/OsiDylp
 DIST_COMMON = $(includecoin_HEADERS) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+	$(srcdir)/Makefile.in $(srcdir)/osi-dylp.pc.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
 	$(top_srcdir)/m4/ac_c_get_sunpro_libs.m4 \
@@ -59,7 +61,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
-CONFIG_CLEAN_FILES =
+CONFIG_CLEAN_FILES = osi-dylp.pc
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -67,23 +69,23 @@ am__vpath_adj = case $$p in \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(coinlibdir)" \
-	"$(DESTDIR)$(includecoindir)"
+	"$(DESTDIR)$(pkgconfiglibdir)" "$(DESTDIR)$(includecoindir)"
 coinlibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(coinlib_LTLIBRARIES)
-am_libDylp_la_OBJECTS = dy_consys_io.lo dy_consys_mathutils.lo \
-	dy_consys_scaling.lo dy_consys_utils.lo dy_basis.lo \
-	dy_bound.lo dy_cmdint.lo dy_coldstart.lo dy_conmgmt.lo \
-	dy_dual.lo dy_dualmultipivot.lo dy_dualpivot.lo dy_duenna.lo \
-	dy_force.lo dy_hotstart.lo dylp.lo dylp_io.lo dylp_utils.lo \
-	dy_options.lo dy_penalty.lo dy_pivreject.lo dy_primal.lo \
-	dy_primalmultipivot.lo dy_primalpivot.lo dy_rays.lo \
-	dy_scaling.lo dy_setup.lo dy_solutions.lo dy_statistics.lo \
-	dy_tableau.lo dy_varmgmt.lo dy_warmstart.lo glpinv.lo \
-	glplib1.lo glplib2.lo glplib3.lo glplib4.lo glpluf.lo \
-	dy_vector_utils.lo
-libDylp_la_OBJECTS = $(am_libDylp_la_OBJECTS)
+libOsiDylp_la_LIBADD =
+am_libOsiDylp_la_OBJECTS = OsiDylpMessages.lo OsiDylpPresolve.lo \
+	OsiDylpSolverInterface.lo OsiDylpWarmStartBasis.lo
+libOsiDylp_la_OBJECTS = $(am_libOsiDylp_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
@@ -92,8 +94,10 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libDylp_la_SOURCES)
-DIST_SOURCES = $(libDylp_la_SOURCES)
+SOURCES = $(libOsiDylp_la_SOURCES)
+DIST_SOURCES = $(libOsiDylp_la_SOURCES)
+pkgconfiglibDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(pkgconfiglib_DATA)
 includecoinHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(includecoin_HEADERS)
 ETAGS = etags
@@ -267,76 +271,34 @@ sol_cc_compiler = @sol_cc_compiler@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = dy_errmsgs.txt
 
 ########################################################################
-#                               libDylp                                #
+#                             libOsiDylp                               #
 ########################################################################
 
-# Name of the library compiled in this directory.  We want it to be installed
-# in the 'lib/coin' directory
+# Name of the library compiled in this directory. We want it installed in
+# lib/coin
 coinlibdir = $(libdir)/coin
-coinlib_LTLIBRARIES = libDylp.la
+coinlib_LTLIBRARIES = libOsiDylp.la
 
 # List all source files for this library, including headers
-libDylp_la_SOURCES = \
-	dy_consys.h \
-	dy_consys_io.c \
-	dy_consys_mathutils.c \
-	dy_consys_scaling.c \
-	dy_consys_utils.c \
-	dy_basis.c \
-	dy_bound.c \
-	dy_cmdint.c dy_cmdint.h \
-	dy_coldstart.c \
-	dy_conmgmt.c \
-	dy_dual.c \
-	dy_dualmultipivot.c \
-	dy_dualpivot.c \
-	dy_duenna.c \
-	dy_force.c \
-	dy_hotstart.c \
-	dylp.c dylp.h \
-	dylp_io.c \
-	dylp_utils.c \
-	dy_options.c \
-	dy_penalty.c \
-	dy_pivreject.c \
-	dy_primal.c \
-	dy_primalmultipivot.c \
-	dy_primalpivot.c \
-	dy_rays.c \
-	dy_scaling.c \
-	dy_setup.c \
-	dy_solutions.c \
-	dy_statistics.c \
-	dy_tableau.c \
-	dy_varmgmt.c \
-	dy_warmstart.c \
-	glpinv.c glpinv.h \
-	glplib1.c \
-	glplib2.c \
-	glplib3.c \
-	glplib4.c \
-	glplib.h \
-	glpluf.c glpluf.h \
-	dy_vector.h \
-	dy_vector_utils.c
+libOsiDylp_la_SOURCES = \
+	OsiDylpMessages.cpp OsiDylpMessages.hpp \
+	OsiDylpPresolve.cpp \
+	OsiDylpSolverInterface.cpp OsiDylpSolverInterface.hpp \
+	OsiDylpWarmStartBasis.cpp OsiDylpWarmStartBasis.hpp
 
 
 # This is for libtool (on Windows)
-libDylp_la_LDFLAGS = $(LT_LDFLAGS)
-
-# We want to have also the objects from the DylpStdLib in this library
-libDylp_la_LIBADD = ../DylpStdLib/libDylpStdLib.la
-
-# Since automake is not doing this on its own, we need to declare the
-# dependencies to the subdirectory libraries here
-libDylp_la_DEPENDENCIES = $(libDylp_la_LIBADD)
+libOsiDylp_la_LDFLAGS = $(LT_LDFLAGS)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
-# "cygpath" stuff is necessary to compile with native compilers on Windows
-AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../DylpStdLib`
+# "cygpath" stuff is necessary to compile with native compilers on Windows.
+# We can't just use DYLP_CFLAGS here because Dylp isn't installed yet.
+AM_CPPFLAGS = $(COINUTILS_CFLAGS) $(OSI_CFLAGS) \
+	-I`$(CYGPATH_W) $(srcdir)/../Dylp` \
+	-I`$(CYGPATH_W) $(srcdir)/../DylpStdLib` 
+
 
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin
@@ -350,15 +312,16 @@ DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 # and that therefore should be installed in 'install/coin'
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = \
-	dy_cmdint.h \
-	dy_consys.h \
-	dylp.h \
-	dy_vector.h
+	OsiDylpMessages.hpp \
+	OsiDylpSolverInterface.hpp \
+	OsiDylpWarmStartBasis.hpp
 
+pkgconfiglibdir = $(libdir)/pkgconfig
+pkgconfiglib_DATA = osi-dylp.pc
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .cpp .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -368,9 +331,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/Dylp/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/OsiDylp/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  src/Dylp/Makefile
+	  $(AUTOMAKE) --foreign  src/OsiDylp/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -388,6 +351,8 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+osi-dylp.pc: $(top_builddir)/config.status $(srcdir)/osi-dylp.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 install-coinlibLTLIBRARIES: $(coinlib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(coinlibdir)" || $(mkdir_p) "$(DESTDIR)$(coinlibdir)"
@@ -415,8 +380,8 @@ clean-coinlibLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libDylp.la: $(libDylp_la_OBJECTS) $(libDylp_la_DEPENDENCIES) 
-	$(LINK) -rpath $(coinlibdir) $(libDylp_la_LDFLAGS) $(libDylp_la_OBJECTS) $(libDylp_la_LIBADD) $(LIBS)
+libOsiDylp.la: $(libOsiDylp_la_OBJECTS) $(libOsiDylp_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(coinlibdir) $(libOsiDylp_la_LDFLAGS) $(libOsiDylp_la_OBJECTS) $(libOsiDylp_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -424,66 +389,31 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_basis.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_bound.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_cmdint.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_coldstart.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_conmgmt.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_io.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_mathutils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_scaling.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_consys_utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_dual.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_dualmultipivot.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_dualpivot.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_duenna.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_force.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_hotstart.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_options.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_penalty.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_pivreject.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_primal.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_primalmultipivot.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_primalpivot.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_rays.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_scaling.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_setup.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_solutions.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_statistics.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_tableau.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_varmgmt.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_vector_utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_warmstart.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylp.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylp_io.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylp_utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glpinv.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glplib1.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glplib2.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glplib3.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glplib4.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/glpluf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpMessages.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpPresolve.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpSolverInterface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpWarmStartBasis.Plo@am__quote@
 
-.c.o:
-@am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+.cpp.o:
+@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
 
-.c.obj:
-@am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+.cpp.obj:
+@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-.c.lo:
-@am__fastdepCC_TRUE@	if $(LTCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Plo"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+.cpp.lo:
+@am__fastdepCXX_TRUE@	if $(LTCXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Plo"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -494,6 +424,23 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+install-pkgconfiglibDATA: $(pkgconfiglib_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkgconfiglibdir)" || $(mkdir_p) "$(DESTDIR)$(pkgconfiglibdir)"
+	@list='$(pkgconfiglib_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(pkgconfiglibDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgconfiglibdir)/$$f'"; \
+	  $(pkgconfiglibDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgconfiglibdir)/$$f"; \
+	done
+
+uninstall-pkgconfiglibDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkgconfiglib_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(pkgconfiglibdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(pkgconfiglibdir)/$$f"; \
+	done
 install-includecoinHEADERS: $(includecoin_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includecoindir)" || $(mkdir_p) "$(DESTDIR)$(includecoindir)"
@@ -589,9 +536,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(coinlibdir)" "$(DESTDIR)$(includecoindir)"; do \
+	for dir in "$(DESTDIR)$(coinlibdir)" "$(DESTDIR)$(pkgconfiglibdir)" "$(DESTDIR)$(includecoindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-am
@@ -639,7 +586,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-coinlibLTLIBRARIES install-includecoinHEADERS
+install-data-am: install-coinlibLTLIBRARIES install-includecoinHEADERS \
+	install-pkgconfiglibDATA
 
 install-exec-am:
 
@@ -668,7 +616,8 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-coinlibLTLIBRARIES \
-	uninstall-includecoinHEADERS uninstall-info-am
+	uninstall-includecoinHEADERS uninstall-info-am \
+	uninstall-pkgconfiglibDATA
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean \
 	clean-coinlibLTLIBRARIES clean-generic clean-libtool ctags \
@@ -677,12 +626,14 @@ uninstall-am: uninstall-coinlibLTLIBRARIES \
 	html-am info info-am install install-am \
 	install-coinlibLTLIBRARIES install-data install-data-am \
 	install-exec install-exec-am install-includecoinHEADERS \
-	install-info install-info-am install-man install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-info install-info-am install-man \
+	install-pkgconfiglibDATA install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-coinlibLTLIBRARIES \
-	uninstall-includecoinHEADERS uninstall-info-am
+	uninstall-includecoinHEADERS uninstall-info-am \
+	uninstall-pkgconfiglibDATA
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

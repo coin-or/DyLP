@@ -1,3 +1,4 @@
+
 # Copyright (C) 2006 International Business Machines.
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
@@ -5,6 +6,7 @@
 ## $Id$
 
 # Author:  Andreas Waechter            IBM    2006-04-13
+# 	   Lou Hafer		       SFU    many mods since then
 
 #############################################################################
 #                       Names and other basic things                        #
@@ -12,7 +14,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([DyLP],[0.1],[coin-dylp@lists.coin-or.org])
+AC_INIT([DyLP],[trunk],[coin-dylp@lists.coin-or.org])
 
 AC_COPYRIGHT([
 Copyright 2006 International Business Machines and others.
@@ -20,7 +22,7 @@ All Rights Reserved.
 This file is part of the open source package Coin which is distributed
 under the Common Public License.])
 
-AC_REVISION(0.9)
+AC_REVISION(0.10)
 
 # List one file in the package so that the configure script can test
 # whether the package is actually there
@@ -42,11 +44,7 @@ AC_COIN_CREATE_LIBTOOL
 #                  Check which subprojects are there                        #
 #############################################################################
 
-AC_COIN_MAIN_SUBDIRS(DyLP)
-AC_COIN_MAIN_SUBDIRS(CoinUtils)
-AC_COIN_MAIN_SUBDIRS(Osi)
-AC_COIN_MAIN_SUBDIRS(Data/Netlib)
-AC_COIN_MAIN_SUBDIRS(Data/Sample)
+AC_COIN_MAIN_PACKAGEDIR(DyLP)
 
 #############################################################################
 #                  Check for doxygen                                        #
@@ -64,3 +62,4 @@ AC_CONFIG_FILES([Makefile])
 
 # Finally, we let configure write all the output...
 AC_COIN_FINALIZE
+

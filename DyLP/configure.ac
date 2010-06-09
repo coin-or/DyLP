@@ -22,11 +22,11 @@ All Rights Reserved.
 This file is part of the open source package Coin which is distributed
 under the Common Public License.])
 
-AC_REVISION(0.9)
+AC_REVISION(0.10)
 
 # List one file in the package so that the configure script can test
 # whether the package is actually there
-AC_CONFIG_SRCDIR(src/Dylp/dy_vector.h)
+AC_CONFIG_SRCDIR(src/Dylp/dylp.h)
 
 # Where should everything be installed by default?  Here, we want it
 # to be installed directly in 'bin', 'lib', 'include' subdirectories
@@ -63,9 +63,14 @@ AC_COIN_INIT_AUTO_TOOLS
 #                              COIN components                              #
 #############################################################################
 
-AC_COIN_HAS_PROJECT(DyLP)
-AC_COIN_HAS_PROJECT(CoinUtils)
-AC_COIN_HAS_PROJECT(Osi)
+# The 4th param (fallback directory) is where the source would be if the
+# module were to be pulled in as an external.
+
+AC_COIN_HAS_MODULE([CoinUtils],[coinutils],[required=0],[../CoinUtils])
+AC_COIN_HAS_MODULE([Osi],[osi],[required=0], [../Osi])
+AC_COIN_HAS_MODULE([OsiTests],[osi-unittests],[required=0],[../Osi])
+AC_COIN_HAS_MODULE([Sample],[coindatasample],[required=0],[../Data/Sample])
+AC_COIN_HAS_MODULE([Netlib],[coindatanetlib],[required=0],[../Data/Netlib])
 
 #############################################################################
 #                       Doing project specific tests                        #
@@ -180,9 +185,18 @@ AC_DEFINE_UNQUOTED([DYLP_ERRMSGDIR],
 #		Dylp configuration options				     #
 ##############################################################################
 
+AC_DEFINE_UNQUOTED(DYLP_VERSION,"$PACKAGE_VERSION","Version of DyLP")
 AC_DYLP_PARANOIA([no])
 AC_DYLP_STATISTICS([no])
 AC_DYLP_INFO([yes])
+
+##############################################################################
+#		OsiDylp configuration options				     #
+##############################################################################
+
+AC_ODSI_INFO(yes)
+AC_ODSI_STATISTICS(no)
+AC_ODSI_PARANOIA(1)
 
 ##############################################################################
 #                   VPATH links for example input files                      #
@@ -205,8 +219,17 @@ AC_CONFIG_FILES([Makefile
                  examples/Makefile
                  src/DylpStdLib/Makefile
                  src/Dylp/Makefile
+                 src/OsiDylp/Makefile
 		 test/Makefile
 		 dylp_addlibs.txt])
+
+# The pkg-config data files
+
+AC_CONFIG_FILES([dylp.pc dylp-uninstalled.pc])
+if test $coin_has_osi = yes ; then
+  AC_CONFIG_FILES([src/OsiDylp/osi-dylp.pc
+	   osi-dylp-uninstalled.pc:src/OsiDylp/osi-dylp-uninstalled.pc.in])
+fi
 
 # And all the stuff that goes into building the documentation. See the note in
 # Makefile.am with respect to CONFIG_CLEAN_FILES and the distclean and

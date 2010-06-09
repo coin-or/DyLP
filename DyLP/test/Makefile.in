@@ -42,7 +42,18 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-noinst_PROGRAMS = unitTest$(EXEEXT)
+noinst_PROGRAMS = unitTest$(EXEEXT) $(am__EXEEXT_1)
+
+########################################################################
+#                      unitTest for OsiDyLP                            #
+########################################################################
+@COIN_HAS_OSITESTS_TRUE@am__append_1 = osiUnitTest
+@COIN_HAS_OSITESTS_TRUE@am__append_2 = -I`$(CYGPATH_W) $(srcdir)/../src/OsiDylp` \
+@COIN_HAS_OSITESTS_TRUE@	$(COINUTILS_CFLAGS) $(OSITESTS_CFLAGS)
+
+@COIN_HAS_NETLIB_TRUE@@COIN_HAS_OSITESTS_TRUE@am__append_3 = -netlibDir=`$(CYGPATH_W) $(NETLIB_DATA)` \
+@COIN_HAS_NETLIB_TRUE@@COIN_HAS_OSITESTS_TRUE@		      -testOsiSolverInterface
+
 subdir = test
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -51,19 +62,33 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
 	$(top_srcdir)/m4/ac_dylp_equiv_for_cpp_bool.m4 \
 	$(top_srcdir)/m4/ac_dylp_find_fp_funcs.m4 \
 	$(top_srcdir)/m4/ac_dylp_fix_cppflags.m4 \
-	$(top_srcdir)/m4/ac_dylp_options.m4 $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/ac_dylp_options.m4 \
+	$(top_srcdir)/m4/ac_osidylp_options.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
 CONFIG_CLEAN_FILES =
+@COIN_HAS_OSITESTS_TRUE@am__EXEEXT_1 = osiUnitTest$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
+am__osiUnitTest_SOURCES_DIST = osiUnitTest.cpp \
+	OsiDylpSolverInterfaceTest.cpp
+@COIN_HAS_OSITESTS_TRUE@am_osiUnitTest_OBJECTS =  \
+@COIN_HAS_OSITESTS_TRUE@	osiUnitTest.$(OBJEXT) \
+@COIN_HAS_OSITESTS_TRUE@	OsiDylpSolverInterfaceTest.$(OBJEXT)
+osiUnitTest_OBJECTS = $(am_osiUnitTest_OBJECTS)
+am__DEPENDENCIES_1 =
+@COIN_HAS_OSITESTS_TRUE@osiUnitTest_DEPENDENCIES =  \
+@COIN_HAS_OSITESTS_TRUE@	../src/Dylp/libDylp.la \
+@COIN_HAS_OSITESTS_TRUE@	../src/OsiDylp/libOsiDylp.la \
+@COIN_HAS_OSITESTS_TRUE@	$(am__DEPENDENCIES_1) \
+@COIN_HAS_OSITESTS_TRUE@	$(am__DEPENDENCIES_1)
 am_unitTest_OBJECTS = dytest_problems.$(OBJEXT) dytest_rays.$(OBJEXT) \
 	dytest_solutions.$(OBJEXT) dytest_tableau.$(OBJEXT) \
 	unitTest.$(OBJEXT)
 unitTest_OBJECTS = $(am_unitTest_OBJECTS)
-unitTest_DEPENDENCIES = $(DYLPOBJDIR)/src/Dylp/libDylp.la
+unitTest_DEPENDENCIES = ../src/Dylp/libDylp.la
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -74,8 +99,16 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(unitTest_SOURCES)
-DIST_SOURCES = $(unitTest_SOURCES)
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(osiUnitTest_SOURCES) $(unitTest_SOURCES)
+DIST_SOURCES = $(am__osiUnitTest_SOURCES_DIST) $(unitTest_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -100,15 +133,22 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CDEFS = @CDEFS@
 CFLAGS = @CFLAGS@
-COINUTILSDOCDIR = @COINUTILSDOCDIR@
-COINUTILSOBJDIR = @COINUTILSOBJDIR@
-COINUTILSSRCDIR = @COINUTILSSRCDIR@
+COINUTILS_CFLAGS = @COINUTILS_CFLAGS@
+COINUTILS_DATA = @COINUTILS_DATA@
+COINUTILS_LIBS = @COINUTILS_LIBS@
 COIN_HAS_COINUTILS_FALSE = @COIN_HAS_COINUTILS_FALSE@
 COIN_HAS_COINUTILS_TRUE = @COIN_HAS_COINUTILS_TRUE@
-COIN_HAS_DYLP_FALSE = @COIN_HAS_DYLP_FALSE@
-COIN_HAS_DYLP_TRUE = @COIN_HAS_DYLP_TRUE@
+COIN_HAS_NETLIB_FALSE = @COIN_HAS_NETLIB_FALSE@
+COIN_HAS_NETLIB_TRUE = @COIN_HAS_NETLIB_TRUE@
+COIN_HAS_OSITESTS_FALSE = @COIN_HAS_OSITESTS_FALSE@
+COIN_HAS_OSITESTS_TRUE = @COIN_HAS_OSITESTS_TRUE@
 COIN_HAS_OSI_FALSE = @COIN_HAS_OSI_FALSE@
 COIN_HAS_OSI_TRUE = @COIN_HAS_OSI_TRUE@
+COIN_HAS_PKGCONFIG_FALSE = @COIN_HAS_PKGCONFIG_FALSE@
+COIN_HAS_PKGCONFIG_TRUE = @COIN_HAS_PKGCONFIG_TRUE@
+COIN_HAS_SAMPLE_FALSE = @COIN_HAS_SAMPLE_FALSE@
+COIN_HAS_SAMPLE_TRUE = @COIN_HAS_SAMPLE_TRUE@
+COIN_PKG_CONFIG_PATH = @COIN_PKG_CONFIG_PATH@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -121,9 +161,6 @@ DBG_CFLAGS = @DBG_CFLAGS@
 DBG_CXXFLAGS = @DBG_CXXFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DYLPDOCDIR = @DYLPDOCDIR@
-DYLPOBJDIR = @DYLPOBJDIR@
-DYLPSRCDIR = @DYLPSRCDIR@
 DYLP_ERRMSGDIR = @DYLP_ERRMSGDIR@
 ECHO = @ECHO@
 ECHO_C = @ECHO_C@
@@ -157,12 +194,18 @@ MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
 MPICC = @MPICC@
 MPICXX = @MPICXX@
+NETLIB_CFLAGS = @NETLIB_CFLAGS@
+NETLIB_DATA = @NETLIB_DATA@
+NETLIB_LIBS = @NETLIB_LIBS@
 OBJEXT = @OBJEXT@
 OPT_CFLAGS = @OPT_CFLAGS@
 OPT_CXXFLAGS = @OPT_CXXFLAGS@
-OSIDOCDIR = @OSIDOCDIR@
-OSIOBJDIR = @OSIOBJDIR@
-OSISRCDIR = @OSISRCDIR@
+OSITESTS_CFLAGS = @OSITESTS_CFLAGS@
+OSITESTS_DATA = @OSITESTS_DATA@
+OSITESTS_LIBS = @OSITESTS_LIBS@
+OSI_CFLAGS = @OSI_CFLAGS@
+OSI_DATA = @OSI_DATA@
+OSI_LIBS = @OSI_LIBS@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -170,8 +213,13 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+REQUIREDPACKAGES = @REQUIREDPACKAGES@
 RPATH_FLAGS = @RPATH_FLAGS@
+SAMPLE_CFLAGS = @SAMPLE_CFLAGS@
+SAMPLE_DATA = @SAMPLE_DATA@
+SAMPLE_LIBS = @SAMPLE_LIBS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -190,6 +238,7 @@ ac_ct_F77 = @ac_ct_F77@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
 ac_cxx_preproc_warn_flag = @ac_cxx_preproc_warn_flag@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -241,15 +290,24 @@ unitTest_SOURCES = \
 	unitTest.c
 
 
-# List libraries of COIN projects
-unitTest_LDADD = $(DYLPOBJDIR)/src/Dylp/libDylp.la
+# List libraries of COIN projects required for the unitTest
+unitTest_LDADD = ../src/Dylp/libDylp.la
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
-AM_CPPFLAGS = \
-        -I`$(CYGPATH_W) $(srcdir)/../src/DylpStdLib` \
-        -I`$(CYGPATH_W) $(srcdir)/../src/Dylp`
+AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../src/DylpStdLib` \
+	-I`$(CYGPATH_W) $(srcdir)/../src/Dylp` $(am__append_2)
+@COIN_HAS_OSITESTS_TRUE@osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
+@COIN_HAS_OSITESTS_TRUE@osiUnitTest_LDADD = ../src/Dylp/libDylp.la ../src/OsiDylp/libOsiDylp.la \
+@COIN_HAS_OSITESTS_TRUE@	$(COINUTILS_LIBS) $(OSITESTS_LIBS)
 
+@COIN_HAS_OSITESTS_TRUE@osiTestDep = osiUnitTest$(EXEEXT)
+@COIN_HAS_OSITESTS_TRUE@osiunittestflags = -mpsDir=`$(CYGPATH_W) \
+@COIN_HAS_OSITESTS_TRUE@	$(SAMPLE_DATA)` $(am__append_3)
+
+########################################################################
+#                          test target                                 #
+########################################################################
 
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin
@@ -265,7 +323,7 @@ DISTCLEANFILES =
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .c .cpp .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -302,6 +360,9 @@ clean-noinstPROGRAMS:
 	  echo " rm -f $$p $$f"; \
 	  rm -f $$p $$f ; \
 	done
+osiUnitTest$(EXEEXT): $(osiUnitTest_OBJECTS) $(osiUnitTest_DEPENDENCIES) 
+	@rm -f osiUnitTest$(EXEEXT)
+	$(CXXLINK) $(osiUnitTest_LDFLAGS) $(osiUnitTest_OBJECTS) $(osiUnitTest_LDADD) $(LIBS)
 unitTest$(EXEEXT): $(unitTest_OBJECTS) $(unitTest_DEPENDENCIES) 
 	@rm -f unitTest$(EXEEXT)
 	$(LINK) $(unitTest_LDFLAGS) $(unitTest_OBJECTS) $(unitTest_LDADD) $(LIBS)
@@ -312,10 +373,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpSolverInterfaceTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dytest_problems.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dytest_rays.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dytest_solutions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dytest_tableau.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/osiUnitTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unitTest.Po@am__quote@
 
 .c.o:
@@ -338,6 +401,27 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
+.cpp.o:
+@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ `$(CYGPATH_W) '$<'`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+@am__fastdepCXX_TRUE@	if $(LTCXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Plo"; else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -517,8 +601,11 @@ uninstall-am: uninstall-info-am
 	uninstall-info-am
 
 
-test: unitTest$(EXEEXT)
-	./unitTest$(EXEEXT)
+test: unitTest$(EXEEXT) $(osiTestDep)
+	./unitTest$(EXEEXT) ; \
+	if test -e osiUnitTest$(EXEEXT) ; then \
+	  ./osiUnitTest$(EXEEXT) $(osiunittestflags) ; \
+	fi
 
 .PHONY: test
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

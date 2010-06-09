@@ -132,6 +132,8 @@ DyLP/doc/startup.tex -text
 DyLP/doc/statistics.tex -text
 DyLP/doc/updateformulae.tex -text
 DyLP/doc/varmgmt.tex -text
+DyLP/dylp-uninstalled.pc.in -text
+DyLP/dylp.pc.in -text
 DyLP/dylp_addlibs.txt.in -text
 DyLP/examples/Makefile.in -text
 DyLP/examples/generic.spc -text
@@ -142,6 +144,7 @@ DyLP/m4/ac_dylp_equiv_for_cpp_bool.m4 -text
 DyLP/m4/ac_dylp_find_fp_funcs.m4 -text
 DyLP/m4/ac_dylp_fix_cppflags.m4 -text
 DyLP/m4/ac_dylp_options.m4 -text
+DyLP/m4/ac_osidylp_options.m4 -text
 DyLP/src/Dylp/Makefile.am -text
 DyLP/src/Dylp/Makefile.in -text
 DyLP/src/Dylp/dy_rays.c -text
@@ -166,6 +169,10 @@ DyLP/src/DylpStdLib/dylib_littab.c -text
 DyLP/src/DylpStdLib/dylib_std.h -text
 DyLP/src/DylpStdLib/dylib_strrtns.c -text
 DyLP/src/DylpStdLib/dylib_strrtns.h -text
+DyLP/src/OsiDylp/Makefile.am -text
+DyLP/src/OsiDylp/Makefile.in -text
+DyLP/src/OsiDylp/osi-dylp-uninstalled.pc.in -text
+DyLP/src/OsiDylp/osi-dylp.pc.in -text
 DyLP/test/Makefile.am -text
 DyLP/test/Makefile.in -text
 DyLP/test/dytest_problems.c -text

@@ -29,6 +29,7 @@
 ########################################################################
 #                    Documentation installation                        #
 ########################################################################
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -51,22 +52,26 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@COIN_HAS_OSI_TRUE@am__append_1 = src/OsiDylp
 
 # We don't want to compile the test subdirectory, unless the test target is
 # specified.  But we need to list it as subdirectory to make sure that it is
 # included in the tarball. Similarly, we don't want to attempt to build the
 # documentation unless specifically requested.
-@ALWAYS_FALSE@am__append_1 = test doc doc/Figures doc/TexMF
+@ALWAYS_FALSE@am__append_2 = test doc doc/Figures doc/TexMF
 DIST_COMMON = README $(am__configure_deps) \
-	$(srcdir)/../BuildTools/Makemain.inc $(srcdir)/../config.guess \
-	$(srcdir)/../config.sub $(srcdir)/../install-sh \
-	$(srcdir)/../ltmain.sh $(srcdir)/../missing \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/dylp_addlibs.txt.in $(top_srcdir)/configure \
-	$(top_srcdir)/examples/Makefile.in \
-	$(top_srcdir)/inc/config_dylp.h.in AUTHORS NEWS
-@HAVE_EXTERNALS_TRUE@am__append_2 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_3 = .Externals-stamp
+	$(srcdir)/../../BuildTools/Makemain.inc \
+	$(srcdir)/../config.guess $(srcdir)/../config.sub \
+	$(srcdir)/../install-sh $(srcdir)/../ltmain.sh \
+	$(srcdir)/../missing $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/dylp-uninstalled.pc.in \
+	$(srcdir)/dylp.pc.in $(srcdir)/dylp_addlibs.txt.in \
+	$(top_srcdir)/configure $(top_srcdir)/examples/Makefile.in \
+	$(top_srcdir)/inc/config_dylp.h.in \
+	$(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in AUTHORS \
+	NEWS
+@HAVE_EXTERNALS_TRUE@am__append_3 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_4 = .Externals-stamp
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
@@ -74,15 +79,17 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
 	$(top_srcdir)/m4/ac_dylp_equiv_for_cpp_bool.m4 \
 	$(top_srcdir)/m4/ac_dylp_find_fp_funcs.m4 \
 	$(top_srcdir)/m4/ac_dylp_fix_cppflags.m4 \
-	$(top_srcdir)/m4/ac_dylp_options.m4 $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/ac_dylp_options.m4 \
+	$(top_srcdir)/m4/ac_osidylp_options.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
-CONFIG_CLEAN_FILES = examples/Makefile dylp_addlibs.txt
+CONFIG_CLEAN_FILES = examples/Makefile dylp_addlibs.txt dylp.pc \
+	dylp-uninstalled.pc osi-dylp-uninstalled.pc
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -91,10 +98,21 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(addlibsdir)" \
+	"$(DESTDIR)$(pkgconfiglibdir)"
+addlibsDATA_INSTALL = $(INSTALL_DATA)
+pkgconfiglibDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(addlibs_DATA) $(pkgconfiglib_DATA)
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = src/DylpStdLib src/Dylp examples test doc doc/Figures \
-	doc/TexMF
+DIST_SUBDIRS = src/DylpStdLib src/Dylp src/OsiDylp examples test doc \
+	doc/Figures doc/TexMF
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -127,15 +145,22 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CDEFS = @CDEFS@
 CFLAGS = @CFLAGS@
-COINUTILSDOCDIR = @COINUTILSDOCDIR@
-COINUTILSOBJDIR = @COINUTILSOBJDIR@
-COINUTILSSRCDIR = @COINUTILSSRCDIR@
+COINUTILS_CFLAGS = @COINUTILS_CFLAGS@
+COINUTILS_DATA = @COINUTILS_DATA@
+COINUTILS_LIBS = @COINUTILS_LIBS@
 COIN_HAS_COINUTILS_FALSE = @COIN_HAS_COINUTILS_FALSE@
 COIN_HAS_COINUTILS_TRUE = @COIN_HAS_COINUTILS_TRUE@
-COIN_HAS_DYLP_FALSE = @COIN_HAS_DYLP_FALSE@
-COIN_HAS_DYLP_TRUE = @COIN_HAS_DYLP_TRUE@
+COIN_HAS_NETLIB_FALSE = @COIN_HAS_NETLIB_FALSE@
+COIN_HAS_NETLIB_TRUE = @COIN_HAS_NETLIB_TRUE@
+COIN_HAS_OSITESTS_FALSE = @COIN_HAS_OSITESTS_FALSE@
+COIN_HAS_OSITESTS_TRUE = @COIN_HAS_OSITESTS_TRUE@
 COIN_HAS_OSI_FALSE = @COIN_HAS_OSI_FALSE@
 COIN_HAS_OSI_TRUE = @COIN_HAS_OSI_TRUE@
+COIN_HAS_PKGCONFIG_FALSE = @COIN_HAS_PKGCONFIG_FALSE@
+COIN_HAS_PKGCONFIG_TRUE = @COIN_HAS_PKGCONFIG_TRUE@
+COIN_HAS_SAMPLE_FALSE = @COIN_HAS_SAMPLE_FALSE@
+COIN_HAS_SAMPLE_TRUE = @COIN_HAS_SAMPLE_TRUE@
+COIN_PKG_CONFIG_PATH = @COIN_PKG_CONFIG_PATH@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
@@ -148,9 +173,6 @@ DBG_CFLAGS = @DBG_CFLAGS@
 DBG_CXXFLAGS = @DBG_CXXFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DYLPDOCDIR = @DYLPDOCDIR@
-DYLPOBJDIR = @DYLPOBJDIR@
-DYLPSRCDIR = @DYLPSRCDIR@
 DYLP_ERRMSGDIR = @DYLP_ERRMSGDIR@
 ECHO = @ECHO@
 ECHO_C = @ECHO_C@
@@ -182,12 +204,18 @@ MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
 MPICC = @MPICC@
 MPICXX = @MPICXX@
+NETLIB_CFLAGS = @NETLIB_CFLAGS@
+NETLIB_DATA = @NETLIB_DATA@
+NETLIB_LIBS = @NETLIB_LIBS@
 OBJEXT = @OBJEXT@
 OPT_CFLAGS = @OPT_CFLAGS@
 OPT_CXXFLAGS = @OPT_CXXFLAGS@
-OSIDOCDIR = @OSIDOCDIR@
-OSIOBJDIR = @OSIOBJDIR@
-OSISRCDIR = @OSISRCDIR@
+OSITESTS_CFLAGS = @OSITESTS_CFLAGS@
+OSITESTS_DATA = @OSITESTS_DATA@
+OSITESTS_LIBS = @OSITESTS_LIBS@
+OSI_CFLAGS = @OSI_CFLAGS@
+OSI_DATA = @OSI_DATA@
+OSI_LIBS = @OSI_LIBS@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -195,8 +223,13 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
+REQUIREDPACKAGES = @REQUIREDPACKAGES@
 RPATH_FLAGS = @RPATH_FLAGS@
+SAMPLE_CFLAGS = @SAMPLE_CFLAGS@
+SAMPLE_DATA = @SAMPLE_DATA@
+SAMPLE_LIBS = @SAMPLE_LIBS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -215,6 +248,7 @@ ac_ct_F77 = @ac_ct_F77@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
 ac_cxx_preproc_warn_flag = @ac_cxx_preproc_warn_flag@
+ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -262,7 +296,8 @@ AUTOMAKE_OPTIONS = foreign
 ########################################################################
 #                          Subdirectories                              #
 ########################################################################
-SUBDIRS = src/DylpStdLib src/Dylp examples $(am__append_1)
+SUBDIRS = src/DylpStdLib src/Dylp $(am__append_1) examples \
+	$(am__append_2)
 
 ########################################################################
 #             Additional files to be included in tarball               #
@@ -273,13 +308,15 @@ EXTRA_DIST = AUTHORS LICENSE README NEWS examples/generic.spc \
 	examples/greenbeb.spc examples/Makefile.in examples/mpsio.c \
 	examples/odsi+dylp.cpp examples/osi_dylp.c \
 	examples/osi+dylp.cpp examples/plain examples/README \
-	$(am__append_2)
+	$(am__append_3)
 
 ########################################################################
 #                  Installation of the addlibs file                    #
 ########################################################################
-addlibsfile = dylp_addlibs.txt
-addlibsdir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)/
+@COIN_HAS_PKGCONFIG_TRUE@addlibsdir = $(datadir)/coin/doc/DyLP
+@COIN_HAS_PKGCONFIG_TRUE@addlibs_DATA = dylp_addlibs.txt
+pkgconfiglibdir = $(libdir)/pkgconfig
+pkgconfiglib_DATA = dylp.pc
 
 ########################################################################
 #                         Maintainer Stuff                             #
@@ -289,7 +326,7 @@ addlibsdir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)/
 ACLOCAL_AMFLAGS = -I m4
 
 # Files that are generated and should be cleaned with make distclean
-DISTCLEANFILES = $(am__append_3) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_4) $(VPATH_DISTCLEANFILES)
 DocFiles = README AUTHORS LICENSE
 DocInstallDir = $(datadir)/coin/doc/$(PACKAGE_NAME)
 all: all-recursive
@@ -297,7 +334,7 @@ all: all-recursive
 .SUFFIXES:
 am--refresh:
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../BuildTools/Makemain.inc $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../../BuildTools/Makemain.inc $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -349,6 +386,12 @@ examples/Makefile: $(top_builddir)/config.status $(top_srcdir)/examples/Makefile
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 dylp_addlibs.txt: $(top_builddir)/config.status $(srcdir)/dylp_addlibs.txt.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
+dylp.pc: $(top_builddir)/config.status $(srcdir)/dylp.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+dylp-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/dylp-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+osi-dylp-uninstalled.pc: $(top_builddir)/config.status $(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -359,6 +402,40 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+install-addlibsDATA: $(addlibs_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(addlibsdir)" || $(mkdir_p) "$(DESTDIR)$(addlibsdir)"
+	@list='$(addlibs_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(addlibsDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(addlibsdir)/$$f'"; \
+	  $(addlibsDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(addlibsdir)/$$f"; \
+	done
+
+uninstall-addlibsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(addlibs_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(addlibsdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(addlibsdir)/$$f"; \
+	done
+install-pkgconfiglibDATA: $(pkgconfiglib_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkgconfiglibdir)" || $(mkdir_p) "$(DESTDIR)$(pkgconfiglibdir)"
+	@list='$(pkgconfiglib_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(pkgconfiglibDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgconfiglibdir)/$$f'"; \
+	  $(pkgconfiglibDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgconfiglibdir)/$$f"; \
+	done
+
+uninstall-pkgconfiglibDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkgconfiglib_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(pkgconfiglibdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(pkgconfiglibdir)/$$f"; \
+	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -495,7 +572,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/../BuildTools $(distdir)/doc $(distdir)/examples $(distdir)/inc $(distdir)/m4
+	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/../../BuildTools $(distdir)/doc $(distdir)/examples $(distdir)/inc $(distdir)/m4 $(distdir)/src/OsiDylp
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -636,9 +713,12 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile
+all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
+	for dir in "$(DESTDIR)$(addlibsdir)" "$(DESTDIR)$(pkgconfiglibdir)"; do \
+	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
+	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -684,7 +764,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am:
+install-data-am: install-addlibsDATA install-pkgconfiglibDATA
 
 install-exec-am: install-exec-local
 
@@ -714,7 +794,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-local
+uninstall-am: uninstall-addlibsDATA uninstall-info-am uninstall-local \
+	uninstall-pkgconfiglibDATA
 
 uninstall-info: uninstall-info-recursive
 
@@ -725,15 +806,17 @@ uninstall-info: uninstall-info-recursive
 	distclean-generic distclean-hdr distclean-libtool \
 	distclean-local distclean-recursive distclean-tags \
 	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-exec install-exec-am \
+	html-am info info-am install install-addlibsDATA install-am \
+	install-data install-data-am install-exec install-exec-am \
 	install-exec-local install-info install-info-am install-man \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	maintainer-clean-local maintainer-clean-recursive mostlyclean \
-	mostlyclean-generic mostlyclean-libtool mostlyclean-local \
-	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am uninstall-info-am uninstall-local
+	install-pkgconfiglibDATA install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-local \
+	maintainer-clean-recursive mostlyclean mostlyclean-generic \
+	mostlyclean-libtool mostlyclean-local mostlyclean-recursive \
+	pdf pdf-am ps ps-am tags tags-recursive uninstall \
+	uninstall-addlibsDATA uninstall-am uninstall-info-am \
+	uninstall-local uninstall-pkgconfiglibDATA
 
 
 ########################################################################
@@ -743,13 +826,6 @@ uninstall-info: uninstall-info-recursive
 test: all
 	@echo "Building and running dylp unit test."
 	@cd test ; $(MAKE) test
-	@if test -r ../Osi/test/Makefile; then \
-	   echo "Building and running OsiDylp unit test." ; \
-	   cd ../Osi/test; \
-	   $(MAKE) test; \
-	 else \
-	   echo "Osi not present; skipping Osi unit test."; \
-	 fi
 
 # Autotools does a good job on code, but it doesn't deal well with LaTeX
 # documentation. A few rules to help it along. Note that we don't delete
@@ -781,11 +857,12 @@ distclean-local: clean-local
 maintainer-clean-local: distclean-local
 	@cd doc ; rm -f dylp.pdf dylp.ps
 
+@COIN_HAS_PKGCONFIG_TRUE@dylp_addlibs.txt : dylp.pc
+@COIN_HAS_PKGCONFIG_TRUE@	PKG_CONFIG_PATH=.:@COIN_PKG_CONFIG_PATH@ $(PKG_CONFIG) --libs dylp > dylp_addlibs.txt
+
 install-exec-local: install-doc
-	$(install_sh_DATA) $(addlibsfile) $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 uninstall-local: uninstall-doc
-	rm -f $(DESTDIR)$(addlibsdir)/$(addlibsfile)
 
 install-doc: $(DocFiles)
 	test -z "$(DocInstallDir)" || $(mkdir_p) "$(DESTDIR)$(DocInstallDir)"
