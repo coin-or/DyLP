@@ -1042,9 +1042,10 @@ int main (int argc, char **argv)
 */
   if (errcnt > 0)
   { dyio_outfmt(ttyout,dy_gtxecho,
-		"\n  ERROR: %d total errors for all tests.\n", errcnt) ; }
+		"\n  ERROR: %d total errors for all tests.\n\n", errcnt) ; }
   else
-  { dyio_outfmt(ttyout,dy_gtxecho,"\n  All tests passed.\n") ; }
+  { dyio_outfmt(ttyout,dy_gtxecho,
+		"\n  All tests completed successfully.\n\n") ; }
   dy_freebasis() ;
 
 /*
