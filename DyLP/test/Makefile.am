@@ -45,7 +45,7 @@ noinst_PROGRAMS += osiUnitTest
 
 osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
 
-osiUnitTest_LDADD = ../src/Dylp/libDylp.la ../src/OsiDylp/libOsiDylp.la \
+osiUnitTest_LDADD = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
 	$(COINUTILS_LIBS) $(OSITESTS_LIBS)
 
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(srcdir)/../src/OsiDylp` \

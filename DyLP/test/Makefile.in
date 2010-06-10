@@ -80,8 +80,8 @@ am__osiUnitTest_SOURCES_DIST = osiUnitTest.cpp \
 osiUnitTest_OBJECTS = $(am_osiUnitTest_OBJECTS)
 am__DEPENDENCIES_1 =
 @COIN_HAS_OSITESTS_TRUE@osiUnitTest_DEPENDENCIES =  \
-@COIN_HAS_OSITESTS_TRUE@	../src/Dylp/libDylp.la \
 @COIN_HAS_OSITESTS_TRUE@	../src/OsiDylp/libOsiDylp.la \
+@COIN_HAS_OSITESTS_TRUE@	../src/Dylp/libDylp.la \
 @COIN_HAS_OSITESTS_TRUE@	$(am__DEPENDENCIES_1) \
 @COIN_HAS_OSITESTS_TRUE@	$(am__DEPENDENCIES_1)
 am_unitTest_OBJECTS = dytest_problems.$(OBJEXT) dytest_rays.$(OBJEXT) \
@@ -298,7 +298,7 @@ unitTest_LDADD = ../src/Dylp/libDylp.la
 AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../src/DylpStdLib` \
 	-I`$(CYGPATH_W) $(srcdir)/../src/Dylp` $(am__append_2)
 @COIN_HAS_OSITESTS_TRUE@osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
-@COIN_HAS_OSITESTS_TRUE@osiUnitTest_LDADD = ../src/Dylp/libDylp.la ../src/OsiDylp/libOsiDylp.la \
+@COIN_HAS_OSITESTS_TRUE@osiUnitTest_LDADD = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
 @COIN_HAS_OSITESTS_TRUE@	$(COINUTILS_LIBS) $(OSITESTS_LIBS)
 
 @COIN_HAS_OSITESTS_TRUE@osiTestDep = osiUnitTest$(EXEEXT)
