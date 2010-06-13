@@ -82,7 +82,7 @@ am_libDylp_la_OBJECTS = dy_consys_io.lo dy_consys_mathutils.lo \
 	glplib1.lo glplib2.lo glplib3.lo glplib4.lo glpluf.lo \
 	dy_vector_utils.lo
 libDylp_la_OBJECTS = $(am_libDylp_la_OBJECTS)
-depcomp = $(SHELL) $(top_srcdir)/../depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)

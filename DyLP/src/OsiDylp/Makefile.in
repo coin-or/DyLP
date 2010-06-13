@@ -76,7 +76,7 @@ libOsiDylp_la_LIBADD =
 am_libOsiDylp_la_OBJECTS = OsiDylpMessages.lo OsiDylpPresolve.lo \
 	OsiDylpSolverInterface.lo OsiDylpWarmStartBasis.lo
 libOsiDylp_la_OBJECTS = $(am_libOsiDylp_la_OBJECTS)
-depcomp = $(SHELL) $(top_srcdir)/../depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
