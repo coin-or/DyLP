@@ -54,7 +54,7 @@
 /*
   Dylp version.
 */
-#define DYLPVERSION trunk
+#define DYLP_VERSION trunk
 
 /*
   Defines specific to dylp.
