@@ -17,19 +17,15 @@
   includes the automatically generated header file config_dylp.h, then
   undefines macros that might configure with other ProjConfig.h files.
 
-  On systems that are compiled in other ways (e.g., with the Developer
-  Studio), the header file configall_system.h is included to define those
-  macros that depend on the operating system and the compiler, followed by
-  the defines used for configuration of dylp. A user can modify the default
-  settings by editing this file.
+  On systems where the code is built using some other approach (e.g., Windows
+  with MS Visual Studio), the header file configall_system.h is included to
+  define those macros that depend on the operating system and the compiler,
+  followed by the defines used for configuration of dylp. A user can modify
+  the default settings by editing this file.
 */
 
 #ifndef __DYLPCONFIG_H__
 #define __DYLPCONFIG_H__
-
-#ifndef DYLP_VERSION
-#define DYLP_VERSION "1.6"
-#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config_dylp.h"
@@ -141,6 +137,12 @@
   using this part of the configuration file? Run configure!
 */
 /* #define HAVE_SUNMATH_H 1 */
+
+/*
+  Dylp version number.
+*/
+#define DYLP_VERSION "1.6"
+
 
 #endif /* HAVE_CONFIG_H */
 

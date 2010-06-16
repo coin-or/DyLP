@@ -235,7 +235,7 @@ int main (int argc, char **argv)
 /*
   Announce we're running.
 */
-  dyio_outfmt(ttyout,dy_gtxecho,"Dylp unit test start.\n") ;
+  dyio_outfmt(ttyout,dy_gtxecho,"Dylp v%s unit test start.\n",DYLP_VERSION) ;
   dyio_flushio(ttyout,dy_gtxecho) ;
   errcnt = 0 ;
 /*

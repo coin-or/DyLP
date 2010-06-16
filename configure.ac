@@ -42,6 +42,10 @@ AC_COIN_CREATE_LIBTOOL
 #                  Check which subprojects are there                        #
 #############################################################################
 
+# Osi, CoinUtils, Netlib, and Sample are no longer default externals but can be
+# checked out manually. If they are present at configuration time, the Osi unit
+# test will be run wth OsiDylp.
+
 AC_COIN_MAIN_SUBDIRS(DyLP)
 AC_COIN_MAIN_SUBDIRS(CoinUtils)
 AC_COIN_MAIN_SUBDIRS(Osi)

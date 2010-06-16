@@ -45,6 +45,9 @@
 /* Define this variable to enable dylp's statistics collection features. */
 #undef DYLP_STATISTICS
 
+/* Version number of project */
+#undef DYLP_VERSION
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 

@@ -41,11 +41,8 @@ AC_PREFIX_DEFAULT([`pwd`])
 # Get the system type
 AC_CANONICAL_BUILD
 
-# If this project depends on external projects, the Externals file in
-# the source root directory contains definition of where to find those
-# externals.  The following macro ensures that those externals are
-# retrieved by svn if they are not there yet.
-AC_COIN_PROJECTDIR_INIT
+# Various handy bits of initialisation.
+AC_COIN_PROJECTDIR_INIT(DyLP)
 
 # Check if user wants to produce debugging code
 AC_COIN_DEBUG_COMPILE(DyLP)
