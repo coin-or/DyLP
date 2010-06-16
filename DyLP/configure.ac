@@ -185,7 +185,6 @@ AC_DEFINE_UNQUOTED([DYLP_ERRMSGDIR],
 #		Dylp configuration options				     #
 ##############################################################################
 
-AC_DEFINE_UNQUOTED(DYLP_VERSION,"$PACKAGE_VERSION","Version of DyLP")
 AC_DYLP_PARANOIA([no])
 AC_DYLP_STATISTICS([no])
 AC_DYLP_INFO([yes])

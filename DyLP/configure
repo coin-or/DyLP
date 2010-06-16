@@ -25195,11 +25195,6 @@ _ACEOF
 #		Dylp configuration options				     #
 ##############################################################################
 
-
-cat >>confdefs.h <<_ACEOF
-#define DYLP_VERSION "$PACKAGE_VERSION"
-_ACEOF
-
  # Check whether --enable-dylp-paranoia or --disable-dylp-paranoia was given.
 if test "${enable_dylp_paranoia+set}" = set; then
   enableval="$enable_dylp_paranoia"

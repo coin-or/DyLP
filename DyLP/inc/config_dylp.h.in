@@ -54,7 +54,7 @@
 /* SVN revision number of project */
 #undef DYLP_SVN_REV
 
-/* "Version of DyLP" */
+/* Version number of project */
 #undef DYLP_VERSION
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
