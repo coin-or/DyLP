@@ -2816,7 +2816,7 @@ if test x"$CFLAGS" = x; then
       icc* | */icc*)
         ;;
       *)
-        coin_opt_cflags="-O3 -fomit-frame-pointer"
+        coin_opt_cflags="-O3"
         coin_add_cflags="-pipe"
         coin_dbg_cflags="-g"
         coin_warn_cflags="-Wimplicit -Wparentheses -Wsequence-point -Wreturn-type -Wcast-qual -Wall -Wno-unknown-pragmas"
@@ -3730,7 +3730,7 @@ if test x"$CXXFLAGS" = x; then
         ;;
       *)
 # ToDo decide about unroll-loops
-        coin_opt_cxxflags="-O3 -fomit-frame-pointer"
+        coin_opt_cxxflags="-O3"
         coin_add_cxxflags="-pipe"
         coin_dbg_cxxflags="-g"
         coin_warn_cxxflags="-Wimplicit -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -Wno-unknown-pragmas"
