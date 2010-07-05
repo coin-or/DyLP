@@ -141,7 +141,7 @@
 /*
   Dylp version number.
 */
-#define DYLP_VERSION "1.6"
+#define DYLP_VERSION "1.6.0"
 
 
 #endif /* HAVE_CONFIG_H */
