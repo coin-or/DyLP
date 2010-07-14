@@ -13,13 +13,18 @@
 set wrapper = (./osi_dylp)
 # set wrapper = (./odsi+dylp)
 
-# Check for MPS file directories under ../../Data
+# Check for MPS file directories in likely places.
 
 set mpsSearchDirs
-foreach dir (`ls ../../Data`)
-  set dir = "../../Data/$dir"
-  if (-d $dir && -x $dir) then
-    set mpsSearchDirs = ($mpsSearchDirs $dir)
+foreach dataDir (Data ../Data ../../Data ../../../Data ../../../../Data)
+  if (-d $dataDir && -x $dataDir) then
+    echo "Checking $dataDir"
+    foreach dir (`ls $dataDir`)
+      set dir = "$dataDir/$dir"
+      if (-d $dir && -x $dir) then
+	set mpsSearchDirs = ($mpsSearchDirs $dir)
+      endif
+    end
   endif
 end
 set mpsSearchDirs = (. $mpsSearchDirs)
@@ -75,13 +80,21 @@ endsw
 # MPS file should be the last parameter
 
 set example = $argv[$#argv]
-set mpsdir
-set mpsfile
-set mpsext
+
+# Did the user hand us an absolute path? Dissect accordingly.
+
+if ($example =~ /*) then
+  echo "Dissecting absolute path."
+  set mpsSearchDirs = $example:h
+  set example = $example:t
+endif
 
 # Search for an mps file. The reason for putting the loop with suffixes on the
 # outside is so that we'll find the shortest suffix, whereever it might reside.
 
+set mpsdir
+set mpsfile
+set mpsext
 foreach ext ("" ".mps" ".gz" ".mps.gz")
   set candidate = ${example}${ext}
   foreach dir ($mpsSearchDirs)

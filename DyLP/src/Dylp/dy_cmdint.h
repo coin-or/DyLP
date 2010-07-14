@@ -26,23 +26,11 @@
 #include "dylib_errs.h"
 
 /*
-  Globals for log stream and echo control, command input stream and echo
-  control. These must be declared in a main program somewhere.
-
-  dy_cmdchn		i/o id for command input
-  dy_cmdecho		controls echoing of command input to stdout
-
-  dy_logchn		i/o id for log file
-  dy_gtxecho		controls echoing of generated text to stdout
-
-  dylp.h also contains extern declarations for dy_logchn and dy_gtxecho. Turns out
-  that the files related to the command interpreter don't need the main dylp
-  structures, so it's useful to duplicate the extern decl's in both .h files.
+  We need dylp.h only for the typedefs of lpopts_struct and lptols_struct,
+  and extern declarations for dy_logchn and dy_gtxecho.
 */
-
-extern ioid dy_logchn,dy_cmdchn ;
-extern bool dy_gtxecho,dy_cmdecho ;
-
+#define DYLP_INTERNAL
+#include "dylp.h"
 
 /*
   cmdint.c
@@ -70,6 +58,7 @@ extern bool dy_gtxecho,dy_cmdecho ;
 
 typedef enum { cmdOK, cmdHALTERROR, cmdHALTNOERROR } cmd_retval ;
 
-cmd_retval process_cmds(bool silent) ;
+cmd_retval dy_processcmds(ioid cmdchn, bool silent,
+			  lpopts_struct *lpopts, lptols_struct *lptols) ;
 
 #endif	/* _DY_CMDINT_H */

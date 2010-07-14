@@ -76,6 +76,11 @@ static char warntxt[MAXERRTXT+WARNPFXLEN] = "\n%s (warning): " ;
   Only errmsg_, warn_, and a small bit of initialisation in errinit need the
   declarations of fortran.h. The file xmp.h is peculiar to the bonsai code
   with Fortran ylp and la05 libraries.
+
+  WARNING!
+
+  The Fortran hooks haven't been tested since the last millenium. It's highly
+  unlikely that they still work.
 */
 
 #ifdef _DYLIB_FORTRAN
@@ -428,7 +433,6 @@ void errmsg (int errid, ... )
   the error number. Otherwise call vfprintf to handle expanding the message
   text.
 */
-  va_start(varargs,errid) ; 
   if (emsgchn == NULL || finderrmsg(errid,&errtxt[ERRPFXLEN]) == NULL)
   { ident = va_arg(varargs,char *) ;
     if (errecho == TRUE)
@@ -437,12 +441,15 @@ void errmsg (int errid, ... )
       fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ; }
   else
   { if (errecho == TRUE)
-    { vfprintf(stderr,errtxt,varargs) ;
+    { va_start(varargs,errid) ; 
+      vfprintf(stderr,errtxt,varargs) ;
+      va_end(varargs) ;
       putc('\n',stderr) ; }
     if (elogchn != NULL) 
-    { vfprintf(elogchn,errtxt,varargs) ;
+    { va_start(varargs,errid) ; 
+      vfprintf(elogchn,errtxt,varargs) ;
+      va_end(varargs) ;
       putc('\n',elogchn) ; } }
-  va_end(varargs) ;
 /*
   Flush the logged error message, so that the user will definitely see it.
 */
@@ -492,7 +499,6 @@ void warn (int errid, ... )
   the error number. Otherwise call vfprintf to handle expanding the message
   text.
 */
-  va_start(varargs,errid) ; 
   if (emsgchn == NULL || finderrmsg(errid,&warntxt[WARNPFXLEN]) == NULL)
   { ident = va_arg(varargs,char *) ;
     if (errecho == TRUE)
@@ -501,12 +507,15 @@ void warn (int errid, ... )
       fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ; }
   else
   { if (errecho == TRUE)
-    { vfprintf(stderr,warntxt,varargs) ;
+    { va_start(varargs,errid) ; 
+      vfprintf(stderr,warntxt,varargs) ;
+      va_end(varargs) ;
       putc('\n',stderr) ; }
     if (elogchn != NULL) 
-    { vfprintf(elogchn,warntxt,varargs) ;
+    { va_start(varargs,errid) ; 
+      vfprintf(elogchn,warntxt,varargs) ;
+      va_end(varargs) ;
       putc('\n',elogchn) ; } }
-  va_end(varargs) ;
 /*
   Flush the logged error message, so that the user will definitely see it.
 */
@@ -517,8 +526,16 @@ void warn (int errid, ... )
 #endif /* DYLP_NDEBUG */
 
 #ifdef _DYLIB_FORTRAN
-
 
+
+/*
+  WARNING!
+
+  The Fortran hooks haven't been tested since the last millenium. It's highly
+  unlikely that they still work. In particular, it seems likely that each call
+  to vfprintf using the constructed varargs block should be bracked with
+  va_start / va_end.
+*/
 
 /*
   The two routines which follow, errmsg_ and warn_, are intended to be

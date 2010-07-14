@@ -57,8 +57,7 @@
   [Aug 10, 01] For compatibility with C++, TRUE and FALSE are defined to be
   the corresponding C++ values. BOOL should be set in the compiler command
   line to be the storage type (char/short/int/long) that matches the size of
-  a C++ "bool".  All these are necessary to link with and be called by C++
-  code in osi-bonsai.
+  a C++ "bool".
 */
 
 #ifndef	__cplusplus
@@ -68,13 +67,11 @@
   typedef BOOL bool ;
 # else
 /*
-  You're in trouble. The likely source of the problem is that this file is
-  being included in the course of a build controlled by a makefile that
-  doesn't know about the booltype utility in the dylp distribution. See the
-  Utils subdirectory, and also check the makefile for dylp to see how this is
-  used.  If you don't want to fiddle with your build control files, just
-  build booltype, run it, and edit in the appropriate definition. If you're
-  not worried about C++ compatibility, int is a good as anything.
+  You're in trouble. Normally a definition for BOOL is determined by the
+  configure script; apparently you're outside of whatever framework should
+  do this. If you're not worried about C++ compatibility, int is a good a
+  choice as anything. If you're concerned about C++ compatibility, write a
+  small C++ program that prints out sizeof(bool) and add the definition here.
 */
 # warning The compile-time symbol BOOL is not defined (dylib_std.h)
   typedef int bool ;

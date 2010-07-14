@@ -540,16 +540,23 @@ typedef union { bnfref_struct *com ;
 
 /*
   Macros to help with constructing field offsets. NULLP is specially designed
-  to produce a NULL value when used as &NULLP. This is required for some of the
-  macros where one must fill the field with either the address of a
-  bnfref_struct or the value NULL. By this device we avoid having to make the
-  user aware of when and when not to use &. mkoff simply produces the offset of
-  a given field in a structure type.
+  to produce a NULL value when used as &NULLP. This is required for some
+  of the macros where one must fill the field with either the address of a
+  bnfref_struct or the value NULL. By this device we avoid having to make
+  the user aware of when and when not to use &.
+
+  mkoff simply produces the offset of a given field in a structure type. But
+  it's not quite that simple in the world of mixed 64- and 32-bit platforms.
+  The cast to size_t leaves us with either a 64- or 32-bit int, depending
+  on the size of addresses, but at least it's an int instead of a pointer,
+  and that's sufficient to suppress warnings in other places when the result
+  is converted to an int. And the result here should always be a small
+  integer.
 */
 
 #define NULLP (*((char *) 0))
 #define mksav(qqoff) (*((char *) qqoff))
-#define mkoff(qqtype,qqfield) (&((qqtype *) 0)->qqfield)
+#define mkoff(qqtype,qqfield) ((size_t) (&((qqtype *) 0)->qqfield))
 
 /*
   Macros for alternative and component lists. These just generate the headers;

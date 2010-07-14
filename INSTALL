@@ -16,7 +16,7 @@ You can obtain the source code for the DyLP package in two ways:
    "handles 'https' scheme".
 
    Assuming that you want to download the code into a subdirectory
-   "COIN-DyLP", you type
+   "Coin-DyLP", you type
 
    svn co https://projects.coin-or.org/svn/DyLP/trunk Coin-DyLP
 

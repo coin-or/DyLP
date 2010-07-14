@@ -39,24 +39,16 @@ extern void dy_exposeOptDefaults(lpopts_struct **opts_lb,
 				 lpopts_struct **opts_ub),
 	    dy_exposeTolDefaults(lptols_struct **tols_dflt) ;
 
-/*
-  We need only the options and tolerances structure from the main milp code,
-  so a solitary declaration seems preferable to dragging in all of milp.h
-  At best, though, this is a hack, and I need to deal with it properly, to
-  retain dylp as a self-contained package.
-*/
-
-extern lpopts_struct *main_lpopts ;
-extern lptols_struct *main_lptols ;
-
 
 
-static bool string_opt (char **str)
+static bool string_opt (ioid cmdchn, bool cmdecho, char **str)
 
 /*
   Generic (and fairly trivial) routine to parse a string.
 
   Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     str: address where the string is to be placed.
 
   Returns: TRUE, barring some sort of parsing failure.
@@ -68,23 +60,23 @@ static bool string_opt (char **str)
 /*
   BNF to parse a string, returning (char *).
 */
-  static tdef(zid,bnfttID,NULL,NULL) ;
+  static tdef(zid,bnfttID,0,NULL) ;
   static tref(zgetstring_zid,zid,bnfstore|bnfatsgn,0) ;
 
   static comphd(zgetstring_alt) = { compcnt(1), mkcref(zgetstring_zid) } ;
-  static gdef(zgetstring_int,sizeof(char *),NULL,zgetstring_alt) ;
-  static gref(zgetstring,zgetstring_int,NULL,NULL,NULLP) ;
+  static gdef(zgetstring_int,sizeof(char *),0,zgetstring_alt) ;
+  static gref(zgetstring,zgetstring_int,0,0,NULLP) ;
 
 /*
   Initialise the reader, parse the string, and check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zgetstring,&result) == FALSE)
+  if (parse(cmdchn,&zgetstring,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zgetstring") ;
     return (FALSE) ; }
-  dyio_outfmt(dy_logchn,dy_cmdecho," %s",*(char **) result.g) ;
-  dyio_flushio(dy_logchn,dy_cmdecho) ;
+  dyio_outfmt(dy_logchn,cmdecho," %s",*(char **) result.g) ;
+  dyio_flushio(dy_logchn,cmdecho) ;
 
   *str = *(char **) result.g ;
 
@@ -98,12 +90,14 @@ static bool string_opt (char **str)
 
 
 
-static bool integer_opt (int *iloc)
+static bool integer_opt (ioid cmdchn, bool cmdecho, int *iloc)
 
 /*
   Generic (and fairly trivial) routine to parse an integer.
 
   Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     iloc: address where the integer is to be placed.
 
   Returns: TRUE, barring some sort of parsing failure.
@@ -118,19 +112,19 @@ static bool integer_opt (int *iloc)
   static tdef(zdnum,bnfttN,10,NULL) ;
   static tref(zgetnum_zdnum,zdnum,bnfstore,0) ;
   static comphd(zgetnum_alt) = { compcnt(1), mkcref(zgetnum_zdnum) } ;
-  static gdef(zgetnum_int,sizeof(int),NULL,zgetnum_alt) ;
-  static gref(zgetnum,zgetnum_int,NULL,NULL,NULLP) ;
+  static gdef(zgetnum_int,sizeof(int),0,zgetnum_alt) ;
+  static gref(zgetnum,zgetnum_int,0,0,NULLP) ;
 
 /*
   Initialise the reader, parse the integer, and check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zgetnum,&result) == FALSE)
+  if (parse(cmdchn,&zgetnum,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zgetnum") ;
     return (FALSE) ; }
-  dyio_outfmt(dy_logchn,dy_cmdecho," %d",*(int *) result.g) ;
-  dyio_flushio(dy_logchn,dy_cmdecho) ;
+  dyio_outfmt(dy_logchn,cmdecho," %d",*(int *) result.g) ;
+  dyio_flushio(dy_logchn,cmdecho) ;
 
   *iloc = *(int *) result.g ;
 
@@ -144,13 +138,15 @@ static bool integer_opt (int *iloc)
 
 
 
-static bool double_opt (double *rloc)
+static bool double_opt (ioid cmdchn, bool cmdecho, double *rloc)
 
 /*
   Generic (and fairly trivial) routine to parse a real as a double. A double
   will provide about 15 -- 17 significant decimal digits.
 
   Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     rloc: address where the real is to be placed.
 
   Returns: TRUE, barring some sort of parsing failure.
@@ -165,19 +161,19 @@ static bool double_opt (double *rloc)
   static tdef(zdnum,bnfttN,10,NULL) ;
   static tref(zgetnum_zdnum,zdnum,bnfdbl|bnfstore,0) ;
   static comphd(zgetnum_alt) = { compcnt(1), mkcref(zgetnum_zdnum) } ;
-  static gdef(zgetnum_int,sizeof(double),NULL,zgetnum_alt) ;
-  static gref(zgetnum,zgetnum_int,NULL,NULL,NULLP) ;
+  static gdef(zgetnum_int,sizeof(double),0,zgetnum_alt) ;
+  static gref(zgetnum,zgetnum_int,0,0,NULLP) ;
 
 /*
   Initialise the reader, parse the real, and check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zgetnum,&result) == FALSE)
+  if (parse(cmdchn,&zgetnum,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zgetnum") ;
     return (FALSE) ; }
-  dyio_outfmt(dy_logchn,dy_cmdecho," %g",*(double *) result.g) ;
-  dyio_flushio(dy_logchn,dy_cmdecho) ;
+  dyio_outfmt(dy_logchn,cmdecho," %g",*(double *) result.g) ;
+  dyio_flushio(dy_logchn,cmdecho) ;
 
   *rloc = *(double *) result.g ;
 
@@ -191,13 +187,15 @@ static bool double_opt (double *rloc)
 
 
 
-static UNUSED bool real_opt (float *rloc)
+static UNUSED bool real_opt (ioid cmdchn, bool cmdecho, float *rloc)
 
 /*
   Generic (and fairly trivial) routine to parse a real as a float. A float
   will provide about 6 -- 9 significant decimal digits.
 
   Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     rloc: address where the real is to be placed.
 
   Returns: TRUE, barring some sort of parsing failure.
@@ -212,19 +210,19 @@ static UNUSED bool real_opt (float *rloc)
   static tdef(zdnum,bnfttN,10,NULL) ;
   static tref(zgetnum_zdnum,zdnum,bnfflt|bnfstore,0) ;
   static comphd(zgetnum_alt) = { compcnt(1), mkcref(zgetnum_zdnum) } ;
-  static gdef(zgetnum_int,sizeof(float),NULL,zgetnum_alt) ;
-  static gref(zgetnum,zgetnum_int,NULL,NULL,NULLP) ;
+  static gdef(zgetnum_int,sizeof(float),0,zgetnum_alt) ;
+  static gref(zgetnum,zgetnum_int,0,0,NULLP) ;
 
 /*
   Initialise the reader, parse the real, and check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zgetnum,&result) == FALSE)
+  if (parse(cmdchn,&zgetnum,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zgetnum") ;
     return (FALSE) ; }
-  dyio_outfmt(dy_logchn,dy_cmdecho," %g",*(float *) result.g) ;
-  dyio_flushio(dy_logchn,dy_cmdecho) ;
+  dyio_outfmt(dy_logchn,cmdecho," %g",*(float *) result.g) ;
+  dyio_flushio(dy_logchn,cmdecho) ;
 
   *rloc = *(float *) result.g ;
 
@@ -238,7 +236,7 @@ static UNUSED bool real_opt (float *rloc)
 
 
 
-static bool bool_opt (bool *bloc)
+static bool bool_opt (ioid cmdchn, bool cmdecho, bool *bloc)
 
 /*
   Generic (and fairly trivial) routine to parse a boolean. But ... we have
@@ -250,6 +248,8 @@ static bool bool_opt (bool *bloc)
   make a long story short, the val field in a boolopt_struct must be an int.
 
   Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     bloc: address where the boolean is to be placed.
 
   Returns: TRUE, barring some sort of parsing failure.
@@ -265,8 +265,8 @@ static bool bool_opt (bool *bloc)
 */
   static idef(ziTRUE,TRUE) ;
   static idef(ziFALSE,FALSE) ;
-  static tdef(zTRUE,bnfttID,NULL,"TRUE") ;
-  static tdef(zFALSE,bnfttID,NULL,"FALSE") ;
+  static tdef(zTRUE,bnfttID,0,"TRUE") ;
+  static tdef(zFALSE,bnfttID,0,"FALSE") ;
 
   static iref(zparsebool_ziTRUE,ziTRUE,mkoff(struct boolopt_struct,val)) ;
   static iref(zparsebool_ziFALSE,ziFALSE,mkoff(struct boolopt_struct,val)) ;
@@ -281,25 +281,25 @@ static bool bool_opt (bool *bloc)
   static althd(zparsebool_alts) = { altcnt(2),
       mkaref(zparsebool_alt1), mkaref(zparsebool_alt2) } ;
   static npdef(zparsebool,zparsebool_alts) ;
-  static npref(zparsebool_ref,zparsebool,NULL,NULLP) ;
+  static npref(zparsebool_ref,zparsebool,0,NULLP) ;
 
   static comphd(zgetbool_alt) = { compcnt(1), mkcref(zparsebool_ref) } ;
-  static gdef(zgetbool_int,sizeof(struct boolopt_struct),NULL,zgetbool_alt) ;
-  static gref(zgetbool,zgetbool_int,NULL,NULL,NULLP) ;
+  static gdef(zgetbool_int,sizeof(struct boolopt_struct),0,zgetbool_alt) ;
+  static gref(zgetbool,zgetbool_int,0,0,NULLP) ;
 
 /*
   Initialise the reader, parse the string, and check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zgetbool,&result) == FALSE)
+  if (parse(cmdchn,&zgetbool,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zgetbool") ;
     return (FALSE) ; }
   boolopt = (struct boolopt_struct *) result.g ;
   rdrclear() ;
   
-  dyio_outfmt(dy_logchn,dy_cmdecho," %s",boolopt->str) ;
-  dyio_flushio(dy_logchn,dy_cmdecho) ;
+  dyio_outfmt(dy_logchn,cmdecho," %s",boolopt->str) ;
+  dyio_flushio(dy_logchn,cmdecho) ;
 
   *bloc = boolopt->val ;
 
@@ -319,7 +319,8 @@ static bool bool_opt (bool *bloc)
   of generic option processing routines above.
 */
 
-cmd_retval dy_printopt (const char *keywd)
+cmd_retval dy_printopt (ioid cmdchn, bool cmdecho, const char *keywd,
+			lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
   This routine handles the manifold parameters that control just how much dylp
@@ -335,7 +336,11 @@ cmd_retval dy_printopt (const char *keywd)
     <level> ::= <integer>
 
   Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     keywd:	The command keyword
+    lpopts:	Options structure; will be adjusted
+    lptols:	Tolerances structure; will be adjusted
 
   Returns: cmdOK
 */
@@ -386,7 +391,7 @@ cmd_retval dy_printopt (const char *keywd)
   Now to work. Parse off the <what> keyword and see if we can look it up.
 */
   prntcode = poINV ;
-  if (string_opt(&what) == TRUE)
+  if (string_opt(cmdchn,cmdecho,&what) == TRUE)
   { code = ambig(what,prntkwds,numprntcodes) ;
     if (code < 0) 
     { if (code < -1)
@@ -401,109 +406,109 @@ cmd_retval dy_printopt (const char *keywd)
   dyio_outfxd(cmdstr,-((int) (sizeof(cmdstr)-1)),'l',"%s %s",keywd,what) ;
   switch (prntcode)
   { case poCONMGMT:
-    { opt = &main_lpopts->print.conmgmt ;
+    { opt = &lpopts->print.conmgmt ;
       dflt = opts_dflt->print.conmgmt ;
       lb = opts_lb->print.conmgmt ;
       ub = opts_ub->print.conmgmt ;
       break ; }
     case poCRASH:
-    { opt = &main_lpopts->print.crash ;
+    { opt = &lpopts->print.crash ;
       dflt = opts_dflt->print.crash ;
       lb = opts_lb->print.crash ;
       ub = opts_ub->print.crash ;
       break ; }
     case poDEGEN:
-    { opt = &main_lpopts->print.degen ;
+    { opt = &lpopts->print.degen ;
       dflt = opts_dflt->print.degen ;
       lb = opts_lb->print.degen ;
       ub = opts_ub->print.degen ;
       break ; }
     case poBASIS:
-    { opt = &main_lpopts->print.basis ;
+    { opt = &lpopts->print.basis ;
       dflt = opts_dflt->print.basis ;
       lb = opts_lb->print.basis ;
       ub = opts_ub->print.basis ;
       break ; }
     case poMAJOR:
-    { opt = &main_lpopts->print.major ;
+    { opt = &lpopts->print.major ;
       dflt = opts_dflt->print.major ;
       lb = opts_lb->print.major ;
       ub = opts_ub->print.major ;
       break ; }
     case poPHASE1:
-    { opt = &main_lpopts->print.phase1 ;
+    { opt = &lpopts->print.phase1 ;
       dflt = opts_dflt->print.phase1 ;
       lb = opts_lb->print.phase1 ;
       ub = opts_ub->print.phase1 ;
       break ; }
     case poPHASE2:
-    { opt = &main_lpopts->print.phase2 ;
+    { opt = &lpopts->print.phase2 ;
       dflt = opts_dflt->print.phase2 ;
       lb = opts_lb->print.phase2 ;
       ub = opts_ub->print.phase2 ;
       break ; }
     case poDUAL:
-    { opt = &main_lpopts->print.dual ;
+    { opt = &lpopts->print.dual ;
       dflt = opts_dflt->print.dual ;
       lb = opts_lb->print.dual ;
       ub = opts_ub->print.dual ;
       break ; }
     case poFORCE:
-    { opt = &main_lpopts->print.force ;
+    { opt = &lpopts->print.force ;
       dflt = opts_dflt->print.force ;
       lb = opts_lb->print.force ;
       ub = opts_ub->print.force ;
       break ; }
     case poPIVOTING:
-    { opt = &main_lpopts->print.pivoting ;
+    { opt = &lpopts->print.pivoting ;
       dflt = opts_dflt->print.pivoting ;
       lb = opts_lb->print.pivoting ;
       ub = opts_ub->print.pivoting ;
       break ; }
     case poPIVREJ:
-    { opt = &main_lpopts->print.pivreject ;
+    { opt = &lpopts->print.pivreject ;
       dflt = opts_dflt->print.pivreject ;
       lb = opts_lb->print.pivreject ;
       ub = opts_ub->print.pivreject ;
       break ; }
     case poPRICING:
-    { opt = &main_lpopts->print.pricing ;
+    { opt = &lpopts->print.pricing ;
       dflt = opts_dflt->print.pricing ;
       lb = opts_lb->print.pricing ;
       ub = opts_ub->print.pricing ;
       break ; }
     case poRAYS:
-    { opt = &main_lpopts->print.rays ;
+    { opt = &lpopts->print.rays ;
       dflt = opts_dflt->print.rays ;
       lb = opts_lb->print.rays ;
       ub = opts_ub->print.rays ;
       break ; }
     case poSCALING:
-    { opt = &main_lpopts->print.scaling ;
+    { opt = &lpopts->print.scaling ;
       dflt = opts_dflt->print.scaling ;
       lb = opts_lb->print.scaling ;
       ub = opts_ub->print.scaling ;
       break ; }
     case poSETUP:
-    { opt = &main_lpopts->print.setup ;
+    { opt = &lpopts->print.setup ;
       dflt = opts_dflt->print.setup ;
       lb = opts_lb->print.setup ;
       ub = opts_ub->print.setup ;
       break ; }
     case poSOLN:
-    { opt = &main_lpopts->print.soln ;
+    { opt = &lpopts->print.soln ;
       dflt = opts_dflt->print.soln ;
       lb = opts_lb->print.soln ;
       ub = opts_ub->print.soln ;
       break ; }
     case poTABLEAU:
-    { opt = &main_lpopts->print.tableau ;
+    { opt = &lpopts->print.tableau ;
       dflt = opts_dflt->print.tableau ;
       lb = opts_lb->print.tableau ;
       ub = opts_ub->print.tableau ;
       break ; }
     case poVARMGMT:
-    { opt = &main_lpopts->print.varmgmt ;
+    { opt = &lpopts->print.varmgmt ;
       dflt = opts_dflt->print.varmgmt ;
       lb = opts_lb->print.varmgmt ;
       ub = opts_ub->print.varmgmt ;
@@ -515,7 +520,7 @@ cmd_retval dy_printopt (const char *keywd)
   Last but not least, the actual work. A negative value is taken as a request
   from the user to be told the default value.
 */
-  if (integer_opt(opt) == TRUE)
+  if (integer_opt(cmdchn,cmdecho,opt) == TRUE)
   { if (*opt >= 0)
     { if (*opt > ub)
       { warn(241,rtnnme,lb,cmdstr,ub,*opt,ub) ;
@@ -531,7 +536,8 @@ cmd_retval dy_printopt (const char *keywd)
 
 
 
-static bool lpctl_active (void)
+static bool lpctl_active (ioid cmdchn, bool cmdecho,
+			  lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
   This routine processes the 'active' subcommand, which sets values that
@@ -544,7 +550,11 @@ static bool lpctl_active (void)
     <fracspec> ::= variables <float> | constraints <float>
   By the time this routine is called, `lpcontrol active' is already parsed.
 
-  Parameters: none
+  Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
+    lpopts:	Options structure; will be adjusted
+    lptols:	Tolerances structure; will be adjusted
 
   Returns: TRUE if the remainder of the command parses without error, FALSE
 	   otherwise.
@@ -562,17 +572,17 @@ static bool lpctl_active (void)
 /*
   BNF for the active command.
 */
-  static tdef(zcomma,bnfttD,NULL,",") ;
-  static tref(zcomma_ref,zcomma,NULL,NULL) ;
+  static tdef(zcomma,bnfttD,0,",") ;
+  static tref(zcomma_ref,zcomma,0,0) ;
   static tdef(zdnum,bnfttN,10,NULL) ;
   static tref(zactfrac_varfrac,zdnum,bnfstore|bnfflt,
 	      mkoff(struct actfrac_struct,varfrac)) ;
   static tref(zactfrac_confrac,zdnum,bnfstore|bnfflt,
 	      mkoff(struct actfrac_struct,confrac)) ;
-  static tdef(zvar,bnfttID,NULL,"variables") ;
-  static tref(zvar_ref,zvar,bnfmin,NULL) ;
-  static tdef(zcon,bnfttID,NULL,"constraints") ;
-  static tref(zcon_ref,zcon,bnfmin,NULL) ;
+  static tdef(zvar,bnfttID,0,"variables") ;
+  static tref(zvar_ref,zvar,bnfmin,0) ;
+  static tdef(zcon,bnfttID,0,"constraints") ;
+  static tref(zcon_ref,zcon,bnfmin,0) ;
   static idef(ziTRUE,TRUE) ;
   static iref(zactfrac_varseen,ziTRUE,mkoff(struct actfrac_struct,var_seen)) ;
   static iref(zactfrac_conseen,ziTRUE,mkoff(struct actfrac_struct,con_seen)) ;
@@ -587,9 +597,8 @@ static bool lpctl_active (void)
   static npref(zactfrac_list,zactfrac,bnflst,zcomma_ref) ;
 
   static comphd(zactfracs_alt) = { compcnt(1), mkcref(zactfrac_list) } ;
-  static gdef(zactfracs_int,sizeof(struct actfrac_struct),NULL,
-	      zactfracs_alt) ;
-  static gref(zactfracs,zactfracs_int,NULL,NULL,NULLP) ;
+  static gdef(zactfracs_int,sizeof(struct actfrac_struct),0,zactfracs_alt) ;
+  static gref(zactfracs,zactfracs_int,0,0,NULLP) ;
 
   dy_exposeOptDefaults(&opts_lb,&opts_dflt,&opts_ub) ;
 /*
@@ -597,7 +606,7 @@ static bool lpctl_active (void)
   check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zactfracs,&result) == FALSE)
+  if (parse(cmdchn,&zactfracs,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zactfracs") ;
     return (FALSE) ; }
@@ -614,9 +623,9 @@ static bool lpctl_active (void)
     { if (actfrac->varfrac > opts_ub->active.vars)
       { warn(244,rtnnme,opts_lb->active.vars,"variables",
 	     opts_ub->active.vars,actfrac->varfrac,opts_ub->active.vars) ;
-	main_lpopts->active.vars = opts_ub->active.vars ; }
+	lpopts->active.vars = opts_ub->active.vars ; }
       else
-	main_lpopts->active.vars = actfrac->varfrac ; }
+	lpopts->active.vars = actfrac->varfrac ; }
     else
     { warn(245,rtnnme,"variables",opts_dflt->active.vars) ; } }
 
@@ -626,9 +635,9 @@ static bool lpctl_active (void)
     { if (actfrac->confrac > opts_ub->active.cons)
       { warn(244,rtnnme,opts_lb->active.cons,"constraints",
 	     opts_ub->active.cons,actfrac->confrac,opts_ub->active.cons) ;
-	main_lpopts->active.cons = opts_ub->active.cons ; }
+	lpopts->active.cons = opts_ub->active.cons ; }
       else
-	main_lpopts->active.cons = actfrac->confrac ; }
+	lpopts->active.cons = actfrac->confrac ; }
     else
     { warn(245,rtnnme,"constraints",opts_dflt->active.cons) ; } }
 
@@ -638,7 +647,8 @@ static bool lpctl_active (void)
 
 
 
-static bool lpctl_finpurge (void)
+static bool lpctl_finpurge (ioid cmdchn, bool cmdecho,
+			    lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
   This routine processes the "final" subcommand, which currently controls
@@ -655,7 +665,11 @@ static bool lpctl_finpurge (void)
     <sense> ::= true | false
   By the time this routine is called, `lpcontrol final' is already parsed.
 
-  Parameters: none
+  Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
+    lpopts:	Options structure; will be adjusted
+    lptols:	Tolerances structure; will be adjusted
 
   Returns: TRUE if the remainder of the command parses without error, FALSE
 	   otherwise.
@@ -674,25 +688,25 @@ static bool lpctl_finpurge (void)
 /*
   BNF for the final purge command.
 */
-  static tdef(znil,bnfttNIL,NULL,NULL) ;
-  static tref(znil_ref,znil,NULL,NULL) ;
-  static tdef(zcomma,bnfttD,NULL,",") ;
-  static tref(zcomma_ref,zcomma,NULL,NULL) ;
+  static tdef(znil,bnfttNIL,0,NULL) ;
+  static tref(znil_ref,znil,0,0) ;
+  static tdef(zcomma,bnfttD,0,",") ;
+  static tref(zcomma_ref,zcomma,0,0) ;
 
-  static tdef(zpurge,bnfttID,NULL,"purge") ;
-  static tref(zpurge_ref,zpurge,bnfmin,NULL) ;
-  static tdef(zvar,bnfttID,NULL,"variables") ;
-  static tref(zvar_ref,zvar,bnfmin,NULL) ;
-  static tdef(zcon,bnfttID,NULL,"constraints") ;
-  static tref(zcon_ref,zcon,bnfmin,NULL) ;
+  static tdef(zpurge,bnfttID,0,"purge") ;
+  static tref(zpurge_ref,zpurge,bnfmin,0) ;
+  static tdef(zvar,bnfttID,0,"variables") ;
+  static tref(zvar_ref,zvar,bnfmin,0) ;
+  static tdef(zcon,bnfttID,0,"constraints") ;
+  static tref(zcon_ref,zcon,bnfmin,0) ;
 
   static idef(ziminus1,-1) ;
   static idef(ziTRUE,TRUE) ;
   static idef(ziFALSE,FALSE) ;
-  static tdef(zTRUE,bnfttID,NULL,"TRUE") ;
-  static tref(zTRUE_ref,zTRUE,bnfmin,NULL) ;
-  static tdef(zFALSE,bnfttID,NULL,"FALSE") ;
-  static tref(zFALSE_ref,zFALSE,bnfmin,NULL) ;
+  static tdef(zTRUE,bnfttID,0,"TRUE") ;
+  static tref(zTRUE_ref,zTRUE,bnfmin,0) ;
+  static tdef(zFALSE,bnfttID,0,"FALSE") ;
+  static tref(zFALSE_ref,zFALSE,bnfmin,0) ;
 
   static iref(zwhatvar_ziTRUE,ziTRUE,mkoff(struct finpurge_struct,vars)) ;
   static iref(zwhatvar_ziFALSE,ziFALSE,mkoff(struct finpurge_struct,vars)) ;
@@ -720,9 +734,8 @@ static bool lpctl_finpurge (void)
 	      mkoff(struct finpurge_struct,cons)) ;
   static comphd(zfinpurge_alt) = { compcnt(4),mkcref(zfinpurge_varminus1),
       mkcref(zfinpurge_conminus1),mkcref(zpurge_ref),mkcref(zfinpurge_what) } ;
-  static gdef(zfinpurge_def,
-	      sizeof(struct finpurge_struct),NULL,zfinpurge_alt) ;
-  static gref(zfinpurge,zfinpurge_def,NULL,NULL,NULLP) ;
+  static gdef(zfinpurge_def,sizeof(struct finpurge_struct),0,zfinpurge_alt) ;
+  static gref(zfinpurge,zfinpurge_def,0,0,NULLP) ;
 
   dy_exposeOptDefaults(&opts_lb,&opts_dflt,&opts_ub) ;
 /*
@@ -730,7 +743,7 @@ static bool lpctl_finpurge (void)
   check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zfinpurge,&result) == FALSE)
+  if (parse(cmdchn,&zfinpurge,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zfinspec") ;
     return (FALSE) ; }
@@ -750,14 +763,14 @@ static bool lpctl_finpurge (void)
   Something is specified. Check variables, then constraints.
 */
   if (optvals->vars >= 0)
-  { main_lpopts->finpurge.vars = (bool) optvals->vars ;
+  { lpopts->finpurge.vars = (bool) optvals->vars ;
     dyio_outfmt(dy_logchn,dy_gtxecho,"variables %s",
-	        (main_lpopts->finpurge.vars == TRUE)?"true":"false") ; }
+	        (lpopts->finpurge.vars == TRUE)?"true":"false") ; }
   if (optvals->cons >= 0)
-  { main_lpopts->finpurge.cons = (bool) optvals->cons ;
+  { lpopts->finpurge.cons = (bool) optvals->cons ;
     if (optvals->vars >= 0) dyio_outfmt(dy_logchn,dy_gtxecho,", ") ;
     dyio_outfmt(dy_logchn,dy_gtxecho,"constraints %s",
-	        (main_lpopts->finpurge.cons == TRUE)?"true":"false") ; }
+	        (lpopts->finpurge.cons == TRUE)?"true":"false") ; }
 
   FREE(optvals) ;
 
@@ -765,7 +778,8 @@ static bool lpctl_finpurge (void)
 
 
 
-static bool lpctl_load  (void)
+static bool lpctl_load  (ioid cmdchn, bool cmdecho,
+			 lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
   This routine processes the 'load' subcommand, which sets values that
@@ -786,7 +800,11 @@ static bool lpctl_load  (void)
   if only one interval is specified, the second interval is marked invalid. If
   you want two, you have to specify two.
 
-  Parameters: none
+  Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
+    lpopts:	Options structure; will be adjusted
+    lptols:	Tolerances structure; will be adjusted
 
   Returns: TRUE if the remainder of the command parses without error, FALSE
 	   otherwise.
@@ -815,18 +833,18 @@ static bool lpctl_load  (void)
 /*
   BNF for the load command.
 */
-  static tdef(znil,bnfttNIL,NULL,NULL) ;
-  static tref(znil_ref,znil,NULL,NULL) ;
-  static tdef(zcomma,bnfttD,NULL,",") ;
-  static tref(zcomma_ref,zcomma,NULL,NULL) ;
-  static tdef(zlsq,bnfttD,NULL,"[") ;
-  static tref(zlsq_ref,zlsq,NULL,NULL) ;
-  static tdef(zlpar,bnfttD,NULL,"(") ;
-  static tref(zlpar_ref,zlpar,NULL,NULL) ;
-  static tdef(zrsq,bnfttD,NULL,"]") ;
-  static tref(zrsq_ref,zrsq,NULL,NULL) ;
-  static tdef(zrpar,bnfttD,NULL,")") ;
-  static tref(zrpar_ref,zrpar,NULL,NULL) ;
+  static tdef(znil,bnfttNIL,0,NULL) ;
+  static tref(znil_ref,znil,0,0) ;
+  static tdef(zcomma,bnfttD,0,",") ;
+  static tref(zcomma_ref,zcomma,0,0) ;
+  static tdef(zlsq,bnfttD,0,"[") ;
+  static tref(zlsq_ref,zlsq,0,0) ;
+  static tdef(zlpar,bnfttD,0,"(") ;
+  static tref(zlpar_ref,zlpar,0,0) ;
+  static tdef(zrsq,bnfttD,0,"]") ;
+  static tref(zrsq_ref,zrsq,0,0) ;
+  static tdef(zrpar,bnfttD,0,")") ;
+  static tref(zrpar_ref,zrpar,0,0) ;
   static tdef(zdnum,bnfttN,10,NULL) ;
 
   static comphd(zldelim_alt1) = { compcnt(1),mkcref(zlsq_ref) } ;
@@ -879,11 +897,11 @@ static bool lpctl_load  (void)
   static althd(zloadbody_alts) = { altcnt(2),
     mkaref(zloadbody_alt1),mkaref(zloadbody_alt2) } ;
   static npdef(zloadbody,zloadbody_alts) ;
-  static npref(zloadbody_ref,zloadbody,NULL,NULLP) ;
+  static npref(zloadbody_ref,zloadbody,0,NULLP) ;
 
   static comphd(zload_alt) = { compcnt(1),mkcref(zloadbody_ref) } ;
-  static gdef(zload_def,sizeof(struct load_struct),NULL,zload_alt) ;
-  static gref(zload,zload_def,NULL,NULL,NULLP) ;
+  static gdef(zload_def,sizeof(struct load_struct),0,zload_alt) ;
+  static gref(zload,zload_def,0,0,NULLP) ;
 
   dy_exposeOptDefaults(&opts_lb,&opts_dflt,&opts_ub) ;
 /*
@@ -891,7 +909,7 @@ static bool lpctl_load  (void)
   check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zload,&result) == FALSE)
+  if (parse(cmdchn,&zload,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zload") ;
     return (FALSE) ; }
@@ -944,12 +962,12 @@ static bool lpctl_load  (void)
 	loadspec->frac > opts_ub->initcons.frac)
     { warn(244,rtnnme,opts_lb->initcons.frac,"initial load fraction",
 	   opts_ub->initcons.frac,loadspec->frac,opts_ub->initcons.frac) ;
-      main_lpopts->initcons.frac = opts_ub->initcons.frac ; }
+      lpopts->initcons.frac = opts_ub->initcons.frac ; }
     else
-    { main_lpopts->initcons.frac = loadspec->frac ; } }
+    { lpopts->initcons.frac = loadspec->frac ; } }
 /*
   Now process the intervals, if present. For each interval, check the values
-  and load main_lpopts->initcons.
+  and load lpopts->initcons.
 */
   intv = loadspec->intervals ;
   FREE(loadspec) ;
@@ -958,25 +976,25 @@ static bool lpctl_load  (void)
   dyio_outfmt(dy_logchn,dy_gtxecho," %c %.5f %.5f %c",
 	      intv->ldelim,intv->ub,intv->lb,intv->rdelim) ;
   if (intv->ldelim == '(')
-    main_lpopts->initcons.i1uopen = TRUE ;
+    lpopts->initcons.i1uopen = TRUE ;
   else
-    main_lpopts->initcons.i1uopen = FALSE ;
+    lpopts->initcons.i1uopen = FALSE ;
   if (intv->ub > opts_ub->initcons.i1u || intv->ub < opts_lb->initcons.i1u)
   { warn(244,rtnnme,opts_lb->initcons.i1u,"initial load angle bound",
 	   opts_ub->initcons.i1u,intv->ub,opts_ub->initcons.i1u) ;
-    main_lpopts->initcons.i1u = opts_ub->initcons.i1u ; }
+    lpopts->initcons.i1u = opts_ub->initcons.i1u ; }
   else
-  { main_lpopts->initcons.i1u = intv->ub ; }
+  { lpopts->initcons.i1u = intv->ub ; }
   if (intv->lb > opts_ub->initcons.i1l || intv->lb < opts_lb->initcons.i1l)
   { warn(244,rtnnme,opts_lb->initcons.i1l,"initial load angle bound",
 	   opts_ub->initcons.i1l,intv->lb,opts_lb->initcons.i1l) ;
-    main_lpopts->initcons.i1l = opts_lb->initcons.i1l ; }
+    lpopts->initcons.i1l = opts_lb->initcons.i1l ; }
   else
-  { main_lpopts->initcons.i1l = intv->lb ; }
+  { lpopts->initcons.i1l = intv->lb ; }
   if (intv->rdelim == ')')
-    main_lpopts->initcons.i1lopen = TRUE ;
+    lpopts->initcons.i1lopen = TRUE ;
   else
-    main_lpopts->initcons.i1lopen = FALSE ;
+    lpopts->initcons.i1lopen = FALSE ;
 /*
   If we have only one interval, we're done, otherwise repeat the whole thing
   for the second interval.
@@ -984,32 +1002,32 @@ static bool lpctl_load  (void)
   temp = intv->nxt ;
   FREE(intv) ;
   if (temp == NULL)
-  { main_lpopts->initcons.i2valid = FALSE ;
+  { lpopts->initcons.i2valid = FALSE ;
     return (TRUE) ; }
 
   intv = temp ;
   dyio_outfmt(dy_logchn,dy_gtxecho,", %c %.5f %.5f %c",
 	      intv->ldelim,intv->ub,intv->lb,intv->rdelim) ;
   if (intv->ldelim == '(')
-    main_lpopts->initcons.i2uopen = TRUE ;
+    lpopts->initcons.i2uopen = TRUE ;
   else
-    main_lpopts->initcons.i2uopen = FALSE ;
+    lpopts->initcons.i2uopen = FALSE ;
   if (intv->ub > opts_ub->initcons.i2u || intv->ub < opts_lb->initcons.i2u)
   { warn(244,rtnnme,opts_lb->initcons.i2u,"initial load angle bound",
 	   opts_ub->initcons.i2u,intv->ub,opts_ub->initcons.i2u) ;
-    main_lpopts->initcons.i2u = opts_ub->initcons.i2u ; }
+    lpopts->initcons.i2u = opts_ub->initcons.i2u ; }
   else
-  { main_lpopts->initcons.i2u = intv->ub ; }
+  { lpopts->initcons.i2u = intv->ub ; }
   if (intv->lb > opts_ub->initcons.i2l || intv->lb < opts_lb->initcons.i2l)
   { warn(244,rtnnme,opts_lb->initcons.i2l,"initial load angle bound",
 	   opts_ub->initcons.i2l,intv->lb,opts_lb->initcons.i2l) ;
-    main_lpopts->initcons.i2l = opts_lb->initcons.i2l ; }
+    lpopts->initcons.i2l = opts_lb->initcons.i2l ; }
   else
-  { main_lpopts->initcons.i2l = intv->lb ; }
+  { lpopts->initcons.i2l = intv->lb ; }
   if (intv->rdelim == ')')
-    main_lpopts->initcons.i2lopen = TRUE ;
+    lpopts->initcons.i2lopen = TRUE ;
   else
-    main_lpopts->initcons.i2lopen = FALSE ;
+    lpopts->initcons.i2lopen = FALSE ;
 
   FREE(intv) ;
 
@@ -1017,7 +1035,8 @@ static bool lpctl_load  (void)
 
 
 
-static bool lpctl_infinity (void)
+static bool lpctl_infinity (ioid cmdchn, bool cmdecho,
+			    lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
   This routine handles the `lpcontrol infinity' command. The reason it's broken
@@ -1031,7 +1050,11 @@ static bool lpctl_infinity (void)
   By the time this routine is called, `lpcontrol infinity' is already parsed.
   A value of 0 is taken as a request for the current value.
 
-  Parameters: none
+  Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
+    lpopts:	Options structure; will be adjusted
+    lptols:	Tolerances structure; will be adjusted
 
   Returns: TRUE if the remainder of the command parses without error, FALSE
 	   otherwise.
@@ -1052,11 +1075,11 @@ static bool lpctl_infinity (void)
 /*
   BNF for the infinity command.
 */
-  static tdef(zIEEE,bnfttID,NULL,"IEEE") ;
-  static tref(zIEEE_ref,zIEEE,bnfmin,NULL) ;
+  static tdef(zIEEE,bnfttID,0,"IEEE") ;
+  static tref(zIEEE_ref,zIEEE,bnfmin,0) ;
   static idef(ziOne,1) ;
-  static tdef(zDBLMAX,bnfttID,NULL,"DBL_MAX") ;
-  static tref(zDBLMAX_ref,zDBLMAX,bnfmin,NULL) ;
+  static tdef(zDBLMAX,bnfttID,0,"DBL_MAX") ;
+  static tref(zDBLMAX_ref,zDBLMAX,bnfmin,0) ;
   static idef(ziTwo,2) ;
   static tdef(zdnum,bnfttN,10,NULL) ;
   static idef(ziThree,3) ;
@@ -1078,12 +1101,11 @@ static bool lpctl_infinity (void)
   static althd(zinfbody_alts) = { altcnt(3),
     mkaref(zinfbody_alt1),mkaref(zinfbody_alt2), mkaref(zinfbody_alt3) } ;
   static npdef(zinfbody,zinfbody_alts) ;
-  static npref(zinfbody_ref,zinfbody,NULL,NULLP) ;
+  static npref(zinfbody_ref,zinfbody,0,NULLP) ;
 
   static comphd(zinfinitydef_alt) = { compcnt(1),mkcref(zinfbody_ref) } ;
-  static gdef(zinfinity_def,
-	      sizeof(struct infinity_struct),NULL,zinfinitydef_alt) ;
-  static gref(zinfinity,zinfinity_def,NULL,NULL,NULLP) ;
+  static gdef(zinfinity_def,sizeof(struct infinity_struct),0,zinfinitydef_alt) ;
+  static gref(zinfinity,zinfinity_def,0,0,NULLP) ;
 
   dy_exposeTolDefaults(&tols_dflt) ;
 /*
@@ -1091,7 +1113,7 @@ static bool lpctl_infinity (void)
   check for errors.
 */
   rdrinit() ;
-  if (parse(dy_cmdchn,&zinfinity,&result) == FALSE)
+  if (parse(cmdchn,&zinfinity,&result) == FALSE)
   { rdrclear() ;
     errmsg(240,rtnnme,"zinfinity") ;
     return (FALSE) ; }
@@ -1100,7 +1122,7 @@ static bool lpctl_infinity (void)
 /*
   Process the results. A value of 0 is taken as a request for the default.
   Note that we expect HUGE_VAL to be IEEE infinity. We get the default value
-  from main_lptols, because the default isn't set until we call dy_defaults.
+  from lptols, because the default isn't set until we call dy_defaults.
 */
   switch (infinityspec->code)
   { case 1:
@@ -1117,7 +1139,7 @@ static bool lpctl_infinity (void)
     { dyio_outfmt(dy_logchn,dy_gtxecho," %g",infinityspec->val) ;
       infinity = infinityspec->val ;
       if (infinity == 0)
-      { infinity = main_lptols->inf ;
+      { infinity = lptols->inf ;
 	warn(245,rtnnme,"infinity",infinity) ; }
       else
       if (infinity < 0)
@@ -1128,7 +1150,7 @@ static bool lpctl_infinity (void)
     { FREE(infinityspec) ;
       return (FALSE) ; } }
 
-  main_lptols->inf = infinity ;
+  lptols->inf = infinity ;
   FREE(infinityspec) ;
 
   return (TRUE) ; }
@@ -1136,7 +1158,8 @@ static bool lpctl_infinity (void)
 
 
 
-cmd_retval dy_ctlopt (const char *keywd)
+cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
+		      lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
   This routine handles various control options, each taking a single
@@ -1169,7 +1192,11 @@ cmd_retval dy_ctlopt (const char *keywd)
   parsing routines.
 
   Parameters:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     keywd:	The command keyword
+    lpopts:	Options structure; will be adjusted
+    lptols:	Tolerances structure; will be adjusted
 
   Returns: cmdOK or cmdHALTERROR
 */
@@ -1331,7 +1358,7 @@ cmd_retval dy_ctlopt (const char *keywd)
   Now to work. Parse off the <what> keyword and see if we can look it up.
 */
   ctlcode = ctlINV ;
-  if (string_opt(&what) == TRUE)
+  if (string_opt(cmdchn,cmdecho,&what) == TRUE)
   { code = ambig(what,ctlkwds,numctlkwds) ;
     if (code < 0) 
     { if (code < -1)
@@ -1348,27 +1375,27 @@ cmd_retval dy_ctlopt (const char *keywd)
   dyio_outfxd(cmdstr,-((int) (sizeof(cmdstr)-1)),'l',"%s %s",keywd,what) ;
   switch (ctlcode)
   { case ctlADDVARLIM:
-    { intopt = &main_lpopts->addvar ;
+    { intopt = &lpopts->addvar ;
       intdflt = opts_dflt->addvar ;
       intlb = opts_lb->addvar ;
       intub = opts_ub->addvar ;
       break ; }
     case ctlBOGUS:
-    { toler = &main_lptols->bogus ;
+    { toler = &lptols->bogus ;
       tolerdflt = tols_dflt->bogus ;
       break ; }
     case ctlCHECK:
-    { intopt = &main_lpopts->check ;
+    { intopt = &lpopts->check ;
       intdflt = opts_dflt->check ;
       intlb = opts_lb->check ;
       intub = opts_ub->check ;
       break ; }
     case ctlCOLD:
-    { boolopt = &main_lpopts->forcecold ;
+    { boolopt = &lpopts->forcecold ;
       booldflt = opts_dflt->forcecold ;
       break ; }
     case ctlCOLDBASIS:
-    { intopt = (int *) &main_lpopts->coldbasis ;
+    { intopt = (int *) &lpopts->coldbasis ;
       intdflt = opts_dflt->coldbasis ;
       intlb = opts_lb->coldbasis ;
       intub = opts_ub->coldbasis ;
@@ -1376,25 +1403,25 @@ cmd_retval dy_ctlopt (const char *keywd)
       kwds = basiskwds ;
       break ; }
     case ctlCOLDVARS:
-    { intopt = &main_lpopts->coldvars ;
+    { intopt = &lpopts->coldvars ;
       intdflt = opts_dflt->coldvars ;
       intlb = opts_lb->coldvars ;
       intub = opts_ub->coldvars ;
       break ; }
     case ctlCONACTLIM:
-    { intopt = &main_lpopts->con.actlim ;
+    { intopt = &lpopts->con.actlim ;
       intdflt = opts_dflt->con.actlim ;
       intlb = opts_lb->con.actlim ;
       intub = opts_ub->con.actlim ;
       break ; }
     case ctlCONACTLVL:
-    { intopt = &main_lpopts->con.actlvl ;
+    { intopt = &lpopts->con.actlvl ;
       intdflt = opts_dflt->con.actlvl ;
       intlb = opts_lb->con.actlvl ;
       intub = opts_ub->con.actlvl ;
       break ; }
     case ctlCONTEXT:
-    { intopt = (int *) &main_lpopts->context ;
+    { intopt = (int *) &lpopts->context ;
       intdflt = opts_dflt->context ;
       intlb = opts_lb->context ;
       intub = opts_ub->context ;
@@ -1402,23 +1429,23 @@ cmd_retval dy_ctlopt (const char *keywd)
       kwds = contextkwds ;
       break ; }
     case ctlCOSTZ:
-    { toler = &main_lptols->cost ;
+    { toler = &lptols->cost ;
       tolerdflt = tols_dflt->cost ;
       break ; }
     case ctlCPYORIG:
-    { boolopt = &main_lpopts->copyorigsys ;
+    { boolopt = &lpopts->copyorigsys ;
       booldflt = opts_dflt->copyorigsys ;
       break ; }
     case ctlDCHK:
-    { toler = &main_lptols->dchk ;
+    { toler = &lptols->dchk ;
       tolerdflt = tols_dflt->dchk ;
       break ; }
     case ctlDEGEN:
-    { boolopt = &main_lpopts->degen ;
+    { boolopt = &lpopts->degen ;
       booldflt = opts_dflt->degen ;
       break ; }
     case ctlDEGENLITE:
-    { intopt = &main_lpopts->degenlite ;
+    { intopt = &lpopts->degenlite ;
       intdflt = opts_dflt->degenlite ;
       intlb = opts_lb->degenlite ;
       intub = opts_ub->degenlite ;
@@ -1426,33 +1453,33 @@ cmd_retval dy_ctlopt (const char *keywd)
       kwds = litekwds ;
       break ; }
     case ctlDEGENPIVS:
-    { intopt = &main_lpopts->degenpivlim ;
+    { intopt = &lpopts->degenpivlim ;
       intdflt = opts_dflt->degenpivlim ;
       intlb = opts_lb->degenpivlim ;
       intub = opts_ub->degenpivlim ;
       break ; }
     case ctlDFEAS:
-    { toler = &main_lptols->dfeas_scale ;
+    { toler = &lptols->dfeas_scale ;
       tolerdflt = tols_dflt->dfeas_scale ;
       break ; }
     case ctlDUALADD:
-    { intopt = &main_lpopts->dualadd ;
+    { intopt = &lpopts->dualadd ;
       intdflt = opts_dflt->dualadd ;
       intlb = opts_lb->dualadd ;
       intub = opts_ub->dualadd ;
       break ; }
     case ctlFACTOR:
-    { intopt = &main_lpopts->factor ;
+    { intopt = &lpopts->factor ;
       intdflt = opts_dflt->factor ;
       intlb = opts_lb->factor ;
       intub = opts_ub->factor ;
       break ; }
     case ctlFULLSYS:
-    { boolopt = &main_lpopts->fullsys ;
+    { boolopt = &lpopts->fullsys ;
       booldflt = opts_dflt->fullsys ;
       break ; }
     case ctlGROOM:
-    { intopt = &main_lpopts->groom ;
+    { intopt = &lpopts->groom ;
       intdflt = opts_dflt->groom ;
       intlb = opts_lb->groom ;
       intub = opts_ub->groom ;
@@ -1460,51 +1487,51 @@ cmd_retval dy_ctlopt (const char *keywd)
       kwds = groomkwds ;
       break ; }
     case ctlITER:
-    { intopt = &main_lpopts->iterlim ;
+    { intopt = &lpopts->iterlim ;
       intdflt = opts_dflt->iterlim ;
       intlb = opts_lb->iterlim ;
       intub = opts_ub->iterlim ;
       break ; }
     case ctlIDLE:
-    { intopt = &main_lpopts->idlelim ;
+    { intopt = &lpopts->idlelim ;
       intdflt = opts_dflt->idlelim ;
       intlb = opts_lb->idlelim ;
       intub = opts_ub->idlelim ;
       break ; }
     case ctlDUALMULTIPIV:
-    { intopt = &main_lpopts->dpsel.strat ;
+    { intopt = &lpopts->dpsel.strat ;
       intdflt = opts_dflt->dpsel.strat ;
       intlb = opts_lb->dpsel.strat ;
       intub = opts_ub->dpsel.strat ;
       break ; }
     case ctlPRIMMULTIPIV:
-    { intopt = &main_lpopts->ppsel.strat ;
+    { intopt = &lpopts->ppsel.strat ;
       intdflt = opts_dflt->ppsel.strat ;
       intlb = opts_lb->ppsel.strat ;
       intub = opts_ub->ppsel.strat ;
       break ; }
     case ctlPATCH:
-    { boolopt = &main_lpopts->patch ;
+    { boolopt = &lpopts->patch ;
       booldflt = opts_dflt->patch ;
       break ; }
     case ctlPCHK:
-    { toler = &main_lptols->pchk ;
+    { toler = &lptols->pchk ;
       tolerdflt = tols_dflt->pchk ;
       break ; }
     case ctlPFEAS:
-    { toler = &main_lptols->pfeas_scale ;
+    { toler = &lptols->pfeas_scale ;
       tolerdflt = tols_dflt->pfeas_scale ;
       break ; }
     case ctlPIVOT:
-    { toler = &main_lptols->pivot ;
+    { toler = &lptols->pivot ;
       tolerdflt = tols_dflt->pivot ;
       break ; }
     case ctlPURGE:
-    { toler = &main_lptols->purge ;
+    { toler = &lptols->purge ;
       tolerdflt = tols_dflt->purge ;
       break ; }
     case ctlCONDEACTLVL:
-    { intopt = &main_lpopts->con.deactlvl ;
+    { intopt = &lpopts->con.deactlvl ;
       intdflt = opts_dflt->con.deactlvl ;
       intlb = opts_lb->con.deactlvl ;
       intub = opts_ub->con.deactlvl ;
@@ -1512,61 +1539,61 @@ cmd_retval dy_ctlopt (const char *keywd)
       kwds = deactkwds ;
       break ; }
     case ctlPURGEVAR:
-    { toler = &main_lptols->purgevar ;
+    { toler = &lptols->purgevar ;
       tolerdflt = tols_dflt->purgevar ;
       break ; }
     case ctlREFRAME:
-    { toler = &main_lptols->reframe ;
+    { toler = &lptols->reframe ;
       tolerdflt = tols_dflt->reframe ;
       break ; }
     case ctlSCALING:
-    { intopt = &main_lpopts->scaling ;
+    { intopt = &lpopts->scaling ;
       intdflt = opts_dflt->scaling ;
       intlb = opts_lb->scaling ;
       intub = opts_ub->scaling ;
       break ; }
     case ctlSCAN:
-    { intopt = &main_lpopts->scan ;
+    { intopt = &lpopts->scan ;
       intdflt = opts_dflt->scan ;
       intlb = opts_lb->scan ;
       intub = opts_ub->scan ;
       break ; }
     case ctlSWING:
-    { toler = &main_lptols->swing ;
+    { toler = &lptols->swing ;
       tolerdflt = tols_dflt->swing ;
       break ; }
     case ctlUSEDUAL:
-    { boolopt = &main_lpopts->usedual ;
+    { boolopt = &lpopts->usedual ;
       booldflt = opts_dflt->usedual ;
       break ; }
     case ctlWARM:
-    { boolopt = &main_lpopts->forcewarm ;
+    { boolopt = &lpopts->forcewarm ;
       booldflt = opts_dflt->forcewarm ;
       break ; }
     case ctlZERO:
-    { toler = &main_lptols->zero ;
+    { toler = &lptols->zero ;
       tolerdflt = tols_dflt->zero ;
       break ; }
     case ctlACTIVESZE:
-    { booldflt = lpctl_active() ;
+    { booldflt = lpctl_active(cmdchn,cmdecho,lpopts,lptols) ;
       if (booldflt == TRUE)
       { return (cmdOK) ; }
       else
       { return (cmdHALTERROR) ; } }
     case ctlINFINITY:
-    { booldflt = lpctl_infinity() ;
+    { booldflt = lpctl_infinity(cmdchn,cmdecho,lpopts,lptols) ;
       if (booldflt == TRUE)
       { return (cmdOK) ; }
       else
       { return (cmdHALTERROR) ; } }
     case ctlLOAD:
-    { booldflt = lpctl_load() ;
+    { booldflt = lpctl_load(cmdchn,cmdecho,lpopts,lptols) ;
       if (booldflt == TRUE)
       { return (cmdOK) ; }
       else
       { return (cmdHALTERROR) ; } }
     case ctlFINAL:
-    { booldflt = lpctl_finpurge() ;
+    { booldflt = lpctl_finpurge(cmdchn,cmdecho,lpopts,lptols) ;
       if (booldflt == TRUE)
       { return (cmdOK) ; }
       else
@@ -1599,7 +1626,7 @@ cmd_retval dy_ctlopt (const char *keywd)
     case ctlPRIMMULTIPIV:
     case ctlSCALING:
     case ctlSCAN:
-    { if (integer_opt(intopt) == TRUE)
+    { if (integer_opt(cmdchn,cmdecho,intopt) == TRUE)
       { if (*intopt >= 0)
 	{ if (intub > 0 && *intopt > intub)
 	  { warn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ;
@@ -1612,7 +1639,7 @@ cmd_retval dy_ctlopt (const char *keywd)
       break ; }
     case ctlCOLDVARS:
     case ctlFACTOR:
-    { if (integer_opt(intopt) == TRUE)
+    { if (integer_opt(cmdchn,cmdecho,intopt) == TRUE)
       { if (*intopt >= 0)
 	{ if (intub > 0 && *intopt > intub)
 	  { warn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ; } }
@@ -1629,7 +1656,7 @@ cmd_retval dy_ctlopt (const char *keywd)
     case ctlPATCH:
     case ctlUSEDUAL:
     case ctlWARM:
-    { if (bool_opt(boolopt) == TRUE)
+    { if (bool_opt(cmdchn,cmdecho,boolopt) == TRUE)
       { retval = cmdOK ; }
       else
       { errmsg(236,rtnnme,"<bool>","parameter",keywd) ; }
@@ -1646,7 +1673,7 @@ cmd_retval dy_ctlopt (const char *keywd)
     case ctlREFRAME:
     case ctlSWING:
     case ctlZERO:
-    { if (double_opt(&dblopt) == TRUE)
+    { if (double_opt(cmdchn,cmdecho,&dblopt) == TRUE)
       { if (dblopt <= 0)
 	{ warn(245,rtnnme,cmdstr,tolerdflt) ; }
 	else
@@ -1659,7 +1686,7 @@ cmd_retval dy_ctlopt (const char *keywd)
     case ctlCOLDBASIS:
     case ctlDEGENLITE:
     case ctlCONDEACTLVL:
-    { if (string_opt(&what) == TRUE)
+    { if (string_opt(cmdchn,cmdecho,&what) == TRUE)
       { code = ambig(what,kwds,numkwds) ;
 	if (code < 0)
 	{ if (code < -1)

@@ -76,7 +76,7 @@ using std::vector ;
 */
 
 #define STATPERBYTE 4
-#define STATALLOCUNIT sizeof(int)
+#define STATALLOCUNIT (static_cast<int>(sizeof(int)))
 #define STATBYTES(zz_ns_zz) \
   (((zz_ns_zz+STATALLOCUNIT*STATPERBYTE-1)/(STATALLOCUNIT*STATPERBYTE))* \
    STATALLOCUNIT)
@@ -511,8 +511,8 @@ void ODWSB::deleteRows (int rawTgtCnt, const int *rawTgts)
   int *endUnique ;
   std::sort(first,last) ;
   endUnique = std::unique(first,last) ;
-  int tgtCnt = endUnique-first ;
-  compressRows(tgtCnt,tgts) ;
+  ptrdiff_t tgtCnt = endUnique-first ;
+  compressRows(static_cast<int>(tgtCnt),tgts) ;
   delete [] tgts ;
 
 # if ODSI_PARANOIA >= 2

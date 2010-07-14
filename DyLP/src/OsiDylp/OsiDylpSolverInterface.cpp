@@ -368,17 +368,14 @@ extern "C"
 #ifndef DYLP_ERRMSGDIR
 /*
   This is the correct path to find dy_errmsgs.txt from Osi/test, assuming the
-  default COIN directory structure for Osi and Dylp, to wit:
-    COIN
-      Osi
-	src
-	  OsiDylp
-	test
+  default COIN directory structure for Dylp, to wit:
       DyLP
 	src
 	  Dylp
+	  OsiDylp
 
-  But you most likely want an absolute path, not a relative path.
+  But you most likely want an absolute path, not a relative path, so that the
+  executable isn't tied to this directory.
 
   This symbol is normally defined when DyLP is configured, and will be set to
   the absolute path to DyLP/src/Dylp. You can override the configuration by
@@ -387,9 +384,9 @@ extern "C"
   must end in a directory separator.
 */
 # ifdef _MSC_VER
-#   define DYLP_ERRMSGDIR "..\\..\\DyLP\\src\\Dylp\\"
+#   define DYLP_ERRMSGDIR "..\\Dylp\\"
 # else
-#   define DYLP_ERRMSGDIR "../../DyLP/src/Dylp/"
+#   define DYLP_ERRMSGDIR "../Dylp/"
 # endif
 #endif
 
@@ -403,21 +400,21 @@ extern void dy_freebasis() ;
   \brief Variables controlling dylp file and terminal i/o.
 
   Dylp is capable of generating a great deal of output, but the control
-  mechanisms are not a good fit for C++ objects and the OSI framework.  Four
-  global variables, dy_cmdchn, dy_cmdecho, dy_logchn, and dy_gtxecho, control
-  command input/echoing and log message output/echoing.
+  mechanism is not a good fit for C++ objects and the OSI framework. Two
+  global variables, dy_logchn and dy_gtxecho, control log message output
+  to a file and echoing to stdout, respectively.
 
-  dy_gtxecho can be controlled using the OsiDoReducePrint hint; it
-  is set to true whenever the print level is specified as an absolute integer
+  dy_gtxecho can be controlled using the OsiDoReducePrint hint; it is set
+  to true whenever the print level is specified as an absolute integer
   such that (print level) & 0x10 != 0
 
-  By default, solver command (option) files are handled in the following
-  manner: When an MPS file example.mps is read, the solver looks for an
-  options file example.spc in the same directory. If it exists, it is
-  processed. This is a local file open/close, well-defined and clean, but
-  with little user control. The commands will not be echoed.
+  If the symbol #ODSI_IMPLICIT_SPC is defined, command (option) files are
+  handled in the following manner: When an MPS file example.mps is read,
+  the solver looks for an options file example.spc in the same directory. If
+  it exists, it is processed. This is a local file open/close, well-defined
+  and clean, but with little user control. The commands will not be echoed.
 
-  The user can process and arbitrary command file by calling dylp_controlfile
+  The user can process an arbitrary command file by calling dylp_controlfile
   (a non-OSI function).
 
   Log output is disabled by default. The user can enable logging by calling
@@ -428,24 +425,16 @@ extern void dy_freebasis() ;
 */
 
 //@{
-/*! \var ioid dy_cmdchn
-    \brief ioid used to read option (.spc) files
-*/
 /*! \var ioid dy_logchn
     \brief ioid used for logging to a file
-*/
-/*! \var bool dy_cmdecho
-    \brief controls echoing of commands from option files to the terminal
 */
 /*! \var bool dy_gtxecho
     \brief controls echoing of generated text to the terminal
 */
 
-ioid dy_cmdchn = IOID_NOSTRM,
-     dy_logchn = IOID_NOSTRM ;
+ioid dy_logchn = IOID_NOSTRM ;
 
-bool dy_cmdecho = false,
-     dy_gtxecho = false ;
+bool dy_gtxecho = false ;
 
 //@}
 
@@ -641,7 +630,7 @@ template<class T> inline T* ODSI::copy (const T* src)
 template<class T> inline void ODSI::copy (const T* src, T* dst, int n)
 
 { if (!dst || !src || n == 0) return ;
-  int size = sizeof(T) * n ;
+  size_t size = sizeof(T) * n ;
   memcpy(dst,src,size) ;
 }
 
@@ -3103,7 +3092,7 @@ void ODSI::assert_same (const basis_struct& b1, const basis_struct& b2,
   if (&b1 == &b2) return ;
   assert(b1.len == b2.len) ;
 
-  int size UNUSED = b1.len*sizeof(basisel_struct) ;
+  size_t size UNUSED = b1.len*sizeof(basisel_struct) ;
   assert(memcmp(inv_vec<basisel_struct>(b1.el),
 		inv_vec<basisel_struct>(b2.el),size) == 0) ; }
 
@@ -3311,33 +3300,6 @@ void ODSI::assert_same (const OsiDylpSolverInterface& o1,
   Problem specification routines: MPS and control files, and loading a problem
   from OSI data structures.
 */
-
-/*! \defgroup Main_ Options and Tolerances
-    \brief Dylp Options and Tolerances Structures
-
-  Dylp obtains options and tolerances through two global pointers. Changes to
-  individual options and tolerances can be made by modifying values in the
-  current options or tolerances structure. Wholesale changes can be made by
-  redirecting main_lpopts or main_lptols to point to another structure.
-*/
-//@{
-
-/*! \var lpopts_struct* main_lpopts
-    \brief Points to the active dylp options structure
-*/
-/*! \var lptols_struct* main_lptols
-    \brief Points to the active dylp tolerances structure
-*/
-  
-#ifdef _MSC_VER
-extern "C" lpopts_struct* main_lpopts ;
-extern "C" lptols_struct* main_lptols ;
-#endif
-  
-lpopts_struct* main_lpopts ;     // just for cmdint.c::process_cmds
-lptols_struct* main_lptols ;     // just for cmdint.c::process_cmds
-
-//@}
 
 /*! \defgroup FileHelpers File I/O Helper Routines */
 //@{
@@ -4169,7 +4131,7 @@ bool ODSI::setHintParam (OsiHintParam key, bool sense,
     0x10	Echo to terminal
 */
     case OsiDoReducePrint:
-    { int verbosity = reinterpret_cast<long>(info_[key]) ;
+    { ptrdiff_t verbosity = reinterpret_cast<ptrdiff_t>(info_[key]) ;
       mps_debug = false ;
       if (info)
       { verbosity = *reinterpret_cast<int *>(info) ;
@@ -4177,10 +4139,10 @@ bool ODSI::setHintParam (OsiHintParam key, bool sense,
       else
       { if (sense == true)
 	{ verbosity -= strength ;
-	  verbosity = CoinMax(verbosity,0) ; }
+	  verbosity = CoinMax(verbosity,((ptrdiff_t) 0)) ; }
 	else
 	{ verbosity += strength ;
-	  verbosity = CoinMin(verbosity,4) ; } }
+	  verbosity = CoinMin(verbosity,((ptrdiff_t) 4)) ; } }
       info_[key] = reinterpret_cast<void *>(verbosity) ;
 
       dy_setprintopts(0,initialSolveOptions) ;
@@ -6803,14 +6765,13 @@ void ODSI::dylp_controlfile (const char *name,
 
 { if (name == 0 || *name == 0) return ;
   string mode = (mustexist)?"r":"q" ;
-  dy_cmdchn = dyio_openfile(name,mode.c_str()) ;
-  if (!(dy_cmdchn == IOID_INV || dy_cmdchn == IOID_NOSTRM))
-  { dyio_setmode (dy_cmdchn, 'l') ;  
-    main_lpopts = initialSolveOptions ;
-    main_lptols = tolerances ;
-    bool r UNUSED = (process_cmds(silent) != 0) ;
-    (void) dyio_closefile(dy_cmdchn) ;
-    dy_cmdchn = IOID_NOSTRM ;
+  ioid cmdchn = dyio_openfile(name,mode.c_str()) ;
+  if (!(cmdchn == IOID_INV || cmdchn == IOID_NOSTRM))
+  { dyio_setmode (cmdchn, 'l') ;  
+    bool r UNUSED = (dy_processcmds(cmdchn,silent,
+    				    initialSolveOptions,tolerances) != 0) ;
+    (void) dyio_closefile(cmdchn) ;
+    cmdchn = IOID_NOSTRM ;
     assert(r == cmdOK) ;
 /*
   Copy user settings into resolveOptions, except for forcecold and fullsys.
@@ -6819,8 +6780,6 @@ void ODSI::dylp_controlfile (const char *name,
     memcpy(resolveOptions,initialSolveOptions,sizeof(lpopts_struct));
     resolveOptions->forcecold = saveOptions.forcecold ;
     resolveOptions->fullsys = saveOptions.fullsys ; }
-
-  dy_cmdchn = IOID_NOSTRM ;
 
   return ; }
   

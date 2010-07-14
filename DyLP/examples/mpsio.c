@@ -359,6 +359,11 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
   bool seen_cols,keep_row ;
   pkvec_struct *pkrow ;
 
+  /*
+    Useful to suppress compiler warnings re. integer <-> pointer conversion
+  */
+  ptrdiff_t intermediary ;
+
   const char *rtnnme = "mpsin_rows",
 	     *mysection = "rows" ;
 
@@ -447,8 +452,9 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
 	if (consys->objnme == NULL) consys->objnme = STRALLOC(pkrow->nme) ; } }
     else
     { pkrow->ndx = -1 ; }
-    if ((void *) pkrow->ndx !=
-	enter(STRALLOC(pkrow->nme),conhash,conhashsze,(void *) pkrow->ndx))
+    intermediary = pkrow->ndx ;
+    if ((void *) intermediary !=
+	enter(STRALLOC(pkrow->nme),conhash,conhashsze,(void *) intermediary))
     { errmsg(155,rtnnme,"constraint",
 	     consys_nme(consys,'c',pkrow->ndx,TRUE,NULL)) ;
       return (mpsinINV) ; }
@@ -519,6 +525,11 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
   char *rownam,*tok,*chkptr ;
   char colnam[50] ;		/* grossly oversized, but safe */
 
+  /*
+    Useful to suppress compiler warnings re. integer <-> pointer conversion
+  */
+  ptrdiff_t intermediary ;
+
   const char *rtnnme = "mpsin_columns",
 	     *mysection = "columns" ;
 
@@ -580,8 +591,10 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
       { if (consys_addcol_pk(consys,vartype,pkcol,0.0,0.0,0.0) == FALSE)
 	{ errmsg(156,rtnnme,"column",consys->nme,pkcol->nme) ;
 	  return (mpsinINV) ; }
-	if ((void *) pkcol->ndx !=
-	    enter(STRALLOC(pkcol->nme),varhash,varhashsze,(void *) pkcol->ndx))
+	intermediary = pkcol->ndx ;
+	if ((void *) intermediary !=
+	    enter(STRALLOC(pkcol->nme),varhash,varhashsze,
+	    	  (void *) intermediary))
 	{ errmsg(155,rtnnme,"variable",
 		 consys_nme(consys,'v',pkcol->ndx,TRUE,NULL)) ;
 	  return (mpsinINV) ; }
@@ -632,7 +645,8 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 	{ if (sosset == TRUE)
 	  { errmsg(161,rtnnme,"sosorg",pkcol->nme,"sosend") ;
 	    return (mpsinINV) ; }
-	  sosndx = (int) lookup(pkcol->nme,conhash,conhashsze) ;
+	  intermediary = (ptrdiff_t) lookup(pkcol->nme,conhash,conhashsze) ;
+	  sosndx = (int) intermediary ;
 	  if (sosndx == 0)
 	  { errmsg(162,rtnnme,"SOS constraint",pkcol->nme,"marker","sosorg") ;
 	    return (mpsinINV) ; }
@@ -644,7 +658,8 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 	  sos3 = (lnk_struct *) MALLOC(sizeof(lnk_struct)) ;
 	  sos3->llnxt = sos3lst ;
 	  sos3lst = sos3 ;
-	  lnk_in(sos3,sosndx) ; }
+	  intermediary = sosndx ;
+	  lnk_in(sos3,intermediary) ; }
 	else
 	if (cistrcmp(tok,"'sosend'") == 0)
 	{ if (sosset != TRUE)
@@ -705,7 +720,8 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
       if (chkptr == tok || errno == ERANGE)
       { errmsg(165,rtnnme,tok,consys->nme,pkcol->nme,rownam) ;
 	return (mpsinINV) ; }
-      rowndx = (int) lookup(rownam,conhash,conhashsze) ;
+      intermediary = (ptrdiff_t) lookup(rownam,conhash,conhashsze) ;
+      rowndx = (int) intermediary ;
       if (rowndx == 0)
       { errmsg(166,rtnnme,"constraint",rownam,"column",consys->nme,pkcol->nme) ;
 	return (mpsinINV) ; }
@@ -771,6 +787,10 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
   lex_struct *lex ;
   char *tok,*rownme,*chkptr ;
   const char *rhsnme ;
+  /*
+    Useful to suppress compiler warnings re. integer <-> pointer conversion
+  */
+  ptrdiff_t intermediary ;
 
   const char *rtnnme = "mpsin_rhs",
 	     *mysection = "rhs" ;
@@ -834,7 +854,8 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
   install the coefficient in the rhs vector.
 */
     for ( ; tok != NULL ; tok = strtok(NULL,sepchars))
-    { rowndx = (int) lookup(tok,conhash,conhashsze) ;
+    { intermediary = (ptrdiff_t) lookup(tok,conhash,conhashsze) ;
+      rowndx = (int) intermediary ;
       if (rowndx == 0)
       { errmsg(166,rtnnme,"constraint",tok,consys_assocnme(NULL,CONSYS_RHS),
 	       consys->nme,rhsnme) ;
@@ -907,6 +928,10 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
   lex_struct *lex ;
   const char *rngnme ;
   char *rownme,*tok,*chkptr ;
+  /*
+    Useful to suppress compiler warnings re. integer <-> pointer conversion
+  */
+  ptrdiff_t intermediary ;
 
   const char *rtnnme = "mpsin_ranges",
 	     *mysection = "ranges" ;
@@ -977,7 +1002,8 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
   to get the row index, then try for the coefficient.
 */
     for ( ; tok != NULL ; tok = strtok(NULL,sepchars))
-    { rowndx = (int) lookup(tok,conhash,conhashsze) ;
+    { intermediary = (ptrdiff_t) lookup(tok,conhash,conhashsze) ;
+      rowndx = (int) intermediary ;
       if (rowndx == 0)
       { errmsg(166,rtnnme,"constraint",tok,"range vector",consys->nme,rngnme) ;
 	return (mpsinINV) ; }
@@ -1085,6 +1111,10 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
   lex_struct *lex ;
   const char *bndnme ;
   char *varnme,*bndcode,*tok,*chkptr ;
+  /*
+    Useful to suppress compiler warnings re. integer <-> pointer conversion
+  */
+  ptrdiff_t intermediary ;
 
   const char *rtnnme = "mpsin_bounds",
 	     *mysection = "bounds" ;
@@ -1163,7 +1193,8 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
     if (varnme == NULL)
     { errmsg(153,rtnnme,"variable",mysection) ;
       return (mpsinINV) ; }
-    colndx = (int) lookup(varnme,varhash,varhashsze) ;
+    intermediary = (ptrdiff_t) lookup(varnme,varhash,varhashsze) ;
+    colndx = (int) intermediary ;
     if (colndx == 0)
     { errmsg(162,rtnnme,"variable",varnme,consys->nme,mysection) ;
       return (mpsinINV) ; }
@@ -1288,6 +1319,10 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
   pkvec_struct *pkvec ;
   hel *entry ;
   lex_struct *lex ;
+  /*
+    Useful to suppress compiler warnings re. integer <-> pointer conversion
+  */
+  ptrdiff_t intermediary ;
 
   const char *rtnnme = "mpsin_enddata" ;
 
@@ -1379,7 +1414,8 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
   Do some integrity checks while we're at it, provided debugging is enabled.
 */
   for (sos3 = sos3lst ; sos3 != NULL ; sos3 = sos3->llnxt)
-  { ndx = lnk_out(sos3,int) ;
+  { intermediary = lnk_out(sos3,ptrdiff_t) ;
+    ndx = (int) intermediary ;
 #   ifndef NDEBUG
     if (ndx < 1 || ndx > consys->archccnt)
     { errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->archccnt) ;

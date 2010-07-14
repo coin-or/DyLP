@@ -2654,7 +2654,7 @@ if test x"$CFLAGS" = x; then
       icc* | */icc*)
         ;;
       *)
-        coin_opt_cflags="-O3 -fomit-frame-pointer"
+        coin_opt_cflags="-O3"
         coin_add_cflags="-pipe"
         coin_dbg_cflags="-g"
         coin_warn_cflags="-Wimplicit -Wparentheses -Wsequence-point -Wreturn-type -Wcast-qual -Wall -Wno-unknown-pragmas"
@@ -3568,7 +3568,7 @@ if test x"$CXXFLAGS" = x; then
         ;;
       *)
 # ToDo decide about unroll-loops
-        coin_opt_cxxflags="-O3 -fomit-frame-pointer"
+        coin_opt_cxxflags="-O3"
         coin_add_cxxflags="-pipe"
         coin_dbg_cxxflags="-g"
         coin_warn_cxxflags="-Wimplicit -Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -Wno-unknown-pragmas"
@@ -4337,7 +4337,7 @@ if test "$F77" != "unavailable" && test x"$FFLAGS" = x ; then
   coin_warn_fflags=
 
   if test "$G77" = "yes"; then
-    coin_opt_fflags="-O3 -fomit-frame-pointer"
+    coin_opt_fflags="-O3"
     coin_add_fflags="-pipe"
     coin_dbg_fflags="-g"
     case $enable_doscompile in
@@ -20711,7 +20711,7 @@ if test $enable_shared = yes; then
     *-linux-*)
       if test "$GXX" = "yes"; then
         RPATH_FLAGS=
-        for dir in $abs_lib_dir; do
+        for dir in $abs_lib_dir/coin $abs_lib_dir/coin/ThirdParty; do
           RPATH_FLAGS="$RPATH_FLAGS -Wl,--rpath -Wl,$dir"
         done
       fi ;;
@@ -20728,7 +20728,7 @@ if test $enable_shared = yes; then
         RPATH_FLAGS=nothing ;;
     *-*-solaris*)
         RPATH_FLAGS=
-        for dir in $abs_lib_dir; do
+        for dir in $abs_lib_dir/coin $abs_lib_dir/coin/ThirdParty; do
           RPATH_FLAGS="$RPATH_FLAGS -R$dir"
         done
   esac
@@ -21049,6 +21049,11 @@ if test "${with_dylp_datadir+set}" = set; then
   withval="$with_dylp_datadir"
   coin_has_dylp=installed
 fi;
+
+
+
+
+
 fi
 
 if test $coin_has_dylp = notGiven; then

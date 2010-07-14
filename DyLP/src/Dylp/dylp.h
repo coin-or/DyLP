@@ -897,7 +897,7 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		  0:	catatonic
 		  1:	issue a warning
 		  2:	issue an error message and force an abort
-		Numeric codes are related to keywords in dy_setup.c:dy_ctlopt.
+		Numeric codes should match keywords in dy_options.c:dy_ctlopt.
   degen		TRUE to allow creation of restricted subproblems to deal with
 		degeneracy, FALSE to disallow it.
   degenpivlim	The number of successive degenerate pivots required before
@@ -923,7 +923,7 @@ typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
 		     hyperplane which will become tight on the pivot; choose
 		     so that the normal of the hyperplane is most nearly
 		     aligned with the direction of motion
-		Numeric codes are related to keywords in dy_setup.c:dy_ctlopt.
+		Numeric codes should match keywords in dy_options.c:dy_ctlopt.
   patch		TRUE to allow the code to patch a singular basis, FALSE to
 		prevent patching.
   copyorigsys	Controls whether dylp makes a local copy of the original
@@ -1164,194 +1164,194 @@ typedef struct
 	   int soln ; } print ; } lpopts_struct ;
 
 
-
+  
 
-/*
-  Statistics structure, used to collect information about aspects of dylp
-  operation beyond simple pivot counts. The data structure definition is
-  always present, but to fill it you have to define DYLP_STATISTICS.
+  /*
+    Statistics structure, used to collect information about aspects of dylp
+    operation beyond simple pivot counts. The data structure definition is
+    always present, but to fill it you have to define DYLP_STATISTICS.
 
-  Field		Definition
-  -----		----------
-  phasecnts[dyDONE] Array with counts for number of times each phase is
-		executed.
-  ini_simplex	The initial simplex phase
-  cons		A set of arrays with data about individual constraints.
-    sze		  Allocated capacity of the arrays.
-    angle	  Angle to the objective function.
-    actcnt	  Number of times constraint is activated.
-    deactcnt	  Number of times constraint is deactivated.
-    init	  True if constraint is active in initial system.
-    fin		  True if constraint is active in final system.
-  vars		A set of arrays with data about individual variables.
-    sze		  Allocated capacity of the arrays.
-    actcnt	  Number of times variable is activated.
-    deactcnt	  Number of times variable is deactivated.
-  angle
-    max		Maximum angle to the objective function over all constraints.
-    min		Minimum angle to the objective function over all constraints.
-    hist[*]	Histogram of angles of constraints to the objective function.
-		There are DYSTATS_HISTBINS bins. Currently, 37 bins: 36 bins
-		spanning 5 degrees of angle, and a dedicated 90 degree bin.
-  
-  factor	Tracks how well we're doing with respect to refactoring the
-		basis.
-    cnt		Number of time the basis has been refactored.
-    prevpiv	Pivot count at last refactorisation.
-    avgpivs	Average number of pivots between basis refactorisations.
-    maxpivs	Maximum number of pivots between basis refactorisations.
+    Field		Definition
+    -----		----------
+    phasecnts[dyDONE] Array with counts for number of times each phase is
+		  executed.
+    ini_simplex	The initial simplex phase
+    cons		A set of arrays with data about individual constraints.
+      sze		  Allocated capacity of the arrays.
+      angle	  Angle to the objective function.
+      actcnt	  Number of times constraint is activated.
+      deactcnt	  Number of times constraint is deactivated.
+      init	  True if constraint is active in initial system.
+      fin		  True if constraint is active in final system.
+    vars		A set of arrays with data about individual variables.
+      sze		  Allocated capacity of the arrays.
+      actcnt	  Number of times variable is activated.
+      deactcnt	  Number of times variable is deactivated.
+    angle
+      max		Maximum angle to the objective function over all constraints.
+      min		Minimum angle to the objective function over all constraints.
+      hist[*]	Histogram of angles of constraints to the objective function.
+		  There are DYSTATS_HISTBINS bins. Currently, 37 bins: 36 bins
+		  spanning 5 degrees of angle, and a dedicated 90 degree bin.
+    
+    factor	Tracks how well we're doing with respect to refactoring the
+		  basis.
+      cnt		Number of time the basis has been refactored.
+      prevpiv	Pivot count at last refactorisation.
+      avgpivs	Average number of pivots between basis refactorisations.
+      maxpivs	Maximum number of pivots between basis refactorisations.
 
-  pivrej	Statistics about the pivot rejection list and punts.
-    max		  maximum number of entries on the pivot rejection list
-    mad		  total number of entries attributed to mad pivots
-    sing	  total number of entries attributed to singular pivots
-    pivtol_red	  total number of times the pivot tolerance was reduced
-    min_pivtol	  the minimum pivot tolerance used
-    puntcall	  total number of calls to dealWithPunt
-    puntret	  total number of dyrPUNT returns recommended
+    pivrej	Statistics about the pivot rejection list and punts.
+      max		  maximum number of entries on the pivot rejection list
+      mad		  total number of entries attributed to mad pivots
+      sing	  total number of entries attributed to singular pivots
+      pivtol_red	  total number of times the pivot tolerance was reduced
+      min_pivtol	  the minimum pivot tolerance used
+      puntcall	  total number of calls to dealWithPunt
+      puntret	  total number of dyrPUNT returns recommended
 
-  dmulti	Tracks the dual multipivot algorithm. All fields except cnt are
-		totals; divide by cnt to get averages.
-    flippable	  Number of flippable variables in the constraint system.
-    cnt		  Total calls to dualmultiin
-    cands	  Number of candidates queued for evaluation for entry
-    promote	  Number of calls that resulted in promoting a sane pivot
-		  over an unstable pivot.
-    nontrivial	  Number of times that the initial scan and sort left
-		  multiple candidates for further evaluation.
-    evals	  Actual number of candidates evaluated (ftran'd column)
-    flips	  Number of bound-to-bound flips performed
-    pivrnk	  Index in the list of candidates of the candidate finally
-		  selected for pivoting.
-    maxrnk	  Maximum index selected for pivoting.
+    dmulti	Tracks the dual multipivot algorithm. All fields except cnt are
+		  totals; divide by cnt to get averages.
+      flippable	  Number of flippable variables in the constraint system.
+      cnt		  Total calls to dualmultiin
+      cands	  Number of candidates queued for evaluation for entry
+      promote	  Number of calls that resulted in promoting a sane pivot
+		    over an unstable pivot.
+      nontrivial	  Number of times that the initial scan and sort left
+		    multiple candidates for further evaluation.
+      evals	  Actual number of candidates evaluated (ftran'd column)
+      flips	  Number of bound-to-bound flips performed
+      pivrnk	  Index in the list of candidates of the candidate finally
+		    selected for pivoting.
+      maxrnk	  Maximum index selected for pivoting.
 
-  pmulti	Tracks the primal multipivot algorithm.
-    cnt		  Total calls to primalmultiin
-    cands	  Number of candidates queued for evaluation to leave
-    nontrivial	  Number of times that the candidate list was sorted
-    promote	  Number of calls that resulted in promoting a sane pivot
-		  over an unstable pivot.
-  
-  infeas	Statistics on resolution of infeasibility in primal phase I.
-		Basically, what we're interested in tracking is the number
-		of infeasible variables and the number of pivots between a
-		change in the number of infeasible variables. We're interested
-		in separating the case of 1 variable from 2 or more, because
-		the latter requires vastly more calculation. A little care
-		is required because phase I can run many times.
+    pmulti	Tracks the primal multipivot algorithm.
+      cnt		  Total calls to primalmultiin
+      cands	  Number of candidates queued for evaluation to leave
+      nontrivial	  Number of times that the candidate list was sorted
+      promote	  Number of calls that resulted in promoting a sane pivot
+		    over an unstable pivot.
+    
+    infeas	Statistics on resolution of infeasibility in primal phase I.
+		  Basically, what we're interested in tracking is the number
+		  of infeasible variables and the number of pivots between a
+		  change in the number of infeasible variables. We're interested
+		  in separating the case of 1 variable from 2 or more, because
+		  the latter requires vastly more calculation. A little care
+		  is required because phase I can run many times.
 
-    prevpiv	The pivot count (tot.iters) at the previous change.
-    maxcnt	The maximum number of infeasible variables encountered (this
-		is not strictly monotonic, as dylp may enter phase I many
-		times due to activating violated constraints).
-    totpivs	The total number of pivots expended in phase I.
-    maxpivs	The maximum number of pivots with no change in the number of
-		feasible variables.
-    chgcnt1	The number of times that the number of infeasible variables
-		changed and reduced costs did not have to be recalculated
-		(specifically, exactly one variable became feasible, and it
-		left the basis as it did so).
-    chgcnt2	The number of times that the number of infeasible variables
-		changed in such a way as to require recalculation of the
-		reduced costs.
+      prevpiv	The pivot count (tot.iters) at the previous change.
+      maxcnt	The maximum number of infeasible variables encountered (this
+		  is not strictly monotonic, as dylp may enter phase I many
+		  times due to activating violated constraints).
+      totpivs	The total number of pivots expended in phase I.
+      maxpivs	The maximum number of pivots with no change in the number of
+		  feasible variables.
+      chgcnt1	The number of times that the number of infeasible variables
+		  changed and reduced costs did not have to be recalculated
+		  (specifically, exactly one variable became feasible, and it
+		  left the basis as it did so).
+      chgcnt2	The number of times that the number of infeasible variables
+		  changed in such a way as to require recalculation of the
+		  reduced costs.
 
-  [dp]degen[*]	Array of stats for each restricted subproblem nesting level,
-		with separate arrays for dual (ddegen) and primal (pdegen).
-		degen[0].cnt is used to hold the maximum nesting level.
-    cnt		Number of times this nesting level was entered.
-    avgsiz	The average number of variables in a restricted subproblem.
-		Kept by iterative update, as avg<k+1> = (avg<k>*k+size)/(k+1).
-		Suffers from cumulative loss of accuracy, but it'll do for
-		our purposes.
-    maxsiz	The maximum number of variables in a restricted subproblem.
-    totpivs	Total number of pivots at or above this nesting level.
-    avgpivs	Average number of pivots at or above this nesting level.
-    maxpivs	Maximum number of pivots for any one instance at or above
-		this nesting level.
+    [dp]degen[*]	Array of stats for each restricted subproblem nesting level,
+		  with separate arrays for dual (ddegen) and primal (pdegen).
+		  degen[0].cnt is used to hold the maximum nesting level.
+      cnt		Number of times this nesting level was entered.
+      avgsiz	The average number of variables in a restricted subproblem.
+		  Kept by iterative update, as avg<k+1> = (avg<k>*k+size)/(k+1).
+		  Suffers from cumulative loss of accuracy, but it'll do for
+		  our purposes.
+      maxsiz	The maximum number of variables in a restricted subproblem.
+      totpivs	Total number of pivots at or above this nesting level.
+      avgpivs	Average number of pivots at or above this nesting level.
+      maxpivs	Maximum number of pivots for any one instance at or above
+		  this nesting level.
 
-  tot, p1, p2, d2	Iteration and pivot counts, total and for each
-			individual phase. These are copied over from
-			dy_lp (lp_struct) at the end of the run, so that
-			they can be printed by dumpstats.
-  
-  DYSTATS_MAXDEGEN is the maximum number of levels of nesting accommodated by
-  antidegeneracy statistics and debugging structures. The actual algorithm
-  has no inherent limitation.
+    tot, p1, p2, d2	Iteration and pivot counts, total and for each
+			  individual phase. These are copied over from
+			  dy_lp (lp_struct) at the end of the run, so that
+			  they can be printed by dumpstats.
+    
+    DYSTATS_MAXDEGEN is the maximum number of levels of nesting accommodated by
+    antidegeneracy statistics and debugging structures. The actual algorithm
+    has no inherent limitation.
 
-  DYSTATS_HISTBINS is the number of bins for constraint angles. It should be an
-  odd number. Each bin will span 180/(DYSTATS_HISTBINS-1) degrees, with the
-  final bin reserved for constraints at 90 degrees. For example, a value of 37
-  gives 180/(37-1) = 5 degrees per bin.
-*/
+    DYSTATS_HISTBINS is the number of bins for constraint angles. It should be an
+    odd number. Each bin will span 180/(DYSTATS_HISTBINS-1) degrees, with the
+    final bin reserved for constraints at 90 degrees. For example, a value of 37
+    gives 180/(37-1) = 5 degrees per bin.
+  */
 
-#define DYSTATS_MAXDEGEN 25
-#define DYSTATS_HISTBINS 37
+  #define DYSTATS_MAXDEGEN 25
+  #define DYSTATS_HISTBINS 37
 
-typedef struct {
-  int phasecnts[dyDONE+1] ;
-  dyphase_enum ini_simplex ;
-  struct { int sze ;
-	   double *angle ;
-	   int *actcnt ;
-	   int *deactcnt ;
-	   bool *init ;
-	   bool *fin ; } cons ;
-  struct { int sze ;
-	   int *actcnt ;
-	   int *deactcnt ; } vars ;
-  struct { float max ;
-	   float min ;
-	   int hist[DYSTATS_HISTBINS] ; } angle ;
-  struct { int cnt ;
-	   int prevpiv ;
-	   float avgpivs ;
-	   int maxpivs ; } factor ;
-  struct { int max ;
-	   int mad ;
-	   int sing ;
-	   int pivtol_red ;
-	   double min_pivtol ;
-	   int puntcall ;
-	   int puntret ; } pivrej ;
-  struct { int flippable ;
-	   int cnt ;
-	   int cands ;
-	   int promote ;
-	   int nontrivial ;
-	   int evals ;
-	   int flips ;
-	   int pivrnks ;
-	   int maxrnk ; } dmulti ;
-  struct { int cnt ;
-	   int cands ;
-	   int nontrivial ;
-	   int promote ; } pmulti ;
-  struct { int prevpiv ;
-	   int maxcnt ;
-	   int totpivs ;
-	   int maxpivs ;
-	   int chgcnt1 ;
-	   int chgcnt2 ; } infeas ;
-  struct { int cnt ;
-	   float avgsiz ;
-	   int maxsiz ;
-	   int totpivs ;
-	   float avgpivs ;
-	   int maxpivs ; } pdegen[DYSTATS_MAXDEGEN] ;
-  struct { int cnt ;
-	   float avgsiz ;
-	   int maxsiz ;
-	   int totpivs ;
-	   float avgpivs ;
-	   int maxpivs ; } ddegen[DYSTATS_MAXDEGEN] ;
-  struct { int iters ;
-	   int pivs ; } tot ;
-  struct { int iters ;
-	   int pivs ; } p1 ;
-  struct { int iters ;
-	   int pivs ; } p2 ;
-  struct { int iters ;
-	   int pivs ; } d2 ; } lpstats_struct ;
+  typedef struct {
+    int phasecnts[dyDONE+1] ;
+    dyphase_enum ini_simplex ;
+    struct { int sze ;
+	     double *angle ;
+	     int *actcnt ;
+	     int *deactcnt ;
+	     bool *init ;
+	     bool *fin ; } cons ;
+    struct { int sze ;
+	     int *actcnt ;
+	     int *deactcnt ; } vars ;
+    struct { float max ;
+	     float min ;
+	     int hist[DYSTATS_HISTBINS] ; } angle ;
+    struct { int cnt ;
+	     int prevpiv ;
+	     float avgpivs ;
+	     int maxpivs ; } factor ;
+    struct { int max ;
+	     int mad ;
+	     int sing ;
+	     int pivtol_red ;
+	     double min_pivtol ;
+	     int puntcall ;
+	     int puntret ; } pivrej ;
+    struct { int flippable ;
+	     int cnt ;
+	     int cands ;
+	     int promote ;
+	     int nontrivial ;
+	     int evals ;
+	     int flips ;
+	     int pivrnks ;
+	     int maxrnk ; } dmulti ;
+    struct { int cnt ;
+	     int cands ;
+	     int nontrivial ;
+	     int promote ; } pmulti ;
+    struct { int prevpiv ;
+	     int maxcnt ;
+	     int totpivs ;
+	     int maxpivs ;
+	     int chgcnt1 ;
+	     int chgcnt2 ; } infeas ;
+    struct { int cnt ;
+	     float avgsiz ;
+	     int maxsiz ;
+	     int totpivs ;
+	     float avgpivs ;
+	     int maxpivs ; } pdegen[DYSTATS_MAXDEGEN] ;
+    struct { int cnt ;
+	     float avgsiz ;
+	     int maxsiz ;
+	     int totpivs ;
+	     float avgpivs ;
+	     int maxpivs ; } ddegen[DYSTATS_MAXDEGEN] ;
+    struct { int iters ;
+	     int pivs ; } tot ;
+    struct { int iters ;
+	     int pivs ; } p1 ;
+    struct { int iters ;
+	     int pivs ; } p2 ;
+    struct { int iters ;
+	     int pivs ; } d2 ; } lpstats_struct ;
 
 
 

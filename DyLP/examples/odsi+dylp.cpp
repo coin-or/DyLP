@@ -262,7 +262,7 @@ void test_user (const char* mpspath, const char* spcpath,
   bool compressed ;
 
 /*
-  Open thelog file and output file, if requested.
+  Open the log file and output file, if requested.
 */
   if (logpath != 0)
   { fullPath = logpath ;

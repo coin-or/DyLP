@@ -107,7 +107,8 @@ static keytab_entry usercmds[] = { { "help", 1, HELP_NDX },
 
 
 
-static cmd_retval docmd (lex_struct *txt)
+static cmd_retval docmd (ioid cmdchn, bool cmdecho, lex_struct *txt,
+			 lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
   This routine is just some prep and cleanup code, plus a big case statement.
@@ -116,7 +117,11 @@ static cmd_retval docmd (lex_struct *txt)
   command line.
 
   Parameter:
+    cmdchn:	i/o id for reading commands
+    cmdecho:	true if commands should be echoed to stdout, false otherwise
     txt:	the command name
+    lpopts:	Options structure; will be adjusted
+    lptols:	Tolerances structure; will be adjusted
   
   Returns: cmd_retval code supplied by the command execution routine, or
 	   cmdHALTERROR if an error occurs here in docmd.
@@ -130,8 +135,10 @@ static cmd_retval docmd (lex_struct *txt)
 
 /* dy_setup.c */
 
-  extern cmd_retval dy_printopt(const char *keywd),
-		    dy_ctlopt(const char *keywd) ;
+  extern cmd_retval dy_printopt(ioid cmdchn, bool cmdecho, const char *keywd,
+  				lpopts_struct *lpopts, lptols_struct *lptols),
+		    dy_ctlopt(ioid cmdchn, bool cmdecho, const char *keywd,
+			      lpopts_struct *lpopts, lptols_struct *lptols) ;
 
 #ifdef BONSAIG
 
@@ -170,8 +177,8 @@ static cmd_retval docmd (lex_struct *txt)
   Look up the command in the command table. Return code of -1 means we can't
   find the string, -2 that it's ambiguous.
 */
-  dyio_outfmt(dy_logchn,dy_cmdecho,txt->string) ;
-  dyio_flushio(dy_logchn,dy_cmdecho) ;
+  dyio_outfmt(dy_logchn,cmdecho,txt->string) ;
+  dyio_flushio(dy_logchn,cmdecho) ;
   cmd = ambig(txt->string,usercmds,NUMUSERCMDS) ;
   if (cmd < 0) 
   { if (cmd < -1)
@@ -184,15 +191,15 @@ static cmd_retval docmd (lex_struct *txt)
   the command, then revert to line-oriented mode to remove any trailing junk.
 */
   keywd = STRALLOC(txt->string) ;
-  (void) dyio_setmode(dy_cmdchn,'f') ;
+  (void) dyio_setmode(cmdchn,'f') ;
   retval = cmdHALTERROR ;
-  (void) dyio_setmode(dy_cmdchn,'f') ;
+  (void) dyio_setmode(cmdchn,'f') ;
   switch (cmd)
   { case LPPRINT_NDX:
-    { retval = dy_printopt(keywd) ;
+    { retval = dy_printopt(cmdchn,cmdecho,keywd,lpopts,lptols) ;
       break ; }
     case LPCTL_NDX:
-    { retval = dy_ctlopt(keywd) ;
+    { retval = dy_ctlopt(cmdchn,cmdecho,keywd,lpopts,lptols) ;
       break ; }
 #   ifdef BONSAIG
     case MIPPRINT_NDX:
@@ -238,23 +245,23 @@ static cmd_retval docmd (lex_struct *txt)
       retval = cmdOK ;
       break ; } }
   STRFREE(keywd) ;
-  (void) dyio_setmode(dy_cmdchn,'l') ;
+  (void) dyio_setmode(cmdchn,'l') ;
 /*
   Check what happened, and clean up if necessary. Cleanup consists of
   scanning off whatever is left on the command line and echoing it.
 */
   if (retval != cmdHALTERROR)
-  { lex =  dyio_scanstr(dy_cmdchn,DY_LCQS,0,'\0','\n') ;
+  { lex =  dyio_scanstr(cmdchn,DY_LCQS,0,'\0','\n') ;
     if (!(lex->class == DY_LCNIL || lex->class == DY_LCEOF ||
     	  lex->class == DY_LCERR))
-      dyio_outfmt(dy_logchn,dy_cmdecho," %s",lex->string) ;
+      dyio_outfmt(dy_logchn,cmdecho," %s",lex->string) ;
     if (lex->class == DY_LCERR) retval = cmdHALTERROR ; }
   
   return (retval) ; }
 
 
 
-static cmd_retval indcmd (bool silent)
+static cmd_retval indcmd (ioid *cmdchn, bool *cmdecho, bool silent)
 
 /*
   This routine takes care of opening an indirect command file and doing the
@@ -262,6 +269,10 @@ static cmd_retval indcmd (bool silent)
   to open an indirect command file is '@ "filename"'.
 
   Parameters:
+    cmdchn: (i) current i/o id for reading commands
+    	    (o) new i/o id for reading commands
+    cmdecho: (i) current echo state
+    	     (o) new echo state
     silent: TRUE if echoing of commands & responses to ttyout should be
 	    suppressed, FALSE otherwise.
 
@@ -274,26 +285,26 @@ static cmd_retval indcmd (bool silent)
 /*
   Get the file name.
 */
-  file = dyio_scanstr(dy_cmdchn,DY_LCQS,0,'"','"') ;
+  file = dyio_scanstr(*cmdchn,DY_LCQS,0,'"','"') ;
   if (file->class != DY_LCQS)
   { errmsg(236,rtnnme,"file name","parameter","@") ;
     return (cmdHALTERROR) ; }
 /*
   Stash the old command channel, then try to open the new file.
 */
-  cmdchns[level].chn = dy_cmdchn ;
-  cmdchns[level].cecho = dy_cmdecho ;
+  cmdchns[level].chn = *cmdchn ;
+  cmdchns[level].cecho = *cmdecho ;
   cmdchns[level].gecho = dy_gtxecho ;
   cmdchns[level].prompt = prompt ;
-  dy_cmdchn = dyio_openfile(file->string,"r") ;
-  if (dy_cmdchn < 0)
-  { dy_cmdchn = cmdchns[level].chn ;
+  (*cmdchn) = dyio_openfile(file->string,"r") ;
+  if (*cmdchn < 0)
+  { (*cmdchn) = cmdchns[level].chn ;
     return (cmdHALTERROR) ; }
-  (void) dyio_setmode(dy_cmdchn,'l') ;
+  (void) dyio_setmode(*cmdchn,'l') ;
 /*
   Acknowledge that the file is successfully opened.
 */
-  dyio_outfmt(dy_logchn,dy_cmdecho," \"%s\"\n",file->string) ;
+  dyio_outfmt(dy_logchn,*cmdecho," \"%s\"\n",file->string) ;
   dyio_outfmt(dy_logchn,dy_gtxecho,
 	      "\tcommand source file now %s\n",file->string) ;
 /*
@@ -302,20 +313,21 @@ static cmd_retval indcmd (bool silent)
   to ttyin.
 */
   level++ ;
-  if (dyio_ttyq(dy_cmdchn) == TRUE || silent == FALSE)
+  if (dyio_ttyq(*cmdchn) == TRUE || silent == FALSE)
     prompt = TRUE ;
   else
     prompt = FALSE ;
-  if (dyio_ttyq(dy_cmdchn) == FALSE && silent == FALSE)
-    dy_cmdecho = TRUE ;
+  if (dyio_ttyq(*cmdchn) == FALSE && silent == FALSE)
+    (*cmdecho) = TRUE ;
   else
-    dy_cmdecho = FALSE ;
+    (*cmdecho) = FALSE ;
 
   return (cmdOK) ; }
 
 
 
-static cmd_retval dobuiltin (lex_struct *txt, bool silent)
+static cmd_retval dobuiltin (ioid *cmdchn, bool *cmdecho, lex_struct *txt,
+			     bool silent)
 
 /*
   This routine handles the built-in functions of the command interpreter.
@@ -323,6 +335,8 @@ static cmd_retval dobuiltin (lex_struct *txt, bool silent)
   indirect command files.
 
   Parameters:
+    cmdchn: i/o id for reading commands
+    cmdecho: current echo state for command processing
     txt:    the first lexeme of the command line (a delimiter).
     silent: TRUE if echoing of commands & responses to ttyout should be
 	    suppressed, FALSE otherwise.
@@ -346,8 +360,8 @@ static cmd_retval dobuiltin (lex_struct *txt, bool silent)
   if (*txt->string == '\n') return cmdOK ;
 
   if (*txt->string == '!')
-  { dyio_outchr(dy_logchn,dy_cmdecho,'!') ;
-    lex = dyio_scanstr(dy_cmdchn,DY_LCQS,0,'\0','\n') ;
+  { dyio_outchr(dy_logchn,*cmdecho,'!') ;
+    lex = dyio_scanstr(*cmdchn,DY_LCQS,0,'\0','\n') ;
     if (lex->class != DY_LCNIL)
     { dyio_outfmt(dy_logchn,dy_gtxecho," %s",lex->string) ; }
     return (cmdOK) ; }
@@ -359,21 +373,25 @@ static cmd_retval dobuiltin (lex_struct *txt, bool silent)
   The various 'built-in' commands. For now, just opening an indirect command
   file.
 */
-  retval = indcmd(silent) ;
+  retval = indcmd(cmdchn,cmdecho,silent) ;
 
   return (retval) ; }
 
 
 
-cmd_retval process_cmds (bool silent)
+cmd_retval dy_processcmds (ioid cmdchn, bool silent,
+			   lpopts_struct *lpopts, lptols_struct *lptols)
 
 /*
-  This routine is a driver routine for processing a command file. dy_cmdchn and
+  This routine is a driver routine for processing a command file.
   dy_logchn must be valid before process_cmds is called.
 
   Parameters:
+    cmdchn: i/o id for reading commands
     silent: TRUE if echoing of commands & responses to ttyout should be
 	    suppressed, FALSE otherwise.
+    lpopts: Options structure; will be adjusted
+    lptols: Tolerances structure; will be adjusted
 
   Returns: cmdOK 	  if eof is reached and the nesting level is 0
 	   cmdHALTNOERROR if the return code from a command execution
@@ -382,6 +400,7 @@ cmd_retval process_cmds (bool silent)
 */
 
 { lex_struct *txt ;
+  bool cmdecho ;
   cmd_retval retval ;
   const char *rtnnme = "process_cmds" ; 
 
@@ -395,14 +414,14 @@ cmd_retval process_cmds (bool silent)
   level = 0 ;
   txt = NULL ;
   retval = cmdOK ;
-  if (dyio_ttyq(dy_cmdchn) == TRUE || silent == FALSE)
+  if (dyio_ttyq(cmdchn) == TRUE || silent == FALSE)
     prompt = TRUE ;
   else
     prompt = FALSE ;
-  if (dyio_ttyq(dy_cmdchn) == FALSE && silent == FALSE)
-    dy_cmdecho = TRUE ;
+  if (dyio_ttyq(cmdchn) == FALSE && silent == FALSE)
+    cmdecho = TRUE ;
   else
-    dy_cmdecho = FALSE ;
+    cmdecho = FALSE ;
   dy_gtxecho = !silent ;
 /*
   Open the command interpretation loop. First action is to prompt for a
@@ -420,25 +439,25 @@ cmd_retval process_cmds (bool silent)
   level up. If we're at level 0, return. All other possibilities are errors of
   one sort or another.
 */
-    txt = dyio_scanlex(dy_cmdchn) ;
+    txt = dyio_scanlex(cmdchn) ;
     switch (txt->class)
     { case DY_LCID:
-      { retval = docmd(txt) ;
+      { retval = docmd(cmdchn,cmdecho,txt,lpopts,lptols) ;
 	break ; }
       case DY_LCDEL:
-      { retval = dobuiltin(txt,silent) ;
+      { retval = dobuiltin(&cmdchn,&cmdecho,txt,silent) ;
 	break ; }
       case DY_LCEOF:
       { if (level == 0)
 	{ retval = cmdHALTNOERROR ; }
 	else
-	{ if (dyio_closefile(dy_cmdchn) == FALSE)
-	    warn(232,rtnnme,dyio_idtopath(dy_cmdchn)) ;
-	  dy_cmdchn = cmdchns[--level].chn ;
+	{ if (dyio_closefile(cmdchn) == FALSE)
+	    warn(232,rtnnme,dyio_idtopath(cmdchn)) ;
+	  cmdchn = cmdchns[--level].chn ;
 	  dyio_outfmt(dy_logchn,dy_gtxecho,
 		      "\n\treturning to command source file %s\n",
-		      dyio_idtopath(dy_cmdchn)) ;
-	  dy_cmdecho = cmdchns[level].cecho ;
+		      dyio_idtopath(cmdchn)) ;
+	  cmdecho = cmdchns[level].cecho ;
 	  dy_gtxecho = cmdchns[level].gecho ;
 	  retval = cmdOK ; }
 	break ; }
@@ -447,7 +466,7 @@ cmd_retval process_cmds (bool silent)
       default: /* DY_LCNIL, DY_LCNUM, DY_LCFS, DY_LCQS */
       { errmsg(230,rtnnme,(txt->string == NULL)?"<<nil>>":txt->string) ;
 	break ; } }
-    dyio_flushio(dy_logchn,dy_cmdecho) ; }
+    dyio_flushio(dy_logchn,cmdecho) ; }
 /*
   Command interpretation has been stopped. Fix up the return code and return.
 */

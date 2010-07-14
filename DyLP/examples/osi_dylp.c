@@ -102,15 +102,13 @@ const char *osidylp_time ;
 
   ttyout		i/o id for output to the user's terminal
   ttyin			i/o id for input from the user's terminal
-  dy_cmdchn		i/o id for input from the command file
-  dy_logchn		i/o id for the execution log file
 
-  dy_cmdecho		controls echoing of command input to stdout
+  dy_logchn		i/o id for the execution log file
   dy_gtxecho		controls echoing of generated text to stdout
 */
 
-ioid dy_cmdchn,dy_logchn ;
-bool dy_cmdecho, dy_gtxecho ;
+ioid dy_logchn ;
+bool dy_gtxecho ;
 
 /*
   File paths used elsewhere in osi_dylp.
@@ -469,13 +467,9 @@ static lpret_enum do_lp (struct timeval *elapsed, int printlvl)
 	   not really dylp's fault.
 */
 
-{ int ndx,i,flips ;
-  bool *flipped ;
-
-  lpret_enum lpret ;
+{ lpret_enum lpret ;
   lpopts_struct *initial_lpopts ;
   lpstats_struct *initial_lpstats ;
-  basis_struct *basis ;
 
   struct timeval diff,before,after ;
 
@@ -537,7 +531,7 @@ int main (int argc, char *argv[])
 { time_t timeval ;
   struct tm *tm ;
   char runtime[50] ;
-  ioid ttyin,ttyout,outchn ;
+  ioid ttyin,ttyout,outchn,cmdchn ;
   int optlett,printlvl ;
   bool silent,terse,swaperrs,errecho,doversion,dohelp ;
   const char *errmsgpath,*errlogpath,*optpath,*mpspath,*logpath ;
@@ -587,7 +581,6 @@ int main (int argc, char *argv[])
   silent = FALSE ;
   terse = FALSE ;
   dy_gtxecho = TRUE ;
-  dy_cmdecho = FALSE ;
   doversion = FALSE ;
   dohelp = FALSE ;
 
@@ -679,8 +672,8 @@ int main (int argc, char *argv[])
     { osidylp_time = "n/a" ; } }
 /*
   Figure out the appropriate settings for silent and terse.
-  silent is set to (silent || terse), and is passed to process_cmds so that
-	 it can properly handle dy_cmdecho and dy_gtxecho.
+  silent is set to (silent || terse), and is passed to dy_processcmds so that
+	 it can properly handle command and generated text echo.
   terse	 is set for ease of controlling the output specifically mentioned in
 	 conjunction with terse mode (which is controlled from this routine).
 	 The proper value is (terse || !silent).
@@ -719,7 +712,7 @@ int main (int argc, char *argv[])
   { errmsg(1,rtnnme,__LINE__) ;
     exit(4) ; }
   (void) dyio_setmode(ttyin,'l') ;
-  dy_cmdchn = ttyin ;
+  cmdchn = ttyin ;
 /*
   Initialize logging.
 */
@@ -786,10 +779,10 @@ int main (int argc, char *argv[])
   optpath = NULL ;
 # endif
   if (optpath != NULL)
-  { dy_cmdchn = dyio_openfile(optpath,"r") ;
-    if (dy_cmdchn == IOID_INV) exit (1) ;
-    (void) dyio_setmode(dy_cmdchn,'l') ;
-    switch (process_cmds(silent))
+  { cmdchn = dyio_openfile(optpath,"r") ;
+    if (cmdchn == IOID_INV) exit (1) ;
+    (void) dyio_setmode(cmdchn,'l') ;
+    switch (dy_processcmds(cmdchn,silent,main_lpopts,main_lptols))
     { case cmdOK:
       { break ; }
       case cmdHALTERROR:
@@ -798,9 +791,9 @@ int main (int argc, char *argv[])
       { exit (0) ; }
       default:
       { exit (1) ; } }
-    if (dy_cmdchn != ttyin)
-    { (void) dyio_closefile(dy_cmdchn) ;
-      dy_cmdchn = IOID_INV ; } }
+    if (cmdchn != ttyin)
+    { (void) dyio_closefile(cmdchn) ;
+      cmdchn = IOID_INV ; } }
 /*
   Make an attempt to read the mps input file.
 */

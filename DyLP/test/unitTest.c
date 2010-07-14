@@ -40,7 +40,7 @@
 #ifdef DYLP_ERRMSGDIR
 # define DYLP_ERRMSGPATH DYLP_ERRMSGDIR "dy_errmsgs.txt"
 #else
-# define DYLP_ERRMSGPATH "dy_errmsgs.txt"
+# define DYLP_ERRMSGPATH "../src/Dylp/dy_errmsgs.txt"
 #endif
 
 /*
@@ -48,22 +48,14 @@
 
   ttyout		i/o id for output to the user's terminal
   ttyin			i/o id for input from the user's terminal
-  dy_cmdchn		i/o id for input from the command file
-  dy_logchn		i/o id for the execution log file
 
-  dy_cmdecho		controls echoing of command input to stdout
+  dy_logchn		i/o id for the execution log file
   dy_gtxecho		controls echoing of generated text to stdout
 */
 
-ioid dy_cmdchn,dy_logchn ;
-bool dy_cmdecho, dy_gtxecho ;
+ioid dy_logchn ;
+bool dy_gtxecho ;
 
-/*
-  Define these as globals for the benefit of cmdint.c::process_cmds.
-*/
-
-lpopts_struct* main_lpopts ;
-lptols_struct* main_lptols ;
 
 
 
@@ -137,18 +129,15 @@ int main (int argc, char **argv)
   const char *errmsgpath = DYLP_ERRMSGPATH ;
   char *errlogpath = NULL ;
 
-/*
-  These need to be globals to keep cmdint.c::process_cmds happy.
-
-  lpopts_struct *main_lpopts ;
-  lptols_struct *main_lptols ;
-*/
   consys_struct *main_sys ;
   lpprob_struct *main_lp ;
   lpret_enum lpretval ;
 
   double z ;
   int errcnt,cnt ;
+
+  lpopts_struct* main_lpopts ;
+  lptols_struct* main_lptols ;
 
 /*
   Set this to TRUE if you want to see the solutions for the test lp problems.
@@ -228,9 +217,7 @@ int main (int argc, char **argv)
   { errmsg(1,rtnnme,__LINE__) ;
     exit(4) ; }
   (void) dyio_setmode(ttyin,'l') ;
-  dy_cmdchn = ttyin ;
   dy_logchn = IOID_NOSTRM ;
-  dy_cmdecho = TRUE ;
   dy_gtxecho = TRUE ;
 /*
   Announce we're running.

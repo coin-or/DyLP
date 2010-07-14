@@ -42,6 +42,11 @@ static char svnid[] UNUSED = "$Id$" ;
   that's designed to be called from Fortran. Unless you're the proud
   possessor of some ancient LP software, you likely don't want to know about
   xmp.h.
+
+  WARNING!
+
+  The Fortran hooks haven't been tested since the last millenium. It's highly
+  unlikely that they still work.
 */
 
 #ifdef _DYLIB_FORTRAN
@@ -826,12 +831,12 @@ ioid dyio_openfile (const char *path, const char *mode)
   { filblk->dname = NULL ;
     fname = path ; }
   else
-  { fname++ ;
-    len = fname-path ;
+  { len = fname-path ;
     tmp = (char *) MALLOC(len+1) ;
     (void) strncpy(tmp,path,len) ;
     tmp[len] = '\0' ;
-    filblk->dname = tmp ; }
+    filblk->dname = tmp ;
+    fname++ ; }
   tmp = (char *) MALLOC(strlen(fname)+1) ;
   (void) strcpy(tmp,fname) ;
   filblk->fname = tmp ;
@@ -1692,7 +1697,6 @@ void dyio_outfmt (ioid id, bool echo, const char *pattern, ... )
 /*
   Print to stream id, assuming it's active and writeable.
 */
-  va_start(parms,pattern) ;
 
   if (id != IOID_NOSTRM)
   { filblk = &filblks[id] ;
@@ -1702,15 +1706,18 @@ void dyio_outfmt (ioid id, bool echo, const char *pattern, ... )
     if (flgon(filblk->modes,io_write) == FALSE)
     { errmsg(17,rtnnme,dyio_idtopath(id)) ; }
     else
-    { (void) vfprintf(filblk->stream,pattern,parms) ; } }
+    { va_start(parms,pattern) ;
+      (void) vfprintf(filblk->stream,pattern,parms) ;
+      va_end(parms) ;
+      } }
 /*
   Print to stdout if echo is TRUE and the stream id is not stdout.
   stdout is assumed active and writeable.
 */
   if (echo == TRUE && id != dyio_pathtoid("stdout",NULL)) 
+  { va_start(parms,pattern) ;
     (void) vfprintf(stdout,pattern,parms) ;
-
-  va_end(parms) ;
+    va_end(parms) ; }
 
   return ; }
 
@@ -1878,14 +1885,23 @@ int dyio_outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
 
 #ifdef _DYLIB_FORTRAN
 
+/*
+  WARNING!
+
+  The Fortran hooks haven't been tested since the last millenium. It's highly
+  unlikely that they still work. In particular, it seems likely that each call
+  to vfprintf using the constructed varargs block should be bracked with
+  va_start / va_end.
+*/
+
 void dyio_outfmt_ (integer *ftnid, logical *ftnecho, char *pattern, ... )
 
 /*
   This routine provides a Fortran client with an interface to the vfprintf
   routine of ANSI C and the logging facilities of this i/o library. It deals
   with translating the argument types supplied by Fortran-to-C interface
-  conventions into the arguments required by vprintf. The method is to
-  construct a new varargs block, which is handed over to vprintf. To do
+  conventions into the arguments required by vfprintf. The method is to
+  construct a new varargs block, which is handed over to vfprintf. To do
   this, we have to make the fragile assumption that a varargs block is
   constructed in a straightforward manner --- as data items written into
   a contiguous block of storage which we can allocate. There are more
