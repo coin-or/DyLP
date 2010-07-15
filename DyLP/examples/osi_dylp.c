@@ -103,12 +103,11 @@ const char *osidylp_time ;
   ttyout		i/o id for output to the user's terminal
   ttyin			i/o id for input from the user's terminal
 
-  dy_logchn		i/o id for the execution log file
+  dy_logchn		i/o id for the execution log file (set via
+  			dy_setlogchn)
   dy_gtxecho		controls echoing of generated text to stdout
+  			(set via dy_setgtxecho)
 */
-
-ioid dy_logchn ;
-bool dy_gtxecho ;
 
 /*
   File paths used elsewhere in osi_dylp.
@@ -145,9 +144,9 @@ static void print_version (ioid chn, bool echo,
   const char *disc2 = "warranty; not even for MERCHANTABILITY or FITNESS FOR A"
 		      " PARTICULAR PURPOSE." ;
 
-  dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s (%s) V %s",cmd,nme,ver) ;
-  dyio_outfmt(dy_logchn,dy_gtxecho,"\nCopyright (C) 2004 Lou Hafer") ;
-  dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s\n%s\n",disc1,disc2) ;
+  dyio_outfmt(chn,echo,"\n%s (%s) V %s",cmd,nme,ver) ;
+  dyio_outfmt(chn,echo,"\nCopyright (C) 2004 Lou Hafer") ;
+  dyio_outfmt(chn,echo,"\n%s\n%s\n",disc1,disc2) ;
 
   return ; }
 
@@ -531,9 +530,9 @@ int main (int argc, char *argv[])
 { time_t timeval ;
   struct tm *tm ;
   char runtime[50] ;
-  ioid ttyin,ttyout,outchn,cmdchn ;
+  ioid ttyin,ttyout,outchn,logchn,cmdchn ;
   int optlett,printlvl ;
-  bool silent,terse,swaperrs,errecho,doversion,dohelp ;
+  bool silent,terse,swaperrs,errecho,gtxecho,doversion,dohelp ;
   const char *errmsgpath,*errlogpath,*optpath,*mpspath,*logpath ;
 
   struct timeval lptime ;
@@ -575,12 +574,12 @@ int main (int argc, char *argv[])
 
   ttyout = IOID_INV ;
   ttyin = IOID_INV ;
-  dy_logchn = IOID_INV ;
+  logchn = IOID_INV ;
   outchn = IOID_INV ;
 
   silent = FALSE ;
   terse = FALSE ;
-  dy_gtxecho = TRUE ;
+  gtxecho = TRUE ;
   doversion = FALSE ;
   dohelp = FALSE ;
 
@@ -611,11 +610,11 @@ int main (int argc, char *argv[])
 	break ; }
       case 's':
       { silent = TRUE ;
-	dy_gtxecho = FALSE ;
+	gtxecho = FALSE ;
 	break ; }
       case 't':
       { terse = TRUE ;
-	dy_gtxecho = FALSE ;
+	gtxecho = FALSE ;
 	break ; }
       case 'p':
       { printlvl = atoi(optarg) ;
@@ -717,12 +716,14 @@ int main (int argc, char *argv[])
   Initialize logging.
 */
   if (logpath != NULL)
-  { dy_logchn = dyio_openfile(logpath,"w") ;
-    if (dy_logchn == IOID_INV)
+  { logchn = dyio_openfile(logpath,"w") ;
+    if (logchn == IOID_INV)
     { warn(201,rtnnme,logpath) ;
-      dy_logchn = IOID_NOSTRM ; } }
+      logchn = IOID_NOSTRM ; } }
   else
-  { dy_logchn = IOID_NOSTRM ; }
+  { logchn = IOID_NOSTRM ; }
+  dy_setlogchn(logchn) ;
+  dy_setgtxecho(gtxecho) ;
 /*
   Are we supposed to merge the error messages with the log stream? (Note that
   errors will be echoed to stderr unless we're running silent. If the user's
@@ -730,7 +731,7 @@ int main (int argc, char *argv[])
   code that it should reset the error logging channel if it ever resets the
   main logging channel.
 */
-  if (errlogpath == NULL && dy_logchn != IOID_NOSTRM)
+  if (errlogpath == NULL && logchn != IOID_NOSTRM)
   { swaperrs = TRUE ;
     errlogpath = logpath ;
     if (dyio_chgerrlog(errlogpath,errecho) == FALSE)
@@ -740,17 +741,17 @@ int main (int argc, char *argv[])
   messages. If so, do it and head for the exit. Version preempts help.
 */
   if (doversion == TRUE)
-  { print_version(dy_logchn,dy_gtxecho,argv[0],rtnnme,osidylp_version) ;
+  { print_version(logchn,gtxecho,argv[0],rtnnme,osidylp_version) ;
     goto NOOUTFILE_CLEANUP ; }
   if (dohelp == TRUE)
-  { print_help(dy_logchn,dy_gtxecho,argv[0]) ;
+  { print_help(logchn,gtxecho,argv[0]) ;
     goto NOOUTFILE_CLEANUP ; }
 /*
   We're up! Banners to the appropriate places.
 */
-  dyio_outfmt(dy_logchn,terse,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
-  dyio_outfmt(dy_logchn,terse,"\n\t\t%s",runtime) ;
-  dyio_outfmt(dy_logchn,terse,"\n\n") ;
+  dyio_outfmt(logchn,terse,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
+  dyio_outfmt(logchn,terse,"\n\t\t%s",runtime) ;
+  dyio_outfmt(logchn,terse,"\n\n") ;
   if (outpath != NULL && strcmp(outpath,"stdout") != 0)
   { outchn = dyio_pathtoid(outpath,NULL) ;
     if (outchn == IOID_INV) outchn = dyio_openfile(outpath,"w") ;
@@ -826,17 +827,17 @@ int main (int argc, char *argv[])
 */
   if (printlvl >= 1)
   { if (printlvl >= 2)
-    { dy_dumpcompact(dy_logchn,
-		     (dy_logchn == IOID_INV)?TRUE:FALSE,main_lp,FALSE) ; }
-    dyio_outfmt(dy_logchn,TRUE,"\nReturn code %s",dy_prtlpret(main_lp->lpret)) ;
+    { dy_dumpcompact(logchn,
+		     (logchn == IOID_INV)?TRUE:FALSE,main_lp,FALSE) ; }
+    dyio_outfmt(logchn,TRUE,"\nReturn code %s",dy_prtlpret(main_lp->lpret)) ;
     if (main_lp->phase == dyDONE)
-      dyio_outfmt(dy_logchn,TRUE," after %d pivots",main_lp->iters) ;
+      dyio_outfmt(logchn,TRUE," after %d pivots",main_lp->iters) ;
     if (main_lp->lpret == lpOPTIMAL)
-    { dyio_outfmt(dy_logchn,TRUE,"; objective %.8g",main_lp->obj) ; }
-    dyio_outfmt(dy_logchn,TRUE,
+    { dyio_outfmt(logchn,TRUE,"; objective %.8g",main_lp->obj) ; }
+    dyio_outfmt(logchn,TRUE,
 		" (%.2f sec.)",lptime.tv_sec+lptime.tv_usec/1e6) ;
-    dyio_outfmt(dy_logchn,TRUE,".\n") ;
-    dyio_flushio(dy_logchn,dy_gtxecho) ; }
+    dyio_outfmt(logchn,TRUE,".\n") ;
+    dyio_flushio(logchn,gtxecho) ; }
 /*
   Final cleanup. Free space used by the remaining main_* structures.
 */
@@ -860,8 +861,8 @@ int main (int argc, char *argv[])
   subsystem.
 */
   NOOUTFILE_CLEANUP:
-  if (dy_logchn != IOID_INV && dy_logchn != IOID_NOSTRM)
-  { (void) dyio_closefile(dy_logchn) ; }
+  if (logchn != IOID_INV && logchn != IOID_NOSTRM)
+  { (void) dyio_closefile(logchn) ; }
   dyio_ioterm() ;
   errterm() ;
 

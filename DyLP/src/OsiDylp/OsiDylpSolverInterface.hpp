@@ -725,17 +725,17 @@ private:
 */
 //@{
 
-  /*! \brief Output file for this ODSI instance
+  /*! \brief Output stream for this ODSI instance
   
-    Holds the name of the file that will be used to write out the solution and
-    statistics.
+    Holds the ioid of the stream that will be used to write out the solution
+    and statistics.
   */
 
   ioid local_outchn ;
 
-  /*! \brief Log file for this ODSI instance
+  /*! \brief Log stream for this ODSI instance
 
-    Holds the name of the file that will be used for dylp log information.
+    Holds the ioid of the stream that will be used for dylp log information.
   */
 
   ioid local_logchn ;
@@ -993,7 +993,7 @@ private:
 /*! \name Helper functions for invoking dylp */
 //@{
   /*! \brief Common core method to invoke dylp */
-  lpret_enum do_lp (ODSI_start_enum start) ;
+  lpret_enum do_lp (ODSI_start_enum start, bool echo) ;
 //@}
 
 /*! \name Destructor helpers */

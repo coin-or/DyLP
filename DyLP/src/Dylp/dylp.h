@@ -1959,6 +1959,8 @@ extern const char *dy_prtlpret(lpret_enum lpret),
 extern char *dy_prtvstat(flags status) ;
 extern bool dy_dumpcompact(ioid chn, bool echo, lpprob_struct *soln,
 			   bool nbzeros) ;
+extern void dy_setlogchn (ioid chn) ;
+extern void dy_setgtxecho (bool echo) ;
 
 /*
   dy_statistics.c

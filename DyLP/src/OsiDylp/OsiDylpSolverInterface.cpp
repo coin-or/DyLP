@@ -300,14 +300,12 @@ namespace {
   The OSI layer (or at least the OSI test suite) expects that the constraint
   system read back from the solver will be the same as the constraint system
   given to the solver.  Dylp expects that any grooming of the constraint
-  system will be done before it's called, and furthermore expects that this
-  grooming will include conversion of >= constraints to <= constraints.  The
-  solution here is to do this grooming in a wrapper, do_lp.
-  do_lp only implements the conversion from >= to <=, which is
-  reversible. dylp can tolerate empty constraints.  do_lp also embodies a
-  rudimentary strategy that attempts to recover from numerical inaccuracy by
-  refactoring the basis more often (on the premise that this will reduce
-  numerical inaccuracy in calculations involving the basis inverse).
+  system will be done before it's called.  The solution here is to do
+  this grooming in a wrapper, do_lp.  dylp can tolerate empty constraints.
+  do_lp also embodies a rudimentary strategy that attempts to recover from
+  numerical inaccuracy by refactoring the basis more often (on the premise
+  that this will reduce numerical inaccuracy in calculations involving
+  the basis inverse).
 
   <strong>Status of Logical Variables</strong>
   The OSI convention for the status of logical (artificial) variables assumes
@@ -322,19 +320,9 @@ namespace {
   in order to claim that the reduced cost of the slack is the negative of the
   dual for the associated constraint.
 
-  On the down side, this convention means that the status of the artificial is
+  On the down side, this convention means that the status of the logical is
   opposite the constraint: a tight <= constraint, for example, will have an
   artificial that's nonbasic at lower bound.
-
-  In ODSI, this purity of concept is obscured by the fact that dylp expects >=
-  constraints to be transformed to <= constraints. The routine do_lp takes care
-  of this, transparently to the rest of the code. It also flips the dual
-  variable on the way out, so that we get the right result for >= constraints.
-  In detail: ax >= b is transformed to -ax <= -b and solved as -ax + s = -b,
-  0 <= s <= infty. On the way back out, multiplication by -1 would give
-  ax - s = b, which is equivalent to ax >= b for 0 <= s <= infty. To make this
-  all consistent, we multiply s by -1 so that we have ax + s = b,
-  -infty <= s <= 0, and multiply the associated dual by -1.
 */
 
 namespace {
@@ -395,14 +383,21 @@ extern void dy_freebasis() ;
 
 }
 
-/*!
-  \defgroup DylpIO dylp i/o control variables
-  \brief Variables controlling dylp file and terminal i/o.
+/*
+  Used to be a doxygen comment, but the variables no longer exist. Still,
+  the information seems useful.
+
+  defgroup DylpIO dylp i/o control variables
+  brief Variables controlling dylp file and terminal i/o.
 
   Dylp is capable of generating a great deal of output, but the control
   mechanism is not a good fit for C++ objects and the OSI framework. Two
   global variables, dy_logchn and dy_gtxecho, control log message output
-  to a file and echoing to stdout, respectively.
+  to a file and echoing to stdout, respectively. More recently, these are
+  not intended to be visible outside of dylp (in preparation for making
+  dylp reentrant) and are controlled by dy_setlogchn and dy_setgtxecho.
+  Within the ODSI object, look to #local_logchn, #initial_gtxecho, and
+  #resolve_gtxecho.
 
   dy_gtxecho can be controlled using the OsiDoReducePrint hint; it is set
   to true whenever the print level is specified as an absolute integer
@@ -424,19 +419,6 @@ extern void dy_freebasis() ;
   terminal i/o, built on top of the C stdio library.
 */
 
-//@{
-/*! \var ioid dy_logchn
-    \brief ioid used for logging to a file
-*/
-/*! \var bool dy_gtxecho
-    \brief controls echoing of generated text to the terminal
-*/
-
-ioid dy_logchn = IOID_NOSTRM ;
-
-bool dy_gtxecho = false ;
-
-//@}
 
 /*!
   \defgroup DylpResidual dylp residual control variables
@@ -2214,7 +2196,9 @@ ODSI::~OsiDylpSolverInterface ()
 */
   destruct_presolve() ;
   destruct_problem(false) ;
-  if (dyio_isactive(local_logchn)) (void) dyio_closefile(local_logchn) ;
+  if (dyio_isactive(local_logchn))
+  { (void) dyio_closefile(local_logchn) ;
+    dy_setlogchn(IOID_NOSTRM) ; }
   if (dyio_isactive(local_outchn)) (void) dyio_closefile(local_outchn) ;
 
   reference_count-- ;
@@ -2252,7 +2236,8 @@ void ODSI::reset ()
   destruct_problem(false) ;
   if (dyio_isactive(local_logchn))
   { (void) dyio_closefile(local_logchn) ;
-    local_logchn = IOID_NOSTRM ; }
+    local_logchn = IOID_NOSTRM ;
+    dy_setlogchn(IOID_NOSTRM) ; }
   if (dyio_isactive(local_outchn))
   { (void) dyio_closefile(local_outchn) ;
     local_outchn = IOID_NOSTRM ; }
@@ -4201,7 +4186,7 @@ inline bool ODSI::getHintParam (OsiHintParam key, bool &sense,
 */
 //@{
 
-lpret_enum ODSI::do_lp (ODSI_start_enum start)
+lpret_enum ODSI::do_lp (ODSI_start_enum start, bool echo)
 
 /*
   This routine handles the job of running an lp and making a few attempts at
@@ -4209,11 +4194,6 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
   lpINFEAS, or lpUNBOUNDED. In the event we turn up anything else, the
   strategy is to keep trying, forcing a cold start and gradually increasing
   the refactorisation frequency.
-
-  dylp expects that >= constraint have been converted to <= constraints
-  before it ever sees the system. So we do it here, and then flip back
-  afterwards, because OSI (particularly the unitTest) isn't tolerant of the
-  solver rearranging the constraint system.
 
   Note that the routines which dump the solution and statistics in human
   readable form also make use of the constraint system. They won't be put off
@@ -4223,6 +4203,7 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
 
   Parameter:
     start:	specifies cold, warm, or hot start
+    echo:	whether dylp output should be echoed to the terminal
   
   Returns: whatever it gets from dylp
 */
@@ -4251,9 +4232,11 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
     { detach_dylp() ; }
     return (lpFATAL) ; }
 /*
-  Set up options and tolerances, make sure the phase isn't dyDONE, and
-  reinitialise the statistics if we're collecting them.
+  Set up logging and echo, options and tolerances, make sure the phase
+  isn't dyDONE, and reinitialise the statistics if we're collecting them.
 */
+  if (dyio_isactive(local_logchn)) dy_setlogchn(local_logchn) ;
+  dy_setgtxecho(echo) ;
   lcl_tols = *tolerances ;
   switch (start)
   { case startCold:
@@ -4320,15 +4303,15 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
 # ifdef ODSI_INFOMSGS
   if (print >= 1)
   { if (lpret == lpOPTIMAL || lpret == lpINFEAS || lpret == lpUNBOUNDED)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  success, status %s",
+    { dyio_outfmt(local_logchn,echo,"\n  success, status %s",
 		  dy_prtlpret(lpprob->lpret)) ; }
     else
     if (lpret == lpITERLIM)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(local_logchn,echo,
 		  "\n  premature termination, status %s",
 		  dy_prtlpret(lpprob->lpret)) ; }
     else
-    { dyio_outfmt(dy_logchn,dy_gtxecho,"\n  failed, status %s",
+    { dyio_outfmt(local_logchn,echo,"\n  failed, status %s",
 		  dy_prtlpret(lpprob->lpret)) ; } }
 # endif
   clrflg(lpprob->ctlopts,lpctlUBNDCHG|lpctlLBNDCHG|lpctlRHSCHG|lpctlOBJCHG) ;
@@ -4369,7 +4352,8 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
     level |= 0x10 ;
     setHintParam(OsiDoReducePrint,true,OsiForceDo,&level) ;
     lcl_opts.print = initialSolveOptions->print ;
-    dy_gtxecho = initial_gtxecho ;
+    dy_setgtxecho(initial_gtxecho) ;
+    echo = initial_gtxecho ;
     std::cout << "Verbosity now maxed at " << level << ".\n" ;
     writeMps("dylpPostmortem","mps") ;
 #   endif
@@ -4387,7 +4371,7 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
     { retries++ ;
 #     ifdef ODSI_INFOMSGS
       if (print >= 1)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,".\n    retry %d: refactor = %d ...",
+      { dyio_outfmt(local_logchn,echo,".\n    retry %d: refactor = %d ...",
 	            retries,lcl_opts.factor) ; }
 #     endif
       setflg(lpprob->ctlopts,persistent_flags) ;
@@ -4398,14 +4382,14 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
       {
 #       ifdef ODSI_INFOMSGS
 	if (print >= 1)
-	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n  success, status %s",
+	{ dyio_outfmt(local_logchn,echo,"\n  success, status %s",
 		      dy_prtlpret(lpprob->lpret)) ; }
 #       endif
 	break ; }
 #     ifdef ODSI_INFOMSGS
       else
       { if (print >= 1)
-	{ dyio_outfmt(dy_logchn,dy_gtxecho,"\n  failed, status %s",
+	{ dyio_outfmt(local_logchn,echo,"\n  failed, status %s",
 		      dy_prtlpret(lpprob->lpret)) ; } }
 #     endif
     }
@@ -4458,14 +4442,14 @@ lpret_enum ODSI::do_lp (ODSI_start_enum start)
 # ifdef ODSI_INFOMSGS
   if (print >= 1)
   { if (lpprob->lpret == lpOPTIMAL)
-      dyio_outfmt(dy_logchn,dy_gtxecho,"; objective %.8g",lpprob->obj) ;
+      dyio_outfmt(local_logchn,echo,"; objective %.8g",lpprob->obj) ;
     else
     if (lpprob->lpret == lpINFEAS)
-      dyio_outfmt(dy_logchn,dy_gtxecho,"; infeasibility %.4g",lpprob->obj) ;
+      dyio_outfmt(local_logchn,echo,"; infeasibility %.4g",lpprob->obj) ;
     if (lpprob->phase == dyDONE)
-      dyio_outfmt(dy_logchn,dy_gtxecho," after %d pivots",lpprob->iters) ;
-    dyio_outchr(dy_logchn,dy_gtxecho,'.') ;
-    dyio_flushio(dy_logchn,dy_gtxecho) ; }
+      dyio_outfmt(local_logchn,echo," after %d pivots",lpprob->iters) ;
+    dyio_outchr(local_logchn,echo,'.') ;
+    dyio_flushio(local_logchn,echo) ; }
 # endif
 
   return (lpret) ; }
@@ -4578,10 +4562,9 @@ void ODSI::initialSolve ()
   destruct_col_cache(false) ;
   destruct_row_cache(false) ;
 /*
-  Establish logging and echo values, and invoke the solver.
+  Invoke the solver. If we're presolving, tweak the options so that the solver
+  doesn't retain the problem. We'll be reloading with a warm start.
 */
-  if (dyio_isactive(local_logchn)) dy_logchn = local_logchn ;
-  dy_gtxecho = initial_gtxecho ;
   if (presolving == true)
   { save_ctlopts = getflg(lpprob->ctlopts,lpctlNOFREE|lpctlACTVARSOUT) ;
     clrflg(lpprob->ctlopts,lpctlNOFREE|lpctlACTVARSOUT) ;
@@ -4589,7 +4572,7 @@ void ODSI::initialSolve ()
     initialSolveOptions->finpurge.vars = false ;
     save_finpurge_cons = initialSolveOptions->finpurge.cons ;
     initialSolveOptions->finpurge.cons = false ; }
-  lp_retval = do_lp(startCold) ;
+  lp_retval = do_lp(startCold,initial_gtxecho) ;
   if (presolving == true)
   { lpprob->ctlopts = setflg(lpprob->ctlopts,save_ctlopts) ;
     initialSolveOptions->finpurge.vars = save_finpurge_vars ;
@@ -4647,7 +4630,7 @@ void ODSI::initialSolve ()
 #     ifdef ODSI_INFOMSGS
       postsolveTime = CoinCpuTime() ;
 #     endif
-      lp_retval = do_lp(startWarm) ;
+      lp_retval = do_lp(startWarm,initial_gtxecho) ;
 #     ifdef ODSI_INFOMSGS
       secondLPTime = CoinCpuTime() ;
       hdl->message(ODSI_COLD,messages_) ;
@@ -6351,12 +6334,10 @@ void ODSI::resolve ()
   crucial here --- dylp will sort it out as it starts.
 */
   assert(resolveOptions->forcecold == false) ;
-  if (dyio_isactive(local_logchn)) dy_logchn = local_logchn ;
-  dy_gtxecho = resolve_gtxecho ;
   dyphase_enum phase = lpprob->phase ;
   if (!(phase == dyPRIMAL1 || phase == dyPRIMAL2 || phase == dyDUAL))
     lpprob->phase = dyINV ;
-  lp_retval = do_lp(startWarm) ;
+  lp_retval = do_lp(startWarm,resolve_gtxecho) ;
 /*
   Separate the failure cases from the successful cases. lpITERLIM is
   considered ok in warm and hot start (in particular, for strong branching).
@@ -6542,8 +6523,6 @@ void ODSI::solveFromHotStart ()
   assert(lpprob && lpprob->basis && lpprob->status && basis_ready &&
 	 consys && resolveOptions && tolerances) ;
 
-  if (dyio_isactive(local_logchn)) dy_logchn = local_logchn ;
-  dy_gtxecho = resolve_gtxecho ;
 /*
   Phase can be anything except dyDONE, which will cause dylp to free data
   structures and return.
@@ -6554,7 +6533,7 @@ void ODSI::solveFromHotStart ()
   { tmp_iterlim = resolveOptions->iterlim ;
     resolveOptions->iterlim = (hotlim/3 > 0)?hotlim/3:1 ; }
 
-  lp_retval = do_lp(startHot) ;
+  lp_retval = do_lp(startHot,resolve_gtxecho) ;
 # ifdef ODSI_INFOMSGS
   CoinMessageHandler *hdl = messageHandler() ; 
   hdl->message(ODSI_HOT,messages_)
@@ -6799,7 +6778,7 @@ void ODSI::dylp_logfile (const char *name, bool echo)
   if (local_logchn == IOID_INV)
   { local_logchn = IOID_NOSTRM ; }
   else
-  { (void) dyio_chgerrlog(lognme.c_str(),true) ; }
+  { (void) dyio_chgerrlog(lognme.c_str(),echo) ; }
   initial_gtxecho = echo ;
   resolve_gtxecho = echo ;
 

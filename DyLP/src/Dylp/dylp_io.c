@@ -1,7 +1,7 @@
 /*
   This file is a part of the Dylp LP distribution.
 
-        Copyright (C) 2005 -- 2007 Lou Hafer
+        Copyright (C) 2005 -- 2010 Lou Hafer
 
         School of Computing Science
         Simon Fraser University
@@ -21,6 +21,30 @@
 
 static char sccsid[] UNUSED = "@(#)dylp_io.c	4.5	11/06/04" ;
 static char svnid[] UNUSED = "$Id$" ;
+
+
+/*
+  Output control variables
+
+  dy_logchn:	log file
+  dy_gtxecho:	true if generated text should also be echoed to stdout
+
+  Mostly these are simply passed as parameters to dylib_io routines that
+  generate output. Dylib_io ensures that output goes to the log file and/or
+  stdout as required.
+*/
+
+ioid dy_logchn = IOID_NOSTRM ;
+bool dy_gtxecho = FALSE ;
+
+/*
+  And a pair of routines whose sole purpose in life is to allow dy_logchn and
+  dy_gtxecho to remain hidden inside of libdylp.
+*/
+
+void dy_setlogchn (ioid chn) { dy_logchn = chn ; }
+
+void dy_setgtxecho (bool echo) { dy_gtxecho = echo ; }
 
 
 

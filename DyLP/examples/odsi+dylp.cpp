@@ -422,11 +422,9 @@ int main (int argc, const char* argv[])
 	break ; }
       case 's':
       { silent = TRUE ;
-	dy_gtxecho = FALSE ;
 	break ; }
       case 't':
       { terse = TRUE ;
-	dy_gtxecho = FALSE ;
 	break ; }
       case 'p':
       { printlvl = atoi(argv[++argNum]) ;
