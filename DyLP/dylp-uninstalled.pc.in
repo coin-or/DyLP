@@ -4,7 +4,7 @@ libdir=@ABSBUILDDIR@/src/Dylp
 Name: DyLP
 Description: dynamic simplex linear programming solver
 Version: @PACKAGE_VERSION@
-Libs: -L@ABSBUILDDIR@/src/Dylp -lDylp @ADDLIBS@
+Libs: -L@ABSBUILDDIR@/src/Dylp -lDylp @PCADDLIBS@
 Cflags: -I@abs_source_dir@/src/Dylp -I@abs_source_dir@/src/DylpStdLib -I@ABSBUILDDIR@/inc
 Requires: @REQUIREDPACKAGES@
 
