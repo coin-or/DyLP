@@ -88,17 +88,17 @@ maintainer-clean-local: distclean-local
 #                  Installation of the addlibs file                    #
 ########################################################################
 
-if COIN_HAS_PKGCONFIG
-addlibsdir = $(datadir)/coin/doc/DyLP
-addlibs_DATA = dylp_addlibs.txt
-
-dylp_addlibs.txt : dylp.pc
-	PKG_CONFIG_PATH=.:@COIN_PKG_CONFIG_PATH@ $(PKG_CONFIG) --libs dylp > dylp_addlibs.txt
-endif
-
 pkgconfiglibdir = $(libdir)/pkgconfig
 pkgconfiglib_DATA = dylp.pc
 
+if COIN_HAS_PKGCONFIG
+addlibsdir = $(DESTDIR)$(datadir)/coin/doc/DyLP
+	
+install-data-hook:
+	@$(mkdir_p) "$(addlibsdir)"
+	PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ PKG_CONFIG_DISABLE_UNINSTALLED= \
+	$(PKG_CONFIG) --libs dylp > $(addlibsdir)/dylp_addlibs.txt
+endif
 
 install-exec-local: install-doc
 
