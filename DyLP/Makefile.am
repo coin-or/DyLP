@@ -98,6 +98,9 @@ install-data-hook:
 	@$(mkdir_p) "$(addlibsdir)"
 	PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ \
 	$(PKG_CONFIG) --libs dylp > $(addlibsdir)/dylp_addlibs.txt
+
+uninstall-hook:
+	rm -f $(addlibsdir)/dylp_addlibs.txt
 endif
 
 install-exec-local: install-doc
