@@ -18,9 +18,9 @@
 */
 
 
-#include "dylib_bnfrdr.h"
 #include "dylib_strrtns.h"
 #include "dylib_keytab.h"
+#include "dylib_bnfrdr.h"
 #include "dy_cmdint.h"
 #include "dylp.h"
 
@@ -886,7 +886,7 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
     mkaref(zfraction_alt1),mkaref(zfraction_alt2) } ;
   static pdef(zfraction,zfraction_alts) ;
 
-  static pref(zloadbody_fraction,zfraction,NULL,NULL,NULLP) ;
+  static pref(zloadbody_fraction,zfraction,0,0,NULLP) ;
   static gref(zloadbody_interval,zinterval,bnfstore|bnflst,
 	      mkoff(struct load_struct,intervals),zcomma_ref) ;
 

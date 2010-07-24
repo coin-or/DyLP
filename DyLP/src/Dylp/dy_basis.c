@@ -584,7 +584,7 @@ static void adjust_basis (int *p_patchcnt, patch_struct **p_patches)
   patch_struct *patches ;
 
 
-#ifdef DYLP_PARANOIA
+#if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   const char *rtnnme = "adjust_basis" ;
 
   if (dy_sys == NULL)

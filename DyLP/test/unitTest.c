@@ -85,7 +85,9 @@ static lpret_enum do_lp (lpprob_struct *lp,
 
   consys_struct *sys ;
 
-  /* const char *rtnnme = "do_lp" ; */
+# if MALLOC_DEBUG == 2
+  const char *rtnnme = "do_lp" ;
+# endif
 
   lpret = lpINV ;
   sys = lp->consys ;

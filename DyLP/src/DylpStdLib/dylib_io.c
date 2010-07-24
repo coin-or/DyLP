@@ -363,6 +363,7 @@ bool dyio_ioinit (void)
   filblk->fname = "stderr" ;
   setflg(filblk->modes,io_active|io_free|io_write) ;
   filblk->refcnt = 1 ;
+
 /*
   Check for an error log file, and make a filblks entry for it, if necessary.
 */
@@ -405,6 +406,10 @@ void dyio_ioterm (void)
 */
 
 { int id ;
+
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "dyio_ioterm" ;
+# endif
 
 /*
   Data structures allocated by dyio_ioinit to track open files.

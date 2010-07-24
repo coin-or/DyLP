@@ -66,7 +66,7 @@ void dy_initstats (lpstats_struct **p_lpstats, consys_struct *orig_sys)
 { int k,m,n ;
   lpstats_struct *lpstats ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
 
   const char *rtnnme = "dy_initstats" ;
 
@@ -204,7 +204,7 @@ void dy_freestats (lpstats_struct **p_lpstats)
 
 { lpstats_struct *lpstats ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
 
   const char *rtnnme = "dy_freestats" ;
 

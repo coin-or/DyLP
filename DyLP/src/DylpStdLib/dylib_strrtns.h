@@ -44,17 +44,17 @@ extern bool strfree(const char *string) ;
 
 #include "dylib_io.h"
 
-void *zz_ptr_zz ;
+const void *zz_cptr_zz ;
 ioid  zz_chn_zz ;
 
 #define STRALLOC(zz_sptr_zz) \
-  ( zz_ptr_zz = (void *) stralloc(zz_sptr_zz), \
-    outfmt(zz_chn_zz,FALSE,":stralloc: %#08x (%s) in %s.\n", \
-	   zz_ptr_zz,zz_ptr_zz,rtnnme), \
-    (char *) zz_ptr_zz )
+  ( zz_cptr_zz = (const void *) stralloc(zz_sptr_zz), \
+    dyio_outfmt(zz_chn_zz,FALSE,":stralloc: %#08x (%s) in %s.\n", \
+	   zz_cptr_zz,zz_cptr_zz,rtnnme), \
+    zz_cptr_zz )
 
 #define STRFREE(zz_fptr_zz) \
-  ( outfmt(zz_chn_zz,FALSE,":strfree: %#08x (%s) in %s.\n", \
+  ( dyio_outfmt(zz_chn_zz,FALSE,":strfree: %#08x (%s) in %s.\n", \
 	   zz_fptr_zz,zz_fptr_zz,rtnnme), \
     strfree(zz_fptr_zz) )
 

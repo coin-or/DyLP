@@ -153,25 +153,25 @@ ioid  zz_chn_zz ;
 
 #define MALLOC(zz_sze_zz) \
   ( zz_ptr_zz = (void *) malloc(zz_sze_zz), \
-    outfmt(zz_chn_zz,FALSE,":malloc: %d bytes at %#08x in %s.\n", \
+    dyio_outfmt(zz_chn_zz,FALSE,":malloc: %d bytes at %#08x in %s.\n", \
 	    zz_sze_zz,zz_ptr_zz,rtnnme), \
     zz_ptr_zz )
 
 #define CALLOC(zz_cnt_zz,zz_sze_zz) \
   ( zz_ptr_zz = (void *) calloc(zz_cnt_zz,zz_sze_zz), \
-    outfmt(zz_chn_zz,FALSE,":calloc: %d (%d*%d) bytes at %#08x in %s.\n", \
+    dyio_outfmt(zz_chn_zz,FALSE,":calloc: %d (%d*%d) bytes at %#08x in %s.\n", \
 	    zz_cnt_zz*zz_sze_zz,zz_cnt_zz,zz_sze_zz,zz_ptr_zz,rtnnme), \
     zz_ptr_zz )
 
 #define REALLOC(zz_rptr_zz,zz_sze_zz) \
   ( zz_ptr_zz = (void *) realloc(zz_rptr_zz,zz_sze_zz), \
-    outfmt(zz_chn_zz,FALSE, \
+    dyio_outfmt(zz_chn_zz,FALSE, \
 	   ":realloc: %#08x changed to %d bytes at %#08x in %s.\n", \
 	    zz_rptr_zz,zz_sze_zz,zz_ptr_zz,rtnnme), \
     zz_ptr_zz )
 
 #define FREE(zz_fptr_zz) \
-  ( outfmt(zz_chn_zz,FALSE,":free: %#08x in %s.\n",zz_fptr_zz,rtnnme), \
+  ( dyio_outfmt(zz_chn_zz,FALSE,":free: %#08x in %s.\n",zz_fptr_zz,rtnnme), \
     free((void *) zz_fptr_zz) )
 
 #elif (MALLOC_DEBUG == 1)

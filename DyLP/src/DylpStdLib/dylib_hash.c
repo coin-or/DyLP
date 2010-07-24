@@ -51,7 +51,7 @@ static int hash (const char *key, int size)
 
 
 
-void *lookup (const char *key, hel *hashtab[], int size)
+void *dyhash_lookup (const char *key, hel *hashtab[], int size)
 
 /*
   Function to search a hash table for the first occurence of a particular key.
@@ -90,7 +90,7 @@ void *lookup (const char *key, hel *hashtab[], int size)
 
 
 
-void *search (const char *key, hel *hashtab[], int size, bool init)
+void *dyhash_search (const char *key, hel *hashtab[], int size, bool init)
 
 /*
   Function to search a hash table for all occurences of a particular key.
@@ -145,7 +145,7 @@ void *search (const char *key, hel *hashtab[], int size, bool init)
 
 
 
-void *enter (const char *key, hel *hashtab[], int size, void *entry)
+void *dyhash_enter (const char *key, hel *hashtab[], int size, void *entry)
 
 /*
   Function to add an entry to a hash table. The addition takes place at
@@ -187,7 +187,7 @@ void *enter (const char *key, hel *hashtab[], int size, void *entry)
 
 
 
-void *erase (const char *key, hel *hashtab[], int size)
+void *dyhash_erase (const char *key, hel *hashtab[], int size)
 
 /*
   Function used to delete a particular entry from a hash table. It erases the

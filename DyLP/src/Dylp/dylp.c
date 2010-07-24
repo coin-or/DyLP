@@ -166,7 +166,7 @@ static void updateOptsAndTols (lpopts_struct *client_opts,
 { lptols_struct lcl_tols ;
   lpopts_struct lcl_opts ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   const char *rtnnme = "updateOptsAndTols" ;
 # endif
   

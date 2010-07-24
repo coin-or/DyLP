@@ -787,6 +787,10 @@ static void testForDualRay (int i, int *p_dir, double **p_abari)
 
   double *betai,*abari ;
 
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "testForDualRay" ;
+# endif
+
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.rays >= 3)
   { dyio_outfmt(dy_logchn,dy_gtxecho,

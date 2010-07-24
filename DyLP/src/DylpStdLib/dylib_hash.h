@@ -40,9 +40,11 @@ typedef struct hel_tag { struct hel_tag *next ;
 
 /* Hash table interface routines */
 
-extern void *lookup(const char *key, hel *hashtab[], int size),
-            *search(const char *key, hel *hashtab[], int size, bool init),
-	    *enter(const char *key, hel *hashtab[], int size, void *entry),
-	    *erase(const char *key, hel *hashtab[], int size) ;
+extern void *dyhash_lookup(const char *key, hel *hashtab[], int size),
+            *dyhash_search(const char *key, hel *hashtab[],
+	    		   int size, bool init),
+	    *dyhash_enter(const char *key, hel *hashtab[],
+	    		  int size, void *entry),
+	    *dyhash_erase(const char *key, hel *hashtab[], int size) ;
 
 #endif /* _DYLIB_HASH_H */

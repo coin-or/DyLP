@@ -78,7 +78,7 @@ const char *stralloc (const char *string)
   { fprintf(stderr,"\n%s: null string parameter!\n",rtnnme) ;
     return (NULL) ; }
 
-  lit = (litent *) lookup(string,littable,LITTABLESIZE) ;
+  lit = (litent *) dyhash_lookup(string,littable,LITTABLESIZE) ;
 
   if (lit != NULL)
   { lit->refs++ ;
@@ -88,7 +88,7 @@ const char *stralloc (const char *string)
   lit->text = MALLOC(strlen(string)+1) ;
   strcpy(lit->text,string) ;
   lit->refs = 1 ;
-  if (enter(lit->text,littable,LITTABLESIZE,(char *) lit) == NULL)
+  if (dyhash_enter(lit->text,littable,LITTABLESIZE,(char *) lit) == NULL)
   { fprintf(stderr,"\n%s: couldn't enter string \"%s\" in literal table!\n",
 	    rtnnme,string) ;
     FREE(lit->text) ;
@@ -121,7 +121,7 @@ bool strfree (const char *string)
   { fprintf(stderr,"\n%s: null string parameter!\n",rtnnme) ;
     return (FALSE) ; }
 
-  lit = (litent *) lookup(string,littable,LITTABLESIZE) ;
+  lit = (litent *) dyhash_lookup(string,littable,LITTABLESIZE) ;
 
   if (lit == NULL)
   { fprintf(stderr,"\n%s: no entry for string \"%s\" in literal table!\n",
@@ -129,7 +129,7 @@ bool strfree (const char *string)
     return (FALSE) ; }
   
   if (--lit->refs == 0)
-  { if (erase(lit->text,littable,LITTABLESIZE) == NULL)
+  { if (dyhash_erase(lit->text,littable,LITTABLESIZE) == NULL)
     { fprintf(stderr,"\n%s: confusion deleting entry for string \"%s\"!\n",
 	      rtnnme,lit->text) ;
       return (FALSE) ; }

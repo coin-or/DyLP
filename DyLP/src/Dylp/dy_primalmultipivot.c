@@ -779,6 +779,10 @@ dyret_enum primmultiout (int j, int indir,
 
   primcand_struct *outcands,*candk ;
 
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "dy_primmultiout" ;
+# endif
+
 /*
   Setup. Potentially, each basic variable can produce a soft and a hard pivot
   delta, and we need to allow for a bound-to-bound pivot. Hence we need a

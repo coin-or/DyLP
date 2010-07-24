@@ -837,7 +837,7 @@ static int scanPrimVarStdDeact (int **p_avndxs)
   flags statj ;
   bool purge ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   const char *rtnnme = "scanPrimVarStdDeact" ;
 
   if (p_avndxs == NULL)
@@ -987,7 +987,7 @@ static int scanPrimVarStdAct (consys_struct *orig_sys,
   bool fatal,use_all,activate ;
   flags statj ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   const char *rtnnme = "scanPrimVarStdAct" ;
 
   if (orig_sys == NULL)

@@ -1644,7 +1644,7 @@ static dyret_enum dseupdate (int xindx, int xjndx, int *candxi, double *tau,
   bool pivreject,recalc ;
   dyret_enum retval ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   const char *rtnnme = "dseupdate" ;
 # endif
 

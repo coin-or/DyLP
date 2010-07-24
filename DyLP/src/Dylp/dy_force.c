@@ -171,13 +171,14 @@ static int scanPrimVarDualInfeas (fdcand_struct **p_fdcands)
   flags statj ;
   bool purge ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
 
   const char *rtnnme = "scanPrimVarDualInfeas" ;
 
   if (p_fdcands == NULL)
   { errmsg(2,rtnnme,"fdcands") ;
     return (-1) ; }
+
 # endif
 
 /*
@@ -625,13 +626,14 @@ static int scanPrimConForceDeact (int **p_acndxs)
   flags statj ;
 
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
 
   const char *rtnnme = "scanPrimConForceDeact" ;
 
   if (p_acndxs == NULL)
   { errmsg(2,rtnnme,"&acndxs") ;
     return (-1) ; }
+
 # endif
 
   m = dy_sys->concnt ;
@@ -965,7 +967,7 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
   int *ovndxs ;
 
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
 
   const char *rtnnme = "scanPrimVarForceAct" ;
 
@@ -975,6 +977,7 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
   if (p_ovndxs == NULL)
   { errmsg(2,rtnnme,"&ovndxs") ;
     return (-1) ; }
+
 # endif
 
   n = orig_sys->varcnt ;
@@ -1041,7 +1044,7 @@ static int scanPrimConForceAct (consys_struct *orig_sys, int **p_ocndxs)
   int *ocndxs ;
 
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
 
   const char *rtnnme = "scanPrimConForceAct" ;
 
@@ -1051,6 +1054,7 @@ static int scanPrimConForceAct (consys_struct *orig_sys, int **p_ocndxs)
   if (p_ocndxs == NULL)
   { errmsg(2,rtnnme,"&ocndxs") ;
     return (-1) ; }
+
 # endif
 
   m = orig_sys->concnt ;

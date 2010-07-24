@@ -141,6 +141,10 @@ char *strsave (const char *original)
 
 { char *copy ;
 
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "strsave" ;
+# endif
+
   copy = MALLOC(strlen(original)+1) ;
   if (copy != NULL)
     strcpy(copy,original) ;

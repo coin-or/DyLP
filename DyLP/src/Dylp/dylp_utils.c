@@ -1086,6 +1086,9 @@ void dy_dseinit (void)
 { int xkpos ;
   double *betak ;
 
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "dy_dseinit" ;
+# endif
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.dual >= 2)
   { dyio_outfmt(dy_logchn,dy_gtxecho,
@@ -2031,7 +2034,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
   bool want_basis,want_status ;
 
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   const char *rtnnme = "dy_dupbasis" ;
 
   if (p_dst_basis == NULL && p_dst_status == NULL)
@@ -2337,6 +2340,10 @@ void dy_finishup (lpprob_struct *orig_lp, dyphase_enum phase)
 
 { consys_struct *orig_sys ;
 
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "dy_finishup" ;
+# endif
+
   extern bool dy_retained ;		/* dylp.c */
 
 /*
@@ -2445,7 +2452,13 @@ void dy_freesoln (lpprob_struct *lpprob)
   Returns: undefined
 */
 
-{ if (lpprob->basis != NULL)
+{
+
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "dy_freesoln" ;
+# endif
+
+  if (lpprob->basis != NULL)
   { if (lpprob->basis->el != NULL) FREE(lpprob->basis->el) ;
     FREE(lpprob->basis) ;
     lpprob->basis = NULL ; }

@@ -108,7 +108,13 @@ void dy_initpivrej (int sze)
   Parameter:
     sze:	allocated capacity of the pivot rejection list
 */
-{ pivrej_ctl.sze = maxx(sze,5) ;
+{ 
+
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "dy_initpivrej" ;
+# endif
+
+  pivrej_ctl.sze = maxx(sze,5) ;
   pivrejlst =
     (pivrej_struct *) MALLOC(pivrej_ctl.sze*sizeof(pivrej_struct)) ;
   pivrej_ctl.cnt = 0 ;
@@ -129,7 +135,12 @@ void dy_freepivrej (void)
   Free the pivot rejection list. Solely for information hiding.
 */
 
-{ if (pivrejlst != NULL)
+{ 
+# if MALLOC_DEBUG == 2
+  char *rtnnme = "dy_initpivrej" ;
+# endif
+
+  if (pivrejlst != NULL)
   { FREE(pivrejlst) ;
     pivrejlst = NULL ; }
   

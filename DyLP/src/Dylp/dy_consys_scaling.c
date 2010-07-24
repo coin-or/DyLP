@@ -207,7 +207,7 @@ bool consys_geomscale (consys_struct *consys,
   double *rowscale,*colscale ;
   coeff_struct *coeffij ;
 
-# if defined(DYLP_PARANOIA) || CONSYS_SCALING_DEBUG >= 1
+# if defined(DYLP_PARANOIA) || CONSYS_SCALING_DEBUG >= 1 || MALLOC_DEBUG == 2
 
   char *rtnnme = "consys_geomscale" ;
 
@@ -226,6 +226,7 @@ bool consys_geomscale (consys_struct *consys,
   if (p_colscale == NULL)
   { errmsg(2,rtnnme,"&colscale") ;
     return (FALSE) ; }
+
 # endif
 
 /*
@@ -342,7 +343,7 @@ bool consys_equiscale (consys_struct *consys,
   double *rowscale,*colscale ;
   coeff_struct *coeffij ;
 
-# if defined(DYLP_PARANOIA) || CONSYS_SCALING_DEBUG >= 1
+# if defined(DYLP_PARANOIA) || CONSYS_SCALING_DEBUG >= 1 || MALLOC_DEBUG == 2
 
   char *rtnnme = "consys_equiscale" ;
 
@@ -361,6 +362,7 @@ bool consys_equiscale (consys_struct *consys,
   if (p_colscale == NULL)
   { errmsg(2,rtnnme,"&colscale") ;
     return (FALSE) ; }
+
 # endif
 
 /*

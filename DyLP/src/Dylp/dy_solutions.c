@@ -168,15 +168,20 @@ void dy_colDuals (lpprob_struct *orig_lp, double **p_cbar, bool trueDuals)
   double cbarj ;
   double *cbar ;
 
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   char *rtnnme = "dy_colDuals" ;
+# endif
+
+# ifdef DYLP_PARANOIA
 
   if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return ; }
   if (p_cbar == NULL)
   { errmsg(2,rtnnme,"cbar") ;
     return ; }
+
 # endif
+
 /*
   Is unscaling required? Acquire the scaling vectors and set up scaled_orig_sys
   accordingly. We'll also need the constraint type vector so that we don't
@@ -305,9 +310,10 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
 # ifndef DYLP_NDEBUG
   int j,v ;
 # endif
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   char *rtnnme = "dy_rowDuals" ;
-
+# endif
+# ifdef DYLP_PARANOIA
   if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return ; }
   if (p_y == NULL)
@@ -559,9 +565,10 @@ void dy_rowPrimals (lpprob_struct *orig_lp, double **p_xB, int **p_indB)
 # ifndef DYLP_NDEBUG
   int v ;
 # endif
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   char *rtnnme = "dy_rowPrimals" ;
-
+# endif
+# ifdef DYLP_PARANOIA
   if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return ; }
   if (p_xB == NULL)
@@ -709,9 +716,10 @@ void dy_logPrimals (lpprob_struct *orig_lp, double **p_logx)
 # ifndef DYLP_NDEBUG
   int v,n_orig ;
 # endif
-# ifdef DYLP_PARANOIA
+# if MALLOC_DEBUG == 2
   char *rtnnme = "dy_logPrimals" ;
-
+# endif
+# ifdef DYLP_PARANOIA
   if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return ; }
   if (p_logx == NULL)
@@ -816,9 +824,10 @@ void dy_colStatus (lpprob_struct *orig_lp, flags **p_colstat)
 # ifndef DYLP_NDEBUG
   int v ;
 # endif
-# ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
   char *rtnnme = "dy_colStatus" ;
-
+# endif
+# ifdef DYLP_PARANOIA
   if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
   { return ; }
   if (p_colstat == NULL)

@@ -401,7 +401,8 @@ void dy_defaults (lpopts_struct **opts, lptols_struct **tols)
 
 { 
 
-#ifdef DYLP_PARANOIA
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
+
   const char *rtnnme = "dy_defaults" ;
 
   if (opts == NULL)
@@ -410,7 +411,8 @@ void dy_defaults (lpopts_struct **opts, lptols_struct **tols)
   if (tols == NULL)
   { errmsg(2,rtnnme,"&tols") ;
     return ; }
-#endif
+
+# endif
 
   if (*opts == NULL)
   { (*opts) = (lpopts_struct *) MALLOC(sizeof(lpopts_struct)) ; }
