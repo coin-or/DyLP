@@ -66,11 +66,11 @@ AC_COIN_INIT_AUTO_TOOLS
 # The 4th param (fallback directory) is where the source would be if the
 # module were to be pulled in as an external.
 
-AC_COIN_HAS_MODULE([CoinUtils],[coinutils],[required=0],[../CoinUtils])
-AC_COIN_HAS_MODULE([Osi],[osi],[required=0], [../Osi])
-AC_COIN_HAS_MODULE([OsiTests],[osi-unittests],[required=0],[../Osi])
-AC_COIN_HAS_MODULE([Sample],[coindatasample],[required=0],[../Data/Sample])
-AC_COIN_HAS_MODULE([Netlib],[coindatanetlib],[required=0],[../Data/Netlib])
+AC_COIN_HAS_MODULE([CoinUtils],[coinutils],[required=0])
+AC_COIN_HAS_MODULE([Osi],[osi],[required=0])
+AC_COIN_HAS_MODULE([OsiTests],[osi-unittests],[required=0])
+AC_COIN_HAS_MODULE([Sample],[coindatasample],[required=0])
+AC_COIN_HAS_MODULE([Netlib],[coindatanetlib],[required=0])
 
 #############################################################################
 #                       Doing project specific tests                        #
