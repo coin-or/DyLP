@@ -135,6 +135,7 @@ DyLP/doc/startup.tex -text
 DyLP/doc/statistics.tex -text
 DyLP/doc/updateformulae.tex -text
 DyLP/doc/varmgmt.tex -text
+DyLP/doxydoc/doxygen.conf.in -text
 DyLP/dylp-uninstalled.pc.in -text
 DyLP/dylp.pc.in -text
 DyLP/examples/Makefile.in -text
@@ -195,7 +196,7 @@ DyLP/test/unitTest.c -text
 /configure -text
 /configure.ac -text
 /depcomp -text
-doxydoc/doxygen.conf -text
+doxydoc/doxygen.conf.in -text
 /install-sh -text
 /ltmain.sh -text
 /missing -text

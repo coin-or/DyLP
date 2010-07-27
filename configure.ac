@@ -46,11 +46,14 @@ AC_COIN_CREATE_LIBTOOL
 
 AC_COIN_MAIN_PACKAGEDIR(DyLP)
 
-#############################################################################
-#                  Check for doxygen                                        #
-#############################################################################
+##############################################################################
+#		         Documentation                                       #
+##############################################################################
 
-AC_COIN_DOXYGEN
+# Doxygen documentation. Dylp is independent of Coin code, but OsiDylp can
+# benefit from links to doxygen doc'n for CoinUtils and Osi.
+
+AC_COIN_DOXYGEN([CoinUtils Osi])
 
 ##############################################################################
 #                   Finishing up by writing all the output                   #
@@ -59,6 +62,8 @@ AC_COIN_DOXYGEN
 # Here list all the files that configure should create (except for the
 # configuration header file)
 AC_CONFIG_FILES([Makefile])
+
+AC_CONFIG_FILES([doxydoc/doxygen.conf])
 
 # Finally, we let configure write all the output...
 AC_COIN_FINALIZE

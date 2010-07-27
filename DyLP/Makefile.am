@@ -54,20 +54,27 @@ test: all
 	@echo "Building and running dylp unit test."
 	@cd test ; $(MAKE) test
 
+# Doxygen documentation
+
+doxydoc:
+	doxygen doxydoc/doxygen.conf
+
+clean-doxydoc:
+	( cd doxydoc ; rm -rf html *.log *.tag )
+
+
 # Autotools does a good job on code, but it doesn't deal well with LaTeX
 # documentation. A few rules to help it along. Note that we don't delete
 # dylp.ps and dylp.pdf until maintainer-clean; these come prebuilt with the
 # distribution.
 
-.PHONY: doc mostlyclean-local clean-local distclean-local \
-	maintainer-clean-local
 doc:
 	@echo "Attempting to build dylp typeset documentation."
 	@cd doc ; ./build_dylpdoc --ps --pdf dylp
 mostlyclean-local:
 	@cd doc ; if test -x build_dylpdoc ; then ./build_dylpdoc --clean || make; fi
 
-clean-local: mostlyclean-local
+clean-local: mostlyclean-local clean-doxydoc
 
 # Normally, automake would remove build_dylpdoc, dylpabsdir.tex, and
 # makefile.dylpdoc as part of distclean, because they're generated during
@@ -83,6 +90,9 @@ distclean-local: clean-local
 
 maintainer-clean-local: distclean-local
 	@cd doc ; rm -f dylp.pdf dylp.ps
+
+.PHONY: doc doxydoc mostlyclean-local clean-local distclean-local \
+	maintainer-clean-local
 
 ########################################################################
 #                  Installation of the addlibs file                    #

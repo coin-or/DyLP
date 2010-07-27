@@ -19,11 +19,12 @@
 
   The shell script `plain' provides a convenient way to supply the needed
   command line parameters for the wrappers. Typing `plain' will get you a
-  usage message. `plain <problem>' will search in the current directory and
-  in COIN/Mps/Netlib for the specified problem file (Note 1). By default,
-  plain will run the odsi+dylp wrapper; you can change the default by
-  editing the script. You can also select the wrapper you want as a command
-  line parameter.
+  usage message. `plain <problem>' will search in the current directory
+  and a set of standard locations (Note 1) for the specified problem file
+  (Note 2).
+  By default, plain will run the osi_dylp wrapper; you can change the
+  default by editing the script. You can also select the wrapper you want
+  as a command line parameter.
 
   Once it locates the problem file, plain will look around for a dylp options
   file, by default <problem>.spc. If it doesn't find one, it will look for
@@ -51,7 +52,13 @@
   how long to wait.
 
   ---------------------------
-  Note 1: Compressed (.gz) files will be unzipped into this directory. Dylp's
+  Note 1: `A set of standard locations' is <pfx>/Data/*, where <pfx> is
+  	  .., ../.., ../../.., and ../../../.. This will find the Data
+	  subdirectory in the standard place in an old-style Coin package
+	  (../../Data) and capture other common structures. If you need
+	  something else, edit plain and add it to mpsSearchDirs.
+
+  Note 2: Compressed (.gz) files will be unzipped into this directory. Dylp's
 	  native mps reader doesn't support compressed files, nor does it
 	  support files that take full advantage of MPS fixed format and use
 	  spaces in the row and column names. Since the OsiDylp interface

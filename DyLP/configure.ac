@@ -41,10 +41,7 @@ AC_PREFIX_DEFAULT([`pwd`])
 # Get the system type
 AC_CANONICAL_BUILD
 
-# If this project depends on external projects, the Externals file in
-# the source root directory contains definition of where to find those
-# externals.  The following macro ensures that those externals are
-# retrieved by svn if they are not there yet.
+# Do a bit of basic setup for configuration
 AC_COIN_PROJECTDIR_INIT(DyLP)
 
 # Check if user wants to produce debugging code
@@ -63,12 +60,16 @@ AC_COIN_INIT_AUTO_TOOLS
 #                              COIN components                              #
 #############################################################################
 
-# The 4th param (fallback directory) is where the source would be if the
-# module were to be pulled in as an external.
+# None of these are required to build and test libDylp. All are needed to
+# properly test libOsiDylp and to fully link the doxygen documentation.
 
 AC_COIN_HAS_MODULE([CoinUtils],[coinutils],[required=0])
 AC_COIN_HAS_MODULE([Osi],[osi],[required=0])
 AC_COIN_HAS_MODULE([OsiTests],[osi-unittests],[required=0])
+
+# Just Sample will be enough to run basic tests. If Netlib is present, the
+# OsiDylp test will run the Netlib problem set.
+
 AC_COIN_HAS_MODULE([Sample],[coindatasample],[required=0])
 AC_COIN_HAS_MODULE([Netlib],[coindatanetlib],[required=0])
 
@@ -198,13 +199,23 @@ AC_ODSI_STATISTICS(no)
 AC_ODSI_PARANOIA(1)
 
 ##############################################################################
+#		         Documentation                                       #
+##############################################################################
+
+# Doxygen documentation. Dylp is independent of Coin code, but OsiDylp can
+# benefit from links to doxygen doc'n for CoinUtils and Osi.
+
+AC_COIN_DOXYGEN([CoinUtils Osi])
+
+##############################################################################
 #                   VPATH links for example input files                      #
 ##############################################################################
 
 # In case this is a VPATH configuration we need to make sure that the
 # input files for the examples are available in the VPATH directory.
 
-AC_COIN_VPATH_LINK(examples/plain)
+AC_COIN_VPATH_LINK([examples/plain
+		    examples/generic.spc examples/greenbeb.spc])
 
 ##############################################################################
 #                   Finishing up by writing all the output                   #
@@ -220,6 +231,10 @@ AC_CONFIG_FILES([Makefile
                  src/Dylp/Makefile
                  src/OsiDylp/Makefile
                  test/Makefile])
+
+# Files for doxygen documentation
+
+AC_CONFIG_FILES([doxydoc/doxygen.conf])
 
 # The pkg-config data files
 

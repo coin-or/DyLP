@@ -63,6 +63,7 @@ DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/BuildTools/Makemain.inc $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/dylp-uninstalled.pc.in \
 	$(srcdir)/dylp.pc.in $(top_srcdir)/configure \
+	$(top_srcdir)/doxydoc/doxygen.conf.in \
 	$(top_srcdir)/examples/Makefile.in \
 	$(top_srcdir)/inc/config_dylp.h.in \
 	$(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in AUTHORS \
@@ -86,8 +87,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
-CONFIG_CLEAN_FILES = examples/Makefile dylp.pc dylp-uninstalled.pc \
-	osi-dylp-uninstalled.pc
+CONFIG_CLEAN_FILES = examples/Makefile doxydoc/doxygen.conf dylp.pc \
+	dylp-uninstalled.pc osi-dylp-uninstalled.pc
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -262,6 +263,12 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
+coin_doxy_excludes = @coin_doxy_excludes@
+coin_doxy_logname = @coin_doxy_logname@
+coin_doxy_tagfiles = @coin_doxy_tagfiles@
+coin_doxy_tagname = @coin_doxy_tagname@
+coin_doxy_usedot = @coin_doxy_usedot@
+coin_have_doxygen = @coin_have_doxygen@
 datadir = @datadir@
 exec_prefix = @exec_prefix@
 have_autoconf = @have_autoconf@
@@ -380,6 +387,8 @@ $(top_srcdir)/inc/config_dylp.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 distclean-hdr:
 	-rm -f inc/config_dylp.h inc/stamp-h1
 examples/Makefile: $(top_builddir)/config.status $(top_srcdir)/examples/Makefile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+doxydoc/doxygen.conf: $(top_builddir)/config.status $(top_srcdir)/doxydoc/doxygen.conf.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 dylp.pc: $(top_builddir)/config.status $(srcdir)/dylp.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -550,7 +559,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/BuildTools $(distdir)/doc $(distdir)/examples $(distdir)/inc $(distdir)/m4 $(distdir)/src/OsiDylp
+	$(mkdir_p) $(distdir)/. $(distdir)/BuildTools $(distdir)/doc $(distdir)/doxydoc $(distdir)/examples $(distdir)/inc $(distdir)/m4 $(distdir)/src/OsiDylp
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -811,20 +820,26 @@ test: all
 	@echo "Building and running dylp unit test."
 	@cd test ; $(MAKE) test
 
+# Doxygen documentation
+
+doxydoc:
+	doxygen doxydoc/doxygen.conf
+
+clean-doxydoc:
+	( cd doxydoc ; rm -rf html *.log *.tag )
+
 # Autotools does a good job on code, but it doesn't deal well with LaTeX
 # documentation. A few rules to help it along. Note that we don't delete
 # dylp.ps and dylp.pdf until maintainer-clean; these come prebuilt with the
 # distribution.
 
-.PHONY: doc mostlyclean-local clean-local distclean-local \
-	maintainer-clean-local
 doc:
 	@echo "Attempting to build dylp typeset documentation."
 	@cd doc ; ./build_dylpdoc --ps --pdf dylp
 mostlyclean-local:
 	@cd doc ; if test -x build_dylpdoc ; then ./build_dylpdoc --clean || make; fi
 
-clean-local: mostlyclean-local
+clean-local: mostlyclean-local clean-doxydoc
 
 # Normally, automake would remove build_dylpdoc, dylpabsdir.tex, and
 # makefile.dylpdoc as part of distclean, because they're generated during
@@ -840,6 +855,9 @@ distclean-local: clean-local
 
 maintainer-clean-local: distclean-local
 	@cd doc ; rm -f dylp.pdf dylp.ps
+
+.PHONY: doc doxydoc mostlyclean-local clean-local distclean-local \
+	maintainer-clean-local
 
 @COIN_HAS_PKGCONFIG_TRUE@install-data-hook:
 @COIN_HAS_PKGCONFIG_TRUE@	@$(mkdir_p) "$(addlibsdir)"
