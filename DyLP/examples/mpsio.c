@@ -454,7 +454,8 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
     { pkrow->ndx = -1 ; }
     intermediary = pkrow->ndx ;
     if ((void *) intermediary !=
-	enter(STRALLOC(pkrow->nme),conhash,conhashsze,(void *) intermediary))
+	dyhash_enter(STRALLOC(pkrow->nme),conhash,conhashsze,
+		     (void *) intermediary))
     { errmsg(155,rtnnme,"constraint",
 	     consys_nme(consys,'c',pkrow->ndx,TRUE,NULL)) ;
       return (mpsinINV) ; }
@@ -593,7 +594,7 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 	  return (mpsinINV) ; }
 	intermediary = pkcol->ndx ;
 	if ((void *) intermediary !=
-	    enter(STRALLOC(pkcol->nme),varhash,varhashsze,
+	    dyhash_enter(STRALLOC(pkcol->nme),varhash,varhashsze,
 	    	  (void *) intermediary))
 	{ errmsg(155,rtnnme,"variable",
 		 consys_nme(consys,'v',pkcol->ndx,TRUE,NULL)) ;
@@ -645,7 +646,8 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 	{ if (sosset == TRUE)
 	  { errmsg(161,rtnnme,"sosorg",pkcol->nme,"sosend") ;
 	    return (mpsinINV) ; }
-	  intermediary = (ptrdiff_t) lookup(pkcol->nme,conhash,conhashsze) ;
+	  intermediary =
+		(ptrdiff_t) dyhash_lookup(pkcol->nme,conhash,conhashsze) ;
 	  sosndx = (int) intermediary ;
 	  if (sosndx == 0)
 	  { errmsg(162,rtnnme,"SOS constraint",pkcol->nme,"marker","sosorg") ;
@@ -720,7 +722,7 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
       if (chkptr == tok || errno == ERANGE)
       { errmsg(165,rtnnme,tok,consys->nme,pkcol->nme,rownam) ;
 	return (mpsinINV) ; }
-      intermediary = (ptrdiff_t) lookup(rownam,conhash,conhashsze) ;
+      intermediary = (ptrdiff_t) dyhash_lookup(rownam,conhash,conhashsze) ;
       rowndx = (int) intermediary ;
       if (rowndx == 0)
       { errmsg(166,rtnnme,"constraint",rownam,"column",consys->nme,pkcol->nme) ;
@@ -854,7 +856,7 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
   install the coefficient in the rhs vector.
 */
     for ( ; tok != NULL ; tok = strtok(NULL,sepchars))
-    { intermediary = (ptrdiff_t) lookup(tok,conhash,conhashsze) ;
+    { intermediary = (ptrdiff_t) dyhash_lookup(tok,conhash,conhashsze) ;
       rowndx = (int) intermediary ;
       if (rowndx == 0)
       { errmsg(166,rtnnme,"constraint",tok,consys_assocnme(NULL,CONSYS_RHS),
@@ -1002,7 +1004,7 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
   to get the row index, then try for the coefficient.
 */
     for ( ; tok != NULL ; tok = strtok(NULL,sepchars))
-    { intermediary = (ptrdiff_t) lookup(tok,conhash,conhashsze) ;
+    { intermediary = (ptrdiff_t) dyhash_lookup(tok,conhash,conhashsze) ;
       rowndx = (int) intermediary ;
       if (rowndx == 0)
       { errmsg(166,rtnnme,"constraint",tok,"range vector",consys->nme,rngnme) ;
@@ -1193,7 +1195,7 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
     if (varnme == NULL)
     { errmsg(153,rtnnme,"variable",mysection) ;
       return (mpsinINV) ; }
-    intermediary = (ptrdiff_t) lookup(varnme,varhash,varhashsze) ;
+    intermediary = (ptrdiff_t) dyhash_lookup(varnme,varhash,varhashsze) ;
     colndx = (int) intermediary ;
     if (colndx == 0)
     { errmsg(162,rtnnme,"variable",varnme,consys->nme,mysection) ;
