@@ -1,7 +1,7 @@
 /*
   This file is a part of the Dylp LP distribution.
 
-        Copyright (C) 2008 Lou Hafer
+        Copyright (C) 2008 -- 2010 Lou Hafer
 
         School of Computing Science
         Simon Fraser University
@@ -1037,7 +1037,7 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
 		    particular, not allocated unless at least one ray is
 		    returned
 		(o) p_numRays entries will point to rays; each ray is an
-		    m-vector in original system row order.
+		    m- or (m+n)-vector in original system row order.
     trueDuals	if TRUE, return the ray with a sign convention appropriate
 		for the true dual problem; if false, use a sign convention
 		appropriate for the given min primal with implicit bounds.

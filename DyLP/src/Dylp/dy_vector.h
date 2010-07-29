@@ -90,12 +90,12 @@
    
   It works this way: The IEEE definition of NaN is
     Bits         Value
-    63                  sign --- don't care for a NaN, but nice to be positive (0)
-    62:52         exponent --- must be maximum value, 0x7ff
+    63           sign --- don't care for a NaN, but nice to be positive (0)
+    62:52        exponent --- must be maximum value, 0x7ff
     51:0         fraction --- must not be zero (a fraction of zero is the
-                  representation of infinity). Sun documentation defines QNaN
-                  as having bit 51 of the fraction set to 1, SNaN as having
-                  bit 51 set to 0.
+                 representation of infinity). Sun documentation defines QNaN
+                 as having bit 51 of the fraction set to 1, SNaN as having
+                 bit 51 set to 0.
  
   Creating the proper constants qualifies as a serious gross hack. And if you
   have a little-endian machine (the 80x86 family being far and away the most

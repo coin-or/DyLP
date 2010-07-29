@@ -16,10 +16,12 @@ EXTRA_DIST = dy_errmsgs.txt
 
 # Name of the library compiled in this directory.  We want it to be installed
 # in the 'lib/coin' directory
+
 coinlibdir = $(libdir)/coin
 coinlib_LTLIBRARIES = libDylp.la
 
 # List all source files for this library, including headers
+
 libDylp_la_SOURCES = \
 	dy_consys.h \
 	dy_consys_io.c \
@@ -65,21 +67,26 @@ libDylp_la_SOURCES = \
 	dy_vector_utils.c
 
 # This is for libtool (on Windows)
+
 libDylp_la_LDFLAGS = $(LT_LDFLAGS)
 
 # We want to have also the objects from the DylpStdLib in this library
+
 libDylp_la_LIBADD = ../DylpStdLib/libDylpStdLib.la
 
 # Since automake is not doing this on its own, we need to declare the
 # dependencies to the subdirectory libraries here
+
 libDylp_la_DEPENDENCIES = $(libDylp_la_LIBADD)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Windows
+
 AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../DylpStdLib`
 
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin
+
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 
 ########################################################################
@@ -88,6 +95,7 @@ DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 
 # Here list all the header files that are required by a user of the library,
 # and that therefore should be installed in 'install/coin'
+
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = \
 	dy_cmdint.h \

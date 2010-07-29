@@ -66,7 +66,7 @@ am_libDylpStdLib_la_OBJECTS = dylib_binsrch.lo dylib_bnfrdr.lo \
 	dylib_bnfrdrio.lo dylib_errs.lo dylib_hash.lo dylib_io.lo \
 	dylib_littab.lo dylib_strrtns.lo
 libDylpStdLib_la_OBJECTS = $(am_libDylpStdLib_la_OBJECTS)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
+depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
