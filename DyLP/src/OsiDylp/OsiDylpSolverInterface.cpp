@@ -5564,7 +5564,7 @@ bool ODSI::isPrimalObjectiveLimitReached () const
   -- lh, 080722 --
 */
 
-vector<double *> ODSI::getDualRays (int maxNumRays) const
+vector<double *> ODSI::getDualRays (int maxNumRays, bool fullRay) const
 
 { int numRays ;
   double **dylpRays ;
@@ -5592,7 +5592,7 @@ vector<double *> ODSI::getDualRays (int maxNumRays) const
 */
   numRays = maxNumRays ;
   dylpRays = 0 ;
-  if (dy_dualRays(lpprob,true,&numRays,&dylpRays,true) == false)
+  if (dy_dualRays(lpprob,fullRay,&numRays,&dylpRays,true) == false)
   { hdl->message(ODSI_FAILEDCALL,messages_)
       << rtnnme << "dy_dualRays"
       << CoinMessageEol ;
@@ -5601,9 +5601,10 @@ vector<double *> ODSI::getDualRays (int maxNumRays) const
   Do the space swap, copying malloc'd vectors to new'd vectors. Free the
   malloc'd vectors.
 */
-  int m = getNumRows() ;
+  int len = getNumRows() ;
+  if (fullRay == true) len += getNumCols() ;
   for (int v = 0 ; v < numRays ; v++)
-  { double *tmpVec = CoinCopyOfArray(inv_vec(dylpRays[v]),m) ;
+  { double *tmpVec = CoinCopyOfArray(inv_vec(dylpRays[v]),len) ;
     dualRays.push_back(tmpVec) ;
     FREE(dylpRays[v]) ; }
   FREE(dylpRays) ;

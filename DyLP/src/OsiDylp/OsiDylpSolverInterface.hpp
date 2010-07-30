@@ -667,11 +667,11 @@ public:
 
   /*! \brief Get as many dual rays as the solver can provide */
 
-  std::vector<double *> getDualRays(int) const ;
+  std::vector<double *> getDualRays(int maxNumRays, bool fullRay) const ;
 
   /*! \brief Get as many primal rays as the solver can provide */
 
-  std::vector<double *> getPrimalRays(int) const ;
+  std::vector<double *> getPrimalRays(int maxNumRays) const ;
 //@}
 
 /*! \name Dylp data structures
