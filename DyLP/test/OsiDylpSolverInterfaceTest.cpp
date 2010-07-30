@@ -269,7 +269,7 @@ int test_starts (const std::string& mpsDir)
   std::cout << "Reducing verbosity." << std::endl ;
   std::cout << "Changing objective sense to maximisation ..." ;
   osi->setObjSense(-1.0) ;
-  std::cout << "Attempting hot start ..." ;
+  std::cout << " attempting hot start ..." ;
   osi->markHotStart() ;
   osi->solveFromHotStart() ;
   val = osi->getObjValue() ;
@@ -333,7 +333,7 @@ int test_starts (const std::string& mpsDir)
 */
   std::cout << "And back to minimisation ..." ;
   osi->setObjSense(1.0) ;
-  std::cout << "Attempting hot start ..." ;
+  std::cout << " attempting hot start ..." ;
   osi->solveFromHotStart() ;
   val = osi->getObjValue() ;
   if (!eq(val,exmip1MinObj))
@@ -364,21 +364,18 @@ int OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
 
 { int errCnt = 0 ; 
 
-  std::cout << "Starting dylp OSI interface tests ... " << std::endl ;
+  std::cout
+    << "  Starting OsiDylp specific tests ... "
+    << std::endl << std::endl ;
+  std::cout
+    << "Test multi-language facility in message handler ... "
+    << std::endl ;
   OsiDylpSolverInterface* osi = new OsiDylpSolverInterface ;
   osi->handler_->setLogLevel(3) ;
   osi->handler_->message(ODSI_TEST_MSG,osi->messages_) ;
   osi->newLanguage(CoinMessages::uk_en) ;
   osi->handler_->message(ODSI_TEST_MSG,osi->messages_) ;
   osi->handler_->finish() ;
-  std::cout <<
-    "Calling OsiSolverInterfaceCommonUnitTest for basic tests ... "
-    << std::endl ;
-  errCnt += OsiSolverInterfaceCommonUnitTest(osi,mpsDir,netLibDir) ;
-  if (errCnt != 0)
-  { std::cout
-      << "ODSIUnitTest: " << errCnt << " errors after common unit test."
-      << std::endl ; }
 /*
   Test the reset function.
 */
@@ -390,12 +387,11 @@ int OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
 # endif
   delete osi ;
   delete osi2 ;
-  std::cout <<
-    "Testing cold/warm/hot start ... " << std::endl ;
+  std::cout << "Testing cold/warm/hot start ... " << std::endl ;
   errCnt += test_starts(mpsDir) ;
 
   std::cout
-    << std::endl << " dylp tests completed, "
+    << std::endl << "  OsiDylp specific tests completed, "
     << errCnt << " errors." << std::endl << std::endl ;
 
   return (errCnt) ; }
