@@ -473,7 +473,7 @@ static bool cold_createdysys (consys_struct *orig_sys, int eqcnt, int ineqcnt)
   { m_sze = orig_sys->concnt ;
     n_sze = orig_sys->archvcnt+m_sze ; }
   else
-  { m_sze = eqcnt+((int) orig_sys->concnt*dy_opts->active.cons) ;
+  { m_sze = eqcnt+((int) (orig_sys->concnt*dy_opts->active.cons)) ;
     n_sze = (int) (orig_sys->archvcnt*dy_opts->active.vars+m_sze) ; }
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.setup >= 1)
