@@ -215,7 +215,7 @@ static const char *strretrv (int ndx)
 */
 
 #define offset_in_range(qq_off,qq_sze) \
-	(((qq_off) >= 0 && (qq_off) <= cndesze - (qq_sze))?TRUE:FALSE)
+	(((qq_off) >= 0 && (qq_off) <= cndesze - ((int)(qq_sze)))?TRUE:FALSE)
 
 #define max_offset(qq_sze) \
 	(cndesze - (qq_sze))
@@ -1906,7 +1906,7 @@ bool dolist (bnfref_any ref)
 	{ errmsg(30,rtnnme,ref.G->offset,max_offset(sizeof(void *))) ;
 	  return (FALSE) ; } }
       if (def.G->link < 0 ||
-	  def.G->link > def.G->size - sizeof(void *))
+	  def.G->link > def.G->size - ((int) sizeof(void *)))
       { errmsg(69,rtnnme,def.G->link,def.G->size-sizeof(void *)) ;
 	return (FALSE) ; }
       savcnde = curnde ;

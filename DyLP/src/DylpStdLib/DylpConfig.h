@@ -126,15 +126,17 @@
 /*
   Define to be the name of the C function used to check that an IEEE floating
   point value is finite. Common possibilities are finite, _finite, and
-  isfinite.
+  isfinite. _finite is correct for MSVC, which is the most likely place for
+  this to be used.
 */
-#define DYLP_ISFINITE finite
+#define DYLP_ISFINITE _finite
 
 /*
   Define to be the name of the C function used to check that an IEEE floating
-  point value is NaN. Common possibilities are isnan and _isnan.
+  point value is NaN. Common possibilities are isnan and _isnan. _isnan for
+  MSVC, as per _finite.
 */
-#define DYLP_ISNAN isnan
+#define DYLP_ISNAN _isnan
 
 /*
   Define to 1 if sunmath.h exists. As you might guess, define this only on a

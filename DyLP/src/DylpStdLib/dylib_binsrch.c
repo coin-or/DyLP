@@ -89,10 +89,10 @@ int ambig (char *word, keytab_entry keytab[], int numkeys)
       { high = mid-1 ;
 	break ; }
       case 0:
-      { if (strlen(word) < keytab[mid].min-1)
+      { if (((int) strlen(word)) < keytab[mid].min-1)
 	  return (-2) ;
 	else
-	if (strlen(keytab[mid].keyword) >= keytab[mid].min)
+	if (((int) strlen(keytab[mid].keyword)) >= keytab[mid].min)
 	  return (keytab[mid].token) ;
 	else
 	if (strlen(keytab[mid].keyword) == strlen(word))

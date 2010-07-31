@@ -379,7 +379,7 @@ bool dyio_ioinit (void)
     { filblk->dname = NULL ;
       fname = errlogpath ; }
     else
-    { len = fname-errlogpath ;
+    { len = (int) (fname-errlogpath) ;
       tmp = (char *) MALLOC(len+1) ;
       (void) strncpy(tmp,errlogpath,len) ;
       tmp[len] = '\0' ;
@@ -627,7 +627,7 @@ ioid dyio_pathtoid (const char *path, const char *mode)
   { dlen = 0 ;
     fname = path ; }
   else
-  { dlen = fname-path ;
+  { dlen = (int) (fname-path) ;
     fname++ ; }
 
   for (ndx = 1 ; ndx <= maxfiles ; ndx++)
@@ -1194,7 +1194,7 @@ bool dyio_scan (ioid id, const char pattern[], bool rwnd, bool wrap)
   if (pattern == NULL)
   { errmsg(2,rtnnme,"pattern") ;
     return (FALSE) ; }
-  patlen = strlen(pattern) ;
+  patlen = (int) strlen(pattern) ;
   if (patlen > MAXPATLEN)
   { errmsg(25,rtnnme,pattern,MAXPATLEN) ;
     patlen = MAXPATLEN ; }
@@ -1210,10 +1210,10 @@ bool dyio_scan (ioid id, const char pattern[], bool rwnd, bool wrap)
   state->nxtchr = *patptr ;
   state->fail = states ;
   for (statendx = 2 ; statendx < patlen ; statendx++)
-  { patndx = state->fail-states ;
+  { patndx = (int) (state->fail-states) ;
     state++ ;
     while (*patptr != pattern[patndx] && patndx > 0)
-      patndx = states[patndx].fail-states ;
+      patndx = (int) (states[patndx].fail-states) ;
     if (*patptr != pattern[patndx] && patndx == 0)
       state->fail = states ;
     else
@@ -1852,7 +1852,7 @@ int dyio_outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
   (void) vsprintf (ourbuf,pattern,parms) ;
   va_end(parms) ;
 
-  tlen = strlen(ourbuf) ;
+  tlen = (int) strlen(ourbuf) ;
   switch (lcr)
   { case 'l':
     { if (fldsze > tlen)
