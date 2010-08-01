@@ -836,7 +836,7 @@ ioid dyio_openfile (const char *path, const char *mode)
   { filblk->dname = NULL ;
     fname = path ; }
   else
-  { len = fname-path ;
+  { len = (int) (fname-path) ;
     tmp = (char *) MALLOC(len+1) ;
     (void) strncpy(tmp,path,len) ;
     tmp[len] = '\0' ;

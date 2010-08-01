@@ -420,7 +420,7 @@ void errmsg (int errid, ... )
 */
 
 { char *ident ;
-  va_list varargs ; 
+  va_list varargs = 0 ; 
 
 /*
   Flush stdout and elogchn, so that any buffered normal output appears before
@@ -486,7 +486,7 @@ void warn (int errid, ... )
 */
 
 { char *ident ;
-  va_list varargs ;
+  va_list varargs = 0 ;
 
 /*
   Flush stdout and elogchn, so that any buffered normal output appears before

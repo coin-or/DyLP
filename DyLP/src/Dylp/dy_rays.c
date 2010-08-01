@@ -1053,7 +1053,7 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
   consys_struct *orig_sys ;
   bool scaled ;
   const double *rscale,*cscale ;
-  double Si,sc_abarij,rayk ;
+  double Si,rayk ;
 
   int numRays,maxRays,rayDir,i_ray,i_orig_ray,bv_ray,bv_orig_ray ;
   flags statbv_ray ;

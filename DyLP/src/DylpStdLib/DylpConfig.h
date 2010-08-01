@@ -50,11 +50,12 @@
 */
 
 #include "configall_system.h"
+#include <float.h>
 
 /*
   Dylp version.
 */
-#define DYLP_VERSION trunk
+#define DYLP_VERSION "trunk"
 
 /*
   Defines specific to dylp.

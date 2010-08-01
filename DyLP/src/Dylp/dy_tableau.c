@@ -255,7 +255,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   { if (*p_betaj == NULL)
     { *p_betaj = (double *) CALLOC((m_orig+1),sizeof(double)) ; }
     else
-    { memset(*p_betaj,0.0,((size_t) (m_orig+1)*sizeof(double))) ; }
+    { memset(*p_betaj,0,((size_t) (m_orig+1)*sizeof(double))) ; }
     (*p_betaj)[i_orig] = 1.0 ;
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.tableau >= 1)
@@ -336,7 +336,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   { betaj = (double *) CALLOC((m_orig+1),sizeof(double)) ;
     *p_betaj = betaj ; }
   else
-  { memset(*p_betaj,0.0,((size_t) (m_orig+1)*sizeof(double))) ;
+  { memset(*p_betaj,0,((size_t)(m_orig+1)*sizeof(double))) ;
     betaj = *p_betaj ; }
   if (scaled == TRUE)
   { for (i = 1 ; i <= m ; i++)
