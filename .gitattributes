@@ -1,16 +1,10 @@
 * text=auto !eol
 /Dependencies -text
-DyLP/MSVisualStudio/v9/ClassDiagram1.cd -text
-DyLP/MSVisualStudio/v9/Dylp.ncb -text
 DyLP/MSVisualStudio/v9/Dylp.sln -text
-DyLP/MSVisualStudio/v9/Dylp.suo -text
-DyLP/MSVisualStudio/v9/DylpLib.aps -text
 DyLP/MSVisualStudio/v9/DylpLib.def -text
 DyLP/MSVisualStudio/v9/UnitTest.vcproj -text
 DyLP/MSVisualStudio/v9/libDylp.vcproj -text
-DyLP/MSVisualStudio/v9/libDylpStdLib.ncb -text
 DyLP/MSVisualStudio/v9/libDylpStdLib.vcproj -text
-DyLP/MSVisualStudio/v9/libDylpStdLib.vcproj.user -text
 DyLP/Makefile.am -text
 DyLP/Makefile.in -text
 DyLP/NEWS -text
