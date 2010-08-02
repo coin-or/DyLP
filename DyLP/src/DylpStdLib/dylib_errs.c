@@ -420,7 +420,7 @@ void errmsg (int errid, ... )
 */
 
 { char *ident ;
-  va_list varargs = 0 ; 
+  va_list varargs ; 
 
 /*
   Flush stdout and elogchn, so that any buffered normal output appears before
@@ -433,6 +433,7 @@ void errmsg (int errid, ... )
   the error number. Otherwise call vfprintf to handle expanding the message
   text.
 */
+  va_start(varargs,errid) ; 
   if (emsgchn == NULL || finderrmsg(errid,&errtxt[ERRPFXLEN]) == NULL)
   { ident = va_arg(varargs,char *) ;
     if (errecho == TRUE)
@@ -441,15 +442,12 @@ void errmsg (int errid, ... )
       fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ; }
   else
   { if (errecho == TRUE)
-    { va_start(varargs,errid) ; 
-      vfprintf(stderr,errtxt,varargs) ;
-      va_end(varargs) ;
+    { vfprintf(stderr,errtxt,varargs) ;
       putc('\n',stderr) ; }
     if (elogchn != NULL) 
-    { va_start(varargs,errid) ; 
-      vfprintf(elogchn,errtxt,varargs) ;
-      va_end(varargs) ;
+    { vfprintf(elogchn,errtxt,varargs) ;
       putc('\n',elogchn) ; } }
+  va_end(varargs) ;
 /*
   Flush the logged error message, so that the user will definitely see it.
 */
@@ -486,7 +484,7 @@ void warn (int errid, ... )
 */
 
 { char *ident ;
-  va_list varargs = 0 ;
+  va_list varargs ;
 
 /*
   Flush stdout and elogchn, so that any buffered normal output appears before
@@ -499,6 +497,7 @@ void warn (int errid, ... )
   the error number. Otherwise call vfprintf to handle expanding the message
   text.
 */
+  va_start(varargs,errid) ; 
   if (emsgchn == NULL || finderrmsg(errid,&warntxt[WARNPFXLEN]) == NULL)
   { ident = va_arg(varargs,char *) ;
     if (errecho == TRUE)
@@ -507,15 +506,12 @@ void warn (int errid, ... )
       fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ; }
   else
   { if (errecho == TRUE)
-    { va_start(varargs,errid) ; 
-      vfprintf(stderr,warntxt,varargs) ;
-      va_end(varargs) ;
+    { vfprintf(stderr,warntxt,varargs) ;
       putc('\n',stderr) ; }
     if (elogchn != NULL) 
-    { va_start(varargs,errid) ; 
-      vfprintf(elogchn,warntxt,varargs) ;
-      va_end(varargs) ;
+    { vfprintf(elogchn,warntxt,varargs) ;
       putc('\n',elogchn) ; } }
+  va_end(varargs) ;
 /*
   Flush the logged error message, so that the user will definitely see it.
 */
