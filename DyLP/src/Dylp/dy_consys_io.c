@@ -111,7 +111,7 @@ char *consys_assocnme (consys_struct *consys, flags which)
     strcat(nmbuf,".") ; }
   else
   { nmbuf[0] = '\0' ; }
-  nmlen = strlen(nmbuf) ;
+  nmlen = (int) strlen(nmbuf) ;
 
   switch (which)
   { case CONSYS_MTX:
@@ -345,7 +345,7 @@ char *consys_lognme (consys_struct *consys, int rowndx, char *clientbuf)
   doesn't have a ctyp array, use the generic ".log".
 */
   rowhdr = consys->mtx.rows[rowndx] ;
-  len = strlen(rowhdr->nme) ;
+  len = (int) strlen(rowhdr->nme) ;
   if (len > sizeof(nmebuf)-5) len = sizeof(nmebuf)-5 ;
   strncpy(nmebuf,rowhdr->nme,len) ;
   if (consys->ctyp != NULL)
@@ -488,7 +488,7 @@ const char *consys_nme (consys_struct *consys,
       nmbuf = clientbuf ;
     
     if (pfx == TRUE)
-    { nmlen = strlen(consys->nme) ;
+    { nmlen = (int) strlen(consys->nme) ;
       if (nmlen > CONSYS_MAXBUFLEN/2-1) nmlen = CONSYS_MAXBUFLEN/2-1 ;
       strncpy(nmbuf,consys->nme,nmlen) ;
       nmbuf[nmlen++] = '.' ; }
@@ -500,7 +500,7 @@ const char *consys_nme (consys_struct *consys,
       { if (consys->mtx.rows[ndx]->nme == NULL)
 	{ strcpy(&nmbuf[nmlen],"<<null>>") ; }
 	else
-	{ partlen = strlen(consys->mtx.rows[ndx]->nme) ;
+	{ partlen = (int) strlen(consys->mtx.rows[ndx]->nme) ;
 	  if (partlen > CONSYS_MAXBUFLEN-nmlen-1)
 	    partlen = CONSYS_MAXBUFLEN-nmlen-1 ;
 	  strncpy(&nmbuf[nmlen],consys->mtx.rows[ndx]->nme,partlen) ;
@@ -512,7 +512,7 @@ const char *consys_nme (consys_struct *consys,
 	{ if (consys->mtx.cols[ndx]->nme == NULL)
 	  { strcpy(&nmbuf[nmlen],"<<null>>") ; }
 	  else
-	  { partlen = strlen(consys->mtx.cols[ndx]->nme) ;
+	  { partlen = (int) strlen(consys->mtx.cols[ndx]->nme) ;
 	    if (partlen > CONSYS_MAXBUFLEN-nmlen-1)
 	      partlen = CONSYS_MAXBUFLEN-nmlen-1 ;
 	    strncpy(&nmbuf[nmlen],consys->mtx.cols[ndx]->nme,partlen) ;
@@ -520,7 +520,7 @@ const char *consys_nme (consys_struct *consys,
 	    nmbuf[nmlen] = '\0' ; } }
 	else
 	{ (void) consys_lognme(consys,ndx-consys->varcnt,ourbuftoo) ;
-	  partlen = strlen(ourbuftoo) ;
+	  partlen = (int) strlen(ourbuftoo) ;
 	  if (partlen > CONSYS_MAXBUFLEN-nmlen-1)
 	    partlen = CONSYS_MAXBUFLEN-nmlen-1 ;
 	  strncpy(&nmbuf[nmlen],ourbuftoo,partlen) ;
