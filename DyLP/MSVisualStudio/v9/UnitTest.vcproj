@@ -66,7 +66,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="DylpLib.lib"
-				ShowProgress="1"
+				ShowProgress="2"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(PlatformName)\$(ConfigurationName)"
 				GenerateDebugInformation="true"
