@@ -53,7 +53,7 @@
 #include <float.h>
 
 /*
-  Dylp version.
+  Dylp version. The quotes are part of the definition.
 */
 #define DYLP_VERSION "trunk"
 
@@ -106,10 +106,12 @@
    appropriate. The string should end with a directory separator ("/" or "\",
    depending on your system). The surrounding quotes are part of the
    definition. There is no good default; the value given here will work from
-   the examples directory, on a windows system, which seems the most likely
+   the test directory, on a windows system, which seems the most likely
    environment to be using this part of DylpConfig.h.
 */
-/* #define DYLP_ERRMSGDIR "..\\src\\Dylp\\" */
+#ifndef DYLP_ERRMSGDIR
+#define DYLP_ERRMSGDIR "..\\src\\Dylp\\"
+#endif
 
 /*
   Define this symbol if your system is `big-endian', i.e., the most significant
