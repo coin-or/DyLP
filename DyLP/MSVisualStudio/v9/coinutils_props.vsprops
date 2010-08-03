@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="coinutils_props"
+	>
+	<UserMacro
+		Name="CoinUtilsDir"
+		Value="D:\Coin\Trunk\Osi\CoinUtils"
+	/>
+	<UserMacro
+		Name="CoinUtilsLibDir"
+		Value="$(CoinUtilsDir)\MSVisualStudio\v9\libCoinUtils\$(PlatformName)\$(ConfigurationName)"
+	/>
+	<UserMacro
+		Name="CoinUtilsIncDir"
+		Value="$(CoinUtilsDir)\src"
+	/>
+	<UserMacro
+		Name="CoinUtilsSrcDir"
+		Value="$(CoinUtilsDir)\src"
+	/>
+</VisualStudioPropertySheet>

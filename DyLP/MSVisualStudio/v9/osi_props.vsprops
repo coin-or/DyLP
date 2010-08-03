@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="osi_props"
+	>
+	<UserMacro
+		Name="OsiDir"
+		Value="D:\Coin\Trunk\Osi\Osi"
+	/>
+	<UserMacro
+		Name="OsiLibDir"
+		Value="$(OsiDir)\MSVisualStudio\v9\libOsi\$(PlatformName)\$(ConfigurationName)"
+	/>
+	<UserMacro
+		Name="OsiSrcDir"
+		Value="$(OsiDir)\src\Osi"
+	/>
+	<UserMacro
+		Name="OsiIncDir"
+		Value="$(OsiDir)\src\Osi"
+	/>
+	<UserMacro
+		Name="OsiTestIncDir"
+		Value="$(OsiDir)\src\OsiCommonTest"
+	/>
+	<UserMacro
+		Name="OsiTestLibDir"
+		Value="$(OsiDir)\MSVisualStudio\v9\libOsiCommonTest\$(PlatformName)\$(ConfigurationName)"
+	/>
+</VisualStudioPropertySheet>

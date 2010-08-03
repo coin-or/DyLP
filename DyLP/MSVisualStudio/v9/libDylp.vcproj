@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="DylpLib"
+	Name="libDylp"
 	ProjectGUID="{2F33AD17-18D4-4737-BEFA-FD03A07D7BA3}"
 	RootNamespace="libDylp"
 	Keyword="Win32Proj"
@@ -64,11 +64,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DylpStdLib.lib"
+				AdditionalDependencies="libDylpStd.lib"
 				ShowProgress="2"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(PlatformName)\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="DylpLib.def"
+				AdditionalLibraryDirectories="$(OutDir)"
+				ModuleDefinitionFile="libDylp.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -141,11 +141,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DylpStdlib.lib"
+				AdditionalDependencies="libDylpStd.lib"
 				ShowProgress="2"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(PlatformName)\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="DylpLib.def"
+				AdditionalLibraryDirectories="$(OutDir)"
+				ModuleDefinitionFile="libDylp.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -218,10 +218,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="DylpStdLib.lib"
+				AdditionalDependencies="libDylpStd.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(Outdir)"
-				ModuleDefinitionFile="DylpLib.def"
+				ModuleDefinitionFile="libDylp.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -297,8 +297,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libDylpStd.lib"
 				LinkIncremental="1"
-				ModuleDefinitionFile="DylpLib.def"
+				AdditionalLibraryDirectories="$(OutDir)"
+				ModuleDefinitionFile="libDylp.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -469,10 +471,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DylpLib.def"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\Dylp\glpinv.c"
 				>
 			</File>
@@ -494,6 +492,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\Dylp\glpluf.c"
+				>
+			</File>
+			<File
+				RelativePath=".\libDylp.def"
 				>
 			</File>
 		</Filter>

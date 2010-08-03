@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libDylpStd"
-	ProjectGUID="{11A895E6-021D-4F8C-ACF7-860D695AC1C9}"
-	RootNamespace="libDylpStdLib"
+	Name="OsiDylpUnitTest"
+	ProjectGUID="{2E037744-DCA1-46FF-8B98-B2993C7C5F4C}"
+	RootNamespace="UnitTest"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="0"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -22,8 +22,10 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			IntermediateDirectory="$(OutDir)"
+			ConfigurationType="1"
+			InheritedPropertySheets=".\osi_props.vsprops;.\coinutils_props.vsprops"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -43,16 +45,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\src\Dylp;..\..\src\OsiDylp;&quot;$(OsiIncDir)&quot;;&quot;$(OsiTestIncDir)&quot;;&quot;$(CoinUtilsIncDir)&quot;;..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
-				CompileAs="1"
 				ShowIncludes="false"
 			/>
 			<Tool
@@ -65,10 +65,20 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="libOsiDylp.lib libOsiCommonTest.lib"
+				ShowProgress="2"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(OsiLibDir)&quot;;&quot;$(OsiTestLibDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -78,6 +88,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -87,7 +100,9 @@
 			Name="Debug|x64"
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
+			InheritedPropertySheets=".\osi_props.vsprops;.\coinutils_props.vsprops"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -108,17 +123,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\src\Dylp;..\..\src\OsiDylp;&quot;$(OsiIncDir)&quot;;&quot;$(OsiTestIncDir)&quot;;&quot;$(CoinUtilsIncDir)&quot;;..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				CompileAs="1"
-				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -130,10 +142,19 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="libOsiDylp.lib libOsiCommonTest.lib"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(OsiLibDir)&quot;;&quot;$(OsiTestLibDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -145,6 +166,9 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -152,7 +176,10 @@
 			Name="Release|Win32"
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(OutDir)"
-			ConfigurationType="4"
+			ConfigurationType="1"
+			InheritedPropertySheets=".\osi_props.vsprops;.\coinutils_props.vsprops"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -171,13 +198,16 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\src\Dylp;..\..\src\OsiDylp;&quot;$(OsiIncDir)&quot;;&quot;$(OsiTestIncDir)&quot;;&quot;$(CoinUtilsIncDir)&quot;;..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -189,10 +219,21 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="libOsiDylp.lib libOsiCommonTest.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(OsiLibDir)&quot;;&quot;$(OsiTestLibDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -204,6 +245,9 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -211,7 +255,10 @@
 			Name="Release|x64"
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
+			InheritedPropertySheets=".\osi_props.vsprops;.\coinutils_props.vsprops"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -231,12 +278,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\src\Dylp;..\..\src\OsiDylp;&quot;$(OsiIncDir)&quot;;&quot;$(OsiTestIncDir)&quot;;&quot;$(CoinUtilsIncDir)&quot;;..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -249,10 +298,21 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="libOsiDylp.lib libOsiCommonTest.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;$(OsiLibDir)&quot;;&quot;$(OsiTestLibDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -262,6 +322,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -272,90 +335,30 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_bnfrdr.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_errs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_fortran.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_hash.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_io.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_keytab.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_std.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_strrtns.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\DylpConfig.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
-		</Filter>
-		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_binsrch.c"
+				RelativePath="..\..\test\OsiDylpSolverInterfaceTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_bnfrdr.c"
+				RelativePath="..\..\test\osiUnitTest.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_bnfrdrio.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_errs.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_hash.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_io.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_littab.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\dylpstdlib\dylib_strrtns.c"
-				>
-			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 	</Files>
 	<Globals>

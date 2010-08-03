@@ -1,4 +1,4 @@
-LIBRARY	"DylpLib"
+LIBRARY	"libDylp"
 
 EXPORTS
 
@@ -84,3 +84,4 @@ pkvec_new
 exvec_1norm
 dy_freebasis
 dy_initbasis
+dy_processcmds
