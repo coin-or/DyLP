@@ -59,13 +59,13 @@ host_triplet = @host@
 # included in the tarball. Similarly, we don't want to attempt to build the
 # documentation unless specifically requested.
 @ALWAYS_FALSE@am__append_2 = test doc doc/Figures doc/TexMF
-DIST_COMMON = README $(am__configure_deps) \
-	$(srcdir)/../BuildTools/Makemain.inc $(srcdir)/../config.guess \
+DIST_COMMON = README $(am__configure_deps) $(srcdir)/../config.guess \
 	$(srcdir)/../config.sub $(srcdir)/../install-sh \
 	$(srcdir)/../ltmain.sh $(srcdir)/../missing \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/dylp-uninstalled.pc.in $(srcdir)/dylp.pc.in \
-	$(top_srcdir)/configure $(top_srcdir)/doxydoc/doxygen.conf.in \
+	$(srcdir)/BuildTools/Makemain.inc $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(srcdir)/dylp-uninstalled.pc.in \
+	$(srcdir)/dylp.pc.in $(top_srcdir)/configure \
+	$(top_srcdir)/doxydoc/doxygen.conf.in \
 	$(top_srcdir)/examples/Makefile.in \
 	$(top_srcdir)/inc/config_dylp.h.in \
 	$(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in AUTHORS \
@@ -339,7 +339,7 @@ all: all-recursive
 .SUFFIXES:
 am--refresh:
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../BuildTools/Makemain.inc $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/BuildTools/Makemain.inc $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -560,7 +560,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/../BuildTools $(distdir)/doc $(distdir)/doxydoc $(distdir)/examples $(distdir)/inc $(distdir)/m4 $(distdir)/src/OsiDylp
+	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/BuildTools $(distdir)/doc $(distdir)/doxydoc $(distdir)/examples $(distdir)/inc $(distdir)/m4 $(distdir)/src/OsiDylp
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
