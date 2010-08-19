@@ -25792,7 +25792,6 @@ echo "${ECHO_T}$coin_vpath_config" >&6
 if test $coin_vpath_config = yes; then
   cvl_tmp="examples/plain
 		    examples/generic.spc examples/greenbeb.spc"
-  coin_vpath_link_files=
   for file in $cvl_tmp ; do
     coin_vpath_link_files="$coin_vpath_link_files $file"
   done
