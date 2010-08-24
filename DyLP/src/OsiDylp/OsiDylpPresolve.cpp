@@ -1,4 +1,4 @@
-/*! \legal
+/*
   Copyright (C) 2004 -- 2007
   Lou Hafer, International Business Machines Corporation and others.
   All Rights Reserved.
@@ -711,11 +711,18 @@ void ODSI::saveOriginalSys ()
 
 {
 /*
-  If we don't have a constraint system, we're deeply confused. Also, the value
-  of lpprob->consys (if lpprob exists) must equal the value of consys at
-  all times.
+  If we don't have a constraint system, we're deeply confused. We may or
+  may not own the solver. In the case that we do own the solver, we need
+  to detach before we hide the constraint system, so that dylp can detach
+  and free vectors. If we don't own the solver, well, we have to detach
+  somewhere.  The value of lpprob->consys (if lpprob exists) must equal
+  the value of consys at all times.
 */
   assert(consys) ;
+
+  ODSI *dylp_owner = static_cast<ODSI *>(dy_getOwner()) ;
+  if (dylp_owner != 0)
+  { dylp_owner->detach_dylp() ; }
 
   savedConsys_ = consys ;
   consys = 0 ;
@@ -925,8 +932,6 @@ void ODSI::installPostsolve ()
   system and replace it with the saved copy of the original. We need to claim
   ownership of the solver.
 */
-  if (flgon(lpprob->ctlopts,lpctlDYVALID))
-    dylp_owner = this ;
   destruct_problem(true) ;
   consys = savedConsys_ ;
   savedConsys_ = 0 ;

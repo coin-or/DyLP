@@ -22,6 +22,7 @@ coinlib_LTLIBRARIES = libOsiDylp.la
 libOsiDylp_la_SOURCES = \
 	OsiDylpMessages.cpp OsiDylpMessages.hpp \
 	OsiDylpPresolve.cpp \
+	OsiDylpSimplex.cpp \
 	OsiDylpSolverInterface.cpp OsiDylpSolverInterface.hpp \
 	OsiDylpWarmStartBasis.cpp OsiDylpWarmStartBasis.hpp
 

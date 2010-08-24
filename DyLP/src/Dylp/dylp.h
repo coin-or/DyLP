@@ -534,6 +534,7 @@ typedef struct
 
   Field		Definition
   -----		----------
+  owner		ID of the owner of this problem.
   ctlopts	Control and status flags.		
   phase		(i) If set to dyDONE, dylp will free any retained data
 		    structures and return. Any other value is ignored.
@@ -550,6 +551,8 @@ typedef struct
 		Otherwise, undefined.
   iters		The number of simplex iterations.
   consys	The constraint system.
+  fullsys	True if the active constraint system is the full system, false
+  		otherwise. 
   basis		(i) Initial basis.
   		(o) Final basis.
   status	(i) Initial status vector.
@@ -581,12 +584,14 @@ typedef struct
 */
 
 typedef struct
-{ flags ctlopts ;
+{ void *owner ;
+  flags ctlopts ;
   dyphase_enum phase ;
   lpret_enum lpret ;
   double obj ;
   int iters ;
   consys_struct *consys ;
+  bool fullsys ;
   basis_struct *basis ;
   flags *status ;
   double *x ;
@@ -763,18 +768,26 @@ typedef enum { ibINV = 0, ibLOGICAL, ibSLACK, ibARCH } ibtype_enum ;
 /*
   Enum for calling context.
 
-  As dylp evolves, it may well prove useful to know the context of the
-  call. Consider this an experiment. The default context is INITIALLP.
+  As dylp evolves, it has proven useful to know the context of the
+  call. Consider this a work in progress. The default context is INITIALLP.
 
   cxINV		invalid (context is unknown)
+  cxLOAD	This call is only to (re)load data structures. Returns after
+		one iteration of dual or primal simplex, but shows problem
+		status rather than lpITERLIM.
+  cxUNLOAD	This call is solely for the purpose of freeing the problem
+		data structures. (Replaces dyDONE/lpctlONLYFREE hack.)
   cxSINGLELP	This is a one-off call to solve a single LP from scratch.
   cxINITIALLP	This is a call to solve a single LP from scratch, but will
 		likely be followed by calls to reoptimise.
   cxBANDC	This call is made in the context of a branch-and-cut
 		algorithm.
+  cxUSERPIV	This call is in the context of user control of pivoting.
 */
 
-typedef enum { cxINV = 0, cxSINGLELP, cxINITIALLP, cxBANDC } cxtype_enum ;
+typedef enum { cxINV = 0, cxLOAD, cxUNLOAD,
+	       cxSINGLELP, cxINITIALLP, cxBANDC, cxUSERPIV } cxtype_enum ;
+
 
 /*
   lpopts_struct
@@ -1596,8 +1609,9 @@ typedef struct
   unpacking a structure on a regular basis. Unless otherwise indicated, indices
   are in the dy_sys (active system) frame of reference.
 
-  dy_retained	TRUE if dylp thinks that the structures below are valid, FALSE
-		otherwise.
+  dy_owner	Null if there's no active problem. Contains the ID of the
+  		current owner if there's an active problem. Passed in as
+		part of the lpprob_struct.
 
   Main structures
   ---------------
@@ -1699,7 +1713,7 @@ typedef struct
 		0, the constraint is not involved in degeneracy.
 */
 
-extern bool dy_retained ;
+extern void *dy_owner ;
 
 extern lp_struct *dy_lp ;
 extern consys_struct *dy_sys ;
@@ -1859,6 +1873,7 @@ extern void dy_defaults(lpopts_struct **opts, lptols_struct **tols),
 
 extern lpret_enum dylp(lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 		       lptols_struct *orig_tols, lpstats_struct *orig_stats) ;
+extern void *dy_getOwner() ;
 
 /*
   dylp_utils.c
@@ -1929,6 +1944,8 @@ extern void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar,
 			bool trueDuals) ;
 extern void dy_rowDuals(lpprob_struct *orig_lp, double **p_y,
 			bool trueDuals) ;
+extern void dy_rowDualsGivenC(lpprob_struct *orig_lp, double **p_y,
+			      const double *c, bool trueDuals) ;
 
 extern void dy_colPrimals(lpprob_struct *orig_lp, double **p_x) ;
 extern void dy_rowPrimals(lpprob_struct *orig_lp,

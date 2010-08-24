@@ -74,7 +74,8 @@ static char svnid[] UNUSED = "$Id$" ;
 
 /* dy_tableau.c */
 
-extern bool dy_std_paranoia(const lpprob_struct *orig_lp,const char *rtnnme) ;
+extern bool dy_std_paranoia(const lpprob_struct *orig_lp,
+			    const char *rtnnme, int line) ;
 
 
 static bool check_dualRay (lpprob_struct *orig_lp, bool fullRay,
@@ -519,7 +520,7 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   char *rtnnme = "dy_primalRays" ;
 
 # if DYLP_PARANOIA > 0
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_numRays == NULL)
   { errmsg(2,rtnnme,"&numRays") ;
@@ -1064,7 +1065,7 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
   char *rtnnme = "dy_dualRays" ;
 
 # if DYLP_PARANOIA > 0
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_numRays == NULL)
   { errmsg(2,rtnnme,"&numRays") ;

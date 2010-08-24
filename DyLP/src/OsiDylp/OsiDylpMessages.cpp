@@ -39,7 +39,12 @@ namespace {
 	  0 - 2999	informational
        3000 - 5999	warnings
        6000 - 8999	non-fatal errors
-       9000 -	 	fatal errors
+       9000 -	 	fatal errors  (will abort execution!)
+
+      Level is more tied to individual solvers, but CoinMessageHandler knows
+      that levels 0 -- 4 are generic. Larger values are interpreted on a
+      single bit basis as debug messages. Check the documentation for
+      CoinMessageHandler::message. It's a typical JJF hash of magic numbers.
 
     * Load the messages into the CoinMessage object. This involves repeated
       creation of a CoinOneMessage object, which is then loaded into the
@@ -84,7 +89,7 @@ typedef struct { OsiDylpMessageID_enum inID ;
 
 static MsgDefn us_en_defns[] = {
   // informational (0 -- 2999)
-  { ODSI_TEST_MSG, 1, 2, "This is the us_en test message, eh." },
+  { ODSI_TEST_MSG, 1, 2, "This is the us_en test message." },
   { ODSI_MPSFILEIO, 10, 5, "MPS file %s %s with %d errors." },
   { ODSI_COLD, 50, 3, "dylp cold start%? (%s)%? result %s, z = %g, iters = %d." },
   { ODSI_WARM, 51, 3, "dylp warm start result %s, z = %g, iters = %d." },
@@ -104,6 +109,12 @@ static MsgDefn us_en_defns[] = {
   { ODSI_IGNOREDHINT, 3001, 2, "Ignored unsupported hint; %s." },
   { ODSI_ODWSBSHORTBASIS, 3100, 1,
     "[%s]: basis has only %d variables for %d constraints." },
+  { ODSI_NOTFULLSYS, 3301, 3,
+    "Partial constraint system mode is inefficient for tableau accesses." },
+  { ODSI_NOTSIMPLEX, 3302, 2,
+    "Request to leave simplex mode %d but current mode is %d. Logic error?" },
+  { ODSI_NOTOPTIMAL, 3303, 2,
+    "The last call to the solver did not produce an optimal solution." },
   // Non-fatal errors (6000 -- 8999)
   { ODSI_UNSUPFORCEDO, 6001, 1, "Attempt to force unsupported hint; %s." },
   { ODSI_EMPTYODWSB, 6101, 1, "Empty warm start basis object." },
@@ -113,10 +124,17 @@ static MsgDefn us_en_defns[] = {
     "Basis size %d x %d does not match constraint system size %d x %d." },
   { ODSI_ODWSBBADSTATUS, 6104, 1,
     "Flipping %s (%d) from %s to %s; lack of finite bound." },
+  { ODSI_CWSBREJECT, 6105, 1, "Warm start was not accepted." },
   { ODSI_ACCESS_STALE, 6200, 1,
     "(%s) request to return a value from a stale solution."},
   { ODSI_NOSOLVE, 6201, 1, "(%s) Impossible to call dylp; %s." },
   { ODSI_FAILEDCALL, 6202, 1, "(%s) Failed call to dylp routine %s." },
+  { ODSI_BADSTATE, 6300, 1,
+    "Solver is not in a state that supports %s." },
+  { ODSI_NOTOWNER, 6301, 1,
+    "This ODSI object does not own the solver." },
+  { ODSI_NOTVALID, 6302, 1,
+    "The solver is not holding valid data structures from a solve." },
   // Fatal errors (9000 and up)
   { ODSI_CONFUSION, 9001, 1,
     "Internal confusion, line %d." },
@@ -124,7 +142,8 @@ static MsgDefn us_en_defns[] = {
 } ;
 
 static MsgDefn uk_en_defns[] = {
-  { ODSI_TEST_MSG, 1, 2, "Blimey, this must be the uk_en test message" },
+  { ODSI_TEST_MSG, 1, 2,
+    "This is the uk_en test message, to prove we can switch languages." },
   { ODSI_DUMMY_END, 999999, 0, "" }
 } ;
 

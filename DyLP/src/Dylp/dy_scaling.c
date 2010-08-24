@@ -58,13 +58,6 @@ static char sccsid[] UNUSED = "@(#)dy_scaling.c	4.5	11/06/04" ;
 static char svnid[] UNUSED = "$Id$" ;
 
 /*
-  Define this symbol to enable checks on the calculation of rows of the
-  unscaled basis inverse.
-
-  #define CHECK_UNSCALED_BETAI
-*/
-
-/*
   Constraint system pointers maintained by this module.
 
   local_sys: Pointer to the local copy of the original constraint system.
@@ -152,7 +145,9 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
   If we're doing a hot start, this call is strictly for information hiding.
   All the data structures should exist, and it's just a question of swapping
   orig_lp->consys, should we need to do it. This form of the call is also used
-  when we're freeing data structures from previous runs.
+  when we're freeing data structures from previous runs and just want to
+  expose the local system to free it. In this case, the client may not even
+  specify a constraint system.
 
   Parameters:
     orig_lp:	(i) the original lp problem, as supplied by the client
@@ -176,7 +171,7 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
   if (orig_lp == NULL)
   { errmsg(2,rtnnme,"orig_lp") ;
     return (FALSE) ; }
-  if (orig_lp->consys == NULL)
+  if (orig_lp->consys == NULL && orig_lp->context != cxUNLOAD)
   { errmsg(2,rtnnme,"orig_lp->consys") ;
     return (FALSE) ; }
 # endif
@@ -552,5 +547,5 @@ void dy_freelclsystem (lpprob_struct *orig_lp, bool freesys)
   { consys_free(local_sys) ;
     local_sys = NULL ; }
 
-  return  ; }
+  return ; }
 

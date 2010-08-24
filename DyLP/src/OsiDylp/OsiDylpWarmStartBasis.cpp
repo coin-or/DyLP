@@ -380,7 +380,8 @@ void ODWSB::resize (int numRows, int numCols)
     { char byteActive = 0 ;
       int i,actualBytes ;
       actualBytes = concnt/STATPERBYTE ;
-      for (i = 0 ; i <= 3 ; i++) setStatus(&byteActive,i,CWSB::atLowerBound) ;
+      for (i = 0 ; i < STATPERBYTE ; i++)
+        setStatus(&byteActive,i,CWSB::atLowerBound) ;
       if (empty == false)
       { memcpy(newStat,constraintStatus_,oldsze) ;
 	memset(newStat+actualBytes,byteActive,newsze-actualBytes) ;

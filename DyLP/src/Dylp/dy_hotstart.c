@@ -723,6 +723,10 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
   in the most efficient manner. There really isn't a legitimate reason for
   this --- it's most likely careless coding on the part of the client, but we
   can cope without too much trouble.
+
+  TODO (100817) I might want to rethink this, because I'm going to take the
+  attitude that the OsiSimplex interface will force the full system from
+  enableFactorization and enableSimplexInterface.
 */
   if (dy_opts->fullsys == TRUE &&
       (dy_lp->sys.cons.loadable > 0 || dy_lp->sys.vars.loadable > 0))

@@ -52,7 +52,8 @@ static char svnid[] UNUSED = "$Id$" ;
 
 #if DYLP_PARANOIA > 0
 
-bool dy_std_paranoia (const lpprob_struct *orig_lp, const char *rtnnme)
+bool dy_std_paranoia (const lpprob_struct *orig_lp, const char *rtnnme,
+		      int line)
 /*
   Some standard paranoid checks for a call from outside, collected into one
   place.
@@ -86,9 +87,9 @@ bool dy_std_paranoia (const lpprob_struct *orig_lp, const char *rtnnme)
   Check that dylp and the lpprob_struct agree on whether dylp retains valid
   data structures.
 */
-  if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_retained == TRUE) ||
-      (flgon(orig_lp->ctlopts,lpctlDYVALID) && dy_retained == FALSE))
-  { errmsg(1,rtnnme,__LINE__) ;
+  if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_owner != NULL) ||
+      (flgon(orig_lp->ctlopts,lpctlDYVALID) && dy_owner == NULL))
+  { errmsg(1,rtnnme,line) ;
     return (FALSE) ; }
 
   return (TRUE) ; }
@@ -160,7 +161,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   char *rtnnme = "dy_betaj" ;
 
 # if DYLP_PARANOIA > 0
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_betaj == NULL)
   { errmsg(2,rtnnme,"betaj") ;
@@ -169,8 +170,8 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
 /*
   Always check for valid data structures.
 */
-  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
-  { errmsg(396,rtnnme,orig_lp->consys->nme,
+  if (orig_lp->owner != dy_owner)
+  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
 	   "calculate column of basis inverse") ;
     return (FALSE) ; }
 
@@ -500,7 +501,7 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   const char *rtnnme = "dy_abarj" ;
 
 # if DYLP_PARANOIA > 0
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_abarj == NULL)
   { errmsg(2,rtnnme,"abarj") ;
@@ -509,8 +510,8 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
 /*
   Always check for valid data structures.
 */
-  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
-  { errmsg(396,rtnnme,orig_lp->consys->nme,
+  if (orig_lp->owner != dy_owner)
+  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
 	   "calculate column of basis inverse") ;
     return (FALSE) ; }
 
@@ -845,7 +846,7 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
 # endif
 
 # if DYLP_PARANOIA > 0
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_betai == NULL)
   { errmsg(2,rtnnme,"betai") ;
@@ -854,8 +855,9 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
 /*
   Always check for valid data structures.
 */
-  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
-  { errmsg(396,rtnnme,orig_lp->consys->nme,"calculate row of basis inverse") ;
+  if (orig_lp->owner != dy_owner)
+  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+  	   "calculate row of basis inverse") ;
     return (FALSE) ; }
 /*
   Do a bit of setup. Pull constraint system sizes for convenient use. Grab the
@@ -1063,7 +1065,7 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 # endif
 
 # if DYLP_PARANOIA > 0
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_abari == NULL)
   { errmsg(2,rtnnme,"abari") ;
@@ -1075,8 +1077,9 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 /*
   Always check for valid data structures.
 */
-  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
-  { errmsg(396,rtnnme,orig_lp->consys->nme,"calculate row of basis inverse") ;
+  if (orig_lp->owner != dy_owner)
+  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+  	   "calculate row of basis inverse") ;
     return (FALSE) ; }
 /*
   Do a bit of setup. Pull constraint system sizes for convenient use.

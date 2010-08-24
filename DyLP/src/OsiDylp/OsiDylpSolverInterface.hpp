@@ -1,18 +1,20 @@
 #ifndef OsiDylpSolverInterface_H
 #define OsiDylpSolverInterface_H
 
-/*! \legal
+/*
   Copyright (C) 2002, 2003, 2004.
   Lou Hafer, Stephen Tse, International Business Machines Corporation and
   others. All Rights Reserved.
-  Copyright (C) 2005 -- 2007 Lou Hafer
+  Copyright (C) 2005 -- 2010 Lou Hafer
 */
 
-/*! \file OsiDylpSolverInterface.hpp
-    \brief Declaration of COIN OSI layer for dylp.
+/*! \file OsiDylpSolverInterface.hpp 
+    \brief Declarations of the COIN OSI API for the dylp solver.
 
   This file contains the declaration of the class OsiDylpSolverInterface
-  (ODSI), an implementation of the COIN OSI layer for the dylp LP solver.
+  (ODSI), an implementation of the COIN OSI API for the dylp LP solver.
+  The documentation here most often provides only brief descriptions of
+  methods. See the OsiSolverInterface documentation for additional details.
 */
 
 /*
@@ -40,10 +42,10 @@ typedef enum { startInvalid = 0,
 
 
 /*! \class OsiDylpSolverInterface
-    \brief COIN OSI layer for dylp
+    \brief COIN OSI API for dylp
 
   The class OsiDylpSolverInterface (ODSI) implements the public functions
-  defined for a COIN OsiSolverInterface (OSI) object.
+  defined for the COIN OsiSolverInterface (OSI) API.
 
   <h3>OsiDylpSolverInterface Principles for Users</h3>
 
@@ -93,8 +95,8 @@ typedef enum { startInvalid = 0,
   exception. Only one ODSI object can control the dylp solver at a time,
   so hot start information is not copied on assignment.
 
-  Detailed documentation is contained in OsiDylpSolverInterface.cpp, which
-  is not normally scanned when generating COIN OSI layer documentation.
+  Detailed implementation comments are contained in OsiDylpSolverInterface.cpp,
+  which is not normally scanned when generating COIN OSI API documentation.
 */
 
 class OsiDylpSolverInterface: virtual public OsiSolverInterface
@@ -300,24 +302,45 @@ public:
   const CoinPackedMatrix *getMatrixByCol() const ;
 //@}
 
+/*! \name Methods for row and column names.
+
+  Only the set methods need to be overridden to ensure consistent names
+  between OsiDylp and the OSI base class.
+*/
+//@{
+
+  /*! \brief Set the objective function name */
+
+  void setObjName (std::string name) ;
+
+  /*! \brief Set a row name
+
+    Quietly does nothing if the name discipline (#OsiNameDiscipline) is
+    auto. Quietly fails if the row index is invalid.
+  */
+  void setRowName(int ndx, std::string name) ;
+
+  /*! \brief Set a column name
+
+    Quietly does nothing if the name discipline (#OsiNameDiscipline) is
+    auto. Quietly fails if the column index is invalid.
+  */
+  void setColName(int ndx, std::string name) ;
+
+//@}
+
 /*! \name Methods to modify the problem */
 //@{
 
   /*! \brief Set a single variable to be continuous. */
 
   void setContinuous(int index) ;
-
-  /*! \brief Set a list of variables to be continuous. */
-
-  void setContinuous(const int *indices, int len) ;
+  using OsiSolverInterface::setContinuous ;
 
   /*! \brief Set a single variable to be integer. */
 
   void setInteger(int index) ;
-
-  /*! \brief Set a list of variables to be integer. */
-
-  void setInteger(const int *indices, int len) ;
+  using OsiSolverInterface::setInteger ;
 
   /*! \brief Set the lower bound on a column (variable) */
 
@@ -344,6 +367,10 @@ public:
   /*! \brief Set an objective function coefficient */
 
   void setObjCoeff (int index, double value) ;
+
+  /*! Set the objective coefficients for all columns.  */
+
+  void setObjective(const double * array);
 
   /*! \brief Set the sense (min/max) of the objective
   
@@ -547,6 +574,10 @@ public:
 /*! \name Methods to obtain solution information */
 //@{
 
+  /*! \brief Get the objective function value for the solution */
+
+  double getObjValue() const ;
+
   /*! \brief Return the vector of primal variables for the solution */
 
   const double* getColSolution() const ; 
@@ -563,38 +594,87 @@ public:
 
   const double* getRowActivity() const ;
 
-  /*! \brief Get the objective function value for the solution */
+  /*! \brief Get as many dual rays as the solver can provide
+  
+    If \c fullRay is false (the default), the ray will contain only the
+    components associated with the row duals. If \c fullRay is set to \c true,
+    the ray will also contain the components associated with nonbasic
+    variables.
+  */
 
-  double getObjValue() const ;
+  std::vector<double *> getDualRays(int maxNumRays, bool fullRay) const ;
+
+  /*! \brief Get as many primal rays as the solver can provide */
+
+  std::vector<double *> getPrimalRays(int maxNumRays) const ;
 
 //@}
 
-/*! \name Methods for row and column names.
-
-  Only the set methods need to be overridden to ensure consistent names
-  between OsiDylp and the OSI base class.
-*/
+/*! \name Simplex API methods */
 //@{
 
-  /*! \brief Set the objective function name */
+  /*! \brief Return the simplex implementation level.  */
+  int canDoSimplexInterface() const ;
 
-  void setObjName (std::string name) ;
+  /*! \brief Prepare the solver for the use of tableau access methods.
 
-  /*! \brief Set a row name
+    In order for the tableau methods to work, the ODSI object invoking them
+    must own the solver; the most recent call to optimise the problem must
+    have resulted in an optimal solution; and the solver must be holding
+    retained data structures for that optimal solution. It's much more
+    efficient if the solver is using the full system, but it's not mandatory.
 
-    Quietly does nothing if the name discipline (#OsiNameDiscipline) is
-    auto. Quietly fails if the row index is invalid.
+    Because this is a const method, we can't force any of this; we can only
+    check.
   */
-  void setRowName(int ndx, std::string name) ;
+  void enableFactorization() const ;
 
-  /*! \brief Set a column name
+  /*! \brief Undo the effects of #enableFactorization.
 
-    Quietly does nothing if the name discipline (#OsiNameDiscipline) is
-    auto. Quietly fails if the column index is invalid.
+     Even if #resolve was invoked by #enableFactorization, little needs to
+     be done here. Ownership of the solver is transferred by invocation, so
+     there's no need to explicitly give it back.
   */
-  void setColName(int ndx, std::string name) ;
+  void disableFactorization() const ;
+
+  /*! \brief Check if an optimal basis is available. */
+  bool basisIsAvailable () const ;
+
+  /*! \brief Retrieve status information for architectural and logical
+     	     variables.
+
+    Retrieve status vectors for architectural (also called structural or
+    column) and logical (also called artificial or row) variables. Returns the
+    same information as #getWarmStart, but in a different format.
+  */
+  void getBasisStatus (int *archStatus, int *logStatus) const ;
+
+  /*! \brief Set a basis and update the factorization and solution.
+
+    Provides the combined functionality of #setWarmStart followed by
+    #resolve. As with #getBasisStatus, the status vectors are coded as
+    integers.
+  */
+  int setBasisStatus (const int *archStatus, const int *logStatus) ;
+
+  /*! \brief Calculate duals and reduced costs for the given objective
+	     coefficients.
+
+    The solver's objective coefficient vector is not changed
+    (cf. #setObjectiveAndRefresh)
+  */
+  virtual void getReducedGradient(double *columnReducedCosts, 
+				  double *duals, const double *c) ;
+
+  /*! Calculate duals and reduced costs for the given objective coefficients.
+
+    The given objective coefficients are set in the solver and the duals and
+    reduced costs are updated (cf. #getReducedGradient).
+  */
+  virtual void setObjectiveAndRefresh(const double* c) ;
 
 //@}
+
 
 /*! \name Debugging Methods */
 //@{
@@ -665,26 +745,25 @@ public:
 
   void branchAndBound() ;
 
-  /*! \brief Get as many dual rays as the solver can provide */
-
-  std::vector<double *> getDualRays(int maxNumRays, bool fullRay) const ;
-
-  /*! \brief Get as many primal rays as the solver can provide */
-
-  std::vector<double *> getPrimalRays(int maxNumRays) const ;
 //@}
 
 /*! \name Dylp data structures
 
   These structures contain dylp control options and tolerances.
-*/
-/*
-  Leave them visible to the public for the nonce, until a better programmatic
-  interface is available. Initialized by the constructor.
+
+  Dylp existed before OSI, and (as with all solvers) it has its own unique
+  options. Just be aware that if you access these structures directly you
+  lose solver independence. See the dylp documentation and dylp.h for details.
 */
 //@{
 
-  lpopts_struct *initialSolveOptions,*resolveOptions ;
+  /*! \brief Solver options for an initial solve. */
+  lpopts_struct *initialSolveOptions ;
+
+  /*! \brief Solver options for a resolve. */
+  lpopts_struct *resolveOptions ;
+
+  /*! \brief Solver numeric tolerances. */
   lptols_struct *tolerances ;
 
 //@}
@@ -703,8 +782,11 @@ private:
 */
 //@{
 
+  /*! \brief The constraint system */
   consys_struct *consys ;
+  /*! \brief The lp problem */
   lpprob_struct *lpprob ;
+  /*! \brief The statistics structure */
   lpstats_struct *statistics ;
 
 //@}
@@ -712,9 +794,10 @@ private:
 /*! \name Dylp residual control variables */
 //@{
 
+  /*! \brief Number of outstanding ODSI objects. */
   static int reference_count ;
+  /*! \brief Basis maintenance package is initialised. */
   static bool basis_ready ;
-  static OsiDylpSolverInterface *dylp_owner ;
 
 //@}
 
@@ -811,8 +894,8 @@ private:
     it's patched up.
 
     A subtle point: basisModified will also be used in situations where ODSI
-    has constructed a basis but not set it into a lpprob structure. This is the
-    case when a solution is invented for a newly loaded problem.
+    has constructed a basis but not set it into an lpprob structure. This is
+    the case when a solution is invented for a newly loaded problem.
   */
 
   enum basisCondition
@@ -846,6 +929,16 @@ private:
     constraint system have rendered the solution invalid.
   */
   bool solnIsFresh ;
+
+  /*! \brief State related to the OsiSimplex interface.
+
+    - simplex is set using the same coding as #canDoSimplexInterface: 0 is off,
+      1 is tableau methods, 2 is pivot control.
+  */
+
+  mutable struct
+  { int simplex ;
+    bool saved_fullsys ; } simplex_state ;
 
 //@}
 
@@ -966,6 +1059,15 @@ private:
 
 //@}
 
+/*! \name Helper functions for the simplex API */
+
+//@{
+
+  /// Ensure that the solver is ready for simplex operations
+  bool ensureOwnership () ;
+
+//}@
+
 /*! \name Helper functions for problem construction */
 
 //@{
@@ -998,6 +1100,8 @@ private:
 
 /*! \name Destructor helpers */
 //@{
+  void destruct_primal_cache() ;
+  void destruct_dual_cache() ;
   void destruct_col_cache(bool structure) ;
   void destruct_row_cache(bool structure) ;
   void destruct_cache(bool rowStructure, bool colStructure) ;
@@ -1081,12 +1185,32 @@ private:
 //@}
 #endif	/* ! _MSC_VER */
 
-/*! \name Vector helper functions */
+/*! \name Vector helper functions
+
+  The inline methods are documented here, because this is the only place they
+  appear.
+*/
 //@{
-  template<class T> static T* idx_vec(T* data) ;
-  static int idx(int i) ;
-  template<class T> static T* inv_vec(T* data) ;
-  static int inv(int i) ;
+
+  /*! \brief Convert 0-based vector pointer to 1-based vector pointer
+
+    For cases where it's inconvenient to adjust indices, the alternative is to
+    adjust the pointer to the vector so it points to vector[-1]. Be careful!
+  */
+  template<class T> inline static T* idx_vec (T* vec) { return (vec-1) ; }
+
+  /*! \brief Convert 0-based index to 1-based index */
+  inline static int idx (int i) { return (i+1) ; }
+
+  /*! \brief Convert 1-based vector pointer to 0-based vector pointer
+
+    For cases where it's inconvenient to adjust indices, the alternative is to
+    adjust the pointer to the vector so it points to vector[1].
+  */
+  template<class T> inline static T* inv_vec (T* vec) { return (vec+1) ; }
+
+  /*! \brief Convert 1-based index to 0-based index */
+  inline static int inv (int i) { return (i-1) ; }
 
   static pkvec_struct* packed_vector(
     const CoinShallowPackedVector vector, int dimension) ;

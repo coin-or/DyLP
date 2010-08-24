@@ -120,12 +120,48 @@ double *dy_x = NULL,
 bool *dy_frame = NULL ;
 
 /*
-  We need one last variable to tell us whether the global data structures
-  declared above have been retained from the previous call. This is checked
-  in dylp, and set in dy_finishup.
+  In an object-oriented environment, there may well be multiple client
+  objects in existence. For efficiency, they should be able to use hot
+  starts, but that requires the ability to track who `owns' the solver,
+  in the sense that the problem loaded into the data structures (and basis
+  factorisation) is the problem belonging to that client. Hence this
+  variable:
+
+  dy_owner	ID of the client whose problem is loaded.
+
+  Ownership is checked in dylp as part of the startup sequence and set in
+  dy_finishup. Various other routines (in particular, the ones that produce
+  solution vectors and tableau variables in the external reference frame)
+  check as needed.
+
+  Beware! The basic principle is that dylp checks only as far as it needs to
+  in order to protect itself. It will not prevent one client from forcibly
+  evicting another!
+
+  It's up to the client to check whether it owns the solver and invoke
+  the actions necessary to gain ownership: specifically, unload the other
+  client's problem (or ask the other client to unload) and then load in
+  its own. This implies that clients in a hostile environment should keep
+  enough information to warm start (or be willing to do a cold start),
+  as some other client could grab the solver between any two calls by a
+  single client.
+
+  A call with context cxUNLOAD will unload retained structures. A call with
+  context cxLOAD or cxUSERPIV will do either a cold or warm start, just to
+  the point where dylp is ready to begin (or resume) pivoting.
+
+  In object-oriented environments, a handy ID is the value of `this'
+  for the client object (for example, so that one client can ask another
+  client to give up ownership).
 */
 
-bool dy_retained = FALSE ;
+void *dy_owner = NULL ;
+
+/*
+  For any of the above to be useful, a client must be able to check ownership.
+*/
+
+void *dy_getOwner () { return (dy_owner) ; }
 
 /*
   Startup control type.
@@ -172,16 +208,16 @@ static void updateOptsAndTols (lpopts_struct *client_opts,
   
 /*
   Allocate dylp's structures, if they don't exist, or make copies if they do.
-  It should be the case that we have structures iff dy_retained == TRUE
+  It should be the case that we have structures iff dy_owner is non-null.
 */
 # ifdef DYLP_PARANOIA
-  if ((dy_retained == TRUE && (dy_tols == NULL || dy_opts == NULL)) ||
-      (dy_retained == FALSE && (dy_tols != NULL || dy_opts != NULL)))
+  if ((dy_owner != NULL && (dy_tols == NULL || dy_opts == NULL)) ||
+      (dy_owner == NULL && (dy_tols != NULL || dy_opts != NULL)))
   { errmsg(1,rtnnme,__LINE__) ;
     return ; }
 # endif
 
-  if (dy_retained == TRUE)
+  if (dy_owner != NULL)
   { memcpy(&lcl_tols,dy_tols,sizeof(lptols_struct)) ;
     memcpy(&lcl_opts,dy_opts,sizeof(lpopts_struct)) ; }
   else
@@ -197,7 +233,7 @@ static void updateOptsAndTols (lpopts_struct *client_opts,
   we're starting afresh, make sure we have a sane default in place for pfeas
   and dfeas.
 */
-  if (dy_retained == TRUE)
+  if (dy_owner != NULL)
   { dy_opts->dpsel.strat = lcl_opts.dpsel.strat ;
     dy_tols->pfeas = lcl_tols.pfeas ;
     dy_tols->dfeas = lcl_tols.dfeas ; }
@@ -641,8 +677,8 @@ static bool commonstart (start_enum start)
   if (start != startHOT)
   { dy_initpivrej(dy_sys->varcnt/10) ; }
 /*
-  Create and attach dy_cbar, dy_gamma, and dy_frame (PSE structures), and
-  dy_rho (DSE structure).
+  Create and attach dy_gamma, and dy_frame (PSE structures), and dy_rho (DSE
+  structure).
 */
   if (start != startHOT)
   { if (consys_attach(dy_sys,CONSYS_ROW,
@@ -687,9 +723,11 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   passed to dylp. They will be added in dy_sys, but orig_sys doesn't need them
   and they just get in the way.
 
-  If orig_lp->phase == dyDONE, dylp will free any retained data structures and
-  return. Any other value is ignored.
-
+  If orig_opts->context == cxUNLOAD, dylp will free any retained data structures
+  and return. The return code will always be lpINV.
+  If orig_opts->context == cxLOAD or cxUSERPIV, dylp will do as much as is
+  necessary to prepare for pivoting, then return.
+  
   Parameters:
     orig_lp:	(i) The original problem --- at least the constraint system,
 		    and possibly an initial basis.
@@ -701,21 +739,19 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
     orig_tols:	dylp tolerance values. Copied to an internal structure as
 		some of these are written during execution.
 
-	The orig_stats structure is used only if DYLP_STATISTICS is defined.
+      The orig_stats structure is used only if DYLP_STATISTICS is defined.
 
     orig_stats: (i) A statistics structure; may be null, in which case no
 		    statistics are collected.
 		(o) Statistics on the dylp run.
 
   Returns: Any of lpOPTIMAL, lpUNBOUNDED, or lpINFEAS can be returned when
-	   dylp executes without error. The remaining codes (see dylp.h for
-	   details) indicate some sort of execution error.
+	   dylp runs to completion. The remaining codes (see dylp.h for
+	   details) indicate a forced stop (lpITERLIM) or some extraordinary
+	   event.
 */
 
 { int cnt ;
-/* unused variable
-  dyret_enum retval ;
-*/
   dyphase_enum phase ;
   double tol ;
   lpret_enum lpresult ;
@@ -730,50 +766,62 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   dyphase_enum dy_forceDual2Primal(consys_struct *orig_sys) ;
   dyphase_enum dy_forceFull(consys_struct *orig_sys) ;
 
-#ifdef DYLP_PARANOIA
+# ifdef DYLP_PARANOIA
   if (orig_lp == NULL)
   { errmsg(2,rtnnme,"orig_lp") ;
     return (lpINV) ; }
   if (orig_opts == NULL)
   { errmsg(2,rtnnme,"orig_opts") ;
     return (lpINV) ; }
+# endif
+/*
+  The first possibility is that this call is solely for the purpose of
+  freeing the problem data structures. The indication is a context of
+  cxUNLOAD in orig_lp->context.  Note that there may be multiple independent
+  clients (objects) using dylp, and clients can make multiple calls to free
+  data structures or attempt to free data structures even though dylp has
+  never been called and the client doesn't own the solver.
+
+  Note that dylp does not prevent one client from forcibly evicting another!
+*/
+  if (orig_opts->context == cxUNLOAD)
+  { dy_finishup(orig_lp,dyINV) ;
+    return (lpINV) ; }
+
+# ifdef DYLP_PARANOIA
+/*
+  Check the rest of the parameters now, we'll need them unless something goes
+  wrong. Paranoid checks don't attempt to clean up.
+*/
   if (orig_lp->consys == NULL)
   { errmsg(2,rtnnme,"orig_sys") ;
     return (lpINV) ; }
-#endif
+  if (orig_tols == NULL)
+  { errmsg(2,rtnnme,"orig_tols") ;
+    return (lpINV) ; }
+# endif
 
-/*
-  The first possibility is that this call is solely for the purpose of
-  freeing the problem data structures. The indication is a phase of dyDONE
-  plus the lpctlONLYFREE flag in orig_lp->ctlopts.  Note that in an
-  environment like COIN, there may be multiple independent objects using
-  dylp, and they can make multiple calls to free data structures or attempt
-  to free data structures even though dylp has never been called.
-*/
-  if (orig_lp->phase == dyDONE && flgon(orig_lp->ctlopts,lpctlONLYFREE))
-  { if (dy_retained == TRUE)
-    { dy_finishup(orig_lp,dyINV) ; }
-    return (orig_lp->lpret) ; }
 /*
   We're here to do actual work. If the constraint system is marked as corrupt,
   free any retained structures, signal an error, and bail out immediately.
-  Attempting cleanup is risky, but the alternative is to leak a lot of
-  allocated space.
+  Attempting cleanup is risky here, and in some other errors below, but the
+  alternative is to leak a lot of allocated space. Limit the exposure from now
+  on by only attempting cleanup if a client owns the solver. (Note that
+  dy_finishup will clear dy_owner.)
 */
+  orig_lp->phase = dyINV ;
   orig_sys = orig_lp->consys ;
   if (flgon(orig_sys->opts,CONSYS_CORRUPT))
-  { 
-    errmsg(115,rtnnme,orig_sys->nme) ;
-    if (dy_retained == TRUE)
+  { errmsg(115,rtnnme,orig_sys->nme) ;
+    if (dy_owner != NULL)
     { 
 #     ifndef DYLP_NDEBUG
       if (orig_opts->print.major >= 1)
 	dyio_outfmt(dy_logchn,dy_gtxecho,
-		    "\n  Attempting cleanup of retained structures for %2.",
-		    orig_sys->nme) ;
+	  "\n  Attempting cleanup of retained structures, owner %#08x.",
+	  dy_owner) ;
 #     endif
-      orig_lp->phase = dyDONE ;
-      setflg(orig_lp->ctlopts,lpctlONLYFREE) ;
+      orig_lp->lpret = lpFATAL ;
       dy_finishup(orig_lp,dyINV) ; }
     return (lpFATAL) ; }
 /*
@@ -782,43 +830,31 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   debugging. (Forcing a cold start puts a sort of limited firewall between
   dylp and the client).
 
-  If we're forcing a cold start, the initial phase will always be dyINV.
-  Otherwise, we'll consider whatever the user says, but in the end the
-  startup code will decide on primal and dual feasibility. The only say the
-  client has is to forbid use of dual simplex.
-
-  If we're trying for a warm or hot start, there had better be a basis.
-
-  If the caller is trying for a hot start, do some quick checks --- there
-  should be a status flag, the previous run should have ended cleanly (i.e.,
-  with a result of optimal, unbounded, infeasible, or iteration limit), and
-  we should have retained data structures.  Iteration limit is (sort of)
+  If the caller is trying for a hot start, do some quick checks --- the
+  client should own the solver (hence we have retained data structures), and
+  the previous run should have ended cleanly (i.e., with a result of optimal,
+  unbounded, infeasible, or iteration limit).  Iteration limit is (sort of)
   a special case -- this arises frequently when a B&C code is using dylp
   for strong branching; the iteration limit will be deliberately inadequate.
 
-  Admittedly these checks are not foolproof (the status flag and return
-  code are accessible to the client, and we could be retaining structures
-  based on a call from some other client), but one would like to hope the
-  client knows what it's doing and is not arbitrarily interleaving calls
-  from different objects. If we're paranoid, we'll check for consistency.
+  If we're paranoid, do a few additional consistency checks.
 */
 # ifdef DYLP_PARANOIA
-  if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_retained == TRUE) ||
-      (flgon(orig_lp->ctlopts,lpctlDYVALID) && dy_retained == FALSE))
+  if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_owner != NULL) ||
+      (flgon(orig_lp->ctlopts,lpctlDYVALID) && dy_owner == NULL))
   { errmsg(1,rtnnme,__LINE__) ;
     return (lpINV) ; }
 # endif
 
   if (orig_opts->forcecold == TRUE)
-  { start = startCOLD ;
-    phase = dyINV ; }
+  { start = startCOLD ; }
   else
   if (orig_opts->forcewarm == TRUE)
   { start = startWARM ; }
   else
   { start = startHOT ;
-    if (flgoff(orig_lp->ctlopts,lpctlDYVALID) || dy_retained == FALSE)
-    { errmsg(396,rtnnme,orig_sys->nme,"hot start") ;
+    if (dy_owner != orig_lp->owner)
+    { errmsg(396,rtnnme,orig_sys->nme,orig_lp->owner,dy_owner,"hot start") ;
       return (lpINV) ; }
     if (!(orig_lp->lpret == lpOPTIMAL || orig_lp->lpret == lpUNBOUNDED ||
 	  orig_lp->lpret == lpINFEAS || orig_lp->lpret == lpITERLIM))
@@ -838,74 +874,42 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   0x0 system. Warn about it if we're paranoid.
 */
   if (orig_sys->concnt < 1 || orig_sys->varcnt < 1)
-  { warn(351,rtnnme,orig_sys->nme,dy_prtlpphase(dyINIT,TRUE),0,
+  { warn(351,rtnnme,orig_sys->nme,dy_prtlpphase(dyINV,TRUE),0,
 	 orig_sys->concnt,orig_sys->varcnt) ; }
-
   if (flgon(orig_sys->opts,CONSYS_LVARS))
   { errmsg(123,rtnnme,orig_sys->nme) ;
-    return (lpINV) ; }
-  if (orig_tols == NULL)
-  { errmsg(2,rtnnme,"orig_tols") ;
     return (lpINV) ; }
 # endif
 
 /*
-  Let's get to it. Mark the previous results as invalid. If we're forcing a
-  cold or warm start, we may need to free up a data structure left from a
-  previous run.
+  Let's get to it. Do a cleanup and initialise the dy_lp control structure
+  unless we're doing a hot start. In any event, mark the previous results as
+  invalid, as we're about to start manipulating them.
 */
   orig_lp->phase = dyINIT ;
   orig_lp->lpret = lpINV ;
   lpresult = lpINV ;
-  if (dy_retained == TRUE && start != startHOT)
-  { checks = getflg(orig_lp->ctlopts,lpctlNOFREE) ;
-    clrflg(orig_lp->ctlopts,lpctlNOFREE) ;
-    dy_finishup(orig_lp,dyINIT) ;
-    setflg(orig_lp->ctlopts,checks) ; }
-  clrflg(orig_lp->ctlopts,lpctlDYVALID) ;
-/*
-  If we're doing a warm or cold start, the first order of business is to
-  establish the environment -- options and tolerances that'll be used by dylp
-  as it works. For a hot start, these are already in place, but we allow the
-  user to change them (give `em more than enough rope, I say ... ).
-
-  From here on out, dy_finishup will be called to clean up, so make sure that
-  it can tell what's been allocated and what hasn't.
-*/
-  updateOptsAndTols(orig_opts,orig_tols) ;
   if (start != startHOT)
-  { dy_sys = NULL ;
-    dy_actvars = NULL ;
-    dy_actcons = NULL ;
-    dy_origvars = NULL ;
-    dy_origcons = NULL ;
-    dy_basis = NULL ;
-    dy_var2basis = NULL ;
-    dy_status = NULL ;
-    dy_x = NULL ;
-    dy_xbasic = NULL ;
-    dy_y = NULL ;
-    dy_cbar = NULL ;
-    dy_gamma = NULL ;
-    dy_frame = NULL ;
-    dy_rho = NULL ;
-    dy_brkout = NULL ;
-    dy_degenset = NULL ;
-    dy_ddegenset = NULL ;
-    dy_freepivrej() ;
+  { dy_finishup(orig_lp,dyINV) ;
     dy_lp = (lp_struct *) CALLOC(1,sizeof(lp_struct)) ;
     dy_lp->p1obj.installed = FALSE ;
     dy_lp->p1obj.infvars = NULL ;
     dy_lp->p1obj.p1obj = NULL ;
     dy_lp->p1obj.p2obj = NULL ; }
-
   dy_lp->phase = dyINIT ;
   dy_lp->lpret = lpINV ;
-
+  clrflg(orig_lp->ctlopts,lpctlDYVALID) ;
+/*
+  If we're doing a warm or cold start, the first order of business is to
+  establish the environment -- options and tolerances that'll be used by dylp
+  as it works. For a hot start, these are already in place, but we allow the
+  user to change them (give `em more than enough rope, I say ... ). Same for
+  context.
+*/
+  updateOptsAndTols(orig_opts,orig_tols) ;
 # ifdef DYLP_STATISTICS
   dy_stats = orig_stats ;
 # endif
-
 /*
   Initialise the local constraint system, if required. Scaling occurs here,
   if allowed. The original system is hidden away and orig_lp->consys is

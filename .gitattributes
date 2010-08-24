@@ -180,6 +180,7 @@ DyLP/src/DylpStdLib/dylib_strrtns.c -text
 DyLP/src/DylpStdLib/dylib_strrtns.h -text
 DyLP/src/OsiDylp/Makefile.am -text
 DyLP/src/OsiDylp/Makefile.in -text
+DyLP/src/OsiDylp/OsiDylpSimplex.cpp -text
 DyLP/src/OsiDylp/osi-dylp-uninstalled.pc.in -text
 DyLP/src/OsiDylp/osi-dylp.pc.in -text
 DyLP/test/Makefile.am -text

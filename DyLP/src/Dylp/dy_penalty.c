@@ -202,8 +202,9 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
   call to initlclsystem will replace the client's copy of the original
   constraint system with the local scaled copy, if it exists.
 */
-  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
-  { errmsg(396,rtnnme,orig_lp->consys->nme,"price nonbasic columns") ;
+  if (orig_lp->owner != dy_owner)
+  { errmsg(396,rtnnme,orig_lp->consys->nme,
+  	   orig_lp->owner,dy_owner,"price nonbasic columns") ;
     return (FALSE) ; }
   (void) dy_initlclsystem(orig_lp,TRUE) ;
   orig_sys = orig_lp->consys ;
@@ -698,8 +699,9 @@ bool dy_pricedualpiv (lpprob_struct *orig_lp, int oxindx,
   Check for valid data structures, then pull out the constraint system. We want
   the client's (unscaled) copy, so we don't swap in the scaled local copy.
 */
-  if (flgoff(orig_lp->ctlopts,lpctlDYVALID))
-  { errmsg(396,rtnnme,orig_lp->consys->nme,"calculate penalty") ;
+  if (orig_lp->owner != dy_owner)
+  { errmsg(396,rtnnme,orig_lp->consys->nme,
+  	   orig_lp->owner,dy_owner,"calculate penalty") ;
     return (FALSE) ; }
   orig_sys = orig_lp->consys ;
 /*

@@ -74,7 +74,8 @@ coinlibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(coinlib_LTLIBRARIES)
 libOsiDylp_la_LIBADD =
 am_libOsiDylp_la_OBJECTS = OsiDylpMessages.lo OsiDylpPresolve.lo \
-	OsiDylpSolverInterface.lo OsiDylpWarmStartBasis.lo
+	OsiDylpSimplex.lo OsiDylpSolverInterface.lo \
+	OsiDylpWarmStartBasis.lo
 libOsiDylp_la_OBJECTS = $(am_libOsiDylp_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -293,6 +294,7 @@ coinlib_LTLIBRARIES = libOsiDylp.la
 libOsiDylp_la_SOURCES = \
 	OsiDylpMessages.cpp OsiDylpMessages.hpp \
 	OsiDylpPresolve.cpp \
+	OsiDylpSimplex.cpp \
 	OsiDylpSolverInterface.cpp OsiDylpSolverInterface.hpp \
 	OsiDylpWarmStartBasis.cpp OsiDylpWarmStartBasis.hpp
 
@@ -399,6 +401,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpMessages.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpPresolve.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpSimplex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpSolverInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OsiDylpWarmStartBasis.Plo@am__quote@
 

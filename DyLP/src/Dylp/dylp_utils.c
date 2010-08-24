@@ -977,13 +977,13 @@ bool dy_calccbar (void)
 #   ifndef DYLP_PARANOIA
 /* The expedient decision: basic or not? */
     if (dy_var2basis[xjndx] > 0)
-    { dy_cbar[xjndx] = 0 ;
+    { dy_cbar[xjndx] = 0.0 ;
       continue ; }
 #   else
 /* The cautious decision (when available). */
     if (dy_lp->phase == dyINIT)
     { if (dy_var2basis[xjndx] > 0)
-      { dy_cbar[xjndx] = 0 ;
+      { dy_cbar[xjndx] = 0.0 ;
 	continue ; } }
     else
     { xjstatus = dy_status[xjndx] ;
@@ -2339,68 +2339,63 @@ void dy_finishup (lpprob_struct *orig_lp, dyphase_enum phase)
 */
 
 { consys_struct *orig_sys ;
+  bool freeStructs = TRUE ;
 
 # if MALLOC_DEBUG == 2
   char *rtnnme = "dy_finishup" ;
 # endif
 
-  extern bool dy_retained ;		/* dylp.c */
-
 /*
   Why are we here?
 
-  It may be that the user called dylp strictly to free the data structures;
-  this is indicated by orig_lp->phase == dyDONE, phase == dyINV, and the
-  lpctlONLYFREE flag.
+  There are a couple of calls that are possible very early in initialisation
+  (indicated by a phase of dyINV):
+  * It may be that the user called dylp strictly to free the data structures;
+    this is indicated by orig_opts->context == cxUNLOAD.
+  * The constraint system may have been flagged as corrupt, or some paranoid
+    check failed.
+  * It may be that dylp needs to free up previous data structures in
+    preparation for a warm or cold start.
 
-  It may be that dylp needs to free up previous data structures to do a warm
-  or cold start. This is indicated by orig_lp->phase == dyINIT and phase ==
-  dyINIT and orig_lp->lpret == dyINV.
+  In the above situations, the call to initlclsystem exposes any
+  retained local system for deletion. Later in the run, we don't need this.
 
   Otherwise, if orig_lp->phase is dyDONE,  we're cleanly done and we'll try
   to build an answer as best we can.  `Cleanly done' covers error and
-  non-error returns.
+  non-error returns, but we only retain data structures if the client requests
+  it and the result is such that their might be some use in it (e.g., hot
+  start after modification, requests for tableau vectors, etc.). This is a bit
+  subjective; currently limited to the four possibilities listed below.
 
   Anything else is a serious error, and we won't even attempt to build a
   solution, just free the data structures.
 */
-  if (orig_lp->phase == dyDONE && phase == dyINV &&
-      flgon(orig_lp->ctlopts,lpctlONLYFREE))
-  { clrflg(orig_lp->ctlopts,lpctlACTVARSOUT) ;
-    dy_initlclsystem(orig_lp,TRUE) ; }
-  else
-  if (orig_lp->phase == dyINIT && phase == dyINIT && orig_lp->lpret == dyINV)
+  if (phase == dyINV)
   { dy_initlclsystem(orig_lp,TRUE) ; }
   else
-  if (orig_lp->phase == dyDONE)
-  { build_soln(orig_lp) ; }
-  else
-  { clrflg(orig_lp->ctlopts,lpctlACTVARSOUT) ; }
+  if (orig_lp->phase == dyDONE && orig_lp->lpret != lpFATAL)
+  { build_soln(orig_lp) ;
+    if (flgon(orig_lp->ctlopts,lpctlNOFREE) &&
+	(orig_lp->lpret == lpOPTIMAL || orig_lp->lpret == lpUNBOUNDED ||
+	 orig_lp->lpret == lpINFEAS || orig_lp->lpret == lpITERLIM))
+    { freeStructs = FALSE ; } }
 /*
   Free up the working structures --- the constraint system and the various
   local vectors, the LP control structure, and the option and tolerance
   structures. We also need to detach origvars and origcons from orig_sys, so
   that we don't keep accumulating attachment structures. The code is
-  defensive, setting all pointers back to NULL so that we don't get in
-  trouble in an environment (like COIN) where multiple cleanup calls are
-  possible from independent objects.
-
-  The exception is if we see the lpctlNOFREE flag and we've come to one of
-  the mathematically valid results --- optimal, unbounded, or infeasible.
-  In this case, we can support reoptimisation with a hot start. Add to these
-  the case of lpITERLIM, which is a valid state of affairs and occurs fairly
-  commonly in branch & cut applications (e.g., strong branching).
+  defensive, setting all pointers back to NULL so that there's no ambiguity.
 */
-  if (flgoff(orig_lp->ctlopts,lpctlNOFREE) ||
-      (!(orig_lp->lpret == lpOPTIMAL || orig_lp->lpret == lpUNBOUNDED ||
-	 orig_lp->lpret == lpINFEAS || orig_lp->lpret == lpITERLIM)))
+  if (freeStructs == TRUE)
   { orig_sys = orig_lp->consys ;
     if (dy_origvars != NULL)
-    { (void) consys_detach(orig_sys,(void **) &dy_origvars,TRUE) ;
+    { if (orig_sys != NULL)
+        (void) consys_detach(orig_sys,(void **) &dy_origvars,TRUE) ;
       FREE(dy_origvars) ;
       dy_origvars = NULL ; }
     if (dy_origcons != NULL)
-    { (void) consys_detach(orig_sys,(void **) &dy_origcons,TRUE) ;
+    { if (orig_sys != NULL)
+        (void) consys_detach(orig_sys,(void **) &dy_origcons,TRUE) ;
       FREE(dy_origcons) ;
       dy_origcons = NULL ; }
     dy_freelclsystem(orig_lp,TRUE) ;
@@ -2428,11 +2423,16 @@ void dy_finishup (lpprob_struct *orig_lp, dyphase_enum phase)
     FREE_AND_CLEAR(dy_tols)
     FREE_AND_CLEAR(dy_opts)
     clrflg(orig_lp->ctlopts,lpctlDYVALID) ;
-    dy_retained = FALSE ; }
+    orig_lp->fullsys = FALSE ;
+    dy_owner = NULL ; }
   else
   { setflg(orig_lp->ctlopts,lpctlDYVALID) ;
+    if (dy_lp->sys.cons.loadable == 0 && dy_lp->sys.vars.loadable == 0)
+      orig_lp->fullsys = TRUE ;
+    else
+      orig_lp->fullsys = FALSE ;
     dy_freelclsystem(orig_lp,FALSE) ;
-    dy_retained = TRUE ; }
+    dy_owner = orig_lp->owner ; }
 
   return ; }
 

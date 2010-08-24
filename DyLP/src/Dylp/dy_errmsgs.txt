@@ -391,7 +391,7 @@
 @394@[%s]: (%s)%d: inconsistency in rho<%d> for pivot row;
 	inv(B)beta<%d> = %g, ||beta<%d>||^2 = %g, err = %g, tol = %g.@
 @395@[%s]: previous return code %s; cannot hot start.@
-@396@[%s]: dylp data structures valid flag not set; cannot %s.@
+@396@[%s]: client %#08x does not own solver; current owner %#08x; cannot %s.@
 @397@<<open>>@
 @398@[%s]: basic <-> nonbasic conversion illegal on hot start;
 	attempt to convert %s (%d) from %s to %s.@

@@ -98,7 +98,7 @@ static char svnid[] UNUSED = "$Id$" ;
 
 #ifdef DYLP_PARANOIA
 extern bool dy_std_paranoia (const lpprob_struct *orig_lp,
-			     const char *rtnnme) ;
+			     const char *rtnnme, int line) ;
 #endif
 
 
@@ -174,7 +174,7 @@ void dy_colDuals (lpprob_struct *orig_lp, double **p_cbar, bool trueDuals)
 
 # ifdef DYLP_PARANOIA
 
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_cbar == NULL)
   { errmsg(2,rtnnme,"cbar") ;
@@ -273,19 +273,19 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
   vector matching the original system frame of reference. Duals associated with
   inactive rows are always zero.
   
-  In dylp's min primal <=> min dual pairing, the duals have the wrong sign
-  for the true dual variables used by the min dual problem. If you'd prefer
-  that the duals have a sign convention appropriate for the min dual problem,
-  specify trueDuals = false.
+  In dylp's min primal <=> min dual pairing, the duals have the wrong
+  sign for the true dual variables used by the canonical max primal <=>
+  min dual problem. If you'd prefer that the duals have a sign convention
+  appropriate for the min dual problem, specify trueDuals = true.
 
   The relevant bit of unscaling is:
 
-  sc_y<i> = sc_c<B>sc_inv(B)
-	  = c<B>S<B>inv(S<B>)inv(B)inv(R)
-	  = c<B>inv(B)inv(R)
+  sc_y = sc_c<B>sc_inv(B)
+       = c<B>S<B>inv(S<B>)inv(B)inv(R)
+       = c<B>inv(B)inv(R)
 
-  So, to recover y<i> we need to postmultiply by inv(R). The appropriate row
-  factor is the one associated with the original row.
+  So, to recover y we need to postmultiply by R. The appropriate row factor
+  for y<i> is the one associated with the original row.
 
   Parameters:
     orig_lp:	the original lp problem
@@ -293,16 +293,17 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
 		    appropriate size will be allocated
 		(o) values of the dual variables, unscaled, in the original
 		    system frame of reference
+    trueDuals	false for duals that correspond to the min primal; true for
+    		duals that correspond to a max primal.
 
   Returns: undefined
 */
 
-{ int i,m,n,i_orig,m_orig,n_orig ;
+{ int i,m,i_orig,m_orig ;
   double yi ;
   double *y ;
 
   consys_struct *orig_sys ;
-  contyp_enum *ctyp ;
 
   bool scaled ;
   const double *rscale,*cscale ;
@@ -314,7 +315,7 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
   char *rtnnme = "dy_rowDuals" ;
 # endif
 # ifdef DYLP_PARANOIA
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_y == NULL)
   { errmsg(2,rtnnme,"y") ;
@@ -322,31 +323,29 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
 # endif
 
 /*
-  Is unscaling required? Acquire the scaling vectors.
-  accordingly.
+  Is unscaling required? Acquire the scaling vectors. We won't use cscale, but
+  dy_scaling_vectors expects a non-null parameter.
 */
   scaled = dy_isscaled() ;
   if (scaled == TRUE)
   { dy_scaling_vectors(&rscale,&cscale) ; }
 
   orig_sys = orig_lp->consys ;
-  n_orig = orig_sys->varcnt ;
   m_orig = orig_sys->concnt ;
-  n = dy_sys->varcnt ;
   m = dy_sys->concnt ;
-  ctyp = orig_sys->ctyp ;
 /*
-  Do we need a vector?
+  Do we need a vector? Note that initialisation isn't required here; all
+  entries are set below.
 */
   if (*p_y != NULL)
-  { y = *p_y ;
-    memset(y,0,(m_orig+1)*sizeof(double)) ; }
+  { y = *p_y ; }
   else
-  { y = (double *) CALLOC((m_orig+1),sizeof(double)) ; }
+  { y = (double *) MALLOC((m_orig+1)*sizeof(double)) ; }
 /*
   Step through the constraints of the original system. For active constraints,
   acquire and unscale the dual value.
 */
+  y[0] = 0.0 ;
   for (i_orig = 1 ; i_orig <= m_orig ; i_orig++)
   { if (ACTIVE_CON(i_orig))
     { i = dy_origcons[i_orig] ;
@@ -358,6 +357,155 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
     { yi = 0.0 ; }
 /*
   The true duals are the negative of the minimisation duals here.
+*/
+    if (trueDuals == TRUE)
+      y[i_orig] = -yi ;
+    else
+      y[i_orig] = yi ; }
+
+# ifndef DYLP_NDEBUG
+  if (dy_opts->print.soln >= 3)
+  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\ty =") ;
+    v = 0 ;
+    for (i_orig = 1 ; i_orig <= m_orig ; i_orig++)
+    { if (y[i_orig] != 0)
+      { if ((++v)%3 == 0)
+	{ v = 0 ;
+	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t   ") ; }
+	i = dy_origcons[i_orig] ;
+	j = dy_basis[i] ;
+	dyio_outfmt(dy_logchn,dy_gtxecho," (%d %g %s %d)",
+		    i_orig,y[i_orig],
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; } } }
+# endif
+
+/*
+  That's it. Return the vector.
+*/
+  *p_y = y ;
+
+  return ; }
+
+
+
+void dy_rowDualsGivenC (lpprob_struct *orig_lp, double **p_y,
+			const double *c, bool trueDuals)
+
+/*
+  This routine returns the unscaled vector of row duals, commonly referred to
+  as the dual variables, c<B>inv(B), given an arbitrary c in the original
+  system frame of reference. The values are unscaled and returned in a
+  vector matching the original system frame of reference. Duals associated
+  with inactive rows are always zero.
+
+  In dylp's min primal <=> min dual pairing, the duals have the wrong
+  sign for the true dual variables used by the canonical max primal <=>
+  min dual problem. If you'd prefer that the duals have a sign convention
+  appropriate for the min dual problem, specify trueDuals = true.
+
+  The relevant bit of unscaling is:
+
+  sc_y = sc_c<B>sc_inv(B)
+       = c<B>S<B>inv(S<B>)inv(B)inv(R)
+       = c<B>inv(B)inv(R)
+
+  So, to recover y we need to postmultiply by R. The appropriate row factor
+  for y<i> is the one associated with the original row. And as we copy over
+  coefficients from c, we need to scale them with the appropriate coefficient
+  of S<B>.
+
+  It's worth a quick mention that really we might as well be doing a btran on
+  an arbitrary vector. If that's what you have in mind, make sure trueDuals
+  is false, otherwise the result will be negated.
+
+  Parameters:
+    orig_lp:	the original lp problem
+    p_y:	(i) vector to hold the dual variables; if NULL, a vector of
+		    appropriate size will be allocated
+		(o) values of the dual variables, unscaled, in the original
+		    system frame of reference
+    c		the vector of objective coefficients
+    trueDuals	false for duals that correspond to the min primal; true for
+    		duals that correspond to a max primal.
+
+  Returns: undefined
+*/
+
+{ int i,m,n,i_orig,j_orig,m_orig,n_orig ;
+  double yi ;
+  double *y,*sc_y ;
+
+  consys_struct *orig_sys ;
+
+  bool scaled ;
+  const double *rscale,*cscale ;
+
+# ifndef DYLP_NDEBUG
+  int j,v ;
+# endif
+# if defined(DYLP_PARANOIA) || MALLOC_DEBUG == 2
+  char *rtnnme = "dy_rowDualsGivenC" ;
+# endif
+# ifdef DYLP_PARANOIA
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
+  { return ; }
+  if (p_y == NULL)
+  { errmsg(2,rtnnme,"y") ;
+    return ; }
+# endif
+
+/*
+  Is scaling in use? Acquire the scaling vectors.
+*/
+  scaled = dy_isscaled() ;
+  if (scaled == TRUE)
+  { dy_scaling_vectors(&rscale,&cscale) ; }
+
+  orig_sys = orig_lp->consys ;
+  n_orig = orig_sys->varcnt ;
+  m_orig = orig_sys->concnt ;
+  n = dy_sys->varcnt ;
+  m = dy_sys->concnt ;
+/*
+  Do we need a vector for the answer? Initialisation isn't required, as we'll
+  write all entries below.
+*/
+  if (*p_y != NULL)
+  { y = *p_y ; }
+  else
+  { y = (double *) MALLOC((m_orig+1)*sizeof(double)) ; }
+/*
+  We definitely need a working vector.
+*/
+  sc_y = (double *) MALLOC((m+1)*sizeof(double)) ;
+/*
+  Walk the basis. For variable x<j> basic in pos'n i, find its index j_orig
+  in c and drop c<j_orig>*S<j_orig> into y<i>.
+*/
+  sc_y[0] = 0.0 ;
+  for (i = 1 ; i <= m ; i++)
+  { j = dy_basis[i] ;
+    j_orig = dy_actvars[j] ;
+    sc_y[i] = c[j_orig]*cscale[j_orig] ; }
+/*
+  Do the btran to get sc_y.
+*/
+  dy_btran(sc_y) ;
+/*
+  Unscale by rscale[i_orig] and drop the result into y[i_orig]. Walk the
+  original system frame of reference to make sure we set all y<i>.
+*/
+  y[0] = 0.0 ;
+  for (i_orig = 1 ; i <= m_orig ; i_orig++)
+  { if (ACTIVE_CON(i_orig))
+    { i = dy_origcons[i_orig] ;
+      yi = sc_y[i] ;
+      if (scaled == TRUE) yi *= rscale[i_orig] ;
+      setcleanzero(yi,dy_tols->cost) ; }
+    else
+    { yi = 0.0 ; }
+/*
+  The true duals are the negative of the min primal duals.
 */
     if (trueDuals == TRUE)
       y[i_orig] = -yi ;
@@ -430,7 +578,7 @@ void dy_colPrimals (lpprob_struct *orig_lp, double **p_x)
 # endif
 
 # ifdef DYLP_PARANOIA
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_x == NULL)
   { errmsg(2,rtnnme,"x") ;
@@ -569,7 +717,7 @@ void dy_rowPrimals (lpprob_struct *orig_lp, double **p_xB, int **p_indB)
   char *rtnnme = "dy_rowPrimals" ;
 # endif
 # ifdef DYLP_PARANOIA
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_xB == NULL)
   { errmsg(2,rtnnme,"x") ;
@@ -720,7 +868,7 @@ void dy_logPrimals (lpprob_struct *orig_lp, double **p_logx)
   char *rtnnme = "dy_logPrimals" ;
 # endif
 # ifdef DYLP_PARANOIA
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_logx == NULL)
   { errmsg(2,rtnnme,"logx") ;
@@ -828,7 +976,7 @@ void dy_colStatus (lpprob_struct *orig_lp, flags **p_colstat)
   char *rtnnme = "dy_colStatus" ;
 # endif
 # ifdef DYLP_PARANOIA
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_colstat == NULL)
   { errmsg(2,rtnnme,"colstat") ;
@@ -919,7 +1067,7 @@ void dy_logStatus (lpprob_struct *orig_lp, flags **p_logstat)
 # endif
 
 # ifdef DYLP_PARANOIA
-  if (dy_std_paranoia(orig_lp,rtnnme) == FALSE)
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_logstat == NULL)
   { errmsg(2,rtnnme,"logstat") ;
