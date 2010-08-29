@@ -35,6 +35,8 @@ extern "C" {
 #include "dylp.h"
 }
 
+class OsiDylpWarmStartBasis ;
+
 /*! \brief Enum to specify cold/warm/hot start */
 
 typedef enum { startInvalid = 0,
@@ -664,14 +666,22 @@ public:
     (cf. #setObjectiveAndRefresh)
   */
   virtual void getReducedGradient(double *columnReducedCosts, 
-				  double *duals, const double *c) ;
+				  double *duals, const double *c) const ;
 
-  /*! Calculate duals and reduced costs for the given objective coefficients.
+  /*! \brief Get indices of basic variables */
+  virtual void getBasics(int *index) const ;
 
-    The given objective coefficients are set in the solver and the duals and
-    reduced costs are updated (cf. #getReducedGradient).
-  */
-  virtual void setObjectiveAndRefresh(const double* c) ;
+  /*! \brief Get a column of the basis inverse */
+  virtual void getBInvCol(int col, double *betak) const ;
+
+  /*! \brief Get a column of the tableau */
+  virtual void getBInvACol(int col, double *abarj) const ;
+
+  /*! \brief Get a row of the basis inverse */
+  virtual void getBInvRow(int row, double *betai) const ;
+
+  /*! \brief Get a row of the tableau */
+  virtual void getBInvARow(int row, double *abari, double *betai = 0) const ;
 
 //@}
 
@@ -1064,7 +1074,7 @@ private:
 //@{
 
   /// Ensure that the solver is ready for simplex operations
-  bool ensureOwnership () ;
+  bool ensureOwnership () const ;
 
 //}@
 
@@ -1096,6 +1106,10 @@ private:
 //@{
   /*! \brief Common core method to invoke dylp */
   lpret_enum do_lp (ODSI_start_enum start, bool echo) ;
+
+  /*! \brief Install a basis in the lp problem structure */
+  void setBasisInLpprob (const OsiDylpWarmStartBasis *wsb,
+  			 lpprob_struct *lpprob) const ;
 //@}
 
 /*! \name Destructor helpers */
@@ -1106,7 +1120,7 @@ private:
   void destruct_row_cache(bool structure) ;
   void destruct_cache(bool rowStructure, bool colStructure) ;
   void destruct_problem(bool preserve_interface) ;
-  void detach_dylp() ;
+  void detach_dylp() const ;
 //@}
 
 

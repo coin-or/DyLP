@@ -1115,48 +1115,51 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	dy_lp->simplex.init_dse = TRUE ;
 	lpresult = dy_primal() ;
 	dy_lp->simplex.next = dy_lp->phase ; 
-        switch (lpresult)
-	{ case lpOPTIMAL:
-	  { phase = dyGENVAR ;
-	    dy_lp->simplex.next = dyPRIMAL2 ;
-	    break ; }
-	  case lpINFEAS:
-	  { phase = dyGENVAR ;
-	    break ; }
-	  case lpUNBOUNDED:
-	  { if (dy_sys->concnt < orig_sys->concnt)
-	    { phase = dyGENCON ; }
-	    else
-	    { phase = dyDONE ; }
-#	    ifdef DYLP_PARANOIA
-	    if (dy_lp->ubnd.ndx == 0)
-	    { errmsg(1,rtnnme,__LINE__) ;
-	      phase = dyINV ;
+	if (dy_opts->context == cxLOAD)
+	{ phase = dyDONE ; }
+	else
+        { switch (lpresult)
+	  { case lpOPTIMAL:
+	    { phase = dyGENVAR ;
+	      dy_lp->simplex.next = dyPRIMAL2 ;
 	      break ; }
-#	    endif
-	    break ; }
-	  case lpSWING:
-	  { phase = dyGENCON ;
-#	    ifdef DYLP_PARANOIA
-	    if (dy_lp->ubnd.ndx == 0)
-	    { errmsg(1,rtnnme,__LINE__) ;
-	      phase = dyINV ;
+	    case lpINFEAS:
+	    { phase = dyGENVAR ;
 	      break ; }
-#	    endif
-	    break ; }
-	  case lpPUNT:
-	  case lpSTALLED:
-	  { phase = dyGENVAR ;
-	    break ; }
-	  case lpACCCHK:
-	  { phase = dyFORCEFULL ;
-	    break ; }
-	  default:
-	  { if (!(dy_opts->context == cxBANDC && lpresult == lpITERLIM))
-	    { errmsg(353,rtnnme,orig_sys->nme,"primal",
-		     dy_prtlpret(lpresult)) ; }
-	    phase = dyDONE ;
-	    break ; } }
+	    case lpUNBOUNDED:
+	    { if (dy_sys->concnt < orig_sys->concnt)
+	      { phase = dyGENCON ; }
+	      else
+	      { phase = dyDONE ; }
+  #	    ifdef DYLP_PARANOIA
+	      if (dy_lp->ubnd.ndx == 0)
+	      { errmsg(1,rtnnme,__LINE__) ;
+		phase = dyINV ;
+		break ; }
+  #	    endif
+	      break ; }
+	    case lpSWING:
+	    { phase = dyGENCON ;
+  #	    ifdef DYLP_PARANOIA
+	      if (dy_lp->ubnd.ndx == 0)
+	      { errmsg(1,rtnnme,__LINE__) ;
+		phase = dyINV ;
+		break ; }
+  #	    endif
+	      break ; }
+	    case lpPUNT:
+	    case lpSTALLED:
+	    { phase = dyGENVAR ;
+	      break ; }
+	    case lpACCCHK:
+	    { phase = dyFORCEFULL ;
+	      break ; }
+	    default:
+	    { if (!(dy_opts->context == cxBANDC && lpresult == lpITERLIM))
+	      { errmsg(353,rtnnme,orig_sys->nme,"primal",
+		       dy_prtlpret(lpresult)) ; }
+	      phase = dyDONE ;
+	      break ; } } }
 	break ; }
 /*
   In the best case, dual simplex has reported optimal, we've added variables
@@ -1449,31 +1452,34 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	dy_lp->simplex.init_pse = TRUE ;
 	lpresult = dy_dual() ;
 	dy_lp->simplex.next = dyDUAL ;
-        switch (lpresult)
-	{ case lpOPTIMAL:
-	  { phase = dyGENVAR ;
-	    dy_lp->simplex.next = dyPRIMAL2 ;
-	    break ; }
-	  case lpINFEAS: /* dual unbounded */
-	  { phase = dyGENVAR ;
-	    break ; }
-	  case lpLOSTFEAS:
-	  { phase = dyFORCEDUAL ;
-	    break ; }
-	  case lpPUNT:
-	  case lpSTALLED:
-	  case lpSWING:
-	  { phase = dyGENCON ;
-	    break ; }
-	  case lpACCCHK:
-	  { phase = dyFORCEFULL ;
-	    break ; }
-	  default:
-	  { if (!(dy_opts->context == cxBANDC && lpresult == lpITERLIM))
-	    { errmsg(353,rtnnme,orig_sys->nme,"dual",
-		     dy_prtlpret(lpresult)) ; }
-	    phase = dyDONE ;
-	    break ; } }
+	if (dy_opts->context == cxLOAD)
+	{ phase = dyDONE ; }
+	else
+	{ switch (lpresult)
+	  { case lpOPTIMAL:
+	    { phase = dyGENVAR ;
+	      dy_lp->simplex.next = dyPRIMAL2 ;
+	      break ; }
+	    case lpINFEAS: /* dual unbounded */
+	    { phase = dyGENVAR ;
+	      break ; }
+	    case lpLOSTFEAS:
+	    { phase = dyFORCEDUAL ;
+	      break ; }
+	    case lpPUNT:
+	    case lpSTALLED:
+	    case lpSWING:
+	    { phase = dyGENCON ;
+	      break ; }
+	    case lpACCCHK:
+	    { phase = dyFORCEFULL ;
+	      break ; }
+	    default:
+	    { if (!(dy_opts->context == cxBANDC && lpresult == lpITERLIM))
+	      { errmsg(353,rtnnme,orig_sys->nme,"dual",
+		       dy_prtlpret(lpresult)) ; }
+	      phase = dyDONE ;
+	      break ; } } }
 	break ; }
       case dyFORCEDUAL:
       { phase = dy_forcePrimal2Dual(orig_sys) ;
@@ -1503,7 +1509,8 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   only if we have an optimal solution. For constraints, cut the purge level
   back to 0 (i.e., purge strictly loose constraints).
 */
-  if (phase == dyDONE && dy_lp->lpret == lpOPTIMAL)
+  if (phase == dyDONE &&
+      dy_lp->lpret == lpOPTIMAL && dy_opts->context != cxLOAD)
   { if (dy_opts->finpurge.vars == TRUE)
     {
 #     ifndef DYLP_NDEBUG

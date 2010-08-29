@@ -54,6 +54,7 @@ typedef enum { ODSI_TEST_MSG,
 	       ODSI_NOTFULLSYS,
 	       ODSI_NOTSIMPLEX,
 	       ODSI_BADSTATE,
+	       ODSI_BADACTIVEBASIS,
 	       ODSI_DUMMY_END } OsiDylpMessageID_enum ;
 
 #endif /* OsiDylpMessages_H */

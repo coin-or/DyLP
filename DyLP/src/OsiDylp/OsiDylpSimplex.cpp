@@ -49,33 +49,66 @@ const int OsiSimplex_nblb = 3 ;
 */
 
 /*
-  This method checks that the current method owns the solver and that the
-  solver is prepared for tableau queries. If this isn't true, the method makes
-  it true if at all possible.
-
-  TODO: Really, what needs to happen here is to call dylp() with some
-	combination of control options such that it does all the setup and
-	returns just prior to entering the main pivot loop.
+  This method checks that the current ODSI object owns the solver and arranges
+  for ownership if possible. This shouldn't be a problem in context: The
+  client should not be using the simplex API without first solving an LP, and
+  that should guarantee that lpprob and a warm start exist.
 */
-bool ODSI::ensureOwnership ()
+
+bool ODSI::ensureOwnership () const
 { CoinMessageHandler *hdl = messageHandler() ;
+
+  assert(lpprob && lpprob->consys) ;
+
 /*
-  We really should be in simplex mode 1 or 2.
+  We really should be in simplex mode 1 or 2, because we shouldn't be calling
+  simplex API methods unless enableFactorisation or enableSimplexInterface
+  has been called. And we really should be playing with a full deck, but
+  that's less serious (and perhaps even reasonable, for one or two calls).
 */
   if (simplex_state.simplex == 0)
     hdl->message(ODSI_NOTSIMPLEX,messages_) << CoinMessageEol ;
+  if (lpprob->fullsys == false)
+    hdl->message(ODSI_NOTFULLSYS,messages_) << CoinMessageEol ;
 /*
-  Is the solver already prepared and using the full system? If so, we're done.
+  Does this object already own the solver? If so, we're done.
 */
   ODSI *dylp_owner = static_cast<ODSI *>(dy_getOwner()) ;
-  if (dylp_owner == this && lpprob->fullsys == true)
-    return (true) ;
+  if (dylp_owner == this) return (true) ; 
 /*
-  One or both of the above were not true. Call resolve to get dylp in the mood.
-  Resolve will deal with the details of acquiring ownership, setting a warm
-  start, and running dylp.
+  If this ODSI object isn't the owner, install the active warm start in
+  the lpprob object.
+
+  It'd be possible to deal with a damaged basis by declaring activeBasis to be
+  mutable. But really, is it a good idea?
 */
-  resolve() ;
+  if (basis_ready == false ||
+      activeBasis.condition == ODSI::basisNone ||
+      activeBasis.condition == ODSI::basisDamaged)
+  { simplex_state.simplex = 0 ;
+    hdl->message(ODSI_BADACTIVEBASIS,messages_)
+        << "missing or damaged" << CoinMessageEol ;
+    return (false) ; }
+  dylp_owner->detach_dylp() ;
+  OsiDylpWarmStartBasis *wsb =
+      dynamic_cast<OsiDylpWarmStartBasis *>(activeBasis.basis) ;
+  setBasisInLpprob(wsb,lpprob) ;
+/*
+  Initialise the solver.  After the call, dylp will be ready to pivot.
+
+  I've argued with myself about forcing the full system here, but ultimately
+  it's the user's choice. Except that other solvers simply don't offer this
+  choice.
+*/
+  lptols_struct lcl_tols = *tolerances ;
+  lpopts_struct lcl_opts = *resolveOptions ;
+  lcl_opts.context = cxLOAD ;
+  lcl_opts.forcewarm = true ;
+  if (dyio_isactive(local_logchn)) dy_setlogchn(local_logchn) ;
+  dy_setgtxecho(resolve_gtxecho) ;
+  dy_checkdefaults(consys,&lcl_opts,&lcl_tols) ;
+
+  lpret_enum lpret = dylp(lpprob,&lcl_opts,&lcl_tols,0) ;
 /*
   Confirm that the result is as expected.
 */
@@ -83,10 +116,8 @@ bool ODSI::ensureOwnership ()
   dylp_owner = static_cast<ODSI *>(dy_getOwner()) ;
   if (dylp_owner == this && flgon(lpprob->ctlopts,lpctlDYVALID))
   { retval = true ;
-    if (lp_retval == lpOPTIMAL)
-      hdl->message(ODSI_NOTOPTIMAL,messages_) << CoinMessageEol ;
-    if (lpprob->fullsys == false)
-      hdl->message(ODSI_NOTFULLSYS,messages_) << CoinMessageEol ; }
+    if (lpret != lpOPTIMAL)
+      hdl->message(ODSI_NOTOPTIMAL,messages_) << CoinMessageEol ; }
 
   return (retval) ; }
 
@@ -104,30 +135,29 @@ bool ODSI::ensureOwnership ()
 */
 int ODSI::canDoSimplexInterface () const
 
-{ return (0) ; }
+{ return (1) ; }
 
 /*
-  In order for the tableau methods to work, it must be true that this method
-  owns the solver and instructed it to retain data structures after the last
-  call to solve. It's more efficient if the solver is working with the full
-  constraint system, but not necessary.
+  In order for the tableau methods to work, it must be true that this ODSI
+  object owns the solver and instructed it to retain data structures after
+  the last call to solve. It's more efficient if the solver is working with
+  the full constraint system, but not necessary.
 
-  We can't force any of this here, because this is a const method. As it turns
-  out, it wouldn't be a good idea to do it here in any event. Consider the
-  case where a client enables factorization, then clones the ODSI object and
-  solves a related LP, then returns to make tableau inquiries. The client
-  expects that the original solver object will be unaffected by the clone.
-  The only way we can make that happen is to ensure the solver is ready at the
-  head of each tableau query method.
-  
-  How do we do that? A bit of thought says `Might as well call resolve(),
-  nothing less will do.' So our business here is to check if this object owns
-  the solver, and, if it doesn't, make sure a call to resolve will succeed.
-  That boils down to `Is there an active basis we can use for a warm start?'
+  It's possible to force ownership here, but we can't guarantee it'll last.
+  Consider the case where a client enables factorization, then clones
+  the ODSI object and solves a related LP, then returns to make tableau
+  inquiries. The client expects that the original solver object will be
+  unaffected by the clone.  The only way we can make that happen is to
+  ensure the solver is ready at the head of each tableau query method.
 
-  TODO: Now I've implemented setBasisStatus, I'm asking whether I can even
-	check for a warm start. After all, setting a warm start is precisely
-	the purpose of setBasisStatus.
+  Given the scenario above, it might seem plausible to check for an active
+  basis here, so that we have something to use in a warm start. But the client
+  could call setBasisStatus next, supplying the necessary warm start. So we
+  can't insist that it already be present.
+
+  About all we can do is warn if the most recent result of calling dylp failed
+  to produce an optimal result, or wasn't playing with a full deck, and that's
+  only useful if we already own the solver.
 
   Returns: undefined.
 */
@@ -146,17 +176,9 @@ void ODSI::enableFactorization() const
     if (lpprob->fullsys != true)
     { hdl->message(ODSI_NOTFULLSYS,messages_) << CoinMessageEol ; } }
 /*
-  This object doesn't own the solver. Can we arrange it? The fundamental
-  criteria is that we need an active basis. Arguably we should require that
-  the basis is fresh, but resolve can cope with a damaged basis.
-*/
-  else
-  { if (activeBasis.condition == ODSI::basisNone)
-    { simplex_state.simplex = 0 ;
-      throw CoinError("Cannot initialise solver; no active basis.",
-    		      "enableFactorization","OsiDylpSolverInterface") ; } }
-/*
-  Do the bookkeeping.
+  Do the bookkeeping. Take the attitude that if the client took the time to
+  call enableFactorisation, they intend to do more than one or two queries,
+  hence it's worthwhile to force the full system.
 */
   simplex_state.simplex = 1 ;
   simplex_state.saved_fullsys = resolveOptions->fullsys ;
@@ -191,24 +213,33 @@ void ODSI::disableFactorization() const
   we're not using the full system, just so the user is aware that their
   code is at best inefficient and possibly incorrect.
 
-  TODO: Likely I shouldn't be checking for ownership here. The proper test
-	would be lp_retval == lpOPTIMAL and lpprob->ctlopts does not show
-	any changes to the problem.
-
   Returns: true if an optimal basis is available, false otherwise.
 */
 bool ODSI::basisIsAvailable () const
 { bool retval = false ;
 /*
   Check that the conditions for availability of an optimal basis are
-  satisfied. If so, check whether we're in fullsys mode and warn the user
+  satisfied. The last call to the solver should have produced a result of
+  lpOPTIMAL, the solution should be fresh (indicating no changes to the
+  constraint system), and either we own the solver or we can reload it.
+*/
+  if (lp_retval != lpOPTIMAL) return (retval) ;
+  if (solnIsFresh == false) return (retval) ;
+
+  ODSI *dylp_owner = static_cast<ODSI *>(dy_getOwner()) ;
+  if (dylp_owner == this && flgon(lpprob->ctlopts,lpctlDYVALID))
+  { retval = true ; }
+  else
+  if (activeBasis.basis != 0 &&
+      (activeBasis.condition == ODSI::basisFresh ||
+       activeBasis.condition == ODSI::basisModified))
+  { retval = true ; }
+/*
+  If so, check whether we're in fullsys mode and warn the user
   if it's otherwise.
 */
-  ODSI *dylp_owner = static_cast<ODSI *>(dy_getOwner()) ;
-  if (dylp_owner == this && flgon(lpprob->ctlopts,lpctlDYVALID) &&
-      lp_retval == lpOPTIMAL)
-  { retval = true ;
-    CoinMessageHandler *hdl = messageHandler() ;
+  if (retval == true)
+  { CoinMessageHandler *hdl = messageHandler() ;
     if (lpprob->fullsys == false)
       hdl->message(ODSI_NOTFULLSYS,messages_) << CoinMessageEol ; }
 
@@ -378,8 +409,7 @@ int ODSI::setBasisStatus (const int *archStatusInt, const int *logStatusInt)
   the reduced costs --- it'd be a make-work project translating in and out
   of dylp's interior frame of reference.
 */
-
-void ODSI::getReducedGradient (double *cbar, double *y, const double *c)
+void ODSI::getReducedGradient (double *cbar, double *y, const double *c) const
 {
 /*
   Make sure this object owns dylp and it's ready to work.
@@ -390,7 +420,8 @@ void ODSI::getReducedGradient (double *cbar, double *y, const double *c)
     hdl->message(ODSI_BADSTATE,messages_)
         << "tableau queries" << CoinMessageEol ;
     throw CoinError("Cannot query solver for row duals.",
-    		    "getReducedGradient","OsiDylpSolverInterface") ; }
+    		    "getReducedGradient","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
 /*
   Set up to compensate for maximisation
 */
@@ -427,7 +458,12 @@ void ODSI::getReducedGradient (double *cbar, double *y, const double *c)
 
   return ; }
 
+#if 0
 /*
+  Delete this from the OsiSimplex interface 100828. Keep the code around for a
+  bit to see if anyone yells. I put out an announcement of deletion 100821,
+  but sometimes it takes a whack upside the head to get peoples' attention.
+
   Calculate duals and reduced costs for a given objective function, but do
   change the values held in this ODSI. Really, all this amounts to is a call
   to getReducedGradient, plus the necessary bookkeeping to update cached
@@ -461,5 +497,209 @@ void ODSI::setObjectiveAndRefresh (const double *c)
   _col_cbar = cbar ;
   _row_price = y ;
 
+  return ; }
+#endif
+
+/*
+  Return the vector of basic variable indices. We don't have to ask dylp;
+  this information is available in lpprob.basis.
+
+  Dylp reports basis information only for the active constraints, so the
+  strategy here is to initialise the vector supplied as a parameter to an
+  all-logical basis. Then drop in the entries mentioned in lpprob.basis.
+
+  Dylp reports the logical for constraint i as -i; translate to the standard
+  coding of n+i. Don't forget to translate dylp's 1-based indices to Coin's
+  0-based indices.
+*/
+void ODSI::getBasics (int *index) const
+{ int n = getNumCols() ;
+  int m = getNumRows() ;
+
+/*
+  Initialise index as if we have an all-logical basis, with all logicals in
+  natural position.
+*/
+  CoinIotaN(index,m,n) ;
+/*
+  Now correct the entries mentioned in lpprob.basis.
+*/
+  int basislen = lpprob->basis->len ;
+  basisel_struct *els = lpprob->basis->el ;
+  for (int k = 1 ; k <= basislen ; k++)
+  { int i = inv(els[k].cndx) ;
+    int j = els[k].vndx ;
+    /*
+    std::cout
+      << "  Dylp says x<" << els[k].vndx
+      << "> basic for constraint " << els[k].cndx << "." << std::endl ;
+    */
+    if (j < 0)
+    { j = n+(-j) ; }
+    index[i] = inv(j) ; }
+
+  return ; }
+
+/*
+  Ask dylp for a column of the basis inverse, beta<k> = inv(B)e<k>. (Note
+  that this is not the same as asking for the column matching a particular
+  basic variable x<j>; rather, we're asking for the column for the variable
+  that's basic for constraint k.)
+*/
+void ODSI::getBInvCol (int col, double *betak) const
+{ const bool verbose = false ;
+/*
+  Make sure this object owns dylp and it's ready to work.
+*/
+  bool retval = ensureOwnership() ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_BADSTATE,messages_)
+        << "tableau queries" << CoinMessageEol ;
+    throw CoinError("Cannot query solver for column of basis inverse.",
+    		    "getBInvCol","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+/*
+  Call dylp to retrieve beta<k> and report the result. Because dylp uses
+  1-based indexing, we really need an array of size (m+1). It's not safe
+  to pass in &betak[-1].
+*/
+  if (verbose)
+    std::cout << "  Asking dylp for column " << idx(col) << "." << std::endl ;
+  double *oneBased = 0 ;
+  retval = dy_betak(lpprob,idx(col),&oneBased) ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_FAILEDCALL,messages_)
+	<< "getBInvCol" << "dy_betak" << CoinMessageEol ;
+    throw CoinError("Failed query to solver for column of basis inverse.",
+    		    "getBInvCol","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+  int m = getNumRows() ;
+  CoinCopyN(&oneBased[1],m,betak) ;
+  FREE(oneBased) ;
+  
+  return ; }
+
+
+/*
+  Ask dylp for a row of the basis inverse, beta<i> = e<i>inv(B)
+*/
+void ODSI::getBInvRow (int row, double *betai) const
+{ const bool verbose = false ;
+/*
+  Make sure this object owns dylp and it's ready to work.
+*/
+  bool retval = ensureOwnership() ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_BADSTATE,messages_)
+        << "tableau queries" << CoinMessageEol ;
+    throw CoinError("Cannot query solver for row of basis inverse.",
+    		    "getBInvRow","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+/*
+  Call dylp to retrieve beta<k> and report the result. Because dylp uses
+  1-based indexing, we really need an array of size (m+1). It's not safe
+  to pass in &betak[-1].
+*/
+  if (verbose)
+    std::cout << "  Asking dylp for row " << idx(row) << "." << std::endl ;
+  double *oneBased = 0 ;
+  retval = dy_betai(lpprob,idx(row),&oneBased) ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_FAILEDCALL,messages_)
+	<< "getBInvRow" << "dy_betai" << CoinMessageEol ;
+    throw CoinError("Failed query to solver for row of basis inverse.",
+    		    "getBInvRow","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+  int m = getNumRows() ;
+  CoinCopyN(&oneBased[1],m,betai) ;
+  FREE(oneBased) ;
+  
+  return ; }
+
+/*
+  Ask dylp for a column of the tableau, abar<j> = inv(B)a<j>.
+*/
+void ODSI::getBInvACol (int col, double *abarj) const
+{ const bool verbose = false ;
+/*
+  Make sure this object owns dylp and it's ready to work.
+*/
+  bool retval = ensureOwnership() ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_BADSTATE,messages_)
+        << "tableau queries" << CoinMessageEol ;
+    throw CoinError("Cannot query solver for tableau column.",
+    		    "getBInvACol","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+/*
+  Call dylp to retrieve abar<j> and report the result. Because dylp uses
+  1-based indexing, we really need an array of size (m+1). It's not safe
+  to pass in &abarj[-1].
+*/
+  if (verbose)
+    std::cout << "  Asking dylp for column " << idx(col) << "." << std::endl ;
+  double *oneBased = 0 ;
+  retval = dy_abarj(lpprob,idx(col),&oneBased) ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_FAILEDCALL,messages_)
+	<< "getBInvACol" << "dy_abarj" << CoinMessageEol ;
+    throw CoinError("Failed query to solver for tableau column.",
+    		    "getBInvACol","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+  int m = getNumRows() ;
+  CoinCopyN(&oneBased[1],m,abarj) ;
+  FREE(oneBased) ;
+  
+  return ; }
+
+/*
+  Ask dylp for a row of the tableau, abar<i> = e<i>(inv(B)(B N I)). Osi wants
+  this returned in two pieces: inv(B)(B N) and (optionally) inv(B)I. Clearly,
+  the last component is simply e<i>inv(B) = beta<i>.
+*/
+void ODSI::getBInvARow (int row, double *abari, double *betai) const
+{ const bool verbose = false ;
+/*
+  Make sure this object owns dylp and it's ready to work.
+*/
+  bool retval = ensureOwnership() ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_BADSTATE,messages_)
+        << "tableau queries" << CoinMessageEol ;
+    throw CoinError("Cannot query solver for tableau row.",
+    		    "getBInvRow","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+/*
+  Call dylp to retrieve abar<i> and beta<i> and report the result. Because
+  dylp uses 1-based indexing, we need arrays of size (n+1). It's
+  not safe to pass in &foo[-1], so let dylp allocate its own arrays.
+*/
+  if (verbose)
+    std::cout << "  Asking dylp for row " << idx(row) << "." << std::endl ;
+  double *oneBasedAbari = 0 ;
+  double *oneBasedBetai = 0 ;
+  retval = dy_abari(lpprob,idx(row),&oneBasedAbari,&oneBasedBetai) ;
+  if (retval == false)
+  { CoinMessageHandler *hdl = messageHandler() ;
+    hdl->message(ODSI_FAILEDCALL,messages_)
+	<< "getBInvARow" << "dy_abari" << CoinMessageEol ;
+    throw CoinError("Failed query to solver for tableau row.",
+    		    "getBInvARow","OsiDylpSolverInterface",
+		    "OsiDylpSimplex",__LINE__) ; }
+  int n = getNumCols() ;
+  int m = getNumRows() ;
+  CoinCopyN(&oneBasedAbari[1],n,abari) ;
+  if (betai != 0)
+  { CoinCopyN(&oneBasedBetai[1],m,betai) ; }
+  FREE(oneBasedAbari) ;
+  FREE(oneBasedBetai) ;
+  
   return ; }
 

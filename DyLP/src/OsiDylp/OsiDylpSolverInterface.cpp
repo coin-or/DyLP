@@ -2181,7 +2181,7 @@ void ODSI::destruct_problem (bool preserve_interface)
   is solely to free data structures.
 */
 
-void ODSI::detach_dylp ()
+void ODSI::detach_dylp () const
 
 { ODSI *dylp_owner = static_cast<ODSI *>(dy_getOwner()) ;
 
@@ -5912,25 +5912,12 @@ void ODSI::reduceActiveBasis ()
   return ; }
 
 
-
-/*!
-  This routine installs the basis snapshot from an OsiDylpWarmStartBasis
-  (ODWSB) object and sets ODSI options so that dylp will attempt a warm start
-  on the next call to \link OsiDylpSolverInterface::resolve ODSI::resolve
-  \endlink.  A basis with 0 rows and 0 columns, is taken as a request to
-  delete the existing warm start information held in activeBasis.
-
-  By definition, a parameter of 0 is taken as a request to update the current
-  warm start from the solver.
-
-  The size (rows x columns) of the constraint system should be equal or
-  larger than the ODSWB information.  The final basis built for dylp can
-  always end up smaller than the constraint system, as inactive constraints
-  and variables will not be included. A basis with 0 active constraints is
-  legal.  (In fact, fairly common. When a B&C code fixes all integer
-  variables to confirm or regenerate a solution, a problem with only integer
-  variables may have all variables fixed and no tight architectural
-  constraints.)
+/*
+  A method to install a basis in the lp problem object. Aside from aesthetics,
+  the primary reason this is a separate method is because it can be declared
+  const, and we need this for the simplex API. It's assumed that all necessary
+  checks have been performed. See #setWarmStartBasis for what needs to be in
+  place.
 
   It can happen that the client will, for one reason or another, fix a basic
   variable. The symptom here is that we end up short a few basic variables.
@@ -5948,92 +5935,10 @@ void ODSI::reduceActiveBasis ()
   system. We just create a dylp basis that matches the ODWSB object, and trust
   that dylp will pick up the inactive constraints and/or variables.
 */
-
-bool ODSI::setWarmStart (const CoinWarmStart *ws)
-
-{ int i,j,k ;
-  CWSB::Status osi_statlogi,osi_statconi,osi_statvarj ;
-
-/*
-  By definition, a null parameter is a request to update the active basis from
-  the solver. Since ODSI does this on every call to the solver, no further
-  action is required. All we need to do here is assert that an active basis
-  exists and is minimally consistent.
-*/
-  if (!ws)
-  { 
-#   if ODSI_TRACK_ACTIVE > 0
-    std::cout
-      << "ODSI(" << std::hex << this
-      << ")::setWarmStart: sync request; current active basis is "
-      << activeBasis.basis << std::dec
-      << "." << std::endl ;
-#   endif
-    assert(activeBasis.basis) ;
-    assert(activeBasis.condition == ODSI::basisFresh) ;
-    assert(activeBasis.balance == 0) ;
-    return (true) ; }
-/*
-  Use a dynamic cast to make sure we have a CWSB. Then check the size ---
-  0 x 0 is just a request to remove the active basis.
-*/
-  const CWSB *cwsb = dynamic_cast<const CWSB *>(ws) ;
-  if (!cwsb)
-  { handler_->message(ODSI_NOTODWSB,messages_) << "Coin" ;
-    return (false) ; }
-  int varcnt = cwsb->getNumStructural() ;
-  int concnt = cwsb->getNumArtificial() ;
-  if (varcnt == 0 && concnt == 0)
-  { 
-#   if ODSI_TRACK_ACTIVE > 0
-    std::cout
-      << "ODSI(" << std::hex << this
-      << ")::setWarmStart: deleting active basis "
-      << activeBasis.basis << std::dec
-      << " (0x0 CWSB)." << std::endl ;
-#   endif
-    delete activeBasis.basis ;
-    activeBasis.basis = 0 ;
-    activeBasis.condition = ODSI::basisNone ;
-    activeBasis.balance = 0 ;
-    return (true) ; }
-/*
-  Use a dynamic cast to see if we have an OsiDylpWarmStartBasis. If not,
-  make one. 
-*/
-  const OsiDylpWarmStartBasis *wsb ;
-  bool ourBasis = false ;
-  wsb = dynamic_cast<const OsiDylpWarmStartBasis *>(ws) ;
-  if (!wsb)
-  { wsb = new OsiDylpWarmStartBasis(*cwsb) ;
-    ourBasis = true ; }
-# if ODSI_PARANOIA >= 2
-  wsb->checkBasis(messageHandler()) ;
-# endif
-  varcnt = wsb->getNumStructural() ;
-  concnt = wsb->getNumArtificial() ;
-  if (varcnt == 0 && concnt == 0)
-  { 
-#   if ODSI_TRACK_ACTIVE > 0
-    std::cout
-      << "ODSI(" << std::hex << this
-      << ")::setWarmStart: deleting active basis "
-      << activeBasis.basis << std::dec
-      << " (0x0 ODWSB)." << std::endl ;
-#   endif
-    delete activeBasis.basis ;
-    activeBasis.basis = 0 ;
-    activeBasis.condition = ODSI::basisNone ;
-    activeBasis.balance = 0 ;
-    if (ourBasis == true) delete wsb ;
-    return (true) ; }
-/*
-  Do we have an lpprob structure yet? If not, construct one.
-*/
-  assert(consys && consys->vlb && consys->vub) ;
-  if (!lpprob) construct_lpprob() ;
-  assert(resolveOptions) ;
-
+void ODSI::setBasisInLpprob (const OsiDylpWarmStartBasis *wsb,
+			     lpprob_struct *lcl_lpprob) const
+{ int varcnt = wsb->getNumStructural() ;
+  int concnt = wsb->getNumArtificial() ;
 /*
   Extract the info in the warm start object --- size and status vectors.  The
   number of variables and constraints in the warm start object should not
@@ -6044,12 +5949,6 @@ bool ODSI::setWarmStart (const CoinWarmStart *ws)
   information in the OsiDylpWarmStartBasis.  We'll only use as much of the
   basis as is needed for the active constraints.
 */
-  if (!(varcnt <= getNumCols() && concnt <= getNumRows()))
-  { handler_->message(ODSI_ODWSBBADSIZE,messages_)
-      << concnt << varcnt << getNumRows() << getNumCols() ;
-    if (ourBasis == true) delete wsb ;
-    return (false) ; }
-
   const char *const strucStatus = wsb->getStructuralStatus() ;
   const char *const artifStatus = wsb->getArtificialStatus() ;
   const char *const conStatus = wsb->getConstraintStatus() ;
@@ -6068,7 +5967,8 @@ bool ODSI::setWarmStart (const CoinWarmStart *ws)
   Walk the constraint status vector and build the set of active constraints.
 */
   int actcons = 0 ;
-  for (i = 1 ; i <= concnt ; i++)
+  CWSB::Status osi_statlogi,osi_statconi,osi_statvarj ;
+  for (int i = 1 ; i <= concnt ; i++)
   { osi_statconi = getStatus(conStatus,inv(i)) ;
     if (osi_statconi == CWSB::atLowerBound)
     { actcons++ ;
@@ -6081,8 +5981,8 @@ bool ODSI::setWarmStart (const CoinWarmStart *ws)
   variable, set the proper status flag. We need to check bounds to see if the
   variable should be fixed.
 */
-  k = 0 ;
-  for (j = 1 ; j <= varcnt ; j++)
+  int k = 0 ;
+  for (int j = 1 ; j <= varcnt ; j++)
   { osi_statvarj = getStatus(strucStatus,inv(j)) ;
     switch (osi_statvarj)
     { case CWSB::basic:
@@ -6134,7 +6034,7 @@ bool ODSI::setWarmStart (const CoinWarmStart *ws)
   case. If we're running dynamic simplex, then all we're picking up here
   is the occasional logical that's basic at bound.
 */
-  for (i = 1 ; i <= concnt ; i++)
+  for (int i = 1 ; i <= concnt ; i++)
   { osi_statlogi = getStatus(artifStatus,inv(i)) ;
     osi_statconi = getStatus(conStatus,inv(i)) ;
     if (osi_statlogi == CWSB::basic && osi_statconi == CWSB::atLowerBound)
@@ -6155,7 +6055,7 @@ bool ODSI::setWarmStart (const CoinWarmStart *ws)
   if (k < actcons)
   { handler_->message(ODSI_ODWSBSHORTBASIS,messages_)
       << consys->nme << k << actcons << CoinMessageEol ;
-    for (i = 1 ; i <= concnt ; i++)
+    for (int i = 1 ; i <= concnt ; i++)
     { osi_statlogi = getStatus(artifStatus,inv(i)) ;
       if (osi_statlogi != CWSB::basic)
       { k++ ;
@@ -6174,52 +6074,166 @@ bool ODSI::setWarmStart (const CoinWarmStart *ws)
   This space may well be freed and/or realloc'd by dylp, so use standard calloc
   to acquire it.
 */
-  if (lpprob->colsze < varcnt)
-  { if (lpprob->status)
-    { FREE(lpprob->status) ;
-      lpprob->status = 0 ; }
-    if (lpprob->actvars)
-    { lpprob->actvars =
-	(bool *) REALLOC(lpprob->actvars,idx(varcnt)*sizeof(bool)) ; }
-    lpprob->colsze = varcnt ; }
-  if (!lpprob->status)
-  { lpprob->status = (flags *) CALLOC(idx(lpprob->colsze),sizeof(flags)) ; }
-  if (!lpprob->actvars)
-  { lpprob->actvars = (bool *) CALLOC(idx(lpprob->colsze),sizeof(bool)) ; }
+  if (lcl_lpprob->colsze < varcnt)
+  { if (lcl_lpprob->status)
+    { FREE(lcl_lpprob->status) ;
+      lcl_lpprob->status = 0 ; }
+    if (lcl_lpprob->actvars)
+    { lcl_lpprob->actvars =
+	(bool *) REALLOC(lcl_lpprob->actvars,idx(varcnt)*sizeof(bool)) ; }
+    lcl_lpprob->colsze = varcnt ; }
+  if (!lcl_lpprob->status)
+  { lcl_lpprob->status =
+        (flags *) CALLOC(idx(lcl_lpprob->colsze),sizeof(flags)) ; }
+  if (!lcl_lpprob->actvars)
+  { lcl_lpprob->actvars =
+        (bool *) CALLOC(idx(lcl_lpprob->colsze),sizeof(bool)) ; }
 
-  if (lpprob->rowsze < actcons)
-  { if (lpprob->x)
-    { lpprob->x =
-	(double *) REALLOC(lpprob->x,idx(actcons)*sizeof(double)) ; }
-    if (lpprob->y)
-    { lpprob->y =
-	(double *) REALLOC(lpprob->y,idx(actcons)*sizeof(double)) ; }
-    if (lpprob->basis && lpprob->basis->el)
-    { FREE(lpprob->basis->el) ;
-      lpprob->basis->el = 0 ; }
-    lpprob->rowsze = actcons ; }
-  if (!lpprob->x)
-  { lpprob->x = (double *) CALLOC(idx(lpprob->rowsze),sizeof(double)) ; }
-  if (!lpprob->y)
-  { lpprob->y = (double *) CALLOC(idx(lpprob->rowsze),sizeof(double)) ; }
-  if (!lpprob->basis)
-  { lpprob->basis =  (basis_struct *) CALLOC(1,sizeof(basis_struct)) ; }
-  if (!lpprob->basis->el)
-  { lpprob->basis->el =
-      (basisel_struct *) CALLOC(idx(lpprob->rowsze),sizeof(basisel_struct)) ; }
+  if (lcl_lpprob->rowsze < actcons)
+  { if (lcl_lpprob->x)
+    { lcl_lpprob->x =
+	(double *) REALLOC(lcl_lpprob->x,idx(actcons)*sizeof(double)) ; }
+    if (lcl_lpprob->y)
+    { lcl_lpprob->y =
+	(double *) REALLOC(lcl_lpprob->y,idx(actcons)*sizeof(double)) ; }
+    if (lcl_lpprob->basis && lcl_lpprob->basis->el)
+    { FREE(lcl_lpprob->basis->el) ;
+      lcl_lpprob->basis->el = 0 ; }
+    lcl_lpprob->rowsze = actcons ; }
+  if (!lcl_lpprob->x)
+  { lcl_lpprob->x =
+        (double *) CALLOC(idx(lcl_lpprob->rowsze),sizeof(double)) ; }
+  if (!lcl_lpprob->y)
+  { lcl_lpprob->y =
+        (double *) CALLOC(idx(lcl_lpprob->rowsze),sizeof(double)) ; }
+  if (!lcl_lpprob->basis)
+  { lcl_lpprob->basis =  (basis_struct *) CALLOC(1,sizeof(basis_struct)) ; }
+  if (!lcl_lpprob->basis->el)
+  { lcl_lpprob->basis->el =
+      (basisel_struct *) CALLOC(idx(lcl_lpprob->rowsze),
+      				sizeof(basisel_struct)) ; }
 /*
   Whew. The actual copy is dead easy.
 */
-  copy_basis(&basis,lpprob->basis) ;
-  COPY_VEC(flags,status,lpprob->status,idx(varcnt)) ;
+  copy_basis(&basis,lcl_lpprob->basis) ;
+  COPY_VEC(flags,status,lcl_lpprob->status,idx(varcnt)) ;
   delete[] basis.el ;
   delete[] status ;
+/*
+  That's it! The new status and basis are installed in lpprob, and the
+  x, y, and actvars arrays have been resized if needed. Set the phase
+  and we're done.
+*/
+  lcl_lpprob->phase = wsb->getPhase() ;
+
+  return ; }
+
+
+/*!
+  This routine installs the basis snapshot from an OsiDylpWarmStartBasis
+  (ODWSB) object and sets ODSI options so that dylp will attempt a warm start
+  on the next call to \link OsiDylpSolverInterface::resolve ODSI::resolve
+  \endlink. This method is a shell that handles modifications to the ODSI
+  object. The work of loading the ODWSB object into the lpprob is handled by
+  #setBasisInLpprob.
+  
+  By definition, a parameter of 0 is taken as a request to update the current
+  warm start from the solver.
+
+  A basis with 0 rows and 0 columns is taken as a request to delete the
+  existing warm start information held in activeBasis.
+
+  The size (rows x columns) of the constraint system should be equal or
+  larger than the ODSWB information.  The final basis built for dylp can
+  always end up smaller than the constraint system, as inactive constraints
+  and variables will not be included. A basis with 0 active constraints is
+  legal.  (In fact, fairly common. When a B&C code fixes all integer
+  variables to confirm or regenerate a solution, a problem with only integer
+  variables may have all variables fixed and no tight architectural
+  constraints.)
+*/
+
+bool ODSI::setWarmStart (const CoinWarmStart *ws)
+
+{ 
+/*
+  By definition, a null parameter is a request to update the active basis from
+  the solver. Since ODSI does this on every call to the solver, no further
+  action is required. All we need to do here is assert that an active basis
+  exists and is minimally consistent.
+*/
+  if (!ws)
+  { 
+#   if ODSI_TRACK_ACTIVE > 0
+    std::cout
+      << "ODSI(" << std::hex << this
+      << ")::setWarmStart: sync request; current active basis is "
+      << activeBasis.basis << std::dec
+      << "." << std::endl ;
+#   endif
+    assert(activeBasis.basis) ;
+    assert(activeBasis.condition == ODSI::basisFresh) ;
+    assert(activeBasis.balance == 0) ;
+    return (true) ; }
+/*
+  Use a dynamic cast to make sure we have a CWSB. Then check the size ---
+  0 x 0 is just a request to remove the active basis.
+*/
+  const CWSB *cwsb = dynamic_cast<const CWSB *>(ws) ;
+  if (!cwsb)
+  { handler_->message(ODSI_NOTODWSB,messages_) << "Coin" ;
+    return (false) ; }
+  int varcnt = cwsb->getNumStructural() ;
+  int concnt = cwsb->getNumArtificial() ;
+  if (varcnt == 0 && concnt == 0)
+  { 
+#   if ODSI_TRACK_ACTIVE > 0
+    std::cout
+      << "ODSI(" << std::hex << this
+      << ")::setWarmStart: deleting active basis "
+      << activeBasis.basis << std::dec
+      << " (0x0 CWSB)." << std::endl ;
+#   endif
+    delete activeBasis.basis ;
+    activeBasis.basis = 0 ;
+    activeBasis.condition = ODSI::basisNone ;
+    activeBasis.balance = 0 ;
+    return (true) ; }
+/*
+  The basis should not be larger than the problem.
+*/
+  if (!(varcnt <= getNumCols() && concnt <= getNumRows()))
+  { handler_->message(ODSI_ODWSBBADSIZE,messages_)
+      << concnt << varcnt << getNumRows() << getNumCols() ;
+    return (false) ; }
+/*
+  Use a dynamic cast to see if we have an OsiDylpWarmStartBasis. If not,
+  make one. 
+*/
+  const OsiDylpWarmStartBasis *wsb ;
+  bool ourBasis = false ;
+  wsb = dynamic_cast<const OsiDylpWarmStartBasis *>(ws) ;
+  if (!wsb)
+  { wsb = new OsiDylpWarmStartBasis(*cwsb) ;
+    ourBasis = true ; }
+# if ODSI_PARANOIA >= 2
+  wsb->checkBasis(messageHandler()) ;
+# endif
+/*
+  Do we have an lpprob structure yet? If not, construct one.
+*/
+  assert(consys && consys->vlb && consys->vub) ;
+  if (!lpprob) construct_lpprob() ;
+/*
+  Extract the info in the warm start object and install it in lpprob.
+*/
+  setBasisInLpprob(wsb,lpprob) ;
 /*
   And we're done. The new status and basis are installed in lpprob, and the
   x, y, and actvars arrays have been resized if needed. Set the phase, signal
   a warm start, and then we're done.
 */
-  lpprob->phase = wsb->getPhase() ;
+  assert(resolveOptions) ;
   resolveOptions->forcecold = false ;
   resolveOptions->forcewarm = true ;
 /*

@@ -438,6 +438,80 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
 */
   return (TRUE) ; }
 
+
+
+bool dy_betak (lpprob_struct *orig_lp, int orig_k, double **p_betak)
+/*
+  Given a basic column k, this routine returns the unscaled column of the
+  basis inverse, beta<k>.
+
+  Historically, this function was written well after dy_betaj, so we're going
+  to do something that looks odd: Given basis column orig_k, we'll determine
+  the index of the corresponding basic variable in the original system
+  context and call dy_betaj. As you'd expect, this isn't entirely trivial.
+  The column orig_k is specified in the context of the original system. Put
+  another way, the client is asking for the column corresponding to the
+  variable that's basic for constraint orig_k of the original system. So ...
+
+    1) Determine whether k is an active constraint.
+    2) If yes, consult dy_basis to determine the basic variable then translate
+       to the appropriate external constraint or variable index.
+       If no, then the associated logical is basic, and the appropriate
+       index is trivially -orig_k.
+
+  Parameters:
+    orig_lp:	lp problem structure
+    orig_k:	basis column index, in the original system context
+    p_betak:	(i) vector to hold beta<k>; if NULL, one will be allocated;
+		if non-NULL, will be cleared to zero.
+		(o) inv(B)e<k>, unscaled
+
+  Returns: TRUE if the calculation is successful, FALSE otherwise.
+*/
+
+{ int m,i,j,orig_j ;
+
+  char *rtnnme = "dy_betak" ;
+
+# if DYLP_PARANOIA > 0
+  if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
+  { return (FALSE) ; }
+  if (p_betak == NULL)
+  { errmsg(2,rtnnme,"betak") ;
+    return (FALSE) ; }
+# endif
+/*
+  Always check for valid data structures.
+*/
+  if (orig_lp->owner != dy_owner)
+  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+	   "calculate column of basis inverse") ;
+    return (FALSE) ; }
+/*
+  Check to see whether constraint k is active.
+
+  If so, determine the index of the basic variable. First, get the constraint
+  index i in the active system, then get the index j of the basic variable.
+  If j is a logical, we need the index of the corresponding constraint in the
+  original system (negated), otherwise we need the index of the variable in the
+  original system.
+*/
+  m = dy_sys->concnt ;
+  if (ACTIVE_CON(orig_k))
+  { i = dy_origcons[orig_k] ;
+    j = dy_basis[i] ;
+    if (j <= m)
+    { orig_j = -dy_actcons[j] ; }
+    else
+    { orig_j = dy_actvars[j] ; } }
+/*
+  If k is inactive, then the associated logical is basic and the index is
+  trivially -orig_k
+*/
+  else
+  { orig_j = -orig_k ; }
+  
+  return (dy_betaj(orig_lp,orig_j,p_betak)) ; }
 
 
 
@@ -762,7 +836,8 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
 			j_orig,k_orig,ai->coeffs[v].val) ; }
 #	  endif
 	  abarij += ai->coeffs[v].val*abarj[k_orig] ; } }
-      abarj[i_orig] = agj-abarij ; }
+      abarj[i_orig] = agj-abarij ;
+      setcleanzero(abarj[i_orig],dy_tols->zero) ; }
     if (ai != NULL) pkvec_free(ai) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1156,7 +1231,8 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
 	else
 	{ abari[j_orig] = 0.0 ; }
 	continue ; } }
-    abari[j_orig] = consys_dotcol(orig_sys,j_orig,betai) ; }
+    abari[j_orig] = consys_dotcol(orig_sys,j_orig,betai) ;
+    setcleanzero(abari[j_orig],dy_tols->zero) ; }
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.tableau >= 4)

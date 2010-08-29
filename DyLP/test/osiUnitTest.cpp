@@ -21,18 +21,9 @@
 
 #include "OsiDylpSolverInterface.hpp"
 
+using namespace OsiUnitTest ;
+
 namespace {
-
-/*
-  Print message on stderr. Flush cout buffer before printing the message, so
-  that output comes out in order in spite of buffered cout.
-*/
-
-void testingMessage (const char * const msg)
-{
-  std::cout.flush() ;
-  std::cerr << msg ;
-}
 
 /*
   Print the help text.

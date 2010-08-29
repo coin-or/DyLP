@@ -1035,33 +1035,39 @@ static dyret_enum primal1 (void)
 /*
   Scan to select an incoming variable x<j>.  If primalin cannot find a
   candidate, we're infeasible (or perhaps we've punted). We're not primal
-  feasible (else tweakp1obj would have seen it).
+  feasible (else tweakp1obj would have seen it).  If we've punted, call
+  dy_dealWithPunt to free up any potential candidates on the pivot rejection
+  list and iterate to try again.
 
-  If we've punted, call dy_dealWithPunt to free up any potential candidates on
-  the pivot rejection list and iterate to try again.
+  If the problem context is cxLOAD, this is all we need to do. Skip to the
+  end game.
 */
     startcol = nextcol ;
     scanresult = dy_primalin(startcol,scan,&candxj,&nextcol) ;
-    switch (scanresult)
-    { case dyrOK:
-      { do_pivots = TRUE ;
-	break ; }
-      case dyrPUNT:
-      { scanresult = dy_dealWithPunt() ;
-	if (scanresult == dyrRESELECT)
-	{ continue ; }
-	else
+    if (dy_opts->context == cxLOAD)
+    { do_pivots = FALSE ;
+      lpretval = scanresult ; }
+    else
+    { switch (scanresult)
+      { case dyrOK:
+	{ do_pivots = TRUE ;
+	  break ; }
+	case dyrPUNT:
+	{ scanresult = dy_dealWithPunt() ;
+	  if (scanresult == dyrRESELECT)
+	  { continue ; }
+	  else
+	  { do_pivots = FALSE ;
+	    lpretval = scanresult ; }
+	  break ; }
+	case dyrOPTIMAL:
 	{ do_pivots = FALSE ;
-	  lpretval = scanresult ; }
-	break ; }
-      case dyrOPTIMAL:
-      { do_pivots = FALSE ;
-	lpretval = dyrINFEAS ;
-	break ; }
-      default:
-      { do_pivots = FALSE ;
-	lpretval = scanresult ;
-	break ; } }
+	  lpretval = dyrINFEAS ;
+	  break ; }
+	default:
+	{ do_pivots = FALSE ;
+	  lpretval = scanresult ;
+	  break ; } } }
 /*
   Open the pivoting loop. While we have a candidate x<j> for entry, we do a
   three-step: attempt the pivot with x<j> (dy_primalpivot), then check that
@@ -1255,35 +1261,39 @@ static dyret_enum primal1 (void)
   verifyp1obj recalculates the primal variables but does not refactor unless
   it concludes the objective is incorrect (thus there is the potential for
   loss of primal feasibility in preoptimality).
+
+  If all we're doing is loading a problem, avoid any further modifications
+  (such as reinitialising the phase 1 objective).
 */
     if (lpretval == dyrOPTIMAL || lpretval == dyrINFEAS ||
 	lpretval == dyrUNBOUND || lpretval == dyrPUNT)
     { p1objresult = verifyp1obj() ;
-      switch (p1objresult)
-      { case dyrOK:
-	{ break ; }
-	case dyrRESELECT:
-	{
-#         ifndef DYLP_NDEBUG
-	  if (dy_opts->print.phase1 >= 1)
-	  { dyio_outfmt(dy_logchn,dy_gtxecho,
-		   "\n\tfalse termination (%s) due to inconsistent objective",
-		   dy_prtdyret(lpretval)) ;
-	    dyio_outfmt(dy_logchn,dy_gtxecho,
-			" at (%s)%d; rebuilding P1 objective.",
-		        dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ; }
-#         endif
-	  if (dy_initp1obj() == TRUE)
-	  { lpretval = dyrINV ;
-	    continue ; }
-	  errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		 dy_lp->tot.iters,"reinitialise") ;
-	  p1objresult = dyrFATAL ;
-	  break ; }
-	default:
-	{ p1objresult = dyrFATAL ;
-	  break ; } }
-      if (p1objresult == dyrFATAL) return (dyrFATAL) ; }
+      if (dy_opts->context != cxLOAD)
+      { switch (p1objresult)
+	{ case dyrOK:
+	  { break ; }
+	  case dyrRESELECT:
+	  {
+#           ifndef DYLP_NDEBUG
+	    if (dy_opts->print.phase1 >= 1)
+	    { dyio_outfmt(dy_logchn,dy_gtxecho,
+		     "\n\tfalse termination (%s) due to inconsistent objective",
+		     dy_prtdyret(lpretval)) ;
+	      dyio_outfmt(dy_logchn,dy_gtxecho,
+			  " at (%s)%d; rebuilding P1 objective.",
+			  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ; }
+#           endif
+	    if (dy_initp1obj() == TRUE)
+	    { lpretval = dyrINV ;
+	      continue ; }
+	    errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		   dy_lp->tot.iters,"reinitialise") ;
+	    p1objresult = dyrFATAL ;
+	    break ; }
+	  default:
+	  { p1objresult = dyrFATAL ;
+	    break ; } } }
+	if (p1objresult == dyrFATAL) return (dyrFATAL) ; }
 /*
   To get to here, we have a termination condition and the objective has been
   verified.  We can take useful action for dyrOPTIMAL, dyrUNBOUND, dyrINFEAS,
@@ -1413,7 +1423,11 @@ static dyret_enum primal1 (void)
 		   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 		   dy_prtdyret(tmpretval)) ; } }
 #       endif
-      } } }
+      } }
+/*
+  If the context is cxLOAD, escape regardless of the result.
+*/
+    if (dy_opts->context == cxLOAD) break ; }
 /*
   We've finished the outer loop. If we're optimal (and hence headed for phase
   II of the simplex) we'll reinstall the phase II objective, recalculate the
@@ -1537,25 +1551,32 @@ static dyret_enum primal2 (void)
   punted.  Optimality falls into the default case.  If we've punted, call
   dy_dealWithPunt to free up any potential candidates on the pivot rejection
   list and iterate to try again.
+
+  If the problem context is cxLOAD, this is all we need to do. Skip to the end
+  game.
 */
     startcol = nextcol ;
     scanresult = dy_primalin(startcol,scan,&candxj,&nextcol) ;
-    switch (scanresult)
-    { case dyrOK:
-      { do_pivots = TRUE ;
-	break ; }
-      case dyrPUNT:
-      { scanresult = dy_dealWithPunt() ;
-	if (scanresult == dyrRESELECT)
-	{ continue ; }
-	else
+    if (dy_opts->context == cxLOAD)
+    { do_pivots = FALSE ;
+      lpretval = scanresult ; }
+    else
+    { switch (scanresult)
+      { case dyrOK:
+	{ do_pivots = TRUE ;
+	  break ; }
+	case dyrPUNT:
+	{ scanresult = dy_dealWithPunt() ;
+	  if (scanresult == dyrRESELECT)
+	  { continue ; }
+	  else
+	  { do_pivots = FALSE ;
+	    lpretval = scanresult ; }
+	  break ; }
+	default:
 	{ do_pivots = FALSE ;
-	  lpretval = scanresult ; }
-	break ; }
-      default:
-      { do_pivots = FALSE ;
-	lpretval = scanresult ;
-	break ; } }
+	  lpretval = scanresult ;
+	  break ; } } }
 /*
   Open the loop that executes pivots. While we have a candidate x<j> for
   entry, we do a two-step: attempt the pivot with x<j> (dy_primalpivot),
@@ -1815,7 +1836,12 @@ static dyret_enum primal2 (void)
 		   dy_prtdyret(tmpretval),dy_prtlpphase(dy_lp->phase,TRUE),
 		   dy_lp->tot.iters) ; } }
 #       endif
-      } } }
+      } }
+/*
+  If all we're doing is loading the problem, escape the loop regardless of the
+  result of the first pass.
+*/
+    if (dy_opts->context == cxLOAD) break ; }
 /*
   We've finished the outer loop. Clean up before we leave.
 */
@@ -1897,12 +1923,11 @@ lpret_enum dy_primal (void)
       if (dy_stats != NULL && dyret == dyrOPTIMAL)
       { dy_stats->phasecnts[dyPRIMAL2]++ ; }
 #     endif
-    }
-    else
-    { dyret = dyrOPTIMAL ; }
-    if (dyret != dyrOPTIMAL) break ;
+      if (dyret != dyrOPTIMAL) break ;
+      if (dy_opts->context == cxLOAD) break ; }
 /*
-  Phase I succeeded, so we can go on to phase II. Call primal2 to do the work.
+  Phase I succeeded or was unnecessary so we can go on to phase II. Call
+  primal2 to do the work.
 */
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.phase2 >= 2)
@@ -1918,6 +1943,8 @@ lpret_enum dy_primal (void)
     dy_lp->simplex.active = dyPRIMAL2 ;
     dy_lp->p2.iters = 0 ;
     dyret = primal2() ;
+
+    if (dy_opts->context == cxLOAD) break ;
 /*
   What do we have? Optimality is best, but unboundedness is also possible.
   Loss of feasibility takes us back to phase I again. Anything else is an
@@ -2040,7 +2067,6 @@ lpret_enum dy_primal (void)
 /*
   A last bit of substance --- set the return code & we're out of here.
 */
-
   dy_lp->lpret = retval ;
 
   return (retval) ; }

@@ -353,24 +353,31 @@ static dyret_enum dual2 (void)
   the pivot reject list; this is indicated by a return value of dyrPUNT.
   Optimality falls into the default case. Call dy_dealWithPunt to free up any
   potential candidates on the pivot rejection list and iterate to try again.
+
+  If the problem context is cxLOAD, this is all we need to do. Skip to the end
+  game.
 */
     outresult = dy_dualout(&candxi) ;
-    switch (outresult)
-    { case dyrOK:
-      { do_pivots = TRUE ;
-	break ; }
-      case dyrPUNT:
-      { outresult = dy_dealWithPunt() ;
-	if (outresult == dyrRESELECT)
-	{ continue ; }
-	else
+    if (dy_opts->context == cxLOAD)
+    { do_pivots = FALSE ;
+      lpretval = outresult ; }
+    else
+    { switch (outresult)
+      { case dyrOK:
+	{ do_pivots = TRUE ;
+	  break ; }
+	case dyrPUNT:
+	{ outresult = dy_dealWithPunt() ;
+	  if (outresult == dyrRESELECT)
+	  { continue ; }
+	  else
+	  { do_pivots = FALSE ;
+	    lpretval = outresult ; }
+	  break ; }
+	default:
 	{ do_pivots = FALSE ;
-	  lpretval = outresult ; }
-	break ; }
-      default:
-      { do_pivots = FALSE ;
-	lpretval = outresult ;
-	break ; } }
+	  lpretval = outresult ;
+	  break ; } } }
 #   ifdef DYLP_PARANOIA
     if (candxi <= 0 && outresult == dyrOK)
     { dyio_outfmt(dy_logchn,TRUE,
@@ -670,7 +677,12 @@ static dyret_enum dual2 (void)
 		   dy_prtdyret(tmpretval),dy_prtlpphase(dy_lp->phase,TRUE),
 		   dy_lp->tot.iters) ; } }
 #       endif
-      } } }
+      } }
+/*
+  Regardless of the result, if we're just here to load the problem, escape the
+  loop.
+*/
+    if (dy_opts->context == cxLOAD) break ; }
 /*
   We've finished the outer loop. Clean up before we leave.
 */

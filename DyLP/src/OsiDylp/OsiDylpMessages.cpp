@@ -88,7 +88,9 @@ typedef struct { OsiDylpMessageID_enum inID ;
 		 const char *fmt ; } MsgDefn ;
 
 static MsgDefn us_en_defns[] = {
+
   // informational (0 -- 2999)
+
   { ODSI_TEST_MSG, 1, 2, "This is the us_en test message." },
   { ODSI_MPSFILEIO, 10, 5, "MPS file %s %s with %d errors." },
   { ODSI_COLD, 50, 3, "dylp cold start%? (%s)%? result %s, z = %g, iters = %d." },
@@ -105,17 +107,21 @@ static MsgDefn us_en_defns[] = {
     "Presolve pass %d: dropped %d constraints (%.2f), %d variables (%.2f)." },
   { ODSI_POSTSOL, 200, 3, "Postsolve %s."},
   { ODSI_POSTSOL_ACT, 201, 6, "Applying postsolve transform %s."},
+
   // warning (3000 -- 5999)
+
   { ODSI_IGNOREDHINT, 3001, 2, "Ignored unsupported hint; %s." },
   { ODSI_ODWSBSHORTBASIS, 3100, 1,
     "[%s]: basis has only %d variables for %d constraints." },
   { ODSI_NOTFULLSYS, 3301, 3,
     "Partial constraint system mode is inefficient for tableau accesses." },
   { ODSI_NOTSIMPLEX, 3302, 2,
-    "Request to leave simplex mode %d but current mode is %d. Logic error?" },
+    "Request to leave simplex mode %d but current mode is %d." },
   { ODSI_NOTOPTIMAL, 3303, 2,
     "The last call to the solver did not produce an optimal solution." },
+
   // Non-fatal errors (6000 -- 8999)
+
   { ODSI_UNSUPFORCEDO, 6001, 1, "Attempt to force unsupported hint; %s." },
   { ODSI_EMPTYODWSB, 6101, 1, "Empty warm start basis object." },
   { ODSI_NOTODWSB, 6102, 1,
@@ -135,7 +141,11 @@ static MsgDefn us_en_defns[] = {
     "This ODSI object does not own the solver." },
   { ODSI_NOTVALID, 6302, 1,
     "The solver is not holding valid data structures from a solve." },
+  { ODSI_BADACTIVEBASIS, 6303, 1,
+    "The active basis is %s; cannot reload solver." },
+
   // Fatal errors (9000 and up)
+
   { ODSI_CONFUSION, 9001, 1,
     "Internal confusion, line %d." },
   { ODSI_DUMMY_END, 999999, 0, "" }
