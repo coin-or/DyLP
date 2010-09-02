@@ -41,10 +41,12 @@
   DUAL VARIABLES
 
   Dual variables are complicated because we're not really running dual simplex,
-  we're faking it on the primal constraint system. There are two routines:
+  we're faking it on the primal constraint system. There are three routines:
 
     * dy_rowDuals:	the dual variables y = c<B>inv(B) associated with the
 			architectural constraints, in basis (row) order
+    * dy_rowDualsGivenC: as dy_rowDuals, for an arbitrary cost vector c.
+			Alternately, btran an arbitrary vector.
     * dy_colDuals:	the dual variables cbar<N> = c<N> - yN associated with
 			implicit bound constraints, in column order
   
@@ -485,8 +487,11 @@ void dy_rowDualsGivenC (lpprob_struct *orig_lp, double **p_y,
   sc_y[0] = 0.0 ;
   for (i = 1 ; i <= m ; i++)
   { j = dy_basis[i] ;
-    j_orig = dy_actvars[j] ;
-    sc_y[i] = c[j_orig]*cscale[j_orig] ; }
+    if (j > m)
+    { j_orig = dy_actvars[j] ;
+      sc_y[i] = c[j_orig]*cscale[j_orig] ; }
+    else
+    { sc_y[i] = 0.0 ; } }
 /*
   Do the btran to get sc_y.
 */
@@ -496,7 +501,7 @@ void dy_rowDualsGivenC (lpprob_struct *orig_lp, double **p_y,
   original system frame of reference to make sure we set all y<i>.
 */
   y[0] = 0.0 ;
-  for (i_orig = 1 ; i <= m_orig ; i_orig++)
+  for (i_orig = 1 ; i_orig <= m_orig ; i_orig++)
   { if (ACTIVE_CON(i_orig))
     { i = dy_origcons[i_orig] ;
       yi = sc_y[i] ;

@@ -264,8 +264,8 @@ void ODSI::getBasisStatus (int *archStatusInt, int *logStatusInt) const
   int n = wsb->getNumStructural() ;
   int m = wsb->getNumArtificial() ;
 
-  const char *const archStatus = wsb->getStructuralStatus() ;
-  const char *const logStatus = wsb->getArtificialStatus() ;
+  const char *archStatus = wsb->getStructuralStatus() ;
+  const char *logStatus = wsb->getArtificialStatus() ;
 
   for (int j = 0 ; j < n ; j++)
   { CWSB::Status statj ;
@@ -408,6 +408,10 @@ int ODSI::setBasisStatus (const int *archStatusInt, const int *logStatusInt)
   y = c<B>inv(B) (the row duals), but there's no point in going there for
   the reduced costs --- it'd be a make-work project translating in and out
   of dylp's interior frame of reference.
+
+  Note that the algebra here is independent of maximisation/minimisation. It's
+  only when we get to interpretation of the results (`Are we optimal?') that
+  maximisation or minimisation is relevant.
 */
 void ODSI::getReducedGradient (double *cbar, double *y, const double *c) const
 {
@@ -423,26 +427,21 @@ void ODSI::getReducedGradient (double *cbar, double *y, const double *c) const
     		    "getReducedGradient","OsiDylpSolverInterface",
 		    "OsiDylpSimplex",__LINE__) ; }
 /*
-  Set up to compensate for maximisation
-*/
-  bool maxSign = false ;
-  if (getObjSense() < 0.0)
-    maxSign = true ;
-/*
-  The solver is ready. Ask for the row duals, in the appropriate sign
-  convention. (We need a negation somewhere. Asking for the true dual sign
-  convention will do it.)
-*/
-  dy_rowDualsGivenC(lpprob,&y,c,maxSign) ;
-/*
-  Now calculate the reduced costs, again taking objective sense into account.
+  Ask for the row duals. Because dylp uses 1-based indexing, we really need
+  a vector of size m+1 for y. It's not safe to pass in the vector provided
+  as a parameter; let dylp do the allocation. For the objective we have
+  the same issue, but it's not written and we can safely fudge the address.
 */
   int n = getNumCols() ;
   int m = getNumRows() ;
-  if (maxSign == true)
-    std::transform(c,c+n,cbar,std::negate<double>()) ;
-  else
-    CoinMemcpyN(c,n,cbar) ;
+  double *oneBased = 0 ;
+  dy_rowDualsGivenC(lpprob,&oneBased,idx_vec(c),false) ;
+  CoinCopyN(&oneBased[1],m,y) ;
+  FREE(oneBased) ;
+/*
+  Now calculate the reduced costs.
+*/
+  CoinMemcpyN(c,n,cbar) ;
   pkvec_struct *ai = pkvec_new(n) ;
   for (int i = 0 ; i < m ; i++)
   { if (y[i] != 0)
