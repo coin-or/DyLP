@@ -321,7 +321,7 @@ int dytest_allDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   Returns: 0 if yA = c, error count otherwise.
 */
 
-{ int i,j,k,m,n ;
+{ int j,m,n ;
   consys_struct *sys ;
   double *obj ;
 
