@@ -5,19 +5,24 @@ EXPORTS
 dy_defaults
 dy_checkdefaults
 dy_setprintopts
+dy_processcmds
 dylp
+dy_getOwner
+dy_freebasis
+dy_initbasis
 dy_dupbasis
-dy_freesoln
 dy_pricenbvars
 dy_pricedualpiv
 dy_abarj
 dy_betaj
+dy_betak
 dy_betai
 dy_abari
 dy_primalRays
 dy_dualRays
 dy_colDuals
 dy_rowDuals
+dy_rowDualsGivenC
 dy_colPrimals
 dy_rowPrimals
 dy_logPrimals
@@ -32,6 +37,7 @@ dy_setgtxecho
 dy_initstats
 dy_dumpstats
 dy_freestats
+dy_freesoln
 
 consys_create
 consys_dupsys
@@ -79,9 +85,8 @@ consys_conbndnme
 consys_conbndval
 consys_chgnme
 consys_nme
+
 pkvec_free
 pkvec_new
 exvec_1norm
-dy_freebasis
-dy_initbasis
-dy_processcmds
+

@@ -296,6 +296,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\OsiDylp\OsiDylpSimplex.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\OsiDylp\OsiDylpSolverInterface.cpp"
 				>
 			</File>
@@ -328,6 +332,14 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\coinutils_props.vsprops"
+			>
+		</File>
+		<File
+			RelativePath=".\osi_props.vsprops"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
