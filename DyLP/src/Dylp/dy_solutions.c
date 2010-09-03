@@ -278,7 +278,7 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
   In dylp's min primal <=> min dual pairing, the duals have the wrong
   sign for the true dual variables used by the canonical max primal <=>
   min dual problem. If you'd prefer that the duals have a sign convention
-  appropriate for the min dual problem, specify trueDuals = true.
+  appropriate for the max primal problem, specify trueDuals = true.
 
   The relevant bit of unscaling is:
 
@@ -403,7 +403,7 @@ void dy_rowDualsGivenC (lpprob_struct *orig_lp, double **p_y,
   In dylp's min primal <=> min dual pairing, the duals have the wrong
   sign for the true dual variables used by the canonical max primal <=>
   min dual problem. If you'd prefer that the duals have a sign convention
-  appropriate for the min dual problem, specify trueDuals = true.
+  appropriate for the max primal problem, specify trueDuals = true.
 
   The relevant bit of unscaling is:
 
