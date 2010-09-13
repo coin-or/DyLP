@@ -104,15 +104,10 @@ COINUTILSDOCDIR = $(DATADIR)/coin/doc/CoinUtils
 OSIDOCDIR = $(DATADIR)/coin/doc/Osi
 
 # Libraries necessary to link with odsi+dylp. Order is important.
-LIBS_CXX = -L$(COINLIBDIR) -lOsiDylp -lDylp -lOsi -lCoinUtils \
-	`cat $(COINUTILSDOCDIR)/coinutils_addlibs.txt` \
-	`cat $(DYLPDOCDIR)/dylp_addlibs.txt` \
-	`cat $(OSIDOCDIR)/osi_addlibs.txt`
+LIBS_CXX = -L$(COINLIBDIR) -L$(COINLIBDIR)/ThirdParty -lOsiDylp -lDylp @OSIDYLPLIB_LIBS@ @DYLPLIB_LIBS@
 
 # Libraries necessary to link with osi_dylp
-LIBS_C = -L$(COINLIBDIR) -lDylp \
-	@ADDLIBS@ \
-	`cat $(DYLPDOCDIR)/dylp_addlibs.txt`
+LIBS_C = -L$(COINLIBDIR) -lDylp @DYLPLIB_LIBS@
 
 # Necessary Include dirs (we use the CYGPATH_W variables to allow
 # compilation with Windows compilers)

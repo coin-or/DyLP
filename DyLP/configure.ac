@@ -62,16 +62,17 @@ AC_COIN_INIT_AUTO_TOOLS
 
 # None of these are required to build and test libDylp. All are needed to
 # properly test libOsiDylp and to fully link the doxygen documentation.
+# (So we should actually not need to search for CoinUtils separately.)
 
-AC_COIN_HAS_MODULE([CoinUtils],[coinutils],[required=0])
-AC_COIN_HAS_MODULE([Osi],[osi],[required=0])
-AC_COIN_HAS_MODULE([OsiTests],[osi-unittests],[required=0])
+AC_COIN_HAS_PACKAGE([CoinUtils],[coinutils],[OsiDyLPLib])
+AC_COIN_HAS_PACKAGE([Osi],[osi],[OsiDyLPLib])
+AC_COIN_HAS_PACKAGE([OsiTests],[osi-unittests])
 
 # Just Sample will be enough to run basic tests. If Netlib is present, the
 # OsiDylp test will run the Netlib problem set.
 
-AC_COIN_HAS_MODULE([Sample],[coindatasample],[required=0])
-AC_COIN_HAS_MODULE([Netlib],[coindatanetlib],[required=0])
+AC_COIN_HAS_PACKAGE([Sample],[coindatasample])
+AC_COIN_HAS_PACKAGE([Netlib],[coindatanetlib])
 
 #############################################################################
 #                       Doing project specific tests                        #
@@ -86,11 +87,15 @@ AC_DYLP_EQUIV_FOR_CPP_BOOL
 
 ########################################################################
 
+AC_SUBST(DYLPLIB_LIBS)
+AC_SUBST(DYLPLIB_PCLIBS)
+
 # The floating point functions we'll be looking for seem to live in one of
 # the following headers: math.h, ieeefp.h, float.h, and sunmath.h. Check
-# for presence. We'll use the results to limit the work below. The coin
-# macro COIN_PROJECTDIR_INIT should deal with presence/absence of -lm
-# (for libmath) in ADDLIBS. Don't overrule it here.
+# for presence. We'll use the results to limit the work below.
+
+# check for presence/absence of -lm (for libmath) and store in DYLP_(PC)LIBS flags
+AC_COIN_CHECK_LIBM(DyLPLib)
 
 AC_CHECK_HEADER([math.h],
     [AC_DEFINE([HAVE_MATH_H],[1],[Define to 1 if math.h exists.])
@@ -113,8 +118,8 @@ AC_CHECK_HEADER([sunmath.h],
      fp_header_list="sunmath.h $fp_header_list"
      AC_C_ADD_TO_INCLUDES([sunmath.h])
      AC_DYLP_GET_SUNSTUDIO_LIBDIRS
-     LIBS="$SUNSTUDIO_LIBDIRS -lsunmath $LIBS"
-     ADDLIBS="-lsunmath $ADDLIBS"],
+     DYLPLIB_LIBS="-lsunmath $DYLPLIB_LIBS"
+     DYLPLIB_PCLIBS="-lsunmath $DYLPLIB_PCLIBS"],
     [])
 
 AC_MSG_NOTICE([Found floating point header files $fp_header_list.])

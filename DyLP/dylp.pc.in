@@ -6,7 +6,6 @@ includedir=@includedir@/coin
 Name: DyLP
 Description: dynamic simplex linear programming solver
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lDylp @PCADDLIBS@
+Libs: -L${libdir} -lDylp @DYLPLIB_PCLIBS@
 Cflags: -I${includedir}
-Requires: @REQUIREDPACKAGES@
-
+Requires:

@@ -88,7 +88,8 @@ am_unitTest_OBJECTS = dytest_problems.$(OBJEXT) dytest_rays.$(OBJEXT) \
 	dytest_solutions.$(OBJEXT) dytest_tableau.$(OBJEXT) \
 	unitTest.$(OBJEXT)
 unitTest_OBJECTS = $(am_unitTest_OBJECTS)
-unitTest_DEPENDENCIES = ../src/Dylp/libDylp.la
+unitTest_DEPENDENCIES = ../src/Dylp/libDylp.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -162,6 +163,8 @@ DBG_CFLAGS = @DBG_CFLAGS@
 DBG_CXXFLAGS = @DBG_CXXFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DYLPLIB_LIBS = @DYLPLIB_LIBS@
+DYLPLIB_PCLIBS = @DYLPLIB_PCLIBS@
 DYLP_ERRMSGDIR = @DYLP_ERRMSGDIR@
 DYLP_SVN_REV = @DYLP_SVN_REV@
 ECHO = @ECHO@
@@ -182,9 +185,7 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBEXT = @LIBEXT@
 LIBOBJS = @LIBOBJS@
-
-# List additional libraries
-LIBS = @LIBS@ $(ADDLIBS)
+LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOLM4 = @LIBTOOLM4@
 LN_S = @LN_S@
@@ -202,6 +203,9 @@ NETLIB_LIBS = @NETLIB_LIBS@
 OBJEXT = @OBJEXT@
 OPT_CFLAGS = @OPT_CFLAGS@
 OPT_CXXFLAGS = @OPT_CXXFLAGS@
+OSIDYLPLIB_LIBS = @OSIDYLPLIB_LIBS@
+OSIDYLPLIB_PCLIBS = @OSIDYLPLIB_PCLIBS@
+OSIDYLPLIB_PCREQUIRES = @OSIDYLPLIB_PCREQUIRES@
 OSITESTS_CFLAGS = @OSITESTS_CFLAGS@
 OSITESTS_DATA = @OSITESTS_DATA@
 OSITESTS_LIBS = @OSITESTS_LIBS@
@@ -218,7 +222,6 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PCADDLIBS = @PCADDLIBS@
 PKG_CONFIG = @PKG_CONFIG@
 RANLIB = @RANLIB@
-REQUIREDPACKAGES = @REQUIREDPACKAGES@
 RPATH_FLAGS = @RPATH_FLAGS@
 SAMPLE_CFLAGS = @SAMPLE_CFLAGS@
 SAMPLE_DATA = @SAMPLE_DATA@
@@ -299,7 +302,7 @@ unitTest_SOURCES = \
 
 
 # List libraries of COIN projects required for the unitTest
-unitTest_LDADD = ../src/Dylp/libDylp.la
+unitTest_LDADD = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS) $(OSIDYLPLIB_LIBS)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin

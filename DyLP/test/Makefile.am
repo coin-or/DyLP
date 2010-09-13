@@ -23,10 +23,7 @@ unitTest_SOURCES = \
 
 # List libraries of COIN projects required for the unitTest
 
-unitTest_LDADD = ../src/Dylp/libDylp.la
-
-# List additional libraries
-LIBS += $(ADDLIBS)
+unitTest_LDADD = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS) $(OSIDYLPLIB_LIBS)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin

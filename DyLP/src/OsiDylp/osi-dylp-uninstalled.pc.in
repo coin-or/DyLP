@@ -3,6 +3,6 @@ prefix=@prefix@
 Name: OsiDylp
 Description: COIN-OR Open Solver Interface for DyLP
 Version: @PACKAGE_VERSION@
-Libs: -L@ABSBUILDDIR@/src/OsiDylp -lOsiDylp
+Libs: -L@ABSBUILDDIR@/src/OsiDylp -lOsiDylp @OSIDYLPLIB_PCLIBS@
 Cflags: -I@abs_source_dir@/src/OsiDylp
-Requires: osi dylp
+Requires: dylp @OSIDYLPLIB_PCREQUIRES@
