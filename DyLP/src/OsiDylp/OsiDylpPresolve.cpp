@@ -101,8 +101,8 @@
 //#define PRESOLVE_DEBUG 1
 //#define PRESOLVE_CONSISTENCY 1
 
-#include <OsiDylpSolverInterface.hpp>
-#include <OsiDylpWarmStartBasis.hpp>
+#include "OsiDylpSolverInterface.hpp"
+#include "OsiDylpWarmStartBasis.hpp"
 #include "OsiDylpMessages.hpp"
 #include "CoinHelperFunctions.hpp"
 #include "CoinPresolveMatrix.hpp"

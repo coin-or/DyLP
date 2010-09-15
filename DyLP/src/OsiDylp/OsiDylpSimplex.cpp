@@ -18,9 +18,9 @@
 #define ODWSB OsiDylpWarmStartBasis
 #define CWSB CoinWarmStartBasis
 
-#include <OsiDylpSolverInterface.hpp>
-#include <OsiDylpWarmStartBasis.hpp>
-#include <OsiDylpMessages.hpp>
+#include "OsiDylpSolverInterface.hpp"
+#include "OsiDylpWarmStartBasis.hpp"
+#include "OsiDylpMessages.hpp"
 
 namespace {
   char svnid[] UNUSED = "$Id$" ;
