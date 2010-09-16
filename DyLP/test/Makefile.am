@@ -23,7 +23,7 @@ unitTest_SOURCES = \
 
 # List libraries of COIN projects required for the unitTest
 
-unitTest_LDADD = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS) $(OSIDYLPLIB_LIBS)
+unitTest_LDADD = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
@@ -43,7 +43,7 @@ noinst_PROGRAMS += osiUnitTest
 osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
 
 osiUnitTest_LDADD = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
-	$(COINUTILS_LIBS) $(OSITESTS_LIBS)
+	$(OSITESTS_LIBS) $(OSIDYLPLIB_LIBS) $(DYLPLIB_LIBS)
 
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(srcdir)/../src/OsiDylp` \
 	$(COINUTILS_CFLAGS) $(OSITESTS_CFLAGS)
