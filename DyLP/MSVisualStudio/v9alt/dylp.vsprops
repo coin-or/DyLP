@@ -8,7 +8,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="&quot;$(DylpIncludeDir)&quot;;&quot;$(DylpStdIncludeDir)&quot;"
-		PreprocessorDefinitions="DYLP_ERRMSGDIR=\&quot;D:\\Coin\\Split\\DyLP\\DyLP\\src\\Dylp\\\\\&quot;"
+		PreprocessorDefinitions="DYLP_ERRMSGDIR=\&quot;$(CoinRootEscaped)\\DyLP\\DyLP\\src\\Dylp\\\\\&quot;"
 	/>
 	<Tool
 		Name="VCLibrarianTool"
