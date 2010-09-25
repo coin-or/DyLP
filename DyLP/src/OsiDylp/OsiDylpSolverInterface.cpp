@@ -61,7 +61,6 @@ namespace {
 #include <string>
 #include <cassert>
 #include <sstream>
-#include <sstream>
 #include "CoinTime.hpp"
 #include <OsiColCut.hpp>
 #include <OsiRowCut.hpp>
