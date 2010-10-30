@@ -38,7 +38,6 @@ EXTRA_DIST = \
 	AUTHORS LICENSE README NEWS \
 	examples/generic.spc \
 	examples/greenbeb.spc \
-	examples/Makefile.in \
 	examples/mpsio.c \
 	examples/odsi+dylp.cpp \
 	examples/osi_dylp.c \

@@ -212,6 +212,7 @@ NETLIB_LIBS = @NETLIB_LIBS@
 OBJEXT = @OBJEXT@
 OPT_CFLAGS = @OPT_CFLAGS@
 OPT_CXXFLAGS = @OPT_CXXFLAGS@
+OSIDYLPLIB_CFLAGS = @OSIDYLPLIB_CFLAGS@
 OSIDYLPLIB_LIBS = @OSIDYLPLIB_LIBS@
 OSIDYLPLIB_PCLIBS = @OSIDYLPLIB_PCLIBS@
 OSIDYLPLIB_PCREQUIRES = @OSIDYLPLIB_PCREQUIRES@
@@ -315,10 +316,9 @@ SUBDIRS = src/DylpStdLib src/Dylp $(am__append_1) examples \
 
 # Here we need include all files that are not mentioned in other Makefiles
 EXTRA_DIST = AUTHORS LICENSE README NEWS examples/generic.spc \
-	examples/greenbeb.spc examples/Makefile.in examples/mpsio.c \
-	examples/odsi+dylp.cpp examples/osi_dylp.c \
-	examples/osi+dylp.cpp examples/plain examples/README \
-	$(am__append_3)
+	examples/greenbeb.spc examples/mpsio.c examples/odsi+dylp.cpp \
+	examples/osi_dylp.c examples/osi+dylp.cpp examples/plain \
+	examples/README $(am__append_3)
 
 ########################################################################
 #                  Installation of the addlibs file                    #

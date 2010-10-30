@@ -8,8 +8,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST = doxydoc/dylp_doxy_pkg.conf \
-	     INSTALL LICENSE README
+EXTRA_DIST = INSTALL LICENSE README
 
 ########################################################################
 #                          Subdirectories                              #
