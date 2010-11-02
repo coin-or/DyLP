@@ -64,15 +64,15 @@ AC_COIN_INIT_AUTO_TOOLS
 # properly test libOsiDylp and to fully link the doxygen documentation.
 # (So we should actually not need to search for CoinUtils separately.)
 
-AC_COIN_HAS_PACKAGE([CoinUtils],[coinutils],[OsiDyLPLib])
-AC_COIN_HAS_PACKAGE([Osi],[osi],[OsiDyLPLib])
-AC_COIN_HAS_PACKAGE([OsiTests],[osi-unittests])
+AC_COIN_CHECK_PACKAGE([CoinUtils],[coinutils],[OsiDyLPLib])
+AC_COIN_CHECK_PACKAGE([Osi],[osi],[OsiDyLPLib])
+AC_COIN_CHECK_PACKAGE([OsiTests],[osi-unittests])
 
 # Just Sample will be enough to run basic tests. If Netlib is present, the
 # OsiDylp test will run the Netlib problem set.
 
-AC_COIN_HAS_PACKAGE([Sample],[coindatasample])
-AC_COIN_HAS_PACKAGE([Netlib],[coindatanetlib])
+AC_COIN_CHECK_PACKAGE([Sample],[coindatasample])
+AC_COIN_CHECK_PACKAGE([Netlib],[coindatanetlib])
 
 #############################################################################
 #                       Doing project specific tests                        #

@@ -20796,7 +20796,7 @@ if test $coin_has_coinutils = notGiven; then
 
 if test -n "$PKG_CONFIG" ; then
   if $PKG_CONFIG --exists "coinutils"; then
-    COINUTILS_VERSIONS="`$PKG_CONFIG --modversion coinutils 2>/dev/null`"
+    COINUTILS_VERSIONS="`$PKG_CONFIG --modversion "coinutils" 2>/dev/null`"
      cflags=`$PKG_CONFIG --cflags "coinutils" 2>/dev/null`
     # pkg-config cannot handle spaces, so CYGPATH_W cannot be put into .pc files
 	# thus, we modify the cflags extracted from pkg-config by putting CYGPATH_W behind -I's
@@ -21112,7 +21112,7 @@ if test $coin_has_osi = notGiven; then
 
 if test -n "$PKG_CONFIG" ; then
   if $PKG_CONFIG --exists "osi"; then
-    OSI_VERSIONS="`$PKG_CONFIG --modversion osi 2>/dev/null`"
+    OSI_VERSIONS="`$PKG_CONFIG --modversion "osi" 2>/dev/null`"
      cflags=`$PKG_CONFIG --cflags "osi" 2>/dev/null`
     # pkg-config cannot handle spaces, so CYGPATH_W cannot be put into .pc files
 	# thus, we modify the cflags extracted from pkg-config by putting CYGPATH_W behind -I's
@@ -21419,7 +21419,7 @@ if test $coin_has_ositests = notGiven; then
 
 if test -n "$PKG_CONFIG" ; then
   if $PKG_CONFIG --exists "osi-unittests"; then
-    OSITESTS_VERSIONS="`$PKG_CONFIG --modversion osi-unittests 2>/dev/null`"
+    OSITESTS_VERSIONS="`$PKG_CONFIG --modversion "osi-unittests" 2>/dev/null`"
      cflags=`$PKG_CONFIG --cflags "osi-unittests" 2>/dev/null`
     # pkg-config cannot handle spaces, so CYGPATH_W cannot be put into .pc files
 	# thus, we modify the cflags extracted from pkg-config by putting CYGPATH_W behind -I's
@@ -21712,7 +21712,7 @@ if test $coin_has_sample = notGiven; then
 
 if test -n "$PKG_CONFIG" ; then
   if $PKG_CONFIG --exists "coindatasample"; then
-    SAMPLE_VERSIONS="`$PKG_CONFIG --modversion coindatasample 2>/dev/null`"
+    SAMPLE_VERSIONS="`$PKG_CONFIG --modversion "coindatasample" 2>/dev/null`"
      cflags=`$PKG_CONFIG --cflags "coindatasample" 2>/dev/null`
     # pkg-config cannot handle spaces, so CYGPATH_W cannot be put into .pc files
 	# thus, we modify the cflags extracted from pkg-config by putting CYGPATH_W behind -I's
@@ -22001,7 +22001,7 @@ if test $coin_has_netlib = notGiven; then
 
 if test -n "$PKG_CONFIG" ; then
   if $PKG_CONFIG --exists "coindatanetlib"; then
-    NETLIB_VERSIONS="`$PKG_CONFIG --modversion coindatanetlib 2>/dev/null`"
+    NETLIB_VERSIONS="`$PKG_CONFIG --modversion "coindatanetlib" 2>/dev/null`"
      cflags=`$PKG_CONFIG --cflags "coindatanetlib" 2>/dev/null`
     # pkg-config cannot handle spaces, so CYGPATH_W cannot be put into .pc files
 	# thus, we modify the cflags extracted from pkg-config by putting CYGPATH_W behind -I's
