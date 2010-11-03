@@ -55,7 +55,7 @@
 /*
   Dylp version. The quotes are part of the definition.
 */
-#define DYLP_VERSION "1.7"
+#define DYLP_VERSION "1.7.0"
 
 /*
   Defines specific to dylp.
