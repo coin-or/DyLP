@@ -42,7 +42,7 @@ AC_PREFIX_DEFAULT([`pwd`])
 AC_CANONICAL_BUILD
 
 # Do a bit of basic setup for configuration
-AC_COIN_PROJECTDIR_INIT(DyLP,7:0:7)
+AC_COIN_PROJECTDIR_INIT(DyLP,7:0:6)
 
 # Check if user wants to produce debugging code
 AC_COIN_DEBUG_COMPILE(DyLP)
