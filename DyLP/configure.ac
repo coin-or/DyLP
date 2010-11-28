@@ -89,6 +89,7 @@ AC_DYLP_EQUIV_FOR_CPP_BOOL
 
 AC_SUBST(DYLPLIB_LIBS)
 AC_SUBST(DYLPLIB_PCLIBS)
+AC_SUBST(DYLPLIB_LIBS_INSTALLED)
 
 # The floating point functions we'll be looking for seem to live in one of
 # the following headers: math.h, ieeefp.h, float.h, and sunmath.h. Check
@@ -119,6 +120,7 @@ AC_CHECK_HEADER([sunmath.h],
      AC_C_ADD_TO_INCLUDES([sunmath.h])
      AC_DYLP_GET_SUNSTUDIO_LIBDIRS
      DYLPLIB_LIBS="-lsunmath $DYLPLIB_LIBS"
+     DYLPLIB_LIBS_INSTALLED="-lsunmath $DYLPLIB_LIBS_INSTALLED"
      DYLPLIB_PCLIBS="-lsunmath $DYLPLIB_PCLIBS"],
     [])
 

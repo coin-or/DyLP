@@ -90,11 +90,18 @@ CC = @CC@
 # C Compiler options
 CFLAGS = @CFLAGS@
 
-# Directory with COIN header files
-COININCDIR = @abs_include_dir@/coin
+# Compiler flags (we use the CYGPATH_W variables to allow compilation with Windows compilers)
+@COIN_HAS_PKGCONFIG_TRUE@INCL = `PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ @PKG_CONFIG@ --cflags dylp` $(ADDINCFLAGS)
+@COIN_HAS_PKGCONFIG_FALSE@INCL = -I`$(CYGPATH_W) @abs_include_dir@/coin` $(ADDINCFLAGS)
 
-# Directory with COIN libraries
-COINLIBDIR = @abs_lib_dir@/coin
+# Linker flags
+@COIN_HAS_PKGCONFIG_TRUE@@COIN_CC_IS_CL_FALSE@LIBS_C = `PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ @PKG_CONFIG@ --libs dylp`
+@COIN_HAS_PKGCONFIG_TRUE@@COIN_CC_IS_CL_TRUE@LIBS_C = /link: `PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ @PKG_CONFIG@ --msvc-syntax --libs dylp`
+@COIN_HAS_PKGCONFIG_FALSE@LIBS_C = -L@abs_lib_dir@ -lDylp @DYLPLIB_LIBS_INSTALLED@
+
+@COIN_HAS_PKGCONFIG_TRUE@@COIN_CXX_IS_CL_FALSE@LIBS_CXX = `PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ @PKG_CONFIG@ --libs osi-dylp`
+@COIN_HAS_PKGCONFIG_TRUE@@COIN_CXX_IS_CL_TRUE@LIBS_CXX = /link: `PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ @PKG_CONFIG@ --msvc-syntax --libs osi-dylp`
+@COIN_HAS_PKGCONFIG_FALSE@LIBS_CXX = -L@abs_lib_dir@ -lOsiDylp -lDylp @OSIDYLPLIB_LIBS_INSTALLED@
 
 # Location of xxx_addlibs.txt
 prefix = @prefix@
@@ -102,16 +109,6 @@ DATADIR = @datadir@
 DYLPDOCDIR = $(DATADIR)/coin/doc/DyLP
 COINUTILSDOCDIR = $(DATADIR)/coin/doc/CoinUtils
 OSIDOCDIR = $(DATADIR)/coin/doc/Osi
-
-# Libraries necessary to link with odsi+dylp. Order is important.
-LIBS_CXX = -L$(COINLIBDIR) -L$(COINLIBDIR)/ThirdParty -lOsiDylp -lDylp @OSIDYLPLIB_LIBS@ @DYLPLIB_LIBS@
-
-# Libraries necessary to link with osi_dylp
-LIBS_C = -L$(COINLIBDIR) -lDylp @DYLPLIB_LIBS@
-
-# Necessary Include dirs (we use the CYGPATH_W variables to allow
-# compilation with Windows compilers)
-INCL =  -I`$(CYGPATH_W) $(COININCDIR)` $(ADDINCFLAGS)
 
 # The following is necessary under cygwin, if native compilers are used
 CYGPATH_W = @CYGPATH_W@
@@ -130,13 +127,13 @@ $(EXE_CXX): $(OBJS_CXX)
 	bla=;\
 	for file in $(OBJS_CXX); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
 	$(CXX) $(CXXLINKFLAGS) $(CXXFLAGS) \
-	  -o $@ $$bla $(ADDLIBS) $(LIBS_CXX)
+	  -o $@ $$bla $(LIBS_CXX) $(ADDLIBS)
 
 $(EXE_C): $(OBJS_C)
 	bla=;\
 	for file in $(OBJS_C); do bla="$$bla `$(CYGPATH_W) $$file`"; done; \
 	$(CC) $(CXXLINKFLAGS) $(CFLAGS) \
-	  -o $@ $$bla $(ADDLIBS) $(LIBS_C)
+	  -o $@ $$bla $(LIBS_C) $(ADDLIBS)
 
 # Standard automake clean targets, so that this directory gets properly
 # cleaned.

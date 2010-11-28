@@ -104,17 +104,19 @@ if COIN_HAS_OSI
 pkgconfiglib_DATA += osi-dylp.pc
 endif
 
-if COIN_HAS_PKGCONFIG
 addlibsdir = $(DESTDIR)$(datadir)/coin/doc/DyLP
 	
 install-data-hook:
 	@$(mkdir_p) "$(addlibsdir)"
+if COIN_HAS_PKGCONFIG
 	PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ \
 	$(PKG_CONFIG) --libs dylp > $(addlibsdir)/dylp_addlibs.txt
+else
+	echo -L@abs_lib_dir@ -lDyLP @DYLPLIB_LIBS_INSTALLED@ > $(addlibsdir)/dylp_addlibs.txt
+endif
 
 uninstall-hook:
 	rm -f $(addlibsdir)/dylp_addlibs.txt
-endif
 
 install-exec-local: install-doc
 
