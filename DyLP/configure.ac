@@ -245,8 +245,8 @@ AC_CONFIG_FILES([doxydoc/doxygen.conf])
 
 AC_CONFIG_FILES([dylp.pc dylp-uninstalled.pc])
 if test $coin_has_osi = yes ; then
-  AC_CONFIG_FILES([src/OsiDylp/osi-dylp.pc
-	   osi-dylp-uninstalled.pc:src/OsiDylp/osi-dylp-uninstalled.pc.in])
+  AC_CONFIG_FILES([osi-dylp.pc:src/OsiDylp/osi-dylp.pc.in
+                   osi-dylp-uninstalled.pc:src/OsiDylp/osi-dylp-uninstalled.pc.in])
 fi
 
 # And all the stuff that goes into building the documentation. See the note in

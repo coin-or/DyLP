@@ -59,6 +59,7 @@ host_triplet = @host@
 # included in the tarball. Similarly, we don't want to attempt to build the
 # documentation unless specifically requested.
 @ALWAYS_FALSE@am__append_2 = test doc doc/Figures doc/TexMF
+@COIN_HAS_OSI_TRUE@am__append_3 = osi-dylp.pc
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/../config.guess \
 	$(srcdir)/../config.sub $(srcdir)/../install-sh \
 	$(srcdir)/../ltmain.sh $(srcdir)/../missing \
@@ -68,10 +69,10 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/../config.guess \
 	$(top_srcdir)/doxydoc/doxygen.conf.in \
 	$(top_srcdir)/examples/Makefile.in \
 	$(top_srcdir)/inc/config_dylp.h.in \
-	$(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in AUTHORS \
-	NEWS
-@HAVE_EXTERNALS_TRUE@am__append_3 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_4 = .Externals-stamp
+	$(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in \
+	$(top_srcdir)/src/OsiDylp/osi-dylp.pc.in AUTHORS NEWS
+@HAVE_EXTERNALS_TRUE@am__append_4 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_5 = .Externals-stamp
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
@@ -89,7 +90,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
 CONFIG_CLEAN_FILES = examples/Makefile doxydoc/doxygen.conf dylp.pc \
-	dylp-uninstalled.pc osi-dylp-uninstalled.pc
+	dylp-uninstalled.pc osi-dylp.pc osi-dylp-uninstalled.pc
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -318,13 +319,13 @@ SUBDIRS = src/DylpStdLib src/Dylp $(am__append_1) examples \
 EXTRA_DIST = AUTHORS LICENSE README NEWS examples/generic.spc \
 	examples/greenbeb.spc examples/mpsio.c examples/odsi+dylp.cpp \
 	examples/osi_dylp.c examples/osi+dylp.cpp examples/plain \
-	examples/README $(am__append_3)
+	examples/README $(am__append_4)
 
 ########################################################################
 #                  Installation of the addlibs file                    #
 ########################################################################
 pkgconfiglibdir = $(libdir)/pkgconfig
-pkgconfiglib_DATA = dylp.pc
+pkgconfiglib_DATA = dylp.pc $(am__append_3)
 @COIN_HAS_PKGCONFIG_TRUE@addlibsdir = $(DESTDIR)$(datadir)/coin/doc/DyLP
 
 ########################################################################
@@ -335,7 +336,7 @@ pkgconfiglib_DATA = dylp.pc
 ACLOCAL_AMFLAGS = -I m4
 
 # Files that are generated and should be cleaned with make distclean
-DISTCLEANFILES = $(am__append_4) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_5) $(VPATH_DISTCLEANFILES)
 DocFiles = README AUTHORS LICENSE
 DocInstallDir = $(datadir)/coin/doc/$(PACKAGE_NAME)
 all: all-recursive
@@ -398,6 +399,8 @@ doxydoc/doxygen.conf: $(top_builddir)/config.status $(top_srcdir)/doxydoc/doxyge
 dylp.pc: $(top_builddir)/config.status $(srcdir)/dylp.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 dylp-uninstalled.pc: $(top_builddir)/config.status $(srcdir)/dylp-uninstalled.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+osi-dylp.pc: $(top_builddir)/config.status $(top_srcdir)/src/OsiDylp/osi-dylp.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 osi-dylp-uninstalled.pc: $(top_builddir)/config.status $(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

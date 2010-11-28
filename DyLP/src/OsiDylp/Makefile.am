@@ -53,6 +53,3 @@ includecoin_HEADERS = \
 	OsiDylpSolverInterface.hpp \
 	OsiDylpWarmStartBasis.hpp
 
-pkgconfiglibdir = $(libdir)/pkgconfig
-pkgconfiglib_DATA = osi-dylp.pc
-

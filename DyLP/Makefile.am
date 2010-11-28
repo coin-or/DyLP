@@ -100,6 +100,10 @@ maintainer-clean-local: distclean-local
 pkgconfiglibdir = $(libdir)/pkgconfig
 pkgconfiglib_DATA = dylp.pc
 
+if COIN_HAS_OSI
+pkgconfiglib_DATA += osi-dylp.pc
+endif
+
 if COIN_HAS_PKGCONFIG
 addlibsdir = $(DESTDIR)$(datadir)/coin/doc/DyLP
 	
