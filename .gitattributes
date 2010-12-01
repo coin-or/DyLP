@@ -2,12 +2,17 @@
 /Dependencies -text
 DyLP/MSVisualStudio/v9/Dylp.sln -text
 DyLP/MSVisualStudio/v9/DylpUnitTest.vcproj -text
+DyLP/MSVisualStudio/v9/DylpUnitTest/DylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9/OsiDylpUnitTest.vcproj -text
+DyLP/MSVisualStudio/v9/OsiDylpUnitTest/OsiDylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9/coinutils_props.vsprops -text
 DyLP/MSVisualStudio/v9/libDylp.def -text
 DyLP/MSVisualStudio/v9/libDylp.vcproj -text
+DyLP/MSVisualStudio/v9/libDylp/libDylp.vcproj -text
 DyLP/MSVisualStudio/v9/libDylpStdLib.vcproj -text
+DyLP/MSVisualStudio/v9/libDylpStdLib/libDylpStdLib.vcproj -text
 DyLP/MSVisualStudio/v9/libOsiDylp.vcproj -text
+DyLP/MSVisualStudio/v9/libOsiDylp/libOsiDylp.vcproj -text
 DyLP/MSVisualStudio/v9/osi_props.vsprops -text
 DyLP/MSVisualStudio/v9alt/Dylp.sln -text
 DyLP/MSVisualStudio/v9alt/DylpUnitTest.vcproj -text
