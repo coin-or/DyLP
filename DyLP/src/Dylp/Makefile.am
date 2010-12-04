@@ -66,7 +66,7 @@ libDylp_la_SOURCES = \
 	dy_vector.h \
 	dy_vector_utils.c
 
-# This is for libtool (on Windows)
+# This is for libtool
 
 libDylp_la_LDFLAGS = $(LT_LDFLAGS)
 
@@ -94,7 +94,7 @@ DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 ########################################################################
 
 # Here list all the header files that are required by a user of the library,
-# and that therefore should be installed in 'install/coin'
+# and that therefore should be installed in 'include/coin'
 
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = \
