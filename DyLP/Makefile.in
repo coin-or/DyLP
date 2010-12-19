@@ -60,9 +60,7 @@ host_triplet = @host@
 # documentation unless specifically requested.
 @ALWAYS_FALSE@am__append_2 = test doc doc/Figures doc/TexMF
 @COIN_HAS_OSI_TRUE@am__append_3 = osi-dylp.pc
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/../config.guess \
-	$(srcdir)/../config.sub $(srcdir)/../install-sh \
-	$(srcdir)/../ltmain.sh $(srcdir)/../missing \
+DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/BuildTools/Makemain.inc $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/dylp-uninstalled.pc.in \
 	$(srcdir)/dylp.pc.in $(top_srcdir)/configure \
@@ -70,7 +68,8 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/../config.guess \
 	$(top_srcdir)/examples/Makefile.in \
 	$(top_srcdir)/inc/config_dylp.h.in \
 	$(top_srcdir)/src/OsiDylp/osi-dylp-uninstalled.pc.in \
-	$(top_srcdir)/src/OsiDylp/osi-dylp.pc.in AUTHORS NEWS
+	$(top_srcdir)/src/OsiDylp/osi-dylp.pc.in AUTHORS NEWS \
+	config.guess config.sub depcomp install-sh ltmain.sh missing
 @HAVE_EXTERNALS_TRUE@am__append_4 = Externals
 @HAVE_EXTERNALS_TRUE@am__append_5 = .Externals-stamp
 subdir = .
@@ -595,7 +594,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/BuildTools $(distdir)/doc $(distdir)/doxydoc $(distdir)/examples $(distdir)/inc $(distdir)/m4 $(distdir)/src/OsiDylp
+	$(mkdir_p) $(distdir)/. $(distdir)/BuildTools $(distdir)/doc $(distdir)/doxydoc $(distdir)/examples $(distdir)/inc $(distdir)/m4 $(distdir)/src/OsiDylp
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \

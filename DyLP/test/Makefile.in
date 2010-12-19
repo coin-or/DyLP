@@ -83,7 +83,7 @@ am_unitTest_OBJECTS = dytest_problems.$(OBJEXT) dytest_rays.$(OBJEXT) \
 	dytest_solutions.$(OBJEXT) dytest_tableau.$(OBJEXT) \
 	unitTest.$(OBJEXT)
 unitTest_OBJECTS = $(am_unitTest_OBJECTS)
-depcomp = $(SHELL) $(top_srcdir)/../depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)

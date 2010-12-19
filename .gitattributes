@@ -18,8 +18,11 @@ DyLP/MSVisualStudio/v9alt/osidylp.vsprops -text
 DyLP/Makefile.am -text
 DyLP/Makefile.in -text
 DyLP/NEWS -text
+DyLP/config.guess -text
+DyLP/config.sub -text
 DyLP/configure -text
 DyLP/configure.ac -text
+DyLP/depcomp -text
 DyLP/doc/Figures/Makefile.am -text
 DyLP/doc/Figures/Makefile.in -text
 DyLP/doc/Figures/conmgmtcalls.drw -text
@@ -153,6 +156,8 @@ DyLP/dylp.pc.in -text
 DyLP/examples/Makefile.in -text
 DyLP/examples/generic.spc -text
 DyLP/inc/config_dylp.h.in -text
+DyLP/install-sh -text
+DyLP/ltmain.sh -text
 DyLP/m4/ac_c_add_to_includes.m4 -text
 DyLP/m4/ac_c_get_sunpro_libs.m4 -text
 DyLP/m4/ac_dylp_equiv_for_cpp_bool.m4 -text
@@ -160,6 +165,7 @@ DyLP/m4/ac_dylp_find_fp_funcs.m4 -text
 DyLP/m4/ac_dylp_fix_cppflags.m4 -text
 DyLP/m4/ac_dylp_options.m4 -text
 DyLP/m4/ac_osidylp_options.m4 -text
+DyLP/missing -text
 DyLP/src/Dylp/Makefile.am -text
 DyLP/src/Dylp/Makefile.in -text
 DyLP/src/Dylp/dy_rays.c -text
