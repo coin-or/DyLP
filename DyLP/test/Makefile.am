@@ -21,9 +21,10 @@ unitTest_SOURCES = \
 	dytest_tableau.c \
 	unitTest.c
 
-# List libraries of COIN projects required for the unitTest
+# List libraries required for the unitTest
 
-unitTest_LDADD = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS)
+unitTest_LDADD        = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS)
+unitTest_DEPENDENCIES = ../src/Dylp/libDylp.la $(DYLPLIB_DEPENDENCIES)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Cygwin
@@ -44,6 +45,9 @@ osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
 
 osiUnitTest_LDADD = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
 	$(OSITESTS_LIBS) $(OSIDYLPLIB_LIBS) $(DYLPLIB_LIBS)
+
+osiUnitTest_DEPENDENCIES = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
+	$(OSITESTS_DEPENDENCIES) $(OSIDYLPLIB_DEPENDENCIES) $(DYLPLIB_DEPENDENCIES)
 
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(srcdir)/../src/OsiDylp` \
 	$(COINUTILS_CFLAGS) $(OSITESTS_CFLAGS)

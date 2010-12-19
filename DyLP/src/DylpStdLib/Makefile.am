@@ -32,12 +32,8 @@ libDylpStdLib_la_SOURCES = \
 	dylib_std.h \
 	dylib_strrtns.c dylib_strrtns.h
 
-# This is for libtool (on Windows)
+# This is for libtool
 libDylpStdLib_la_LDFLAGS = $(LT_LDFLAGS)
-
-# Here list all include flags, relative to this "srcdir" directory.  This
-# "cygpath" stuff is necessary to compile with native compilers on Windows
-CFLAGS +=
 
 # This line is necessary to allow VPATH compilation with MS compilers
 # on Cygwin
@@ -48,7 +44,7 @@ DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 ########################################################################
 
 # Here list all the header files that are required by a user of the library,
-# and that therefore should be installed in 'install/coin'
+# and that therefore should be installed in 'include/coin'
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = \
 	../../inc/config_dylp.h \

@@ -102,6 +102,11 @@ bool processParameters (int argc, const char **argv,
   pathTmp += dirsep ;
   pathTmp += "Data" ;
   pathTmp += dirsep ;
+/*
+  Adjust for Windows in classic package.
+*/
+  if (dirsep == '\\')
+    pathTmp = "..\\..\\" + pathTmp ;
 
   parms["mpsDir"] = pathTmp + "Sample"  ;
   parms["netlibDir"] = pathTmp + "Netlib" ;

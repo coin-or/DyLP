@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libDylp"
-	ProjectGUID="{2F33AD17-18D4-4737-BEFA-FD03A07D7BA3}"
-	RootNamespace="libDylp"
+	Name="OsiDylpUnitTest"
+	ProjectGUID="{4DD541AA-CD56-4C73-B4C6-332CF6D9ABFD}"
+	RootNamespace="UnitTest"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -21,9 +21,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -44,14 +44,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBDYLP_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\inc;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\src\OsiCommonTest;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -64,13 +65,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libDylpStd.lib"
+				AdditionalDependencies="libDylp.lib libOsiDylp.lib libOsiCommonTest.lib libOsi.lib libCoinUtils.lib"
 				ShowProgress="2"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(OutDir)"
-				ModuleDefinitionFile="libDylp.def"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -97,9 +97,9 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -121,8 +121,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBDYLP_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\inc;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\src\OsiCommonTest;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -141,13 +141,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libDylpStd.lib"
-				ShowProgress="2"
+				AdditionalDependencies="libDylp.lib libOsiDylp.lib libOsiCommonTest.lib libOsi.lib libCoinUtils.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(OutDir)"
-				ModuleDefinitionFile="libDylp.def"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -174,9 +172,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -199,13 +197,14 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBDYLP_EXPORTS;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\inc;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\src\OsiCommonTest;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -218,12 +217,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libDylpStd.lib"
+				AdditionalDependencies="libDylp.lib libOsiDylp.lib libOsiCommonTest.lib libOsi.lib libCoinUtils.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(Outdir)"
-				ModuleDefinitionFile="libDylp.def"
+				AdditionalLibraryDirectories="$(OutDir)"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -252,9 +250,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -278,8 +276,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBDYLP_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\inc;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\src\OsiCommonTest;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -297,12 +295,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libDylpStd.lib"
+				AdditionalDependencies="libDylp.lib libOsiDylp.lib libOsiCommonTest.lib libOsi.lib libCoinUtils.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(OutDir)"
-				ModuleDefinitionFile="libDylp.def"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="17"
@@ -339,163 +336,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\Dylp\dy_basis.c"
+				RelativePath="..\..\..\test\OsiDylpSolverInterfaceTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\Dylp\dy_bound.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_cmdint.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_coldstart.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_conmgmt.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_consys_io.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_consys_mathutils.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_consys_scaling.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_consys_utils.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_dual.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_dualmultipivot.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_dualpivot.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_duenna.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_force.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_hotstart.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_options.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_penalty.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_pivreject.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_primal.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_primalmultipivot.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_primalpivot.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_rays.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_scaling.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_setup.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_solutions.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_statistics.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_tableau.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_varmgmt.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_vector_utils.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_warmstart.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dylp.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dylp_io.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dylp_utils.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glpinv.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glplib1.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glplib2.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glplib3.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glplib4.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glpluf.c"
-				>
-			</File>
-			<File
-				RelativePath=".\libDylp.def"
+				RelativePath="..\..\..\test\osiUnitTest.cpp"
 				>
 			</File>
 		</Filter>
@@ -504,38 +349,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\src\Dylp\dy_cmdint.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_consys.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dy_vector.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\dylp.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glpinv.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glplib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\Dylp\glpluf.h"
-				>
-			</File>
-			<File
-				RelativePath=".\resource.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -543,14 +356,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
-		<File
-			RelativePath=".\ClassDiagram1.cd"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\Dylp\dy_errmsgs.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

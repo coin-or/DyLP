@@ -2,10 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="DylpUnitTest"
-	ProjectGUID="{4DD541AA-CD56-4C73-B4C6-332CF6D9ABFD}"
-	RootNamespace="UnitTest"
-	Keyword="Win32Proj"
+	Name="libOsiDylp"
+	ProjectGUID="{4B701E10-C331-454F-A76F-2EC8D2260535}"
+	RootNamespace="libOsiDylp"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -21,10 +20,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(OutDir)"
-			ConfigurationType="1"
-			CharacterSet="1"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -44,15 +43,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\Dylp;..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\inc;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="ODSI_PARANOIA=1;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;DYLP_ERRMSGDIR=\&quot;..\\..\\..\\src\\Dylp\\\\&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
-				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -64,20 +61,12 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="libDylp.lib"
-				ShowProgress="2"
-				LinkIncremental="2"
+				Name="VCLibrarianTool"
+				AdditionalDependencies="libOsi.lib"
 				AdditionalLibraryDirectories="$(OutDir)"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -87,9 +76,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -97,10 +83,10 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
+			ConfigurationType="4"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -121,12 +107,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\Dylp;..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\inc;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="ODSI_PARANOIA=1;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_LIB;DYLP_ERRMSGDIR=\&quot;..\\..\\..\\src\\Dylp\\\\&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -140,19 +125,12 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="libDylp.lib"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(PlatformName)\$(ConfigurationName)"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				TargetMachine="17"
+				Name="VCLibrarianTool"
+				AdditionalDependencies="libOsi.lib"
+				AdditionalLibraryDirectories="$(OutDir)"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -164,18 +142,15 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(OutDir)"
-			ConfigurationType="1"
-			CharacterSet="1"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -197,14 +172,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\src\Dylp;..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\inc;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="ODSI_PARANOIA=1;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;DYLP_ERRMSGDIR=\&quot;..\\..\\..\\src\\Dylp\\\\&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
-				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -216,21 +189,12 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="libDylp.lib"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(Outdir)"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				AdditionalDependencies="libOsi.lib"
+				AdditionalLibraryDirectories="$(OutDir)"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -242,18 +206,15 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
+			ConfigurationType="4"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -276,11 +237,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\src\Dylp;..\..\src\DylpStdLib;..\..\..\BuildTools\headers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="..\..\..\src\DylpStdLib;..\..\..\src\Dylp;..\..\..\src\OsiDylp;..\..\..\..\Osi\src\Osi;..\..\..\..\Osi\inc;..\..\..\..\CoinUtils\inc;..\..\..\..\CoinUtils\src;..\..\..\..\BuildTools\headers"
+				PreprocessorDefinitions="ODSI_PARANOIA=1;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_LIB;DYLP_ERRMSGDIR=\&quot;..\\..\\..\\src\\Dylp\\\\&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -294,21 +254,12 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="libDylp.lib"
-				LinkIncremental="1"
+				Name="VCLibrarianTool"
+				AdditionalDependencies="libOsi.lib"
 				AdditionalLibraryDirectories="$(OutDir)"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -318,9 +269,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -336,23 +284,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\test\dytest_problems.c"
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpMessages.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\test\dytest_rays.c"
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpPresolve.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\test\dytest_solutions.c"
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpSimplex.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\test\dytest_tableau.c"
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpSolverInterface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\test\unitTest.c"
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpWarmStartBasis.cpp"
 				>
 			</File>
 		</Filter>
@@ -361,6 +309,18 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpMessages.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpSolverInterface.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\src\OsiDylp\OsiDylpWarmStartBasis.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
