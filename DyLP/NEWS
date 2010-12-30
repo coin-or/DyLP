@@ -7,3 +7,8 @@
     full system internally. Along with this comes a full independent unit
     test, and updated documentation.
 
+ 101103 DyLP/stable/1.7
+
+    OsiDylp now implements the OsiSimplex Group I API (tableau access). MS
+    Visual Studio solutions for dylp and OsiDylp in the classic (v9) and split
+    (v9alt) configurations. DLL build capability for dylp.
