@@ -8,7 +8,7 @@
         Burnaby, B.C., V5A 1S6, Canada
         lou@cs.sfu.ca
 
-  This code is licensed under the terms of the Common Public License (CPL).
+  This code is licensed under the terms of the Eclipse Public License (EPL).
 */
 
 #include "dylib_std.h"

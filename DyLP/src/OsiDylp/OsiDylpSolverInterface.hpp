@@ -6,6 +6,9 @@
   Lou Hafer, Stephen Tse, International Business Machines Corporation and
   others. All Rights Reserved.
   Copyright (C) 2005 -- 2010 Lou Hafer
+
+  This file is a portion of the COIN/OSI interface for dylp and is licensed
+  under the terms of the Eclipse Public License (EPL)
 */
 
 /*! \file OsiDylpSolverInterface.hpp 

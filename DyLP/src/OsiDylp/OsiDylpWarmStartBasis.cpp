@@ -3,7 +3,8 @@
   Lou Hafer, International Business Machines Corporation and others.
   All Rights Reserved.
 
-  This file is a portion of the COIN/OSI interface for dylp.
+  This file is a portion of the COIN/OSI interface for dylp and is licensed
+  under the terms of the Eclipse Public License (EPL)
 */
 
 #include "OsiConfig.h"

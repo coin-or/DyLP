@@ -7,7 +7,7 @@
 --
 -- This file is a part of GLPK (GNU Linear Programming Kit).
 --
--- Licensed under the Common Public License (CPL) by permission of the
+-- Licensed under the Eclipse Public License (EPL) by permission of the
 -- author for inclusion in the DyLP LP distribution.
 ----------------------------------------------------------------------*/
 /*

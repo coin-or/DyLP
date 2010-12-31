@@ -14,9 +14,8 @@ AUTOMAKE_OPTIONS = foreign
 ########################################################################
 
 # Name of the library compiled in this directory. We want it installed in
-# lib/coin
-coinlibdir = $(libdir)/coin
-coinlib_LTLIBRARIES = libOsiDylp.la
+# $libdir
+lib_LTLIBRARIES = libOsiDylp.la
 
 # List all source files for this library, including headers
 libOsiDylp_la_SOURCES = \

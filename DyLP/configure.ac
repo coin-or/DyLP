@@ -1,6 +1,6 @@
 # Copyright (C) 2006 International Business Machines.
 # All Rights Reserved.
-# This file is distributed under the Common Public License.
+# This file is distributed under the Eclipse Public License.
 
 ## $Id: configure.ac,v 1.1.2.1 2006/04/19 23:25:12 andreasw Exp $
 
@@ -20,7 +20,7 @@ AC_COPYRIGHT([
 Copyright 2006 International Business Machines and others.
 All Rights Reserved.
 This file is part of the open source package Coin which is distributed
-under the Common Public License.])
+under the Eclipse Public License.])
 
 AC_REVISION(0.10)
 

@@ -1,8 +1,11 @@
 /*
   Copyright (C) 2010 Lou Hafer
 
-  This file is a portion of the COIN/OSI interface for dylp. It provides the
-  methods that implement the OsiSimplex API.
+  This file is a portion of the COIN/OSI interface for dylp and is licensed
+  under the terms of the Eclipse Public License (EPL)
+
+  This file provides the methods that implement the OsiSimplex Group 1 API
+  (tableau access).
 */
 
 #ifdef _MSC_VER

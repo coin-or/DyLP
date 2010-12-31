@@ -15,10 +15,9 @@ EXTRA_DIST = dy_errmsgs.txt
 ########################################################################
 
 # Name of the library compiled in this directory.  We want it to be installed
-# in the 'lib/coin' directory
+# in the $libdir directory
 
-coinlibdir = $(libdir)/coin
-coinlib_LTLIBRARIES = libDylp.la
+lib_LTLIBRARIES = libDylp.la
 
 # List all source files for this library, including headers
 
