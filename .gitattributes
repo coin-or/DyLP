@@ -202,7 +202,6 @@ DyLP/test/dytest_rays.c -text
 DyLP/test/dytest_solutions.c -text
 DyLP/test/dytest_tableau.c -text
 DyLP/test/unitTest.c -text
-/Externals -text
 /LICENSE -text
 /Makefile.am -text
 /Makefile.in -text
