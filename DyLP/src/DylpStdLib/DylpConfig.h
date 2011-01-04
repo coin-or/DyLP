@@ -55,7 +55,7 @@
 /*
   Dylp version. The quotes are part of the definition.
 */
-#define DYLP_VERSION "1.8"
+#define DYLP_VERSION "trunk"
 
 /*
   Defines specific to dylp.
