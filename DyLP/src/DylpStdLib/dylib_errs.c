@@ -433,21 +433,25 @@ void errmsg (int errid, ... )
   the error number. Otherwise call vfprintf to handle expanding the message
   text.
 */
-  va_start(varargs,errid) ; 
   if (emsgchn == NULL || finderrmsg(errid,&errtxt[ERRPFXLEN]) == NULL)
-  { ident = va_arg(varargs,char *) ;
+  { va_start(varargs,errid) ; 
+    ident = va_arg(varargs,char *) ;
     if (errecho == TRUE)
       fprintf(stderr,"\n%s: error %d.\n",ident,errid) ;
     if (elogchn != NULL)
-      fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ; }
+      fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ;
+    va_end(varargs) ; }
   else
   { if (errecho == TRUE)
-    { vfprintf(stderr,errtxt,varargs) ;
-      putc('\n',stderr) ; }
+    { va_start(varargs,errid) ;
+      vfprintf(stderr,errtxt,varargs) ;
+      putc('\n',stderr) ;
+      va_end(varargs) ; }
     if (elogchn != NULL) 
-    { vfprintf(elogchn,errtxt,varargs) ;
-      putc('\n',elogchn) ; } }
-  va_end(varargs) ;
+    { va_start(varargs,errid) ;
+      vfprintf(elogchn,errtxt,varargs) ;
+      putc('\n',elogchn) ;
+      va_end(varargs) ; } }
 /*
   Flush the logged error message, so that the user will definitely see it.
 */
@@ -497,21 +501,25 @@ void warn (int errid, ... )
   the error number. Otherwise call vfprintf to handle expanding the message
   text.
 */
-  va_start(varargs,errid) ; 
   if (emsgchn == NULL || finderrmsg(errid,&warntxt[WARNPFXLEN]) == NULL)
-  { ident = va_arg(varargs,char *) ;
+  { va_start(varargs,errid) ; 
+    ident = va_arg(varargs,char *) ;
     if (errecho == TRUE)
       fprintf(stderr,"\n%s: error %d.\n",ident,errid) ;
     if (elogchn != NULL)
-      fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ; }
+      fprintf(elogchn,"\n%s: error %d.\n",ident,errid) ;
+    va_end(varargs) ; }
   else
   { if (errecho == TRUE)
-    { vfprintf(stderr,warntxt,varargs) ;
-      putc('\n',stderr) ; }
+    { va_start(varargs,errid) ;  
+      vfprintf(stderr,warntxt,varargs) ;
+      putc('\n',stderr) ;
+      va_end(varargs) ; }
     if (elogchn != NULL) 
-    { vfprintf(elogchn,warntxt,varargs) ;
-      putc('\n',elogchn) ; } }
-  va_end(varargs) ;
+    { va_start(varargs,errid) ; 
+      vfprintf(elogchn,warntxt,varargs) ;
+      putc('\n',elogchn) ;
+      va_end(varargs) ; } }
 /*
   Flush the logged error message, so that the user will definitely see it.
 */
@@ -528,9 +536,10 @@ void warn (int errid, ... )
   WARNING!
 
   The Fortran hooks haven't been tested since the last millenium. It's highly
-  unlikely that they still work. In particular, it seems likely that each call
-  to vfprintf using the constructed varargs block should be bracked with
-  va_start / va_end.
+  unlikely that they still work. In current implementations, it's necessary
+  to bracket each use of the varargs block by vfprintf with va_start / va_end,
+  as in the errmsg and warn functions above. This is because use of the
+  va_start macro steps the va_list pointer to the next argument.
 */
 
 /*
