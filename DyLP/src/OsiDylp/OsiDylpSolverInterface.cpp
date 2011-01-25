@@ -6685,7 +6685,8 @@ void ODSI::activateRowCutDebugger (const char *modelName)
   See also the comments for activateRowCutDebugger(const char*).
 */
 
-void ODSI::activateRowCutDebugger (const double *solution)
+void ODSI::activateRowCutDebugger (const double *solution,
+				   bool keepContinuous)
 
 { delete rowCutDebugger_ ;
 
@@ -6695,12 +6696,13 @@ void ODSI::activateRowCutDebugger (const double *solution)
   { CoinWarmStart *ws = dylp_owner->getWarmStart() ;
     ODSI *prev_owner = dylp_owner ;
     prev_owner->detach_dylp() ;
-    rowCutDebugger_ = new OsiRowCutDebugger(*this,solution) ;
+    rowCutDebugger_ = new OsiRowCutDebugger(*this,solution,keepContinuous) ;
     prev_owner->setWarmStart(ws) ;
     prev_owner->resolve() ;
     delete ws ; }
   else
-  { rowCutDebugger_ = new OsiRowCutDebugger(*this,solution) ; }
+  { rowCutDebugger_ =
+        new OsiRowCutDebugger(*this,solution,keepContinuous) ; }
 
   return ; }
 
