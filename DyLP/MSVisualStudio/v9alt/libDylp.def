@@ -2,6 +2,22 @@ LIBRARY	"libDylp"
 
 EXPORTS
 
+dyio_chgerrlog
+dyio_closefile
+dyio_flushio
+dyio_isactive
+dyio_ioinit
+dyio_ioterm
+dyio_openfile
+dyio_outchr
+dyio_outfmt
+dyio_setmode
+
+errinit
+errterm
+errmsg
+warn
+
 dy_defaults
 dy_checkdefaults
 dy_setprintopts

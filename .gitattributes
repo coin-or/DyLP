@@ -10,6 +10,7 @@ DyLP/MSVisualStudio/v9alt/Dylp.sln -text
 DyLP/MSVisualStudio/v9alt/DylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9alt/OsiDylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9alt/dylp.vsprops -text
+DyLP/MSVisualStudio/v9alt/genDefForDylp.ps1 -text
 DyLP/MSVisualStudio/v9alt/libDylp.def -text
 DyLP/MSVisualStudio/v9alt/libDylp.vcproj -text
 DyLP/MSVisualStudio/v9alt/libDylpStdLib.vcproj -text
