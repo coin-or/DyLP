@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="OsiDylpUnitTest"
+	Name="DylpUnitTest"
 	ProjectGUID="{2E037744-DCA1-46FF-8B98-B2993C7C5F4C}"
 	RootNamespace="UnitTest"
 	Keyword="Win32Proj"
@@ -23,7 +23,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(CoinBinDir)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(COIN_ROOT)\BuildTools\MSVisualStudio\v9alt\coin.vsprops;.\osidylp.vsprops"
+			InheritedPropertySheets=".\dylp.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -44,8 +44,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OsiCommonTestIncludeDir)&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
 				WarningLevel="3"
@@ -63,7 +63,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libOsiCommonTest.lib"
 				ShowProgress="2"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -97,7 +96,7 @@
 			Name="Debug|x64"
 			OutputDirectory="$(CoinBinDir)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(COIN_ROOT)\BuildTools\MSVisualStudio\v9alt\coin.vsprops;.\osidylp.vsprops"
+			InheritedPropertySheets=".\dylp.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -119,8 +118,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OsiCommonTestIncludeDir)&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
 				WarningLevel="3"
@@ -137,7 +136,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libOsiCommonTest.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
@@ -170,7 +168,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(CoinBinDir)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(COIN_ROOT)\BuildTools\MSVisualStudio\v9alt\coin.vsprops;.\osidylp.vsprops"
+			InheritedPropertySheets=".\dylp.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -193,8 +191,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(OsiCommonTestIncludeDir)&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -212,7 +210,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libOsiCommonTest.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
@@ -247,7 +244,7 @@
 			Name="Release|x64"
 			OutputDirectory="$(CoinBinDir)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(COIN_ROOT)\BuildTools\MSVisualStudio\v9alt\coin.vsprops;.\osidylp.vsprops"
+			InheritedPropertySheets=".\dylp.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -271,8 +268,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(OsiCommonTestIncludeDir)&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -289,7 +286,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libOsiCommonTest.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
@@ -324,7 +320,7 @@
 			Name="DebugDLL|Win32"
 			OutputDirectory="$(CoinBinDir)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(COIN_ROOT)\BuildTools\MSVisualStudio\v9alt\coin.vsprops;.\osidylp.vsprops"
+			InheritedPropertySheets=".\dylp.vsprops"
 			UseOfMFC="0"
 			CharacterSet="1"
 			>
@@ -346,8 +342,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OsiCommonTestIncludeDir)&quot;;&quot;$(CoinRoot)\DyLP\DyLP\src\Dylp&quot;;&quot;$(CoinRoot)\DyLP\DyLP\src\DylpStdLib&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
 				WarningLevel="3"
@@ -366,10 +362,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="libOsiCommonTest.lib"
 				ShowProgress="2"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(CoinLibDir)&quot;"
+				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -400,7 +395,7 @@
 			Name="DebugDLL|x64"
 			OutputDirectory="$(CoinBinDir)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(COIN_ROOT)\BuildTools\MSVisualStudio\v9alt\coin.vsprops;.\osidylp.vsprops"
+			InheritedPropertySheets=".\dylp.vsprops"
 			UseOfMFC="0"
 			CharacterSet="1"
 			>
@@ -423,8 +418,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(OsiCommonTestIncludeDir)&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				RuntimeLibrary="3"
 				WarningLevel="3"
@@ -442,9 +437,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="libOsiCommonTest.lib"
+				AdditionalDependencies="libDylp.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="$(CoinLibDir)"
+				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -481,11 +476,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\test\OsiDylpSolverInterfaceTest.cpp"
+				RelativePath="..\..\test\dytest_problems.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\test\osiUnitTest.cpp"
+				RelativePath="..\..\test\dytest_rays.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\test\dytest_solutions.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\test\dytest_tableau.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\test\unitTest.c"
 				>
 			</File>
 		</Filter>
