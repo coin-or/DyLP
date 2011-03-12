@@ -1,5 +1,15 @@
 * text=auto !eol
 /Dependencies -text
+DyLP/MSVisualStudio/v10alt/Dylp.sln -text
+DyLP/MSVisualStudio/v10alt/DylpUnitTest.vcxproj -text
+DyLP/MSVisualStudio/v10alt/OsiDylpUnitTest.vcxproj -text
+DyLP/MSVisualStudio/v10alt/dylp.props -text
+DyLP/MSVisualStudio/v10alt/genDefForDylp.ps1 -text
+DyLP/MSVisualStudio/v10alt/libDylp.def -text
+DyLP/MSVisualStudio/v10alt/libDylp.vcxproj -text
+DyLP/MSVisualStudio/v10alt/libDylpStdLib.vcxproj -text
+DyLP/MSVisualStudio/v10alt/libOsiDylp.vcxproj -text
+DyLP/MSVisualStudio/v10alt/osidylp.props -text
 DyLP/MSVisualStudio/v9/Dylp.sln -text
 DyLP/MSVisualStudio/v9/DylpUnitTest/DylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9/OsiDylpUnitTest/OsiDylpUnitTest.vcproj -text
