@@ -8,11 +8,9 @@
   under the terms of the Eclipse Public License (EPL)
 */
 
+#include "CoinPragma.hpp"
+
 #ifdef _MSC_VER
-
-/* Turn off compiler warning about long names */
-# pragma warning(disable:4786)
-
 /*
   MS C++ doesn't want to cope with this set of templates. Since they're just
   paranoid checks, it's easiest to simply disable them.
@@ -46,6 +44,7 @@
   is told to use odsiInfinity as its internal value for infinity.
 */
 
+#include "DylpConfig.h"
 #include "CoinFinite.hpp"
 namespace {
   const double CoinInfinity = COIN_DBL_MAX ;

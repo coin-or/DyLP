@@ -7,14 +7,9 @@
   under the terms of the Eclipse Public License (EPL).
 */
 
-#include "OsiConfig.h"
+#include "DylpConfig.h"
 
-#if defined(_MSC_VER)
-
-/* Turn off compiler warning about long names */
-#  pragma warning(disable:4786)
-
-#endif
+#include "CoinPragma.hpp"
 
 /*
   Unset NDEBUG, if it happens to be set. This code needs to be rewritten if
@@ -39,6 +34,8 @@
 #include "OsiDylpSolverInterface.hpp"
 #include "OsiDylpWarmStartBasis.hpp"
 #include "OsiDylpMessages.hpp"
+
+#include "CoinFloatEqual.hpp"
 
 namespace {
   char sccsid[] UNUSED = "@(#)OsiDylpSolverInterfaceTest.cpp	1.11	09/25/04" ;
