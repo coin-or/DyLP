@@ -1,0 +1,17 @@
+/* src/DylpStdLib/config_dylp.h.in. */
+
+/* Version number of project */
+#undef DYLP_VERSION
+
+/* Major Version number of project */
+#undef DYLP_VERSION_MAJOR
+
+/* Minor Version number of project */
+#undef DYLP_VERSION_MINOR
+
+/* Release Version number of project */
+#undef DYLP_VERSION_RELEASE
+
+/* Define to the C type whose size in bytes matches the size in bytes of the
+   the C++ bool type. */
+#undef BOOL

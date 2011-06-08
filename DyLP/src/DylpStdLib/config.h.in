@@ -1,4 +1,4 @@
-/* inc/config_dylp.h.in.  Generated from configure.ac by autoheader.  */
+/* src/DylpStdLib/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to the C type whose size in bytes matches the size in bytes of the
    the C++ bool type. */

@@ -6,6 +6,6 @@ Description: dynamic simplex linear programming solver
 URL: https://projects.coin-or.org/DyLP
 Version: @PACKAGE_VERSION@
 Libs: ${libdir}/libDylp.la @DYLPLIB_PCLIBS@
-Cflags: -I@abs_source_dir@/src/Dylp -I@abs_source_dir@/src/DylpStdLib -I@ABSBUILDDIR@/inc
+Cflags: -I@abs_source_dir@/src/Dylp -I@abs_source_dir@/src/DylpStdLib -I@ABSBUILDDIR@/src/DylpStdLib
 Requires:
 

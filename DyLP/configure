@@ -2860,7 +2860,7 @@ if test x"$CFLAGS" = x; then
       *)
         coin_opt_cflags="-O3"
         coin_add_cflags="-pipe"
-        coin_dbg_cflags="-g"
+        coin_dbg_cflags="-g -O0"
         coin_warn_cflags="-Wimplicit -Wparentheses -Wsequence-point -Wreturn-type -Wcast-qual -Wall -Wno-unknown-pragmas -Wno-long-long"
         case $build in
           *-darwin*)
@@ -3794,7 +3794,7 @@ if test x"$CXXFLAGS" = x; then
 # ToDo decide about unroll-loops
         coin_opt_cxxflags="-O3"
         coin_add_cxxflags="-pipe"
-        coin_dbg_cxxflags="-g"
+        coin_dbg_cxxflags="-g -O0"
         coin_warn_cxxflags="-Wparentheses -Wreturn-type -Wcast-qual -Wall -Wpointer-arith -Wwrite-strings -Wconversion -Wno-unknown-pragmas -Wno-long-long"
         case $build in
           *-darwin*)
@@ -20989,7 +20989,7 @@ COINUTILS_CFLAGS_INSTALLED=
 COINUTILS_DATA=
 COINUTILS_DATA_INSTALLED=
 
-# initial list of dependencies is "coinutils", but we need to filter out version number specifications (= x, <= x, >= x)
+# initial list of dependencies is "coinutils", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="coinutils"
 
 # we first expand the list of projects to process by adding all dependencies just behind the project which depends on it
@@ -21481,7 +21481,7 @@ OSI_CFLAGS_INSTALLED=
 OSI_DATA=
 OSI_DATA_INSTALLED=
 
-# initial list of dependencies is "osi", but we need to filter out version number specifications (= x, <= x, >= x)
+# initial list of dependencies is "osi", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="osi"
 
 # we first expand the list of projects to process by adding all dependencies just behind the project which depends on it
@@ -21958,7 +21958,7 @@ OSITESTS_CFLAGS_INSTALLED=
 OSITESTS_DATA=
 OSITESTS_DATA_INSTALLED=
 
-# initial list of dependencies is "osi-unittests", but we need to filter out version number specifications (= x, <= x, >= x)
+# initial list of dependencies is "osi-unittests", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="osi-unittests"
 
 # we first expand the list of projects to process by adding all dependencies just behind the project which depends on it
@@ -22424,7 +22424,7 @@ SAMPLE_CFLAGS_INSTALLED=
 SAMPLE_DATA=
 SAMPLE_DATA_INSTALLED=
 
-# initial list of dependencies is "coindatasample", but we need to filter out version number specifications (= x, <= x, >= x)
+# initial list of dependencies is "coindatasample", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="coindatasample"
 
 # we first expand the list of projects to process by adding all dependencies just behind the project which depends on it
@@ -22886,7 +22886,7 @@ NETLIB_CFLAGS_INSTALLED=
 NETLIB_DATA=
 NETLIB_DATA_INSTALLED=
 
-# initial list of dependencies is "coindatanetlib", but we need to filter out version number specifications (= x, <= x, >= x)
+# initial list of dependencies is "coindatanetlib", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="coindatanetlib"
 
 # we first expand the list of projects to process by adding all dependencies just behind the project which depends on it
@@ -26922,9 +26922,9 @@ fi
           ac_config_files="$ac_config_files doc/build_dylpdoc"
 
 
-# Here put the location and name of the configuration header file
+# Here put the location and name of the configuration header files
 
-          ac_config_headers="$ac_config_headers inc/config_dylp.h"
+                    ac_config_headers="$ac_config_headers src/DylpStdLib/config.h src/DylpStdLib/config_dylp.h"
 
 
 # Finally, we let configure write all the output...
@@ -27677,7 +27677,8 @@ do
   "doc/TexMF/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/TexMF/Makefile" ;;
   "doc/build_dylpdoc" ) CONFIG_FILES="$CONFIG_FILES doc/build_dylpdoc" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-  "inc/config_dylp.h" ) CONFIG_HEADERS="$CONFIG_HEADERS inc/config_dylp.h" ;;
+  "src/DylpStdLib/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS src/DylpStdLib/config.h" ;;
+  "src/DylpStdLib/config_dylp.h" ) CONFIG_HEADERS="$CONFIG_HEADERS src/DylpStdLib/config_dylp.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;

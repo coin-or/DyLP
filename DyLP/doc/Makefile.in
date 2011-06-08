@@ -58,7 +58,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_c_add_to_includes.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/inc/config_dylp.h
+CONFIG_HEADER = $(top_builddir)/src/DylpStdLib/config.h \
+	$(top_builddir)/src/DylpStdLib/config_dylp.h
 SOURCES =
 DIST_SOURCES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;

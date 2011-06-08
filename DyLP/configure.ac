@@ -262,9 +262,9 @@ AC_CONFIG_FILES([doc/Makefile
 		 doc/TexMF/Makefile])
 AC_CONFIG_FILES([doc/build_dylpdoc],[chmod +x doc/build_dylpdoc])
 
-# Here put the location and name of the configuration header file
+# Here put the location and name of the configuration header files
 
-AC_CONFIG_HEADERS([inc/config_dylp.h])
+AC_CONFIG_HEADERS([src/DylpStdLib/config.h src/DylpStdLib/config_dylp.h])
 
 # Finally, we let configure write all the output...
 

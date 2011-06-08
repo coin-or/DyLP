@@ -83,10 +83,8 @@ libDylp_la_DEPENDENCIES = $(libDylp_la_LIBADD)
 
 AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../DylpStdLib`
 
-# This line is necessary to allow VPATH compilation with MS compilers
-# on Cygwin
-
-DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
+# This line is necessary to allow VPATH compilation
+DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/src/DylpStdLib
 
 ########################################################################
 #                Headers that need to be installed                     #

@@ -18,6 +18,8 @@
 
 #include "dylp.h"
 
+#include <math.h>
+
 extern ioid dy_logchn ;
 extern bool dy_gtxecho ;
 
