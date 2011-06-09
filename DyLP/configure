@@ -20827,6 +20827,10 @@ fi
 COINUTILS_LIBS=
 COINUTILS_CFLAGS=
 COINUTILS_DATA=
+COINUTILS_DEPENDENCIES=
+COINUTILS_PCLIBS=
+COINUTILS_PCREQUIRES=
+COINUTILS_DATA=
 
 
 
@@ -20855,6 +20859,7 @@ if test "${with_coinutils_lib+set}" = set; then
      else
        coin_has_coinutils=yes
        COINUTILS_LIBS="$withval"
+       COINUTILS_PCLIBS="$withval"
 
          OSIDYLPLIB_PCLIBS="$withval $OSIDYLPLIB_PCLIBS"
          OSIDYLPLIB_LIBS="$withval $OSIDYLPLIB_LIBS"
@@ -20945,6 +20950,7 @@ echo "${ECHO_T}yes: $COINUTILS_VERSIONS" >&6
         then
           COINUTILS_LIBS=`echo " $COINUTILS_LIBS " | sed -e 's/ \(\/[^ ]*\/\)\([^ ]*\)\.lib / \`$(CYGPATH_W) \1 | sed -e "s|\\\\\\\\\\\\\\\\\\\\|\/|g"\`\2.lib /g'`
         fi
+        COINUTILS_PCREQUIRES="coinutils"
 
         # augment X_PCREQUIRES, X_CFLAGS, and X_LIBS for each build target X in OsiDyLPLib
 
@@ -20988,6 +20994,8 @@ COINUTILS_CFLAGS=
 COINUTILS_CFLAGS_INSTALLED=
 COINUTILS_DATA=
 COINUTILS_DATA_INSTALLED=
+COINUTILS_PCLIBS=
+COINUTILS_PCREQUIRES=
 
 # initial list of dependencies is "coinutils", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="coinutils"
@@ -21185,6 +21193,7 @@ _ACEOF
     COINUTILS_LIBS_INSTALLED=`echo " $COINUTILS_LIBS_INSTALLED" | sed -e 's/ \(\/[^ ]*\/\)/ \`$(CYGPATH_W) \1\`/g' -e 's/ -L\([^ ]*\)/ \/libpath:\`$(CYGPATH_W) \1\`/g' -e 's/ -l\([^ ]*\)/ lib\1.lib/g'`
   fi
 
+  COINUTILS_PCREQUIRES="coinutils"
 
     OSIDYLPLIB_PCREQUIRES="coinutils $OSIDYLPLIB_PCREQUIRES"
     OSIDYLPLIB_CFLAGS="$COINUTILS_CFLAGS $OSIDYLPLIB_CFLAGS"
@@ -21260,9 +21269,13 @@ echo "$as_me: CoinUtils DEPENDENCIES are $COINUTILS_DEPENDENCIES" >&6;}
       { echo "$as_me:$LINENO: CoinUtils DATA   is  $COINUTILS_DATA" >&5
 echo "$as_me: CoinUtils DATA   is  $COINUTILS_DATA" >&6;}
     fi
-    if test -n "$COINUTILS_CFLAGS" ; then
-      { echo "$as_me:$LINENO: CoinUtils CFLAGS are $COINUTILS_CFLAGS" >&5
-echo "$as_me: CoinUtils CFLAGS are $COINUTILS_CFLAGS" >&6;}
+    if test -n "$COINUTILS_PCLIBS" ; then
+      { echo "$as_me:$LINENO: CoinUtils PCLIBS are $COINUTILS_PCLIBS" >&5
+echo "$as_me: CoinUtils PCLIBS are $COINUTILS_PCLIBS" >&6;}
+    fi
+    if test -n "$COINUTILS_PCREQUIRES" ; then
+      { echo "$as_me:$LINENO: CoinUtils PCREQUIRES are $COINUTILS_PCREQUIRES" >&5
+echo "$as_me: CoinUtils PCREQUIRES are $COINUTILS_PCREQUIRES" >&6;}
     fi
 
       { echo "$as_me:$LINENO: OsiDyLPLib CFLAGS are $OSIDYLPLIB_CFLAGS" >&5
@@ -21319,6 +21332,10 @@ fi
 OSI_LIBS=
 OSI_CFLAGS=
 OSI_DATA=
+OSI_DEPENDENCIES=
+OSI_PCLIBS=
+OSI_PCREQUIRES=
+OSI_DATA=
 
 
 
@@ -21347,6 +21364,7 @@ if test "${with_osi_lib+set}" = set; then
      else
        coin_has_osi=yes
        OSI_LIBS="$withval"
+       OSI_PCLIBS="$withval"
 
          OSIDYLPLIB_PCLIBS="$withval $OSIDYLPLIB_PCLIBS"
          OSIDYLPLIB_LIBS="$withval $OSIDYLPLIB_LIBS"
@@ -21437,6 +21455,7 @@ echo "${ECHO_T}yes: $OSI_VERSIONS" >&6
         then
           OSI_LIBS=`echo " $OSI_LIBS " | sed -e 's/ \(\/[^ ]*\/\)\([^ ]*\)\.lib / \`$(CYGPATH_W) \1 | sed -e "s|\\\\\\\\\\\\\\\\\\\\|\/|g"\`\2.lib /g'`
         fi
+        OSI_PCREQUIRES="osi"
 
         # augment X_PCREQUIRES, X_CFLAGS, and X_LIBS for each build target X in OsiDyLPLib
 
@@ -21480,6 +21499,8 @@ OSI_CFLAGS=
 OSI_CFLAGS_INSTALLED=
 OSI_DATA=
 OSI_DATA_INSTALLED=
+OSI_PCLIBS=
+OSI_PCREQUIRES=
 
 # initial list of dependencies is "osi", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="osi"
@@ -21677,6 +21698,7 @@ _ACEOF
     OSI_LIBS_INSTALLED=`echo " $OSI_LIBS_INSTALLED" | sed -e 's/ \(\/[^ ]*\/\)/ \`$(CYGPATH_W) \1\`/g' -e 's/ -L\([^ ]*\)/ \/libpath:\`$(CYGPATH_W) \1\`/g' -e 's/ -l\([^ ]*\)/ lib\1.lib/g'`
   fi
 
+  OSI_PCREQUIRES="osi"
 
     OSIDYLPLIB_PCREQUIRES="osi $OSIDYLPLIB_PCREQUIRES"
     OSIDYLPLIB_CFLAGS="$OSI_CFLAGS $OSIDYLPLIB_CFLAGS"
@@ -21752,9 +21774,13 @@ echo "$as_me: Osi DEPENDENCIES are $OSI_DEPENDENCIES" >&6;}
       { echo "$as_me:$LINENO: Osi DATA   is  $OSI_DATA" >&5
 echo "$as_me: Osi DATA   is  $OSI_DATA" >&6;}
     fi
-    if test -n "$OSI_CFLAGS" ; then
-      { echo "$as_me:$LINENO: Osi CFLAGS are $OSI_CFLAGS" >&5
-echo "$as_me: Osi CFLAGS are $OSI_CFLAGS" >&6;}
+    if test -n "$OSI_PCLIBS" ; then
+      { echo "$as_me:$LINENO: Osi PCLIBS are $OSI_PCLIBS" >&5
+echo "$as_me: Osi PCLIBS are $OSI_PCLIBS" >&6;}
+    fi
+    if test -n "$OSI_PCREQUIRES" ; then
+      { echo "$as_me:$LINENO: Osi PCREQUIRES are $OSI_PCREQUIRES" >&5
+echo "$as_me: Osi PCREQUIRES are $OSI_PCREQUIRES" >&6;}
     fi
 
       { echo "$as_me:$LINENO: OsiDyLPLib CFLAGS are $OSIDYLPLIB_CFLAGS" >&5
@@ -21811,6 +21837,10 @@ fi
 OSITESTS_LIBS=
 OSITESTS_CFLAGS=
 OSITESTS_DATA=
+OSITESTS_DEPENDENCIES=
+OSITESTS_PCLIBS=
+OSITESTS_PCREQUIRES=
+OSITESTS_DATA=
 
 
 
@@ -21831,6 +21861,7 @@ if test "${with_ositests_lib+set}" = set; then
      else
        coin_has_ositests=yes
        OSITESTS_LIBS="$withval"
+       OSITESTS_PCLIBS="$withval"
 
        # if project flags are given by user and we build without pkg-config, then we need to setup the _INSTALLED variables
        if test -z "$PKG_CONFIG" ; then
@@ -21918,6 +21949,7 @@ echo "${ECHO_T}yes: $OSITESTS_VERSIONS" >&6
         then
           OSITESTS_LIBS=`echo " $OSITESTS_LIBS " | sed -e 's/ \(\/[^ ]*\/\)\([^ ]*\)\.lib / \`$(CYGPATH_W) \1 | sed -e "s|\\\\\\\\\\\\\\\\\\\\|\/|g"\`\2.lib /g'`
         fi
+        OSITESTS_PCREQUIRES="osi-unittests"
 
         # augment X_PCREQUIRES, X_CFLAGS, and X_LIBS for each build target X in
 
@@ -21957,6 +21989,8 @@ OSITESTS_CFLAGS=
 OSITESTS_CFLAGS_INSTALLED=
 OSITESTS_DATA=
 OSITESTS_DATA_INSTALLED=
+OSITESTS_PCLIBS=
+OSITESTS_PCREQUIRES=
 
 # initial list of dependencies is "osi-unittests", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="osi-unittests"
@@ -22154,6 +22188,7 @@ _ACEOF
     OSITESTS_LIBS_INSTALLED=`echo " $OSITESTS_LIBS_INSTALLED" | sed -e 's/ \(\/[^ ]*\/\)/ \`$(CYGPATH_W) \1\`/g' -e 's/ -L\([^ ]*\)/ \/libpath:\`$(CYGPATH_W) \1\`/g' -e 's/ -l\([^ ]*\)/ lib\1.lib/g'`
   fi
 
+  OSITESTS_PCREQUIRES="osi-unittests"
 
 
 fi
@@ -22221,9 +22256,13 @@ echo "$as_me: OsiTests DEPENDENCIES are $OSITESTS_DEPENDENCIES" >&6;}
       { echo "$as_me:$LINENO: OsiTests DATA   is  $OSITESTS_DATA" >&5
 echo "$as_me: OsiTests DATA   is  $OSITESTS_DATA" >&6;}
     fi
-    if test -n "$OSITESTS_CFLAGS" ; then
-      { echo "$as_me:$LINENO: OsiTests CFLAGS are $OSITESTS_CFLAGS" >&5
-echo "$as_me: OsiTests CFLAGS are $OSITESTS_CFLAGS" >&6;}
+    if test -n "$OSITESTS_PCLIBS" ; then
+      { echo "$as_me:$LINENO: OsiTests PCLIBS are $OSITESTS_PCLIBS" >&5
+echo "$as_me: OsiTests PCLIBS are $OSITESTS_PCLIBS" >&6;}
+    fi
+    if test -n "$OSITESTS_PCREQUIRES" ; then
+      { echo "$as_me:$LINENO: OsiTests PCREQUIRES are $OSITESTS_PCREQUIRES" >&5
+echo "$as_me: OsiTests PCREQUIRES are $OSITESTS_PCREQUIRES" >&6;}
     fi
 
   fi
@@ -22277,6 +22316,10 @@ fi
 SAMPLE_LIBS=
 SAMPLE_CFLAGS=
 SAMPLE_DATA=
+SAMPLE_DEPENDENCIES=
+SAMPLE_PCLIBS=
+SAMPLE_PCREQUIRES=
+SAMPLE_DATA=
 
 
 
@@ -22297,6 +22340,7 @@ if test "${with_sample_lib+set}" = set; then
      else
        coin_has_sample=yes
        SAMPLE_LIBS="$withval"
+       SAMPLE_PCLIBS="$withval"
 
        # if project flags are given by user and we build without pkg-config, then we need to setup the _INSTALLED variables
        if test -z "$PKG_CONFIG" ; then
@@ -22384,6 +22428,7 @@ echo "${ECHO_T}yes: $SAMPLE_VERSIONS" >&6
         then
           SAMPLE_LIBS=`echo " $SAMPLE_LIBS " | sed -e 's/ \(\/[^ ]*\/\)\([^ ]*\)\.lib / \`$(CYGPATH_W) \1 | sed -e "s|\\\\\\\\\\\\\\\\\\\\|\/|g"\`\2.lib /g'`
         fi
+        SAMPLE_PCREQUIRES="coindatasample"
 
         # augment X_PCREQUIRES, X_CFLAGS, and X_LIBS for each build target X in
 
@@ -22423,6 +22468,8 @@ SAMPLE_CFLAGS=
 SAMPLE_CFLAGS_INSTALLED=
 SAMPLE_DATA=
 SAMPLE_DATA_INSTALLED=
+SAMPLE_PCLIBS=
+SAMPLE_PCREQUIRES=
 
 # initial list of dependencies is "coindatasample", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="coindatasample"
@@ -22620,6 +22667,7 @@ _ACEOF
     SAMPLE_LIBS_INSTALLED=`echo " $SAMPLE_LIBS_INSTALLED" | sed -e 's/ \(\/[^ ]*\/\)/ \`$(CYGPATH_W) \1\`/g' -e 's/ -L\([^ ]*\)/ \/libpath:\`$(CYGPATH_W) \1\`/g' -e 's/ -l\([^ ]*\)/ lib\1.lib/g'`
   fi
 
+  SAMPLE_PCREQUIRES="coindatasample"
 
 
 fi
@@ -22687,9 +22735,13 @@ echo "$as_me: Sample DEPENDENCIES are $SAMPLE_DEPENDENCIES" >&6;}
       { echo "$as_me:$LINENO: Sample DATA   is  $SAMPLE_DATA" >&5
 echo "$as_me: Sample DATA   is  $SAMPLE_DATA" >&6;}
     fi
-    if test -n "$SAMPLE_CFLAGS" ; then
-      { echo "$as_me:$LINENO: Sample CFLAGS are $SAMPLE_CFLAGS" >&5
-echo "$as_me: Sample CFLAGS are $SAMPLE_CFLAGS" >&6;}
+    if test -n "$SAMPLE_PCLIBS" ; then
+      { echo "$as_me:$LINENO: Sample PCLIBS are $SAMPLE_PCLIBS" >&5
+echo "$as_me: Sample PCLIBS are $SAMPLE_PCLIBS" >&6;}
+    fi
+    if test -n "$SAMPLE_PCREQUIRES" ; then
+      { echo "$as_me:$LINENO: Sample PCREQUIRES are $SAMPLE_PCREQUIRES" >&5
+echo "$as_me: Sample PCREQUIRES are $SAMPLE_PCREQUIRES" >&6;}
     fi
 
   fi
@@ -22739,6 +22791,10 @@ fi
 NETLIB_LIBS=
 NETLIB_CFLAGS=
 NETLIB_DATA=
+NETLIB_DEPENDENCIES=
+NETLIB_PCLIBS=
+NETLIB_PCREQUIRES=
+NETLIB_DATA=
 
 
 
@@ -22759,6 +22815,7 @@ if test "${with_netlib_lib+set}" = set; then
      else
        coin_has_netlib=yes
        NETLIB_LIBS="$withval"
+       NETLIB_PCLIBS="$withval"
 
        # if project flags are given by user and we build without pkg-config, then we need to setup the _INSTALLED variables
        if test -z "$PKG_CONFIG" ; then
@@ -22846,6 +22903,7 @@ echo "${ECHO_T}yes: $NETLIB_VERSIONS" >&6
         then
           NETLIB_LIBS=`echo " $NETLIB_LIBS " | sed -e 's/ \(\/[^ ]*\/\)\([^ ]*\)\.lib / \`$(CYGPATH_W) \1 | sed -e "s|\\\\\\\\\\\\\\\\\\\\|\/|g"\`\2.lib /g'`
         fi
+        NETLIB_PCREQUIRES="coindatanetlib"
 
         # augment X_PCREQUIRES, X_CFLAGS, and X_LIBS for each build target X in
 
@@ -22885,6 +22943,8 @@ NETLIB_CFLAGS=
 NETLIB_CFLAGS_INSTALLED=
 NETLIB_DATA=
 NETLIB_DATA_INSTALLED=
+NETLIB_PCLIBS=
+NETLIB_PCREQUIRES=
 
 # initial list of dependencies is "coindatanetlib", but we need to filter out version number specifications (= x, <= x, >= x, != x)
 projtoprocess="coindatanetlib"
@@ -23082,6 +23142,7 @@ _ACEOF
     NETLIB_LIBS_INSTALLED=`echo " $NETLIB_LIBS_INSTALLED" | sed -e 's/ \(\/[^ ]*\/\)/ \`$(CYGPATH_W) \1\`/g' -e 's/ -L\([^ ]*\)/ \/libpath:\`$(CYGPATH_W) \1\`/g' -e 's/ -l\([^ ]*\)/ lib\1.lib/g'`
   fi
 
+  NETLIB_PCREQUIRES="coindatanetlib"
 
 
 fi
@@ -23149,9 +23210,13 @@ echo "$as_me: Netlib DEPENDENCIES are $NETLIB_DEPENDENCIES" >&6;}
       { echo "$as_me:$LINENO: Netlib DATA   is  $NETLIB_DATA" >&5
 echo "$as_me: Netlib DATA   is  $NETLIB_DATA" >&6;}
     fi
-    if test -n "$NETLIB_CFLAGS" ; then
-      { echo "$as_me:$LINENO: Netlib CFLAGS are $NETLIB_CFLAGS" >&5
-echo "$as_me: Netlib CFLAGS are $NETLIB_CFLAGS" >&6;}
+    if test -n "$NETLIB_PCLIBS" ; then
+      { echo "$as_me:$LINENO: Netlib PCLIBS are $NETLIB_PCLIBS" >&5
+echo "$as_me: Netlib PCLIBS are $NETLIB_PCLIBS" >&6;}
+    fi
+    if test -n "$NETLIB_PCREQUIRES" ; then
+      { echo "$as_me:$LINENO: Netlib PCREQUIRES are $NETLIB_PCREQUIRES" >&5
+echo "$as_me: Netlib PCREQUIRES are $NETLIB_PCREQUIRES" >&6;}
     fi
 
   fi
