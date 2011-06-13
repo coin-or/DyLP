@@ -10,9 +10,6 @@
 #include <iostream>
 
 #include "OsiUnitTests.hpp"
-#include "OsiCuts.hpp"
-#include "OsiRowCutDebugger.hpp"
-
 #include "OsiDylpSolverInterface.hpp"
 
 using namespace OsiUnitTest ;

@@ -35,7 +35,7 @@ namespace {
 }
 
 
-int test_starts (const std::string& mpsDir)
+void test_starts (const std::string& mpsDir)
 
 /*
   This routine makes a number of checks for warm and hot start capabilities.
@@ -59,7 +59,7 @@ int test_starts (const std::string& mpsDir)
   double exmip1MaxObj = 4.5 ;
   std::streamsize old_prec = std::cout.precision() ;
 
-  OSIUNITTEST_ASSERT_ERROR(osi != NULL, return 1, "dylp", "creating ODSI");
+  OSIUNITTEST_ASSERT_ERROR(osi != NULL, return, "dylp", "creating ODSI");
 /*
   Read in exmip1 and solve it.
 */
@@ -69,7 +69,7 @@ int test_starts (const std::string& mpsDir)
   std::string exmpsfile = mpsDir+"exmip1" ;
   std::string probname ;
   std::cout << "Reading mps file \"" << exmpsfile << "\"" << std::endl ;
-  OSIUNITTEST_ASSERT_ERROR(osi->readMps(exmpsfile.c_str(), "mps") == 0, return 1, "dylp", "reading exmip1");
+  OSIUNITTEST_ASSERT_ERROR(osi->readMps(exmpsfile.c_str(), "mps") == 0, return, "dylp", "reading exmip1");
   OSIUNITTEST_ASSERT_ERROR(osi->getStrParam(OsiProbName,probname), {}, "dylp", "get problem name");
   std::cout << "Solving " << probname << " ... " << std::endl ;
   osi->initialSolve() ;
@@ -88,7 +88,7 @@ int test_starts (const std::string& mpsDir)
 */
   std::cout << "Getting a warm start object ... " << std::endl ;
   CoinWarmStart *ws = osi->getWarmStart() ;
-  OSIUNITTEST_ASSERT_ERROR(ws != NULL, return 1, "dylp", "acquire warm start");
+  OSIUNITTEST_ASSERT_ERROR(ws != NULL, return, "dylp", "acquire warm start");
 /*
   Brief interruption for an idiot check: are the signs of the reduced costs
   correct in the solution, given minimisation? Easy to test with status info
@@ -136,9 +136,9 @@ int test_starts (const std::string& mpsDir)
       << "Checking behaviour for empty warm start object." << std::endl ;
     std::cout << "Acquiring ... " ;
     CoinWarmStart *emptyWS = osi->getEmptyWarmStart() ;
-    OSIUNITTEST_ASSERT_ERROR(emptyWS != NULL, return 1, "dylp", "acquire empty warmstart");
+    OSIUNITTEST_ASSERT_ERROR(emptyWS != NULL, return, "dylp", "acquire empty warmstart");
     std::cout << "setting ... " ;
-    OSIUNITTEST_ASSERT_ERROR(osi->setWarmStart(emptyWS) == true, return 1, "dylp", "install empty warmstart");
+    OSIUNITTEST_ASSERT_ERROR(osi->setWarmStart(emptyWS) == true, return, "dylp", "install empty warmstart");
     std::cout << "calling resolve (throw expected) ... " ;
     bool throwSeen = false ;
     try
@@ -166,7 +166,7 @@ int test_starts (const std::string& mpsDir)
 */
   std::cout << "Cloning warm start ... " << std::endl ;
   CoinWarmStart *ws_clone = ws->clone() ;
-  OSIUNITTEST_ASSERT_ERROR(ws_clone, return 1, "dylp", "clone warmstart");
+  OSIUNITTEST_ASSERT_ERROR(ws_clone, return, "dylp", "clone warmstart");
   delete ws ;
   ws = ws_clone ;
   ws_clone = 0 ;
@@ -178,16 +178,16 @@ int test_starts (const std::string& mpsDir)
   level |= 0x10 ;
   std::cout << "Creating new ODSI object ... " << std::endl ;
   osi = new OsiDylpSolverInterface ;
-  OSIUNITTEST_ASSERT_ERROR(osi != NULL, return 1, "dylp", "create second ODSI");
+  OSIUNITTEST_ASSERT_ERROR(osi != NULL, return, "dylp", "create second ODSI");
 
   osi->setHintParam(OsiDoReducePrint,false,OsiForceDo,&level) ;
   osi->getHintParam(OsiDoReducePrint,sense,strength,p_info) ;
   std::cout << "Verbosity now maxed at "
 	    << *reinterpret_cast<int *>(p_info) << "." << std::endl ;
 
-  OSIUNITTEST_ASSERT_ERROR(osi->readMps(exmpsfile.c_str(), "mps") == 0, return 1, "dylp", "reading exmip1");
+  OSIUNITTEST_ASSERT_ERROR(osi->readMps(exmpsfile.c_str(), "mps") == 0, return, "dylp", "reading exmip1");
   std::cout << "Installing cloned warm start object ... " << std::endl ;
-  OSIUNITTEST_ASSERT_ERROR(osi->setWarmStart(ws) == true, return 1, "dylp", "install valid warmstart after deleting original solver");
+  OSIUNITTEST_ASSERT_ERROR(osi->setWarmStart(ws) == true, return, "dylp", "install valid warmstart after deleting original solver");
 /*
   Resolve. Check that we did not pivot (much) and that the objective hasn't
   changed. Set the print level quite high (we need to do this at some
@@ -299,8 +299,7 @@ int test_starts (const std::string& mpsDir)
       << std::endl << "And the answer is " << val << "." << std::endl ; }
 
   delete osi ;
-
-  return 0; }
+}
 
 
 /*! OsiDylp unit test driver
@@ -310,7 +309,7 @@ int test_starts (const std::string& mpsDir)
   probably tickled a new bug. Please file a bug report.
 */
 
-int OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
+void OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
 				     const std::string &netLibDir)
 
 { std::cout
@@ -342,6 +341,4 @@ int OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
   std::cout
     << std::endl << "  OsiDylp specific tests completed."
     << std::endl << std::endl ;
-
-  return 0; }
-
+}
