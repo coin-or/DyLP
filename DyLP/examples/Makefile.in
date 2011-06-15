@@ -107,8 +107,8 @@ ifeq ($(COIN_HAS_PKGCONFIG), TRUE)
   LIBS_CXX = `PKG_CONFIG_PATH=@COIN_PKG_CONFIG_PATH@ @PKG_CONFIG@ --libs osi-dylp`
 else
   ifeq ($(COIN_CXX_IS_CL), TRUE)
-    LIBS_C   = /link /libpath:`$(CYGPATH_W) @abs_lib_dir@` libDylp.lib @DYLPLIB_LIBS_INSTALLED@
-    LIBS_CXX = /link /libpath:`$(CYGPATH_W) @abs_lib_dir@` libOsiDylp.lib libDylp.lib @OSIDYLPLIB_LIBS_INSTALLED@
+    LIBS_C   = -link -libpath:`$(CYGPATH_W) @abs_lib_dir@` libDylp.lib @DYLPLIB_LIBS_INSTALLED@
+    LIBS_CXX = -link -libpath:`$(CYGPATH_W) @abs_lib_dir@` libOsiDylp.lib libDylp.lib @OSIDYLPLIB_LIBS_INSTALLED@
   else
     LIBS_C   = -L@abs_lib_dir@ -lDylp @DYLPLIB_LIBS_INSTALLED@
     LIBS_CXX = -L@abs_lib_dir@ -lOsiDylp -lDylp @OSIDYLPLIB_LIBS_INSTALLED@
