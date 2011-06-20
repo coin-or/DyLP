@@ -1,5 +1,21 @@
 * text=auto !eol
 /Dependencies -text
+DyLP/MSVisualStudio/v10/Dylp.sln -text
+DyLP/MSVisualStudio/v10/DylpUnitTest/DylpUnitTest.vcxproj -text
+DyLP/MSVisualStudio/v10/OsiDylpUnitTest/OsiDylpUnitTest.vcxproj -text
+DyLP/MSVisualStudio/v10/libDylp/libDylp.vcxproj -text
+DyLP/MSVisualStudio/v10/libDylpStdLib/libDylpStdLib.vcxproj -text
+DyLP/MSVisualStudio/v10/libOsiDylp/libOsiDylp.vcxproj -text
+DyLP/MSVisualStudio/v10alt/Dylp.sln -text
+DyLP/MSVisualStudio/v10alt/DylpUnitTest.vcxproj -text
+DyLP/MSVisualStudio/v10alt/OsiDylpUnitTest.vcxproj -text
+DyLP/MSVisualStudio/v10alt/dylp.props -text
+DyLP/MSVisualStudio/v10alt/genDefForDylp.ps1 -text
+DyLP/MSVisualStudio/v10alt/libDylp.def -text
+DyLP/MSVisualStudio/v10alt/libDylp.vcxproj -text
+DyLP/MSVisualStudio/v10alt/libDylpStdLib.vcxproj -text
+DyLP/MSVisualStudio/v10alt/libOsiDylp.vcxproj -text
+DyLP/MSVisualStudio/v10alt/osidylp.props -text
 DyLP/MSVisualStudio/v9/Dylp.sln -text
 DyLP/MSVisualStudio/v9/DylpUnitTest/DylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9/OsiDylpUnitTest/OsiDylpUnitTest.vcproj -text
@@ -10,6 +26,7 @@ DyLP/MSVisualStudio/v9alt/Dylp.sln -text
 DyLP/MSVisualStudio/v9alt/DylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9alt/OsiDylpUnitTest.vcproj -text
 DyLP/MSVisualStudio/v9alt/dylp.vsprops -text
+DyLP/MSVisualStudio/v9alt/genDefForDylp.ps1 -text
 DyLP/MSVisualStudio/v9alt/libDylp.def -text
 DyLP/MSVisualStudio/v9alt/libDylp.vcproj -text
 DyLP/MSVisualStudio/v9alt/libDylpStdLib.vcproj -text
@@ -155,7 +172,6 @@ DyLP/dylp-uninstalled.pc.in -text
 DyLP/dylp.pc.in -text
 DyLP/examples/Makefile.in -text
 DyLP/examples/generic.spc -text
-DyLP/inc/config_dylp.h.in -text
 DyLP/install-sh -text
 DyLP/ltmain.sh -text
 DyLP/m4/ac_c_add_to_includes.m4 -text
@@ -174,6 +190,10 @@ DyLP/src/Dylp/dy_tableau.c -text
 DyLP/src/DylpStdLib/DylpConfig.h -text
 DyLP/src/DylpStdLib/Makefile.am -text
 DyLP/src/DylpStdLib/Makefile.in -text
+DyLP/src/DylpStdLib/config.h.in -text
+DyLP/src/DylpStdLib/config_default.h -text
+DyLP/src/DylpStdLib/config_dylp.h.in -text
+DyLP/src/DylpStdLib/config_dylp_default.h -text
 DyLP/src/DylpStdLib/dylib_binsrch.c -text
 DyLP/src/DylpStdLib/dylib_bnfrdr.c -text
 DyLP/src/DylpStdLib/dylib_bnfrdr.h -text

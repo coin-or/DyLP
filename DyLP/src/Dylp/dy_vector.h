@@ -13,7 +13,13 @@
  
 #ifndef _DYLP_VECTOR_H
 #define _DYLP_VECTOR_H
- 
+
+/* The part that requires information from the private header file config.h
+ * is only needed for building DyLP itself, so we only do this if DYLP_INTERNAL
+ * had been defined.
+ */
+#ifdef DYLP_INTERNAL
+
 /*
   @(#)dy_vector.h         4.5         11/06/04
   svn/cvs: $Id$
@@ -197,8 +203,9 @@
 #ifndef isnan
 # define isnan  DYLP_ISNAN
 #endif
- 
- 
+
+#endif
+
 /*
   Packed Vectors
  

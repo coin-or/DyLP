@@ -106,7 +106,7 @@ typedef enum { startInvalid = 0,
 
 class OsiDylpSolverInterface: virtual public OsiSolverInterface
 
-{ friend int OsiDylpSolverInterfaceUnitTest(const std::string &mpsDir,
+{ friend void OsiDylpSolverInterfaceUnitTest(const std::string &mpsDir,
 					     const std::string &netLibDir) ;
 
 /*
@@ -703,11 +703,15 @@ public:
   /*! \brief Activate the row cut debugger
   
     Activate the debugger for a model not included in the debugger's internal
-    database. \p solution must be a full solution vector, but only the
-    integer values need to be correct.
+    database. \p solution must be a full solution vector, but only the integer
+    variables need to be correct. The debugger will fill in the continuous
+    variables by solving an lp relaxation with the integer variables fixed as
+    specified. If the given values for the continuous variables should be
+    preserved, set \p keepContinuous to true.
   */
 
-  void activateRowCutDebugger (const double *solution) ;
+  void activateRowCutDebugger (const double *solution,
+  			       bool keepContinuous = false) ;
 
 # if ODSI_PARANOIA >= 1
   /*! \brief Check that a row or column index is in range
@@ -1255,7 +1259,7 @@ private:
     an exhaustive test, but it'll (usually) catch gross problems.
 */
 
-int OsiDylpSolverInterfaceUnitTest(const std::string & mpsDir,
+void OsiDylpSolverInterfaceUnitTest(const std::string & mpsDir,
 				    const std::string &netLibDir) ;
 
 #endif // OsiDylpSolverInterface_H

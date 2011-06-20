@@ -1,4 +1,4 @@
-/* inc/config_dylp.h.in.  Generated from configure.ac by autoheader.  */
+/* src/DylpStdLib/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to the C type whose size in bytes matches the size in bytes of the
    the C++ bool type. */
@@ -56,6 +56,15 @@
 
 /* Version number of project */
 #undef DYLP_VERSION
+
+/* Major Version number of project */
+#undef DYLP_VERSION_MAJOR
+
+/* Minor Version number of project */
+#undef DYLP_VERSION_MINOR
+
+/* Release Version number of project */
+#undef DYLP_VERSION_RELEASE
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H

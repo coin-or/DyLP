@@ -16,6 +16,8 @@
   dy_rowPrimals, dy_colDuals, dy_rowDuals, and dy_allDuals.
 */
 
+#define DYLP_INTERNAL
+
 #include "dylp.h"
 
 extern ioid dy_logchn ;

@@ -152,6 +152,7 @@
 */
 
 
+#define DYLP_INTERNAL
 
 #include "dylib_errs.h"
 #include "dylib_io.h"

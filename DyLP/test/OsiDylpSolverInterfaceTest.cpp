@@ -7,22 +7,9 @@
   under the terms of the Eclipse Public License (EPL).
 */
 
-#include "OsiConfig.h"
+#include "DylpConfig.h"
 
-#if defined(_MSC_VER)
-
-/* Turn off compiler warning about long names */
-#  pragma warning(disable:4786)
-
-#endif
-
-/*
-  Unset NDEBUG, if it happens to be set. This code needs to be rewritten if
-  it's going to run without assert.
-*/
-#ifdef NDEBUG
-#undef NDEBUG
-#endif
+#include "CoinPragma.hpp"
 
 /* 
   Rudimentary tests for the Dylp OSI layer. The assumption is that
@@ -35,10 +22,12 @@
 
 #include <iostream>
 #include <iomanip>
-#include <assert.h>
 #include "OsiDylpSolverInterface.hpp"
 #include "OsiDylpWarmStartBasis.hpp"
 #include "OsiDylpMessages.hpp"
+#include "OsiUnitTests.hpp"
+
+#include "CoinFloatEqual.hpp"
 
 namespace {
   char sccsid[] UNUSED = "@(#)OsiDylpSolverInterfaceTest.cpp	1.11	09/25/04" ;
@@ -46,7 +35,7 @@ namespace {
 }
 
 
-int test_starts (const std::string& mpsDir)
+void test_starts (const std::string& mpsDir)
 
 /*
   This routine makes a number of checks for warm and hot start capabilities.
@@ -64,18 +53,13 @@ int test_starts (const std::string& mpsDir)
   bool sense ;
   void *p_info ;
 
-  int retval, errCnt = 0 ;
-
   CoinRelFltEq eq ;
 
   double exmip1MinObj = 3.23684210526 ;
   double exmip1MaxObj = 4.5 ;
   std::streamsize old_prec = std::cout.precision() ;
 
-  if (!osi)
-  { std::cout
-      << "Failed to create first ODSI object." << std::endl ;
-    return (++errCnt) ; }
+  OSIUNITTEST_ASSERT_ERROR(osi != NULL, return, "dylp", "creating ODSI");
 /*
   Read in exmip1 and solve it.
 */
@@ -85,38 +69,26 @@ int test_starts (const std::string& mpsDir)
   std::string exmpsfile = mpsDir+"exmip1" ;
   std::string probname ;
   std::cout << "Reading mps file \"" << exmpsfile << "\"" << std::endl ;
-  retval = osi->readMps(exmpsfile.c_str(), "mps") ;
-  if (retval)
-  { std::cout
-      << "Encountered " << retval
-      << " errors reading mps file (1)." << std::endl ;
-    return (retval) ; }
-  if (osi->getStrParam(OsiProbName,probname) == false)
-  { std::cout
-      << "Failed to read back problem name." ;
-    errCnt++ ; }
+  OSIUNITTEST_ASSERT_ERROR(osi->readMps(exmpsfile.c_str(), "mps") == 0, return, "dylp", "reading exmip1");
+  OSIUNITTEST_ASSERT_ERROR(osi->getStrParam(OsiProbName,probname), {}, "dylp", "get problem name");
   std::cout << "Solving " << probname << " ... " << std::endl ;
   osi->initialSolve() ;
   double val = osi->getObjValue() ;
-  if (!eq(val,exmip1MinObj))
-  { std::cout
+  OSIUNITTEST_ASSERT_ERROR(eq(val,exmip1MinObj),
+    std::cout
       << "Incorrect objective " << std::setprecision(12) << val
       << "; expecting " << exmip1MinObj
       << ", diff " << val-exmip1MinObj << "." << std::endl ;
-    std::cout.precision(old_prec) ;
-    errCnt++ ; }
-  else
-  { std::cout << "And the answer is " << val << "." << std::endl ; }
+      std::cout.precision(old_prec),
+    "dylp", "initial solve of exmip1");
+  std::cout << "And the answer is " << val << "." << std::endl;
 /*
   Grab a warm start object for later use. No point in continuing if this
   fails.
 */
   std::cout << "Getting a warm start object ... " << std::endl ;
   CoinWarmStart *ws = osi->getWarmStart() ;
-  if (!ws)
-  { std::cout
-      << "Failed to acquire a warm start." << std::endl ;
-    return (++errCnt) ; }
+  OSIUNITTEST_ASSERT_ERROR(ws != NULL, return, "dylp", "acquire warm start");
 /*
   Brief interruption for an idiot check: are the signs of the reduced costs
   correct in the solution, given minimisation? Easy to test with status info
@@ -124,8 +96,8 @@ int test_starts (const std::string& mpsDir)
 */
   { const double *cbar = osi->getReducedCost() ;
     std::cout << "Performing sanity test on reduced costs." << std::endl ;
-    const CoinWarmStartBasis *wsb =
-	dynamic_cast<CoinWarmStartBasis *>(ws) ;
+    const CoinWarmStartBasis *wsb = dynamic_cast<CoinWarmStartBasis *>(ws) ;
+    bool signsok = true;
     for (int j = 0 ; j < osi->getNumCols() ; j++)
     { switch (wsb->getStructStatus(j))
       { case CoinWarmStartBasis::atUpperBound:
@@ -133,14 +105,14 @@ int test_starts (const std::string& mpsDir)
 	  { std::cout
 	      << "Sign error! " << "Var " << j
 	      << " at upper bound, cbar = " << cbar[j] << "." << std::endl ;
-	    errCnt++ ; }
+	    signsok = false; }
 	  break ; }
         case CoinWarmStartBasis::atLowerBound:
 	{ if (cbar[j] < 0)
 	  { std::cout
 	      << "Sign error! " << "Var " << j
 	      << " at lower bound, cbar = " << cbar[j] << "." << std::endl ;
-	    errCnt++ ; }
+	  signsok = false; }
 	  break ; }
         case CoinWarmStartBasis::basic:
 	{ if (fabs(cbar[j]) > 1.0e-5)
@@ -148,10 +120,12 @@ int test_starts (const std::string& mpsDir)
 	      << "Value error! " << "Var " << j
 	      << " is basic, cbar = " << cbar[j]
 	      << ", should be zero" << "." << std::endl ;
-	    errCnt++ ; }
+	  signsok = false; }
 	  break ; }
 	default:
-	{ break ; } } } }
+	{ break ; } } }
+    OSIUNITTEST_ASSERT_ERROR(signsok == true, {}, "dylp", "reduced costs sanity check");
+  }
 /*
   Back to our regular programming. Create an empty warm start object and
   set it as the warm start. Then call resolve(). The call to setWarmStart
@@ -162,15 +136,9 @@ int test_starts (const std::string& mpsDir)
       << "Checking behaviour for empty warm start object." << std::endl ;
     std::cout << "Acquiring ... " ;
     CoinWarmStart *emptyWS = osi->getEmptyWarmStart() ;
-    if (!emptyWS)
-    { std::cout
-	<< "Failed to acquire empty warm start." << std::endl ;
-      return (++errCnt) ; }
+    OSIUNITTEST_ASSERT_ERROR(emptyWS != NULL, return, "dylp", "acquire empty warmstart");
     std::cout << "setting ... " ;
-    if (osi->setWarmStart(emptyWS) == false)
-    { std::cout
-	<< "Failed to install empty warm start." << std::endl ;
-      return (++errCnt) ; }
+    OSIUNITTEST_ASSERT_ERROR(osi->setWarmStart(emptyWS) == true, return, "dylp", "install empty warmstart");
     std::cout << "calling resolve (throw expected) ... " ;
     bool throwSeen = false ;
     try
@@ -181,8 +149,8 @@ int test_starts (const std::string& mpsDir)
     if (throwSeen)
     { std::cout << std::endl << " caught ... success!" << std::endl ; }
     else
-    { std::cout << " no throw! ... FAILURE!" ;
-      errCnt++ ; }
+    { std::cout << " no throw! ... FAILURE!" ; }
+    OSIUNITTEST_ASSERT_ERROR(throwSeen, {}, "dylp", "resolve from empty warmstart");
     delete emptyWS ; }
 /*
   Make sure that the warm start information is sufficient (and persistent) by
@@ -198,10 +166,7 @@ int test_starts (const std::string& mpsDir)
 */
   std::cout << "Cloning warm start ... " << std::endl ;
   CoinWarmStart *ws_clone = ws->clone() ;
-  if (!ws_clone)
-  { std::cout
-      << "Failed to clone warm start." << std::endl ;
-    return (++errCnt) ; }
+  OSIUNITTEST_ASSERT_ERROR(ws_clone, return, "dylp", "clone warmstart");
   delete ws ;
   ws = ws_clone ;
   ws_clone = 0 ;
@@ -213,28 +178,16 @@ int test_starts (const std::string& mpsDir)
   level |= 0x10 ;
   std::cout << "Creating new ODSI object ... " << std::endl ;
   osi = new OsiDylpSolverInterface ;
-  if (!osi)
-  { std::cout
-      << "Failed to create second ODSI object." << std::endl ;
-    return (++errCnt) ; }
+  OSIUNITTEST_ASSERT_ERROR(osi != NULL, return, "dylp", "create second ODSI");
 
   osi->setHintParam(OsiDoReducePrint,false,OsiForceDo,&level) ;
   osi->getHintParam(OsiDoReducePrint,sense,strength,p_info) ;
   std::cout << "Verbosity now maxed at "
 	    << *reinterpret_cast<int *>(p_info) << "." << std::endl ;
 
-  retval = osi->readMps(exmpsfile.c_str(), "mps") ;
-  if (retval)
-  { std::cout
-      << "Encountered " << retval
-      << " errors reading mps file (2)." << std::endl ;
-    return (retval) ; }
+  OSIUNITTEST_ASSERT_ERROR(osi->readMps(exmpsfile.c_str(), "mps") == 0, return, "dylp", "reading exmip1");
   std::cout << "Installing cloned warm start object ... " << std::endl ;
-  if (osi->setWarmStart(ws) == false)
-  { std::cout
-      << "Failed to install valid warm start after deleting original solver."
-      << std::endl ;
-    return (++errCnt) ; }
+  OSIUNITTEST_ASSERT_ERROR(osi->setWarmStart(ws) == true, return, "dylp", "install valid warmstart after deleting original solver");
 /*
   Resolve. Check that we did not pivot (much) and that the objective hasn't
   changed. Set the print level quite high (we need to do this at some
@@ -243,24 +196,18 @@ int test_starts (const std::string& mpsDir)
   std::cout << "Resolving the lp ... " << std::endl ;
   osi->resolve() ;
   val = osi->getObjValue() ;
-  int pivots = osi->getIterationCount() ;
-  if (!eq(val,exmip1MinObj))
-  { std::cout
-      << "Incorrect objective " << std::setprecision(12) << val
-      << "; expecting " << exmip1MinObj
-      << ", diff " << val-exmip1MinObj << "." << std::endl ;
-    std::cout.precision(old_prec) ;
-    errCnt++ ; }
-  else
-  if (pivots > 1)
-  { std::cout
-      << "Excessive pivots; counted "
-      << pivots << ", expected <= 1." << std::endl ;
-    errCnt++ ; }
-  else
+  OSIUNITTEST_ASSERT_ERROR(eq(val,exmip1MinObj),
+    std::cout
+    << "Incorrect objective " << std::setprecision(12) << val
+    << "; expecting " << exmip1MinObj
+    << ", diff " << val-exmip1MinObj << "." << std::endl ;
+    std::cout.precision(old_prec),
+    "dylp", "resolve exmip1 from optimal basis");
+  if (eq(val,exmip1MinObj))
+    OSIUNITTEST_ASSERT_ERROR(osi->getIterationCount() <= 1, {}, "dylp", "resolve exmip1 from optimal basis");
   { std::cout
       << std::endl << "And the answer is " << val << " after "
-      << pivots << " pivots." << std::endl ; }
+      << osi->getIterationCount() << " pivots." << std::endl ; }
   delete ws ;
   ws = 0 ;
 /*
@@ -274,14 +221,14 @@ int test_starts (const std::string& mpsDir)
   osi->markHotStart() ;
   osi->solveFromHotStart() ;
   val = osi->getObjValue() ;
-  if (!eq(val,exmip1MaxObj))
-  { std::cout
-      << "Incorrect objective " << std::setprecision(12) << val
-      << "; expecting " << exmip1MaxObj
-      << ", diff " << val-exmip1MaxObj << "." << std::endl ;
-    std::cout.precision(old_prec) ;
-    errCnt++ ; }
-  else
+  OSIUNITTEST_ASSERT_ERROR(eq(val,exmip1MaxObj),
+    std::cout
+    << "Incorrect objective " << std::setprecision(12) << val
+    << "; expecting " << exmip1MaxObj
+    << ", diff " << exmip1MaxObj-val << "." << std::endl ;
+    std::cout.precision(old_prec),
+    "dylp", "solve exmip1 with flipped obj from hotstart");
+  if (eq(val,exmip1MaxObj))
   { std::cout
       << std::endl << "And the answer is " << val << "." << std::endl ; }
 /*
@@ -294,6 +241,7 @@ int test_starts (const std::string& mpsDir)
 	dynamic_cast<OsiDylpWarmStartBasis *>(ws) ;
     std::cout
       << "Performing sanity test on reduced costs." << std::endl ;
+    bool signsok = true;
     for (int j = 0 ; j < osi->getNumCols() ; j++)
     { switch (odsi_wsb->getStructStatus(j))
       { case CoinWarmStartBasis::atUpperBound:
@@ -301,14 +249,14 @@ int test_starts (const std::string& mpsDir)
 	  { std::cout
 	      << "Sign error! " << "Var " << j
 	      << " at upper bound, cbar = " << cbar[j] << "." << std::endl ;
-	    errCnt++ ; }
+	  signsok = false; }
 	  break ; }
         case CoinWarmStartBasis::atLowerBound:
 	{ if (cbar[j] > 0)
 	  { std::cout
 	      << "Sign error! " << "Var " << j
 	      << " at lower bound, cbar = " << cbar[j] << "." << std::endl ;
-	    errCnt++ ; }
+	  signsok = false; }
 	  break ; }
         case CoinWarmStartBasis::basic:
 	{ if (fabs(cbar[j]) > 1.0e-5)
@@ -316,11 +264,13 @@ int test_starts (const std::string& mpsDir)
 	      << "Value error! " << "Var " << j
 	      << " is basic, cbar = " << cbar[j] << ", should be zero"
 	      << "." << std::endl ;
-	    errCnt++ ; }
+	  signsok = false; }
 	  break ; }
 	default:
 	{ break ; } } }
-    delete ws ; }
+    delete ws ;
+    OSIUNITTEST_ASSERT_ERROR(signsok, {}, "dylp", "signs in reduced costs for maximization");
+    }
 /*
   Turn off printing, to make sure we can get dylp to shut up.
 */
@@ -337,20 +287,19 @@ int test_starts (const std::string& mpsDir)
   std::cout << " attempting hot start ..." ;
   osi->solveFromHotStart() ;
   val = osi->getObjValue() ;
-  if (!eq(val,exmip1MinObj))
-  { std::cout
-      << "Incorrect objective " << std::setprecision(12) << val
-      << "; expecting " << exmip1MinObj
-      << ", diff " << val-exmip1MinObj << "." << std::endl ;
-    std::cout.precision(old_prec) ;
-    errCnt++ ; }
-  else
+  OSIUNITTEST_ASSERT_ERROR(eq(val,exmip1MinObj),
+    std::cout
+    << "Incorrect objective " << std::setprecision(12) << val
+    << "; expecting " << exmip1MinObj
+    << ", diff " << val-exmip1MinObj << "." << std::endl ;
+    std::cout.precision(old_prec),
+    "dylp", "solve exmip1 without flipped obj from hotstart");
+  if (eq(val,exmip1MinObj))
   { std::cout
       << std::endl << "And the answer is " << val << "." << std::endl ; }
 
   delete osi ;
-
-  return (errCnt) ; }
+}
 
 
 /*! OsiDylp unit test driver
@@ -360,12 +309,10 @@ int test_starts (const std::string& mpsDir)
   probably tickled a new bug. Please file a bug report.
 */
 
-int OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
+void OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
 				     const std::string &netLibDir)
 
-{ int errCnt = 0 ; 
-
-  std::cout
+{ std::cout
     << "  Starting OsiDylp specific tests ... "
     << std::endl << std::endl ;
   std::cout
@@ -389,11 +336,9 @@ int OsiDylpSolverInterfaceUnitTest (const std::string &mpsDir,
   delete osi ;
   delete osi2 ;
   std::cout << "Testing cold/warm/hot start ... " << std::endl ;
-  errCnt += test_starts(mpsDir) ;
+  test_starts(mpsDir) ;
 
   std::cout
-    << std::endl << "  OsiDylp specific tests completed, "
-    << errCnt << " errors." << std::endl << std::endl ;
-
-  return (errCnt) ; }
-
+    << std::endl << "  OsiDylp specific tests completed."
+    << std::endl << std::endl ;
+}

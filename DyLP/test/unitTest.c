@@ -30,6 +30,8 @@
 
 #include "dylp.h"
 
+#include <math.h>
+
 /*
   Macro cleverness to specify a default error message file. Depends on ANSI
   C merge of consecutive string constants. DYLP_ERRMSGDIR should have the
