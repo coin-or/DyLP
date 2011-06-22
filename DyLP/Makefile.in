@@ -58,7 +58,7 @@ host_triplet = @host@
 # specified.  But we need to list it as subdirectory to make sure that it is
 # included in the tarball. Similarly, we don't want to attempt to build the
 # documentation unless specifically requested.
-@ALWAYS_FALSE@am__append_2 = test doc doc/Figures doc/TexMF
+@ALWAYS_FALSE@am__append_2 = examples test doc doc/Figures doc/TexMF
 @COIN_HAS_OSI_TRUE@am__append_3 = osi-dylp.pc
 DIST_COMMON = README $(am__configure_deps) \
 	$(srcdir)/BuildTools/Makemain.inc $(srcdir)/Makefile.am \
@@ -332,8 +332,7 @@ AUTOMAKE_OPTIONS = foreign
 ########################################################################
 #                          Subdirectories                              #
 ########################################################################
-SUBDIRS = src/DylpStdLib src/Dylp $(am__append_1) examples \
-	$(am__append_2)
+SUBDIRS = src/DylpStdLib src/Dylp $(am__append_1) $(am__append_2)
 
 ########################################################################
 #             Additional files to be included in tarball               #
