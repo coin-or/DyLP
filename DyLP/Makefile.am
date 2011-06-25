@@ -16,7 +16,6 @@ SUBDIRS = src/DylpStdLib src/Dylp
 if COIN_HAS_OSI
   SUBDIRS += src/OsiDylp
 endif
-SUBDIRS += examples
 
 # We don't want to compile the test subdirectory, unless the test target is
 # specified.  But we need to list it as subdirectory to make sure that it is
@@ -24,6 +23,7 @@ SUBDIRS += examples
 # documentation unless specifically requested.
 
 if ALWAYS_FALSE
+  SUBDIRS += examples
   SUBDIRS += test
   SUBDIRS += doc doc/Figures doc/TexMF
 endif
