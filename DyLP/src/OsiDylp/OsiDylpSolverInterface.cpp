@@ -5803,6 +5803,10 @@ CoinWarmStart* ODSI::getWarmStart () const
   (negative dual) or (for range constraints) atUpperBound (positive dual).
 
   If we're maximising, reverse that (using objSense).
+
+  If the dual is zero, we really have to work. Set the status according to
+  whether one or both row bounds are finite. When both are finite, set the
+  status to match the bound closest to the row lhs.
 */
   const double *y = getRowPrice() ;
   double objSense = getObjSense() ;
@@ -5811,10 +5815,28 @@ CoinWarmStart* ODSI::getWarmStart () const
     { setStatus(artifStatus,i,CWSB::basic) ; }
     else
     if (getStatus(artifStatus,i) == CWSB::isFree)
-    { if (y[i]*objSense > 0)
+    { if (y[i]*objSense > tolerances->cost)
       { setStatus(artifStatus,i,CWSB::atUpperBound) ; }
       else
-      { setStatus(artifStatus,i,CWSB::atLowerBound) ; } } }
+      if (y[i]*objSense < -tolerances->cost)
+      { setStatus(artifStatus,i,CWSB::atLowerBound) ; }
+      else
+      { const double *blow = getRowLower() ;
+        const double *b = getRowUpper() ;
+	const double &blowi = blow[i] ;
+	const double &bi = b[i] ;
+	if (blowi > -odsiInfinity && bi < odsiInfinity)
+	{ const double *lhs = getRowActivity() ;
+	  const double &lhsi = lhs[i] ;
+	  if (fabs(lhsi-blowi) < fabs(bi-lhsi))
+	    setStatus(artifStatus,i,CWSB::atUpperBound) ;
+	  else
+	    setStatus(artifStatus,i,CWSB::atLowerBound) ; }
+	else
+	if (blowi <= -odsiInfinity)
+	{ setStatus(artifStatus,i,CWSB::atLowerBound) ; }
+        else
+	{ setStatus(artifStatus,i,CWSB::atUpperBound) ; } } } }
 /*
   Now scan the status vector and record the status of nonbasic structural
   variables. Some information is lost here --- CWSB::Status doesn't encode
