@@ -311,6 +311,8 @@ void ODSI::getBasisStatus (int *archStatusInt, int *logStatusInt) const
         hdl->message(ODSI_CONFUSION,messages_) << __LINE__ << CoinMessageEol ;
 	break ; } } }
 
+  delete wsb ;
+
   return ; }
 
 /*

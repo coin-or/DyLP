@@ -5,6 +5,9 @@
 /* include the public project specific macros */
 #include "config_dylp_default.h"
 
+/* Include float.h for _finite, _isnan */
+#include <float.h>
+
 /***************************************************************************/
 /*             HERE DEFINE THE PROJECT SPECIFIC MACROS                     */
 /*    These are only in effect in a setting that doesn't use configure     */
