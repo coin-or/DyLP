@@ -330,10 +330,10 @@ libOsiDylp_la_LDFLAGS = $(LT_LDFLAGS)
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Windows.
-# We can't just use DYLP_CFLAGS here because Dylp isn't installed yet.
-AM_CPPFLAGS = $(COINUTILS_CFLAGS) $(OSI_CFLAGS) \
+AM_CPPFLAGS = \
 	-I`$(CYGPATH_W) $(srcdir)/../Dylp` \
-	-I`$(CYGPATH_W) $(srcdir)/../DylpStdLib` 
+	-I`$(CYGPATH_W) $(srcdir)/../DylpStdLib`  \
+	$(COINUTILS_CFLAGS) $(OSI_CFLAGS)
 
 
 # This line is necessary to allow VPATH compilation
