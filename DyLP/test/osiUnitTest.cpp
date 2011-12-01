@@ -50,57 +50,68 @@ int main (int argc, const char *argv[])
     Test Osi{Row,Col}Cut routines.
    */
   {
-    OsiDylpSolverInterface dylpSi;
-    testingMessage( "Testing OsiRowCut ...\n" );
-    OSIUNITTEST_CATCH_ERROR(OsiRowCutUnitTest(&dylpSi,mpsDir), {}, dylpSi, "rowcut unittest");
+    OsiDylpSolverInterface dylpSi ;
+    testingMessage("Testing OsiRowCut ...\n") ;
+    OSIUNITTEST_CATCH_ERROR(OsiRowCutUnitTest(&dylpSi,mpsDir),
+    			    {},dylpSi,"rowcut unittest") ;
   }
   {
-    OsiDylpSolverInterface dylpSi;
-    testingMessage( "Testing OsiColCut ...\n" );
-    OSIUNITTEST_CATCH_ERROR(OsiColCutUnitTest(&dylpSi,mpsDir), {}, dylpSi, "colcut unittest");
+    OsiDylpSolverInterface dylpSi ;
+    testingMessage("Testing OsiColCut ...\n") ;
+    OSIUNITTEST_CATCH_ERROR(OsiColCutUnitTest(&dylpSi,mpsDir),
+    			    {},dylpSi,"colcut unittest") ;
   }
   {
-    OsiDylpSolverInterface dylpSi;
-    testingMessage( "Testing OsiRowCutDebugger ...\n" );
-    OSIUNITTEST_CATCH_ERROR(OsiRowCutDebuggerUnitTest(&dylpSi,mpsDir), {}, dylpSi, "rowcut debugger unittest");
+    OsiDylpSolverInterface dylpSi ;
+    testingMessage("Testing OsiRowCutDebugger ...\n") ;
+    OSIUNITTEST_CATCH_ERROR(OsiRowCutDebuggerUnitTest(&dylpSi,mpsDir),
+    			    {},dylpSi,"rowcut debugger unittest") ;
   }
 /*
   Run the OSI standard tests.
 */
   {
     OsiDylpSolverInterface dylpSi ;
-    testingMessage( "Running OSI commit tests ...\n" );
-    OSIUNITTEST_CATCH_ERROR(OsiSolverInterfaceCommonUnitTest(&dylpSi,mpsDir,netlibDir), {}, dylpSi, "common unittest");
+    testingMessage("Running OSI common tests ...\n") ;
+    OSIUNITTEST_CATCH_ERROR(
+        OsiSolverInterfaceCommonUnitTest(&dylpSi,mpsDir,netlibDir),
+	{},dylpSi,"common unittest") ;
   }
 /*
   Run the OsiDylp class test, which exercises a few things specific to OsiDylp.
 */
-  OSIUNITTEST_CATCH_ERROR(OsiDylpSolverInterfaceUnitTest(mpsDir,netlibDir), {}, "dylp", "OsiDylp unittest");
+  testingMessage("Running Dylp-specific tests ...\n") ;
+  OSIUNITTEST_CATCH_ERROR(OsiDylpSolverInterfaceUnitTest(mpsDir,netlibDir),
+  			  {}, "dylp", "OsiDylp unittest");
 /*
   Check to see if we're asked to run the Netlib problems. The interface here
   is a historical artifact from the period when all OsiXXX lived within the
   Osi project.
 */
-  if (parms.find("testOsiSolverInterface") != parms.end())
+  if (parms.find("-testOsiSolverInterface") != parms.end())
   { std::vector<OsiSolverInterface*> vecSi(1,new OsiDylpSolverInterface) ;
     testingMessage("Testing OsiDylpSolverInterface on Netlib problems.\n") ;
-    OSIUNITTEST_CATCH_ERROR(OsiSolverInterfaceMpsUnitTest(vecSi,netlibDir), {}, "dylp", "netlib unittest");
+    OSIUNITTEST_CATCH_ERROR(OsiSolverInterfaceMpsUnitTest(vecSi,netlibDir),
+    			    {},"dylp","netlib unittest") ;
     delete vecSi[0] ; }
+  else
+  { testingMessage("Use -testOsiSolverInterface to run netlib problems.\n") ; }
+/*
+  We're done. Report on the results.
+*/
+  std::cout.flush() ;
+  outcomes.print() ;
 
-  /*
-    We're done. Report on the results.
-   */
-  std::cout.flush();
-  outcomes.print();
-
-  int nerrors;
-  int nerrors_expected;
-  outcomes.getCountBySeverity(TestOutcome::ERROR, nerrors, nerrors_expected);
+  int nerrors ;
+  int nerrors_expected ;
+  outcomes.getCountBySeverity(TestOutcome::ERROR,nerrors,nerrors_expected) ;
 
   if (nerrors > nerrors_expected)
-    std::cerr << "Tests completed with " << nerrors - nerrors_expected << " unexpected errors." << std::endl ;
+    std::cerr
+      << "Tests completed with " << nerrors - nerrors_expected
+      << " unexpected errors." << std::endl ;
   else
-    std::cerr << "All tests completed successfully\n";
+    std::cerr << "All tests completed successfully." << std::endl ;
 
-  return nerrors - nerrors_expected;
+  return (nerrors-nerrors_expected) ;
 }
