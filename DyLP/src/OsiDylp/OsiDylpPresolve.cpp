@@ -152,7 +152,8 @@ namespace {	// Anonymous namespace for debug routines
 
   chkSol: 1<<0	check primal variables for NaN/Inf
 	  1<<1	check primal variables for feasibility (variable bounds)
-	  1<<2	check primal variable status vs. solution and bounds
+	  1<<2	check architectural variable status vs. solution and bounds
+	  1<<3	also check row status vs. solution and bounds
 
 	  1<<8	check constraint lhs for NaN/Inf
 	  1<<9	check constraint lhs for accuracy, feasibility (row bounds)
@@ -223,7 +224,7 @@ void check_and_tell (ioid chn, const CoinPresolveMatrix *preObj_,
     int chkStatus = 0 ;
     if (colSolPresent)
     { chkColSol = chkSol&((1<<1)|(1<<0)) ;
-      chkStatus = (chkSol&(1<<2))>>2 ;
+      chkStatus = (chkSol&(0x3<<2))>>2 ;
       if (rowActPresent)
       { chkRowAct = (chkSol&((1<<8)|(1<<9)))>>8 ; } }
     if (chkColSol+chkStatus+chkRowAct > 0)
@@ -366,7 +367,7 @@ void ODSI::doPresolve ()
 */
   const CoinPresolveAction *dbgActionMark = 0 ;
   int chkMtx = 0x7f ;
-  int chkSol = 0x00 ;
+  int chkSol = 0x10f ;
 
   check_and_tell(local_logchn,
 		 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
@@ -881,7 +882,7 @@ void ODSI::doPostsolve ()
     presolve_check_free_list(postObj_) ;
 #   endif
 #   if PRESOLVE_DEBUG
-    presolve_check_sol(postObj_) ;
+    presolve_check_sol(postObj_,2,2,2) ;
     presolve_check_reduced_costs(postObj_) ;
     presolve_check_duals(postObj_) ;
 #   endif
@@ -894,7 +895,7 @@ void ODSI::doPostsolve ()
   presolve_check_free_list(postObj_) ;
 # endif
 # if PRESOLVE_DEBUG
-  presolve_check_sol(postObj_) ;
+  presolve_check_sol(postObj_,2,2,2) ;
   presolve_check_reduced_costs(0) ;
   presolve_check_reduced_costs(postObj_) ;
   presolve_check_duals(postObj_) ;
