@@ -415,7 +415,7 @@ void ODSI::doPresolve ()
     for (currentPass = 0 ; currentPass < passLimit_ ; currentPass++)
     { const CoinPresolveAction *const lastAction = postActions_ ;
 
-#     ifdef PRESOLVE_DEBUG > 0
+#     if PRESOLVE_DEBUG > 0
       dyio_outfmt(local_logchn,true,"Starting major pass %d\n",currentPass) ;
 #     endif
 
