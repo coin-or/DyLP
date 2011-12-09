@@ -99,9 +99,6 @@
 */
 
 
-//#define PRESOLVE_DEBUG 1
-//#define PRESOLVE_CONSISTENCY 1
-
 #include "OsiDylpSolverInterface.hpp"
 #include "OsiDylpWarmStartBasis.hpp"
 #include "OsiDylpMessages.hpp"
@@ -128,7 +125,7 @@ namespace {
 #include "CoinPresolveImpliedFree.hpp"
 #include "CoinPresolveIsolated.hpp"
 
-#if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 /*
   Debug stuff. This block covers the include and the namespace.
 */
@@ -185,10 +182,10 @@ void check_and_tell (ioid chn, const CoinPresolveMatrix *preObj_,
     mark = first ; }
   dyio_outfmt(chn,true,"\n") ;
 
-# if !PRESOLVE_CONSISTENCY
+# if PRESOLVE_CONSISTENCY <= 0
   chkMtx = 0 ;
 # endif
-# if !PRESOLVE_DEBUG
+# if PRESOLVE_DEBUG <= 0
   chkSol = 0 ;
 # endif
 
@@ -358,7 +355,7 @@ void ODSI::doPresolve ()
   postActions_ = 0 ;
   preObj_->setStatus(feasibleStatus) ;
 
-# if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+# if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 /*
   chkMtx and chkSol are magic numbers to control checks. See the
   documentation with check_and_tell. chkMtx is nonfunctional unless
@@ -379,7 +376,7 @@ void ODSI::doPresolve ()
   and lower bounds.
 */
   postActions_ = make_fixed(preObj_,postActions_) ;
-# if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+# if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
   check_and_tell(local_logchn,
 		 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 # endif
@@ -418,7 +415,7 @@ void ODSI::doPresolve ()
     for (currentPass = 0 ; currentPass < passLimit_ ; currentPass++)
     { const CoinPresolveAction *const lastAction = postActions_ ;
 
-#     ifdef PRESOLVE_DEBUG
+#     ifdef PRESOLVE_DEBUG > 0
       dyio_outfmt(local_logchn,true,"Starting major pass %d\n",currentPass) ;
 #     endif
 
@@ -471,7 +468,7 @@ void ODSI::doPresolve ()
 	  { postActions_ =
 		slack_doubleton_action::presolve(preObj_,
 						 postActions_,notFinished) ;
-#	    if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	    if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	    check_and_tell(local_logchn,
 			   preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	    endif
@@ -480,7 +477,7 @@ void ODSI::doPresolve ()
 	    break ; }
 	if (doubleton == true)
 	{ postActions_ = doubleton_action::presolve(preObj_,postActions_) ;
-#	  if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	  check_and_tell(local_logchn,
 			 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	  endif
@@ -488,7 +485,7 @@ void ODSI::doPresolve ()
 	    break ; }
 	if (tripleton == true)
 	{ postActions_ = tripleton_action::presolve(preObj_,postActions_) ;
-#	  if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	  check_and_tell(local_logchn,
 			 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	  endif
@@ -496,7 +493,7 @@ void ODSI::doPresolve ()
 	    break ; }
 	if (zerocost == true)
 	{ postActions_ = do_tighten_action::presolve(preObj_,postActions_) ;
-#	  if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	  check_and_tell(local_logchn,
 			 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	  endif
@@ -505,7 +502,7 @@ void ODSI::doPresolve ()
 	if (forcing == true)
 	{ postActions_ =
 	      forcing_constraint_action::presolve(preObj_,postActions_) ;
-#	  if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	  check_and_tell(local_logchn,
 			 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	  endif
@@ -514,7 +511,7 @@ void ODSI::doPresolve ()
 	if (ifree)
 	{ postActions_ =
 	      implied_free_action::presolve(preObj_,postActions_,fill_level) ;
-#	  if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	  check_and_tell(local_logchn,
 			 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	  endif
@@ -551,7 +548,7 @@ void ODSI::doPresolve ()
       { for (int iter = 0 ; iter < 5 ; iter++)
 	{ const CoinPresolveAction *const marker = postActions_ ;
 	  postActions_ = remove_dual_action::presolve(preObj_,postActions_) ;
-#	  if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	  check_and_tell(local_logchn,
 			 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	  endif
@@ -562,7 +559,7 @@ void ODSI::doPresolve ()
 	    postActions_ =
 		implied_free_action::presolve(preObj_,
 					      postActions_,fill_level) ;
-#	    if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	    if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	    check_and_tell(local_logchn,
 			   preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	    endif
@@ -575,7 +572,7 @@ void ODSI::doPresolve ()
 */
       if (dupcol)
       { postActions_ = dupcol_action::presolve(preObj_,postActions_) ;
-#	if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	check_and_tell(local_logchn,
 		       preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	endif
@@ -583,7 +580,7 @@ void ODSI::doPresolve ()
 	  break ; }
       if (duprow)
       { postActions_ = duprow_action::presolve(preObj_,postActions_) ;
-#	if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#	if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
 	check_and_tell(local_logchn,
 		       preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #	endif
@@ -618,18 +615,18 @@ void ODSI::doPresolve ()
 */
   if (preObj_->status() == feasibleStatus)
   { postActions_ = drop_zero_coefficients(preObj_,postActions_) ;
-#   if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#   if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
     check_and_tell(local_logchn,
 	           preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #   endif
     postActions_ = drop_empty_cols_action::presolve(preObj_,postActions_) ;
-#   if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#   if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
     chkMtx &= 0x2a ;
     check_and_tell(local_logchn,
 		   preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #   endif
     postActions_ = drop_empty_rows_action::presolve(preObj_,postActions_) ;
-#   if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
+#   if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
     check_and_tell(local_logchn,
 		   preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 #   endif
@@ -858,12 +855,12 @@ void ODSI::doPostsolve ()
 
 { handler_->message(ODSI_POSTSOL,messages_) << "start" << CoinMessageEol ;
 
-# if PRESOLVE_CONSISTENCY
+# if PRESOLVE_CONSISTENCY > 0
   handler_->setLogLevel(6) ;
   presolve_check_threads(postObj_) ;
   presolve_check_free_list(postObj_) ;
 # endif
-# if PRESOLVE_DEBUG
+# if PRESOLVE_DEBUG > 0
   presolve_check_sol(postObj_) ;
   presolve_check_reduced_costs(0) ;
   presolve_check_reduced_costs(postObj_) ;
@@ -877,11 +874,11 @@ void ODSI::doPostsolve ()
       << postAction->name() << CoinMessageEol ;
     postAction->postsolve(postObj_) ;
 
-#   if PRESOLVE_CONSISTENCY
+#   if PRESOLVE_CONSISTENCY > 0
     presolve_check_threads(postObj_) ;
     presolve_check_free_list(postObj_) ;
 #   endif
-#   if PRESOLVE_DEBUG
+#   if PRESOLVE_DEBUG > 0
     presolve_check_sol(postObj_,2,2,2) ;
     presolve_check_reduced_costs(postObj_) ;
     presolve_check_duals(postObj_) ;
@@ -889,12 +886,12 @@ void ODSI::doPostsolve ()
 
     delete postAction ; }
 
-# if PRESOLVE_CONSISTENCY
+# if PRESOLVE_CONSISTENCY > 0
   handler_->setLogLevel(6) ;
   presolve_check_threads(postObj_) ;
   presolve_check_free_list(postObj_) ;
 # endif
-# if PRESOLVE_DEBUG
+# if PRESOLVE_DEBUG > 0
   presolve_check_sol(postObj_,2,2,2) ;
   presolve_check_reduced_costs(0) ;
   presolve_check_reduced_costs(postObj_) ;
