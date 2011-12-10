@@ -171,7 +171,7 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
   if (orig_lp == NULL)
   { errmsg(2,rtnnme,"orig_lp") ;
     return (FALSE) ; }
-  if (orig_lp->consys == NULL && orig_lp->context != cxUNLOAD)
+  if (orig_lp->consys == NULL && dy_opts->context != cxUNLOAD)
   { errmsg(2,rtnnme,"orig_lp->consys") ;
     return (FALSE) ; }
 # endif

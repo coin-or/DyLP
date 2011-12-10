@@ -5799,14 +5799,21 @@ CoinWarmStart* ODSI::getWarmStart () const
   Next, scan the conStatus array. For each inactive (loose => isFree)
   constraint, indicate that the logical is basic. For active (tight =>
   atLowerBound) constraints, if the corresponding logical isn't already
-  marked as basic, use the value of the dual to select one of atLowerBound
-  (negative dual) or (for range constraints) atUpperBound (positive dual).
+  marked as basic, we need to choose a nonbasic status:
+    * If both constraint bounds are infinite, it's an error --- this
+      constraint should be loose and the logical should be basic.
+    * If one constraint bound is infinite, that determines the status
+      of the logical. Infinite LB(i) forces NBUB, infinite UB(i) forces
+      NBLB.
+    * If both bounds are finite, set the status to match the sign of the
+      dual. If the dual is zero, set the status to correspond to the
+      bound closest to the row lhs. If we're maximising, reverse the sense
+      of the dual (using objSense).
 
-  If we're maximising, reverse that (using objSense).
-
-  If the dual is zero, we really have to work. Set the status according to
-  whether one or both row bounds are finite. When both are finite, set the
-  status to match the bound closest to the row lhs.
+  This sequence has the advantage of being fairly robust against small
+  numerical errors in the values of the dual variables. By the time we're
+  using the sign of the dual to select a bound, we're guaranteed that the
+  logical has two finite bounds.
 */
   const double *y = getRowPrice() ;
   double objSense = getObjSense() ;
@@ -5815,28 +5822,30 @@ CoinWarmStart* ODSI::getWarmStart () const
     { setStatus(artifStatus,i,CWSB::basic) ; }
     else
     if (getStatus(artifStatus,i) == CWSB::isFree)
-    { if (y[i]*objSense > tolerances->cost)
+    { const double *blow = getRowLower() ;
+      const double *b = getRowUpper() ;
+      const double &blowi = blow[i] ;
+      const double &bi = b[i] ;
+      if (blowi <= -odsiInfinity)
+      { assert(bi < odsiInfinity) ;
+        setStatus(artifStatus,i,CWSB::atLowerBound) ; }
+      else
+      if (bi >= odsiInfinity)
+      { assert(blowi > -odsiInfinity) ;
+        setStatus(artifStatus,i,CWSB::atUpperBound) ; }
+      else
+      if (y[i]*objSense > tolerances->cost)
       { setStatus(artifStatus,i,CWSB::atUpperBound) ; }
       else
       if (y[i]*objSense < -tolerances->cost)
       { setStatus(artifStatus,i,CWSB::atLowerBound) ; }
       else
-      { const double *blow = getRowLower() ;
-        const double *b = getRowUpper() ;
-	const double &blowi = blow[i] ;
-	const double &bi = b[i] ;
-	if (blowi > -odsiInfinity && bi < odsiInfinity)
-	{ const double *lhs = getRowActivity() ;
-	  const double &lhsi = lhs[i] ;
-	  if (fabs(lhsi-blowi) < fabs(bi-lhsi))
+      { const double *lhs = getRowActivity() ;
+	const double &lhsi = lhs[i] ;
+	if (fabs(lhsi-blowi) < fabs(bi-lhsi))
 	    setStatus(artifStatus,i,CWSB::atUpperBound) ;
 	  else
-	    setStatus(artifStatus,i,CWSB::atLowerBound) ; }
-	else
-	if (blowi <= -odsiInfinity)
-	{ setStatus(artifStatus,i,CWSB::atLowerBound) ; }
-        else
-	{ setStatus(artifStatus,i,CWSB::atUpperBound) ; } } } }
+	    setStatus(artifStatus,i,CWSB::atLowerBound) ; } } }
 /*
   Now scan the status vector and record the status of nonbasic structural
   variables. Some information is lost here --- CWSB::Status doesn't encode

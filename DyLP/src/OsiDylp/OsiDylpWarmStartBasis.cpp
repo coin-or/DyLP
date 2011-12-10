@@ -833,8 +833,9 @@ void ODWSB::checkBasis (CoinMessageHandler* msghandler) const
     if (conStat == CWSB::isFree)
     { if (logStat != CWSB::basic)
       { if (msghandler)
-		*msghandler << "Basis error! Logical for inactive constraint " << i
-		  << " is nonbasic." << CoinMessageEol ;
+	  *msghandler
+	     << "Basis error! Logical for inactive constraint " << i
+	     << " is nonbasic." << CoinMessageEol ;
 	retval = false ; } }
     else
     if (conStat == CWSB::atLowerBound)
@@ -843,9 +844,10 @@ void ODWSB::checkBasis (CoinMessageHandler* msghandler) const
     else
     { 
       if (msghandler)
-		*msghandler << "Basis error! Status of constraint " << i
-			<< " is " << conStat << ". Should be isFree or atLowerBound."
-			<< CoinMessageEol ;
+	*msghandler
+	   << "Basis error! Status of constraint " << i
+	   << " is " << conStat << ". Should be isFree or atLowerBound."
+	   << CoinMessageEol ;
       retval = false ; } }
 /*
   The number of basic variables (basic structural, plus basic logicals
@@ -862,15 +864,18 @@ void ODWSB::checkBasis (CoinMessageHandler* msghandler) const
     { if (msghandler) *msghandler << "Basis error! " ;
       retval = false ; }
     if (msghandler)
-    	*msghandler << numActCons << " active constraints but ("
-	      << numBasicStruct << "+" << numBasicLog
-	      << ") basic variables." << CoinMessageEol ; }
+      *msghandler
+         << numActCons << " active constraints but ("
+	 << numBasicStruct << "+" << numBasicLog
+	 << ") basic variables." << CoinMessageEol ; }
 
   if (retval == false)
-  { if (msghandler) *msghandler << "Basis consistency check failed!" << CoinMessageEol ; }
+  { if (msghandler)
+      *msghandler << "Basis consistency check failed!" << CoinMessageEol ; }
 # if ODSI_PARANOIA >= 3
   else
-  { if (msghandler) *msghanlder << "Basis consistency check passed!" << CoinMessageEol ; }
+  { if (msghandler)
+      *msghandler << "Basis consistency check passed." << CoinMessageEol ; }
 # endif
   
   return ; }

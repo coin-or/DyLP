@@ -812,6 +812,7 @@ CoinPostsolveMatrix *ODSI::initialisePostsolve (CoinPresolveMatrix *&preObj)
   postObj->assignPresolveToPostsolve(preObj) ;
 
   CoinWarmStartBasis *ws = dynamic_cast<CoinWarmStartBasis *>(getWarmStart()) ;
+
   postObj->setStatus(ws) ;
   delete ws ;
 
@@ -841,6 +842,20 @@ CoinPostsolveMatrix *ODSI::initialisePostsolve (CoinPresolveMatrix *&preObj)
   { postObj->setReducedCost(temp,-1) ; }
 
   if (tempNonConst != 0) delete [] tempNonConst ;
+
+# if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
+  std::cout
+    << std::endl
+    << "ODSI::initialisePostsolve: checking solution at PostsolveMatrix load."
+    << std::endl ;
+  presolve_check_threads(postObj) ;
+  presolve_check_free_list(postObj,true) ;
+  presolve_check_reduced_costs(postObj) ;
+  presolve_check_duals(postObj) ;
+  presolve_check_sol(postObj,2,2,2) ;
+  presolve_check_nbasic(postObj) ;
+  std::cout << "  ... done." << std::endl ;
+# endif
 
   return (postObj) ; }
 

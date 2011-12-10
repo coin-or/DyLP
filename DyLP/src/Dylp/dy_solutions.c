@@ -869,7 +869,7 @@ void dy_logPrimals (lpprob_struct *orig_lp, double **p_logx)
 # ifndef DYLP_NDEBUG
   int v,n_orig ;
 # endif
-# if MALLOC_DEBUG == 2
+# if DYLP_PARANOIA > 0 || MALLOC_DEBUG == 2
   char *rtnnme = "dy_logPrimals" ;
 # endif
 # ifdef DYLP_PARANOIA
