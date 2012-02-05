@@ -13,7 +13,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([DyLP],[1.8],[coin-dylp@list.coin-or.org])
+AC_INIT([DyLP],[1.8.3],[coin-dylp@list.coin-or.org])
 
 
 AC_COPYRIGHT([
@@ -42,7 +42,7 @@ AC_PREFIX_DEFAULT([`pwd`])
 AC_CANONICAL_BUILD
 
 # Do a bit of basic setup for configuration
-AC_COIN_PROJECTDIR_INIT(DyLP)
+AC_COIN_PROJECTDIR_INIT(DyLP,8:3:7)
 
 # Check if user wants to produce debugging code
 AC_COIN_DEBUG_COMPILE(DyLP)
