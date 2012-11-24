@@ -130,6 +130,7 @@ namespace {
   Debug stuff. This block covers the include and the namespace.
 */
 #include "CoinPresolvePsdebug.hpp"
+#include "CoinPresolveMonitor.hpp"
 
 namespace {	// Anonymous namespace for debug routines
 
@@ -430,49 +431,23 @@ void ODSI::doPresolve ()
   other coefficient a<kj>, we can eliminate x<j> from row k without fillin.
   After that, fillin will, in general, occur.
 */
-      int fill_level = 2 ;
+      preObj_->maxSubstLevel_ = 6 ;
+      int fill_level = preObj_->maxSubstLevel_ ;
 /*
   Apply inexpensive transforms until convergence.
 
-  In the original code, the criteria for `convergence' are
-      (lastAction == lastSimpleAction && fill_level > 0)
-
-  The first checks to see if we actually did anything (in which case, new
-  postsolve transforms have been added).
-
-  The second catches a hack that (in a nutshell) allows us to know when we've
-  run low on doubleton columns for implied_free_action and its subordinate
-  subst_constraint_action. A limit of 2 (and *only* 2) will be converted to
-  -3 in subst_constraint_action. When -3 is passed in, it triggers i_f_a and
-  s_c_a to consider all columns, not just those in ColsToDo. The -3 will come
-  back as 3, and will not change again. (Except for this special case, a call
-  to i_f_a will not change fill_level.)
-
-  I'm asking why I can't simply look at numColsToDo and numRowsToDo. All the
-  transforms queue to both NextColsToDo and NextRowsToDo (some indirectly due
-  to triggered transforms). Except for the special case of implied_free,
-  they all scan from ColsToDo or RowsToDo. Seems to me that if we break on
-      (numColsToDo == 0 && numRowsToDo == 0 && fill_level > 0)
-  we'll actually save one round of function calls.
+  Convergence is defined as no rows or columns queued for processing.
 */
       while (1)
-      { 
-/*
-  For some reason there's a hardwired limit on the number of
-  slack_doubleton_actions performed per call.  notFinished comes back true if
-  the number of opportunities exceeds the limit.
-*/
-	if (slackdoubleton == true)
-	{ bool notFinished = true ;
-	  while (notFinished) 
-	  { postActions_ =
-		slack_doubleton_action::presolve(preObj_,
-						 postActions_,notFinished) ;
-#	    if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
-	    check_and_tell(local_logchn,
-			   preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
-#	    endif
-	  }
+      { if (slackdoubleton == true)
+	{ bool dummyParam ;
+	  postActions_ =
+	      slack_doubleton_action::presolve(preObj_,
+					       postActions_,dummyParam) ;
+#	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
+	  check_and_tell(local_logchn,
+			 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
+#	  endif
 	  if (preObj_->status() != feasibleStatus)
 	    break ; }
 	if (doubleton == true)
@@ -524,11 +499,10 @@ void ODSI::doPresolve ()
 	preObj_->stepColsToDo() ;
 	preObj_->stepRowsToDo() ;
 /*
-  Break out of the loop if no rows or columns are queued, unless we've
-  triggered the special case for i_f_a.
+  Break out of the loop if no rows or columns are queued, or if nothing
+  happened.
 */
-	if (preObj_->numberColsToDo() == 0 &&
-		preObj_->numberRowsToDo() == 0 && fill_level > 0)
+	if (preObj_->numberColsToDo() == 0 && preObj_->numberRowsToDo() == 0)
 	  break ; }
 /*
   That's it for the computationally cheap transforms. Reset the ToDo lists and
@@ -540,12 +514,11 @@ void ODSI::doPresolve ()
   Attempt to fix variables at bound by propagating bounds on reduced costs.
   The routine does not consult the ToDo lists, so looking for the addition of
   postsolve actions is the only way to determine if another iteration might be
-  useful. If we manage to fix variables, try to remove implied free variables
-  but disable substitution of equalities into other constraints
-  (fill_level = 0).
+  useful. If we manage to fix variables, try to remove implied free variables.
 */
       if (doDualStuff)
-      { for (int iter = 0 ; iter < 5 ; iter++)
+      { int fill_level = preObj_->maxSubstLevel_ ;
+        for (int iter = 0 ; iter < 5 ; iter++)
 	{ const CoinPresolveAction *const marker = postActions_ ;
 	  postActions_ = remove_dual_action::presolve(preObj_,postActions_) ;
 #	  if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
@@ -555,8 +528,7 @@ void ODSI::doPresolve ()
 	  if (preObj_->status() != feasibleStatus)
 	    break ;
 	  if (ifree)
-	  { int fill_level = 0 ;
-	    postActions_ =
+	  { postActions_ =
 		implied_free_action::presolve(preObj_,
 					      postActions_,fill_level) ;
 #	    if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
