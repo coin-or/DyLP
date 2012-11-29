@@ -382,6 +382,18 @@ void ODSI::doPresolve ()
 		 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
 # endif
 /*
+  Look for redundant constraints. This routine will use a greedy algorithm to
+  identify a set of `necessary' constraints that imply tighter column bounds
+  on variables. It will then use those tighter bounds to identify useless
+  constraints where row activity cannot exceed the row bounds.
+*/
+  postActions_ = testRedundant(preObj_,postActions_) ;
+# if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
+  check_and_tell(local_logchn,
+		 preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
+# endif
+
+/*
   If we have integer variables, skip the presolve checks based on dual
   values.
 
@@ -431,7 +443,7 @@ void ODSI::doPresolve ()
   other coefficient a<kj>, we can eliminate x<j> from row k without fillin.
   After that, fillin will, in general, occur.
 */
-      preObj_->maxSubstLevel_ = 6 ;
+      preObj_->maxSubstLevel_ = 3 ;
       int fill_level = preObj_->maxSubstLevel_ ;
 /*
   Apply inexpensive transforms until convergence.
@@ -558,6 +570,16 @@ void ODSI::doPresolve ()
 #	endif
 	if (preObj_->status() != feasibleStatus)
 	  break ; }
+/*
+  Try again for useless constraints now that dual transforms and duplicate
+  column elimination have had a chance to fix variables.
+*/
+	postActions_ = testRedundant(preObj_,postActions_) ;
+#       if PRESOLVE_DEBUG > 0 || PRESOLVE_CONSISTENCY > 0
+        check_and_tell(local_logchn,
+		       preObj_,chkMtx,chkSol,postActions_,dbgActionMark) ;
+#       endif
+
 /*
   See if we should continue. The requirement is that we've substantially
   reduced the problem. Checking postActions_ == lastAction is a quick test
