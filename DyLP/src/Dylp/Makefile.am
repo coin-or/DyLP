@@ -72,11 +72,14 @@ libDylp_la_LDFLAGS = $(LT_LDFLAGS)
 # We want to have also the objects from the DylpStdLib in this library
 
 libDylp_la_LIBADD = ../DylpStdLib/libDylpStdLib.la
+if DEPENDENCY_LINKING
+libDylp_la_LIBADD += $(DYLPLIB_LIBS)
+endif
 
 # Since automake is not doing this on its own, we need to declare the
 # dependencies to the subdirectory libraries here
 
-libDylp_la_DEPENDENCIES = $(libDylp_la_LIBADD)
+libDylp_la_DEPENDENCIES = ../DylpStdLib/libDylpStdLib.la
 
 # Here list all include flags, relative to this "srcdir" directory.  This
 # "cygpath" stuff is necessary to compile with native compilers on Windows
