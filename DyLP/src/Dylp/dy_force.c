@@ -544,16 +544,16 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 */
   if (suppressed == 0)
   { if (concnt == 0 && flgon(calcflgs,ladDUALFEAS))
-    { warn(439,rtnnme,
+    { dywarn(439,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   "absence","dual") ; } }
   else
   { if (flgoff(calcflgs,ladDUALFEAS))
-    { warn(439,rtnnme,
+    { dywarn(439,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   "presence","dual") ; } }
   if (dy_lp->simplex.active == dyDUAL && flgoff(calcflgs,ladPRIMFEAS))
-  { warn(439,rtnnme,
+  { dywarn(439,rtnnme,
 	 dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	 "presence","primal") ; }
 # endif
@@ -915,12 +915,12 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 # ifdef DYLP_PARANOIA
   if (suppressed == 0)
   { if (varcnt == 0 && flgon(calcflgs,ladPRIMFEAS))
-    { warn(439,rtnnme,
+    { dywarn(439,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   "absence","primal") ; } }
   else
   { if (flgoff(calcflgs,ladPRIMFEAS))
-    { warn(439,rtnnme,
+    { dywarn(439,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   "presence","primal") ; } }
 # endif

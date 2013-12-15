@@ -818,7 +818,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 	{ 
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.dual >= 1)
-	  { warn(346,rtnnme,
+	  { dywarn(346,rtnnme,
 		 dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
 		 dy_prtvstat(statj),consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
 #	  endif
@@ -887,7 +887,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 #	ifndef DYLP_NDEBUG
 	cbarj = dy_cbar[j] ;
 	if (dy_opts->print.dual >= 1)
-	{ warn(347,rtnnme,
+	{ dywarn(347,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
 	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,
 	       dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
@@ -899,7 +899,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.dual >= 1)
-	  { warn(347,rtnnme,
+	  { dywarn(347,rtnnme,
 		 dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
 		 consys_nme(dy_sys,'v',j,FALSE,NULL),j,
 		 dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
@@ -915,7 +915,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.dual >= 1)
-	  { warn(347,rtnnme,
+	  { dywarn(347,rtnnme,
 		 dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
 		 consys_nme(dy_sys,'v',j,FALSE,NULL),j,
 		 dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }

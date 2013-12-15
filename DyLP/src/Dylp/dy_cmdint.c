@@ -452,7 +452,7 @@ cmd_retval dy_processcmds (ioid cmdchn, bool silent,
 	{ retval = cmdHALTNOERROR ; }
 	else
 	{ if (dyio_closefile(cmdchn) == FALSE)
-	    warn(232,rtnnme,dyio_idtopath(cmdchn)) ;
+	    dywarn(232,rtnnme,dyio_idtopath(cmdchn)) ;
 	  cmdchn = cmdchns[--level].chn ;
 	  dyio_outfmt(dy_logchn,dy_gtxecho,
 		      "\n\treturning to command source file %s\n",

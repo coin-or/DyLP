@@ -281,7 +281,7 @@ static bool empty_col (consys_struct *consys, int colndx, bool *rescan)
     rowhdr->len-- ;
 #   ifndef DYLP_NDEBUG
     if (rowhdr->len == 0 && flgon(consys->opts,CONSYS_WRNZERO))
-      warn(118,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ;
+      dywarn(118,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ;
 #   endif
     FREE(ccoeff) ; }
   consys->mtx.coeffcnt -= colhdr->len ;
@@ -389,7 +389,7 @@ static bool empty_row (consys_struct *consys, int rowndx, bool *rescan)
     colhdr->len-- ;
 #   ifndef DYLP_NDEBUG
     if (colhdr->len == 0 && flgon(consys->opts,CONSYS_WRNZERO))
-      warn(118,rtnnme,consys->nme,"column",colhdr->nme,colndx) ;
+      dywarn(118,rtnnme,consys->nme,"column",colhdr->nme,colndx) ;
 #   endif
     FREE(rcoeff) ; }
   consys->mtx.coeffcnt -= rowhdr->len ;
@@ -591,7 +591,7 @@ static bool find_maxes (consys_struct *consys, bool scan_cols, bool scan_rows)
 #     ifndef DYLP_NDEBUG
       if (consys->mtx.cols[colndx]->len == 0 &&
 	  flgon(consys->opts,CONSYS_WRNZERO))
-	warn(118,rtnnme,
+	dywarn(118,rtnnme,
 	     consys->nme,"column",consys->mtx.cols[colndx]->nme,colndx) ;
 #     endif
       if (consys->mtx.cols[colndx]->len > consys->maxcollen)
@@ -609,7 +609,7 @@ static bool find_maxes (consys_struct *consys, bool scan_cols, bool scan_rows)
 #     ifndef DYLP_NDEBUG
       if (consys->mtx.rows[rowndx]->len == 0 &&
 	  flgon(consys->opts,CONSYS_WRNZERO))
-	warn(118,rtnnme,
+	dywarn(118,rtnnme,
 	     consys->nme,"row",consys->mtx.rows[rowndx]->nme,rowndx) ;
 #     endif
       if (consys->mtx.rows[rowndx]->len > consys->maxrowlen)
@@ -1228,7 +1228,7 @@ bool consys_attach (consys_struct *consys, flags what, int elsze, void **pvec)
 # ifndef DYLP_NDEBUG
   else
   { if (flgon(consys->opts,CONSYS_WRNATT))
-      warn(107,rtnnme,consys_assocnme(consys,what),*pvec,pvec) ; }
+      dywarn(107,rtnnme,consys_assocnme(consys,what),*pvec,pvec) ; }
 # endif
 
 # if DY_CONSYS_TRACE_ATTACH
@@ -1723,7 +1723,7 @@ bool consys_addcol_pk (consys_struct *consys,
   {
 #   ifndef DYLP_NDEBUG
     if (pkcol->cnt == 0 && flgon(consys->opts,CONSYS_WRNZERO))
-      warn(118,rtnnme,consys->nme,"column",colhdr->nme,colndx) ;
+      dywarn(118,rtnnme,consys->nme,"column",colhdr->nme,colndx) ;
 #   endif
     nzcnt = 0 ;
     pkcoeff = pkcol->coeffs ;
@@ -1762,7 +1762,7 @@ bool consys_addcol_pk (consys_struct *consys,
 	  consys->maxrowndx = pkcoeff->ndx ; } }
 #     ifndef DYLP_NDEBUG
       else
-      { warn(130,rtnnme,consys->nme,pkcoeff->ndx,colndx,pkcoeff->val,
+      { dywarn(130,rtnnme,consys->nme,pkcoeff->ndx,colndx,pkcoeff->val,
 	     consys->tiny,"column",colhdr->nme) ; }
 #     endif
       pkcoeff++ ; }
@@ -1920,7 +1920,7 @@ bool consys_addcol_ex (consys_struct *consys,
     else
     if (excol[rowndx] != 0.0)
     { rowhdr = consys->mtx.rows[rowndx] ;
-      warn(130,rtnnme,consys->nme,rowndx,colndx,excol[rowndx],
+      dywarn(130,rtnnme,consys->nme,rowndx,colndx,excol[rowndx],
 	   consys->tiny,"row",rowhdr->nme) ; }
 #   endif
   }
@@ -2085,7 +2085,7 @@ bool consys_addrow_pk (consys_struct *consys, char class,
   {
 #   ifndef DYLP_NDEBUG
     if (pkrow->cnt == 0 && flgon(consys->opts,CONSYS_WRNZERO))
-      warn(118,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ;
+      dywarn(118,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ;
 #   endif
     nzcnt = 0 ;
     pkcoeff = pkrow->coeffs ;
@@ -2124,7 +2124,7 @@ bool consys_addrow_pk (consys_struct *consys, char class,
 	  consys->maxcolndx = pkcoeff->ndx ; } }
 #     ifndef DYLP_NDEBUG
       else
-      { warn(130,rtnnme,consys->nme,rowndx,pkcoeff->ndx,pkcoeff->val,
+      { dywarn(130,rtnnme,consys->nme,rowndx,pkcoeff->ndx,pkcoeff->val,
 	     consys->tiny,"row",rowhdr->nme) ; }
 #     endif
       pkcoeff++ ; }

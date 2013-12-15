@@ -523,10 +523,10 @@ cmd_retval dy_printopt (ioid cmdchn, bool cmdecho, const char *keywd,
   if (integer_opt(cmdchn,cmdecho,opt) == TRUE)
   { if (*opt >= 0)
     { if (*opt > ub)
-      { warn(241,rtnnme,lb,cmdstr,ub,*opt,ub) ;
+      { dywarn(241,rtnnme,lb,cmdstr,ub,*opt,ub) ;
 	*opt  = ub ; } }
     else
-    { warn(243,rtnnme,cmdstr,dflt) ; } }
+    { dywarn(243,rtnnme,cmdstr,dflt) ; } }
   else
   { errmsg(236,rtnnme,"<level>","parameter",keywd) ; }
 
@@ -621,25 +621,25 @@ static bool lpctl_active (ioid cmdchn, bool cmdecho,
       dyio_outchr(dy_logchn,dy_gtxecho,',') ;
     if (actfrac->varfrac >= 0)
     { if (actfrac->varfrac > opts_ub->active.vars)
-      { warn(244,rtnnme,opts_lb->active.vars,"variables",
+      { dywarn(244,rtnnme,opts_lb->active.vars,"variables",
 	     opts_ub->active.vars,actfrac->varfrac,opts_ub->active.vars) ;
 	lpopts->active.vars = opts_ub->active.vars ; }
       else
 	lpopts->active.vars = actfrac->varfrac ; }
     else
-    { warn(245,rtnnme,"variables",opts_dflt->active.vars) ; } }
+    { dywarn(245,rtnnme,"variables",opts_dflt->active.vars) ; } }
 
   if (actfrac->con_seen == TRUE)
   { dyio_outfmt(dy_logchn,dy_gtxecho," constraints %.2f",actfrac->confrac) ;
     if (actfrac->confrac >= 0)
     { if (actfrac->confrac > opts_ub->active.cons)
-      { warn(244,rtnnme,opts_lb->active.cons,"constraints",
+      { dywarn(244,rtnnme,opts_lb->active.cons,"constraints",
 	     opts_ub->active.cons,actfrac->confrac,opts_ub->active.cons) ;
 	lpopts->active.cons = opts_ub->active.cons ; }
       else
 	lpopts->active.cons = actfrac->confrac ; }
     else
-    { warn(245,rtnnme,"constraints",opts_dflt->active.cons) ; } }
+    { dywarn(245,rtnnme,"constraints",opts_dflt->active.cons) ; } }
 
   FREE(actfrac) ;
 
@@ -754,9 +754,9 @@ static bool lpctl_finpurge (ioid cmdchn, bool cmdecho,
   value.
 */
   if (optvals->vars < 0 && optvals->cons < 0)
-  { warn(246,rtnnme,"final variable deactivation",
+  { dywarn(246,rtnnme,"final variable deactivation",
 	 (opts_dflt->finpurge.vars == TRUE)?"true":"false") ;
-    warn(246,rtnnme,"final constraint deactivation",
+    dywarn(246,rtnnme,"final constraint deactivation",
 	 (opts_dflt->finpurge.cons == TRUE)?"true":"false") ;
     return (TRUE) ; }
 /*
@@ -920,7 +920,7 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   value.
 */
   if (loadspec->frac_valid == FALSE && loadspec->intervals == NULL)
-  { warn(245,rtnnme,"initial load fraction",opts_dflt->initcons.frac) ;
+  { dywarn(245,rtnnme,"initial load fraction",opts_dflt->initcons.frac) ;
     intvndx = 0 ;
     intvlen = sizeof(intvstr)-1 ;
     if (opts_dflt->initcons.i1uopen == TRUE)
@@ -951,7 +951,7 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
 	intvstr[intvndx] = ']' ;
       intvndx++ ; }
     intvstr[intvndx] = '\0' ;
-    warn(246,rtnnme,"load interval",intvstr) ;
+    dywarn(246,rtnnme,"load interval",intvstr) ;
     return (TRUE) ; }
 /*
   The load fraction first.
@@ -960,7 +960,7 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   { dyio_outfmt(dy_logchn,dy_gtxecho," %.2f",loadspec->frac) ;
     if (loadspec->frac < opts_lb->initcons.frac ||
 	loadspec->frac > opts_ub->initcons.frac)
-    { warn(244,rtnnme,opts_lb->initcons.frac,"initial load fraction",
+    { dywarn(244,rtnnme,opts_lb->initcons.frac,"initial load fraction",
 	   opts_ub->initcons.frac,loadspec->frac,opts_ub->initcons.frac) ;
       lpopts->initcons.frac = opts_ub->initcons.frac ; }
     else
@@ -980,13 +980,13 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   else
     lpopts->initcons.i1uopen = FALSE ;
   if (intv->ub > opts_ub->initcons.i1u || intv->ub < opts_lb->initcons.i1u)
-  { warn(244,rtnnme,opts_lb->initcons.i1u,"initial load angle bound",
+  { dywarn(244,rtnnme,opts_lb->initcons.i1u,"initial load angle bound",
 	   opts_ub->initcons.i1u,intv->ub,opts_ub->initcons.i1u) ;
     lpopts->initcons.i1u = opts_ub->initcons.i1u ; }
   else
   { lpopts->initcons.i1u = intv->ub ; }
   if (intv->lb > opts_ub->initcons.i1l || intv->lb < opts_lb->initcons.i1l)
-  { warn(244,rtnnme,opts_lb->initcons.i1l,"initial load angle bound",
+  { dywarn(244,rtnnme,opts_lb->initcons.i1l,"initial load angle bound",
 	   opts_ub->initcons.i1l,intv->lb,opts_lb->initcons.i1l) ;
     lpopts->initcons.i1l = opts_lb->initcons.i1l ; }
   else
@@ -1013,13 +1013,13 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   else
     lpopts->initcons.i2uopen = FALSE ;
   if (intv->ub > opts_ub->initcons.i2u || intv->ub < opts_lb->initcons.i2u)
-  { warn(244,rtnnme,opts_lb->initcons.i2u,"initial load angle bound",
+  { dywarn(244,rtnnme,opts_lb->initcons.i2u,"initial load angle bound",
 	   opts_ub->initcons.i2u,intv->ub,opts_ub->initcons.i2u) ;
     lpopts->initcons.i2u = opts_ub->initcons.i2u ; }
   else
   { lpopts->initcons.i2u = intv->ub ; }
   if (intv->lb > opts_ub->initcons.i2l || intv->lb < opts_lb->initcons.i2l)
-  { warn(244,rtnnme,opts_lb->initcons.i2l,"initial load angle bound",
+  { dywarn(244,rtnnme,opts_lb->initcons.i2l,"initial load angle bound",
 	   opts_ub->initcons.i2l,intv->lb,opts_lb->initcons.i2l) ;
     lpopts->initcons.i2l = opts_lb->initcons.i2l ; }
   else
@@ -1129,7 +1129,7 @@ static bool lpctl_infinity (ioid cmdchn, bool cmdecho,
     { dyio_outfmt(dy_logchn,dy_gtxecho," IEEE (%g)",HUGE_VAL) ;
       infinity = HUGE_VAL ;
       if (finite(infinity))
-      { warn(314,rtnnme,infinity) ; }
+      { dywarn(314,rtnnme,infinity) ; }
       break ; }
     case 2:
     { dyio_outfmt(dy_logchn,dy_gtxecho," DBL_MAX (%g)",DBL_MAX) ;
@@ -1140,7 +1140,7 @@ static bool lpctl_infinity (ioid cmdchn, bool cmdecho,
       infinity = infinityspec->val ;
       if (infinity == 0)
       { infinity = lptols->inf ;
-	warn(245,rtnnme,"infinity",infinity) ; }
+	dywarn(245,rtnnme,"infinity",infinity) ; }
       else
       if (infinity < 0)
       { errmsg(242,rtnnme,infinity,"infinity") ;
@@ -1629,10 +1629,10 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
     { if (integer_opt(cmdchn,cmdecho,intopt) == TRUE)
       { if (*intopt >= 0)
 	{ if (intub > 0 && *intopt > intub)
-	  { warn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ;
+	  { dywarn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ;
 	    *intopt = intub ; } }
 	else
-	{ warn(243,rtnnme,cmdstr,intdflt) ; }
+	{ dywarn(243,rtnnme,cmdstr,intdflt) ; }
 	retval = cmdOK ; }
       else
       { errmsg(236,rtnnme,"<integer>","parameter",keywd) ; }
@@ -1642,9 +1642,9 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
     { if (integer_opt(cmdchn,cmdecho,intopt) == TRUE)
       { if (*intopt >= 0)
 	{ if (intub > 0 && *intopt > intub)
-	  { warn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ; } }
+	  { dywarn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ; } }
 	else
-	{ warn(243,rtnnme,cmdstr,intdflt) ; }
+	{ dywarn(243,rtnnme,cmdstr,intdflt) ; }
 	retval = cmdOK ; }
       else
       { errmsg(236,rtnnme,"<integer>","parameter",keywd) ; }
@@ -1675,7 +1675,7 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
     case ctlZERO:
     { if (double_opt(cmdchn,cmdecho,&dblopt) == TRUE)
       { if (dblopt <= 0)
-	{ warn(245,rtnnme,cmdstr,tolerdflt) ; }
+	{ dywarn(245,rtnnme,cmdstr,tolerdflt) ; }
 	else
 	{ *toler = dblopt ; }
 	retval = cmdOK ; }

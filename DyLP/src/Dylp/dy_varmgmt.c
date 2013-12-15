@@ -1381,12 +1381,12 @@ int dy_activateVars (consys_struct *orig_sys, int *preset)
 */
 	if (dy_lp->simplex.next == dyDUAL)
 	{ if (flgon(calcflgs,ladDUALFEAS))
-	  { warn(439,rtnnme,
+	  { dywarn(439,rtnnme,
 		 dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 		 "loss","dual") ; } }
 	else
 	{ if (flgoff(calcflgs,ladDUALFEAS))
-	  { warn(439,rtnnme,
+	  { dywarn(439,rtnnme,
 		 dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 		 "gain","dual") ; } }
 #	endif

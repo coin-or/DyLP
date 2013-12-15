@@ -553,7 +553,7 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
     { break ; }
     case lpOPTIMAL:
     case lpINFEAS:
-    { warn(954,rtnnme,orig_sys->nme,"primal",dy_prtlpret(orig_lp->lpret)) ;
+    { dywarn(954,rtnnme,orig_sys->nme,"primal",dy_prtlpret(orig_lp->lpret)) ;
       return (TRUE) ; }
     default:
     { errmsg(954,rtnnme,orig_sys->nme,"primal",dy_prtlpret(orig_lp->lpret)) ;
@@ -1098,7 +1098,7 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
     { break ; }
     case lpOPTIMAL:
     case lpUNBOUNDED:
-    { warn(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
+    { dywarn(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
       return (TRUE) ; }
     default:
     { errmsg(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;

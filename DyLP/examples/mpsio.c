@@ -306,7 +306,7 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
   tok = strtok(NULL,sepchars) ;
 # if 0
   if (tok == NULL || cistrcmp(tok,"free") != 0)
-    warn(150,rtnnme,"free",(tok == NULL)?"":tok) ;
+    dywarn(150,rtnnme,"free",(tok == NULL)?"":tok) ;
 # endif
 /*
   Now check for the "rows" keyword that marks the start of the rows section.
@@ -414,7 +414,7 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
       { typecode = contypNB ;
 	if (!(consys->objndx <= 0 &&
 	      (consys->objnme == NULL || strcmp(tok,consys->objnme) == 0)))
-	{ warn(172,rtnnme,consys->nme,tok) ;
+	{ dywarn(172,rtnnme,consys->nme,tok) ;
 	  keep_row = FALSE ; }
 	break ; }
       case 'E':
@@ -463,7 +463,7 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
   Check for garbage at the end of the line, and complain if there is any.
 */
     tok = strtok(NULL,sepchars) ;
-    if (tok != NULL) warn(157,rtnnme,tok,"constraint",pkrow->nme) ; }
+    if (tok != NULL) dywarn(157,rtnnme,tok,"constraint",pkrow->nme) ; }
 /*
   This is the end of the loop which parses the rows section.  Check that we
   got here because we saw the "columns" indicator, and fail if things are
@@ -1445,7 +1445,7 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
 */
   for (ndx = consys->archccnt ; ndx > 0 ; ndx--)
   { if (consys_infnormrow(consys,ndx) == 0)
-    { warn(179,rtnnme,consys->nme,consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
+    { dywarn(179,rtnnme,consys->nme,consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
       if (consys_delrow(consys,ndx) == FALSE)
       { errmsg(112,rtnnme,consys->nme,"delete","row",
 	       consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;

@@ -248,14 +248,14 @@ dyret_enum dy_degenout (int level)
 #         ifdef DYLP_PARANOIA
 	  if (withintol(val,vub[xkndx],
 			  1000*dy_tols->pfeas*(1+fabs(vub[xkndx]))))
-	  { warn(342,rtnnme,dy_sys->nme,
+	  { dywarn(342,rtnnme,dy_sys->nme,
 		 consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,val,
 		 vlb[xkndx],vub[xkndx],"bogosity",fabs(val-vub[xkndx]),
 		 1000*dy_tols->pfeas*(1+fabs(vub[xkndx]))) ; }
 	  else
 	  if (withintol(val,vlb[xkndx],
 			  1000*dy_tols->zero*(1+fabs(vlb[xkndx]))))
-	  { warn(342,rtnnme,dy_sys->nme,
+	  { dywarn(342,rtnnme,dy_sys->nme,
 		 consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,val,
 		 vlb[xkndx],vub[xkndx],"bogosity",fabs(val-vlb[xkndx]),
 		 1000*dy_tols->pfeas*(1+fabs(vlb[xkndx]))) ; }
@@ -1220,7 +1220,7 @@ static dyret_enum primalout (int xjndx, int indir,
       {
 #       ifndef DYLP_NDEBUG
 	if (dy_opts->print.phase2 >= 1 || dy_opts->print.phase1 >= 1)
-	  warn(323,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	  dywarn(323,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters+1,consys_nme(dy_sys,'v',xkndx,FALSE,NULL),
 	       xkndx,dy_prtvstat(xkstatus),dy_sys->vlb[xkndx],
 	       dy_xbasic[xkpos],dy_sys->vub[xkndx],-deltak,
@@ -1369,7 +1369,7 @@ static dyret_enum primalout (int xjndx, int indir,
 		withintol(abarij,0,dy_tols->bogus*dy_tols->zero))
 	    { retval = dyrREQCHK ;
 #  	      ifndef DYLP_NDEBUG
-	      warn(381,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dywarn(381,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		   dy_lp->tot.iters+1,"abar",*xindx,xjndx,abarij,
 		   dy_tols->bogus*dy_tols->zero,
 		   dy_tols->bogus*dy_tols->zero-fabs(abarij)) ;
@@ -1390,7 +1390,7 @@ static dyret_enum primalout (int xjndx, int indir,
 #       ifndef DYLP_NDEBUG
 	if (dy_lp->degen == 0 &&
 	    (dy_opts->print.phase1 >= 2 || dy_opts->print.phase2 >= 2))
-	  warn(324,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	  dywarn(324,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters+1) ;
 #       endif
 	retval = dyrUNBOUND ; }
@@ -1610,7 +1610,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	{ retval = dyrREQCHK ;
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.pivoting >= 1)
-	    warn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	    dywarn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		 dy_lp->tot.iters,"x",xkndx,fabs(val),
 		 eps0*dy_tols->bogus,eps0*dy_tols->bogus-val) ;
 #	  endif
@@ -1719,7 +1719,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	  { retval = dyrREQCHK ;
 #	    ifndef DYLP_NDEBUG
 	    if (dy_opts->print.pivoting >= 1)
-	      warn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dywarn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		   dy_lp->tot.iters,"x",xkndx,"lb",xkndx,
 		   val,lbk,val-lbk,epsl*dy_tols->bogus,
 		   epsl*dy_tols->bogus-(val-lbk)) ;
@@ -1730,7 +1730,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	  { retval = dyrREQCHK ;
 #	    ifndef DYLP_NDEBUG
 	    if (dy_opts->print.pivoting >= 1)
-	      warn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dywarn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		   dy_lp->tot.iters,"ub",xkndx,"x",xkndx,
 		   ubk,val,ubk-val,epsu*dy_tols->bogus,
 		   epsu*dy_tols->bogus-(ubk-val)) ;
@@ -1753,7 +1753,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	    !flgon(dy_status[xindx],vstatBLB|vstatBFX|vstatBUB))
 	{ if (fabs(ubk-val) < fabs(lbk-val))
 	  { if (fabs(ubk-val) < 100*epsu)
-	    { warn(357,rtnnme,dy_sys->nme,
+	    { dywarn(357,rtnnme,dy_sys->nme,
 		   consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
 		   dy_prtvstat(dy_status[xindx]),"ub",ubk,val,val-ubk,epsu) ; }
 	    else
@@ -1763,7 +1763,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	      return (dyrFATAL) ; } }
 	  else
 	  { if (fabs(lbk-val) < 100*epsl)
-	    { warn(357,rtnnme,dy_sys->nme,
+	    { dywarn(357,rtnnme,dy_sys->nme,
 		   consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
 		   dy_prtvstat(dy_status[xindx]),"lb",lbk,val,lbk-val,epsl) ; }
 	    else
@@ -1950,7 +1950,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
   else
   { val = dy_calcobj() ;
     if (fabs(val-dy_lp->z) > fabs(.001*(1+fabs(val))))
-    { warn(405,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+    { dywarn(405,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	   dy_lp->tot.iters+1,dy_lp->z,val,fabs(dy_lp->z-val),
 	   fabs(.001*val)) ; } }
 # endif
@@ -1973,7 +1973,7 @@ static dyret_enum primalupdate (int xjndx, int indir,
 	{ retval = dyrREQCHK ;
 #         ifndef DYLP_NDEBUG
 	  if (dy_opts->print.pivoting >= 1)
-	    warn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	    dywarn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		 dy_lp->tot.iters,"y",xkpos,fabs(val),
 		 dy_tols->cost*dy_tols->bogus,
 		 dy_tols->cost*dy_tols->bogus-val) ;
@@ -2321,7 +2321,7 @@ static dyret_enum pseupdate (int xjndx, int xindx, int *candxj,
 	{ errmsg(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 		 dy_lp->tot.iters,xindx,xkndx,abarik,1.0,abarik-1.0,.001) ; }
 	else
-	{ warn(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	{ dywarn(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters,xindx,xkndx,abarik,1.0,abarik-1.0,
 	       dy_tols->bogus*dy_tols->zero) ; } } }
 #   endif

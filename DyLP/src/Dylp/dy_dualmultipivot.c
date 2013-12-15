@@ -920,12 +920,12 @@ bool selectWithInf (int i, dualcand_struct *incands,
   # ifdef DYLP_PARANOIA
     if (dy_lp->d2.iters > 0 && predictiter+1 == dy_lp->d2.iters)
     { if (!atbnd(predicttotinf,starttotinf))
-      { warn(350,rtnnme,
+      { dywarn(350,rtnnme,
 	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	     "total",predicttotinf,predictiter,
 	     starttotinf,predicttotinf-starttotinf) ; }
       if (!atbnd(predictmaxinf,startmaxinf))
-      { warn(350,rtnnme,
+      { dywarn(350,rtnnme,
 	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	     "maximum",predictmaxinf,predictiter,
 	     startmaxinf,predictmaxinf-startmaxinf) ; } }
@@ -1260,7 +1260,7 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
     else
     if (dy_lp->d2.iters > 0 && predictiter+1 == dy_lp->d2.iters)
     { if (!atbnd(predictinf,startinf))
-      { warn(350,rtnnme,
+      { dywarn(350,rtnnme,
 	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	     "x<i>",predictinf,predictiter,startinf,predictinf-startinf) ; } }
   # endif
