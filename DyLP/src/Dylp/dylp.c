@@ -874,7 +874,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   0x0 system. Warn about it if we're paranoid.
 */
   if (orig_sys->concnt < 1 || orig_sys->varcnt < 1)
-  { warn(351,rtnnme,orig_sys->nme,dy_prtlpphase(dyINV,TRUE),0,
+  { dywarn(351,rtnnme,orig_sys->nme,dy_prtlpphase(dyINV,TRUE),0,
 	 orig_sys->concnt,orig_sys->varcnt) ; }
   if (flgon(orig_sys->opts,CONSYS_LVARS))
   { errmsg(123,rtnnme,orig_sys->nme) ;

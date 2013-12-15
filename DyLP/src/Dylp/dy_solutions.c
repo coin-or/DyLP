@@ -635,7 +635,7 @@ void dy_colPrimals (lpprob_struct *orig_lp, double **p_x)
 	{ xj = 0 ;
 	  break ; }
 	default:
-	{ warn(359,rtnnme,orig_sys->nme,
+	{ dywarn(359,rtnnme,orig_sys->nme,
 	       consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig,
 		 dy_prtvstat(statj)) ;
 	  xj = 0.0 ;

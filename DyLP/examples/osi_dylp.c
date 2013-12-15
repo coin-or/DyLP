@@ -394,13 +394,13 @@ static void stats_lp (const char *outpath, bool echo, lpprob_struct *lp,
   Set up the output. Don't echo this to stdout twice.
 */
   if (outpath == NULL)
-  { warn(2,rtnnme,"file name") ;
+  { dywarn(2,rtnnme,"file name") ;
     chn = IOID_NOSTRM ; }
   else
   { chn = dyio_pathtoid(outpath,NULL) ;
     if (chn == IOID_INV) chn = dyio_openfile(outpath,"w") ;
     if (chn == IOID_INV)
-    { warn(10,rtnnme,outpath,"w") ;
+    { dywarn(10,rtnnme,outpath,"w") ;
       chn = IOID_NOSTRM ; }
     if (strcmp(outpath,"stdout") == 0) echo = FALSE ; }
 /*
@@ -660,7 +660,7 @@ int main (int argc, char *argv[])
   Grab the time and format it nicely.
 */
   if (time(&timeval) == (time_t)(-1))
-  { warn(19,rtnnme) ;
+  { dywarn(19,rtnnme) ;
     osidylp_time = "n/a" ; }
   else
   { tm = localtime(&timeval) ;
@@ -718,7 +718,7 @@ int main (int argc, char *argv[])
   if (logpath != NULL)
   { logchn = dyio_openfile(logpath,"w") ;
     if (logchn == IOID_INV)
-    { warn(201,rtnnme,logpath) ;
+    { dywarn(201,rtnnme,logpath) ;
       logchn = IOID_NOSTRM ; } }
   else
   { logchn = IOID_NOSTRM ; }
@@ -735,7 +735,7 @@ int main (int argc, char *argv[])
   { swaperrs = TRUE ;
     errlogpath = logpath ;
     if (dyio_chgerrlog(errlogpath,errecho) == FALSE)
-    { warn(18,rtnnme,"<null>",errlogpath) ; } }
+    { dywarn(18,rtnnme,"<null>",errlogpath) ; } }
 /*
   Ok, after all that work, check if we've been asked for the version or usage
   messages. If so, do it and head for the exit. Version preempts help.
@@ -756,7 +756,7 @@ int main (int argc, char *argv[])
   { outchn = dyio_pathtoid(outpath,NULL) ;
     if (outchn == IOID_INV) outchn = dyio_openfile(outpath,"w") ;
     if (outchn == IOID_INV)
-    { warn(10,rtnnme,outpath,"w") ; }
+    { dywarn(10,rtnnme,outpath,"w") ; }
     else
     { dyio_outfmt(outchn,FALSE,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
       dyio_outfmt(outchn,FALSE,"\n\t\t%s",runtime) ;

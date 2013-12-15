@@ -463,17 +463,17 @@ void errmsg (int errid, ... )
 
 #ifdef DYLP_NDEBUG
 
-void warn (int errid, ... )
+void dywarn (int errid, ... )
 
 { return ; }
 
 #else
 
-void warn (int errid, ... )
+void dywarn (int errid, ... )
 
 /*
   Actual Call:
-    warn(errid,ident,arg1, ... ,argn)
+    dywarn(errid,ident,arg1, ... ,argn)
 
   Warn is functionally identical to errmsg, but prints the message
   "ident (warning): warning message".
@@ -720,7 +720,7 @@ void warn_ (integer *errid, char *ident, ... )
   above, the method used is a little dubious.
 
   The call, over in Fortran, looks something like
-    warn(errno,rtnnme,ftnargtype1,arg1, ... ,ftnargtypen,argn,ftnargEND)
+    dywarn(errno,rtnnme,ftnargtype1,arg1, ... ,ftnargtypen,argn,ftnargEND)
 
   By the time it gets here, of course, it's all pointers, and there are
   additional arguments tacked on at the end for character string lengths.

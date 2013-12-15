@@ -385,7 +385,7 @@ bool dy_swapobjs (dyphase_enum phase)
   { errmsg(4,rtnnme,"direction",dy_prtlpphase(phase,FALSE)) ;
     return (FALSE) ; }
   if (dy_lp->p1obj.installed == FALSE && phase == dyPRIMAL2)
-  { warn(399,rtnnme,
+  { dywarn(399,rtnnme,
 	 dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,"II") ; }
 # endif
 /*
@@ -660,7 +660,7 @@ static dyret_enum tweakp1obj (bool *reselect, int candxj)
 # ifdef DYLP_PARANOIA
   chkz = dy_calcobj() ;
   if (!withintol(chkz,dy_lp->z,fabs(1000*dy_tols->cost*(1+fabs(chkz)))))
-  { warn(405,rtnnme,
+  { dywarn(405,rtnnme,
 	 dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	 dy_lp->z,chkz,dy_lp->z-chkz,fabs(1000*dy_tols->cost*(1+chkz))) ; }
 # endif
@@ -757,7 +757,7 @@ static dyret_enum tweakp1obj (bool *reselect, int candxj)
   if (newfeas == 1 && recalccbar == FALSE)
   { chkz = dy_calcobj() ;
     if (!withintol(chkz,dy_lp->z,fabs(1000*dy_tols->cost*(1+fabs(chkz)))))
-    { warn(405,rtnnme,dy_sys->nme,
+    { dywarn(405,rtnnme,dy_sys->nme,
 	   dy_prtlpphase(dy_lp->phase,TRUE),-dy_lp->tot.iters,
 	   dy_lp->z,chkz,dy_lp->z-chkz,
 	   fabs(1000*dy_tols->cost*(1+chkz))) ; } }

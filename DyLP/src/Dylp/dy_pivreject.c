@@ -564,7 +564,7 @@ dyret_enum dy_dealWithPunt (void)
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pivreject >= 1)
-      { warn(376,rtnnme,
+      { dywarn(376,rtnnme,
 	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	     dy_tols->pivot,1/pivmul) ; }
 #     endif
@@ -597,7 +597,7 @@ dyret_enum dy_dealWithPunt (void)
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pivreject >= 1)
-      { warn(383,rtnnme,dy_sys->nme,
+      { dywarn(383,rtnnme,dy_sys->nme,
 	     dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	     dy_tols->zero,dy_prtdyret(dyrPUNT)) ; }
 #     endif

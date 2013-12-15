@@ -25,6 +25,11 @@ libOsiDylp_la_SOURCES = \
 	OsiDylpSolverInterface.cpp OsiDylpSolverInterface.hpp \
 	OsiDylpWarmStartBasis.cpp OsiDylpWarmStartBasis.hpp
 
+# List all additionally required libraries
+if DEPENDENCY_LINKING
+libOsiDylp_la_LIBADD = $(OSIDYLPLIB_LIBS) ../Dylp/libDylp.la
+endif
+
 # This is for libtool (on Windows)
 libOsiDylp_la_LDFLAGS = $(LT_LDFLAGS)
 

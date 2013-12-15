@@ -390,8 +390,8 @@ void rdrclear (void)
   { FREE(newtxt) ;
     newtxt = NULL ; }
 
-  if (curnde != NULL) warn(71,rtnnme,"curnde") ;
-  if (curtxt != NULL) warn(71,rtnnme,"curtxt") ;
+  if (curnde != NULL) dywarn(71,rtnnme,"curnde") ;
+  if (curtxt != NULL) dywarn(71,rtnnme,"curtxt") ;
   
   return ; }
 
@@ -1575,7 +1575,7 @@ bool dolabel (bnfLBref_struct *ref)
 
 # ifndef DYLP_NDEBUG
   if (lblval == NULL && warnzlbl == TRUE)
-    warn(58,rtnnme,nmtxt) ;
+    dywarn(58,rtnnme,nmtxt) ;
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     dyio_outfmt(dbgchn,dbgecho,"[ value: %#1x ]\n",nmtxt) ;
@@ -1790,7 +1790,7 @@ bool doreference (bnfLBref_struct *ref)
 
 # ifndef DYLP_NDEBUG
   if (warnzlbl == TRUE && val == NULL && val_valid == TRUE)
-    warn(65,rtnnme) ;
+    dywarn(65,rtnnme) ;
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     dyio_outfmt(dbgchn,dbgecho,"[ \"%s\" = %#1x ]\n",nmtxt) ;

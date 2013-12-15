@@ -583,7 +583,7 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
 	 (dy_lp->lpret == lpSWING || dy_lp->lpret == lpUNBOUNDED)))
     { /* ok */ }
     else
-    { warn(442,rtnnme,
+    { dywarn(442,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	   consys_nme(dy_sys,'c',i,FALSE,NULL),i,dy_prtvstat(dy_status[i]),
 	   (dy_opts->con.actlvl == 0)?"violated":"tight or violated") ; } }

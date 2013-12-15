@@ -766,7 +766,7 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
 # endif
 # ifndef DYLP_NDEBUG
   if (scalar == 0 && flgon(consys->opts,CONSYS_WRNZERO))
-  { warn(132,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ; }
+  { dywarn(132,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ; }
 # endif
   if (consys->cub != NULL && consys->clb != NULL)
     do_conbnds = TRUE ;

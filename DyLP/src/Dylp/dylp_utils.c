@@ -289,7 +289,7 @@ bool dy_calcprimals (void)
 		     dy_x[vndx],"fix",fabs(dy_sys->vub[vndx]-xvec[bndx]),
 		     dy_tols->pfeas*100) ; }
 	    else
-	    { warn(333,rtnnme,dy_sys->nme,
+	    { dywarn(333,rtnnme,dy_sys->nme,
 		   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 		   consys_nme(dy_sys,'v',vndx,FALSE,NULL),vndx,
 		   dy_prtvstat(dy_status[vndx]),xvec[bndx],
@@ -531,7 +531,7 @@ dyret_enum dy_updateprimals (int j, double deltaj, double *p_abarj)
       { retval = dyrREQCHK ;
 #       ifndef DYLP_NDEBUG
 	if (dy_opts->print.pivoting >= 1)
-	  warn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	  dywarn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters,"x",k,fabs(newxk),eps0*dy_tols->bogus,
 	       eps0*dy_tols->bogus-newxk) ;
 #       endif
@@ -541,7 +541,7 @@ dyret_enum dy_updateprimals (int j, double deltaj, double *p_abarj)
       { retval = dyrREQCHK ;
 #	ifndef DYLP_NDEBUG
 	if (dy_opts->print.pivoting >= 1)
-	  warn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	  dywarn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters,"lb",k,"x",k,
 	       lbk,newxk,lbk-newxk,epsl*dy_tols->bogus,
 	       epsl*dy_tols->bogus-(lbk-newxk)) ;
@@ -552,7 +552,7 @@ dyret_enum dy_updateprimals (int j, double deltaj, double *p_abarj)
       { retval = dyrREQCHK ;
 #       ifndef DYLP_NDEBUG
 	if (dy_opts->print.pivoting >= 1)
-	{ warn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	{ dywarn(375,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
 	       dy_lp->tot.iters,"ub",k,"x",k,
 	       ubk,newxk,ubk-newxk,epsu*dy_tols->bogus,
 	       epsu*dy_tols->bogus-(ubk-newxk)) ; }
@@ -1258,7 +1258,7 @@ bool dy_chkstatus (int vndx)
       if (primDegen == FALSE)
       { if (!withintol(xbk,xk,dy_tols->zero*(1.0+fabs(xbk))))
 	{ if (withintol(xbk,xk,10*dy_tols->zero*(1.0+fabs(xbk))))
-	  { warn(332,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,xk,xbk,
+	  { dywarn(332,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,xk,xbk,
 		   fabs(xk-xbk),dy_tols->zero*(1.0+fabs(xbk))) ; }
 	  else
 	  { errmsg(332,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,xk,xbk,
@@ -1274,7 +1274,7 @@ bool dy_chkstatus (int vndx)
 */
 	else
 	if (xbk != xk)
-	{ warn(332,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,xk,xbk,
+	{ dywarn(332,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,xk,xbk,
 	       fabs(xk-xbk),0.0) ; }
 #	endif
       } }
@@ -1328,7 +1328,7 @@ bool dy_chkstatus (int vndx)
 		   xbk,ubk,"lb = ub",fabs(xbk-ubk),bogusu) ;
 	    retval = FALSE ; }
 	  else
-	  { warn(333,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(333,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 xbk,ubk,"lb = ub",fabs(xbk-ubk),tolu) ; } }
 	break ; }
       case vstatBUUB:
@@ -1338,11 +1338,11 @@ bool dy_chkstatus (int vndx)
 		   lbk,xbk,ubk,ubk-xbk,bogusu+tolu) ;
 	    retval = FALSE ; }
 	  else
-	  { warn(335,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(335,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 lbk,xbk,ubk,ubk-xbk,tolu) ; } }
 	else
 	if (dy_lp->phase == dyPRIMAL2)
-	  warn(323,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  dywarn(323,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 	       lbk,xbk,ubk,xbk-ubk,tolu) ;
 	break ; }
       case vstatBUB:
@@ -1352,7 +1352,7 @@ bool dy_chkstatus (int vndx)
 		   xbk,ubk,"ub",ubk-xbk,bogusu) ;
 	    retval = FALSE ; }
 	  else
-	  { warn(333,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(333,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 xbk,ubk,"ub",ubk-xbk,tolu) ; } }
 	break ; }
       case vstatB:
@@ -1368,11 +1368,11 @@ bool dy_chkstatus (int vndx)
 	    retval = FALSE ; }
 	  else
 	  if (xbk < lbk+toll)
-	  { warn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 lbk,xbk,ubk,lbk-xbk,toll) ; }
 	  else
 	  if (xbk > ubk-tolu)
-	  { warn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 lbk,xbk,ubk,xbk-ubk,tolu) ; } }
 	break ; }
       case vstatSB:
@@ -1388,11 +1388,11 @@ bool dy_chkstatus (int vndx)
 	    retval = FALSE ; }
 	  else
 	  if (xk < lbk+toll)
-	  { warn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 lbk,xk,ubk,lbk-xk,toll) ; }
 	  else
 	  if (xk > ubk-tolu)
-	  { warn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(322,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 lbk,xk,ubk,xbk-ubk,tolu) ; } }
 	break ; }
       case vstatBLB:
@@ -1402,7 +1402,7 @@ bool dy_chkstatus (int vndx)
 		   xbk,lbk,"lb",xbk-lbk,bogusl) ;
 	    retval = FALSE ; }
 	  else
-	  { warn(333,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(333,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 xbk,lbk,"lb",xbk-lbk,toll) ; } }
 	break ; }
       case vstatBLLB:
@@ -1412,11 +1412,11 @@ bool dy_chkstatus (int vndx)
 		   lbk,xbk,ubk,xbk-lbk,bogusl+toll) ;
 	    retval = FALSE ; }
 	  else
-	  { warn(335,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  { dywarn(335,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 		 lbk,xbk,ubk,xbk-lbk,toll) ; } }
 	else
 	if (dy_lp->phase == dyPRIMAL2)
-	  warn(323,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
+	  dywarn(323,rtnnme,dy_sys->nme,phase,iter,nmek,xkndx,statk,
 	       lbk,xbk,ubk,lbk-xbk,toll) ;
 	break ; }
       case vstatBFR:
@@ -1566,7 +1566,7 @@ void dy_chkdual (int lvl)
     { diff = fabs(dy_y[i]-y[i]) ;
       if (diff > tol)
       { if (lvl >= 2)
-	{ warn(321,rtnnme,
+	{ dywarn(321,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       (dy_lp->degen == 0)?"real":"uninvolved",
 	       "dy_y",i,dy_y[i],y[i],diff,tol) ; }
@@ -1575,7 +1575,7 @@ void dy_chkdual (int lvl)
     else
     { if (fabs(y[i]) > tol)
       { if (lvl >= 2)
-	{ warn(321,rtnnme,
+	{ dywarn(321,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "real","y",i,y[i],0.0,y[i],tol) ; }
 	yerrcnt++ ;
@@ -1593,7 +1593,7 @@ void dy_chkdual (int lvl)
     { diff = fabs(dy_cbar[j]-cbar[j]) ;
       if (diff > tol)
       { if (lvl >= 2)
-	{ warn(321,rtnnme,
+	{ dywarn(321,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       (dy_lp->degen == 0)?"real":"uninvolved",
 	       "dy_cbar",j,dy_cbar[j],cbar[j],diff,tol) ; }
@@ -1602,7 +1602,7 @@ void dy_chkdual (int lvl)
     else
     { if (fabs(cbar[j]) > tol)
       { if (lvl >= 2)
-	{ warn(321,rtnnme,
+	{ dywarn(321,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       "real","cbar",j,cbar[j],0.0,cbar[j],tol) ; }
       cbarerrcnt++ ;
@@ -1623,7 +1623,7 @@ void dy_chkdual (int lvl)
       yi = y[i] ;
       if (fabs(cbarj+yi) > base_tol)
       { if (lvl >= 2)
-	{ warn(336,rtnnme,
+	{ dywarn(336,rtnnme,
 	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       consys_nme(dy_sys,'v',i,FALSE,NULL),i,dy_prtvstat(statj),
 	       "real",-yi,cbarj,fabs(cbarj+yi),base_tol) ; }
@@ -1641,7 +1641,7 @@ void dy_chkdual (int lvl)
 	(flgon(statj,vstatNBUB) && cbarj > dy_tols->dfeas) ||
 	(flgon(statj,vstatNBFR) && cbarj != 0) || flgon(statj,vstatSB))
     { if (lvl >= 2)
-      { warn(347,rtnnme,dy_sys->nme,
+      { dywarn(347,rtnnme,dy_sys->nme,
 	     dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	     consys_nme(dy_sys,'v',j,FALSE,NULL),j,
 	       dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
@@ -1652,7 +1652,7 @@ void dy_chkdual (int lvl)
 	  (flgon(statj,vstatNBUB) && cbarj > dy_tols->dfeas) ||
 	  (flgon(statj,vstatNBFR) && cbarj != 0) || flgon(statj,vstatSB))
       { if (lvl >= 2)
-	{ warn(347,rtnnme,dy_sys->nme,
+	{ dywarn(347,rtnnme,dy_sys->nme,
 	       dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,
 		 dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
@@ -1967,7 +1967,7 @@ bool dy_chkdysys (consys_struct *orig_sys)
     if (!withintol(dy_sys->rhs[acndx],orig_sys->rhs[ocndx]-rhscorr,scaledtol))
     { if (withintol(dy_sys->rhs[acndx],
 		    orig_sys->rhs[ocndx]-rhscorr,10*scaledtol))
-      { warn(366,rtnnme,dy_sys->nme,acndx,dy_sys->rhs[acndx],
+      { dywarn(366,rtnnme,dy_sys->nme,acndx,dy_sys->rhs[acndx],
 	     consys_nme(dy_sys,'c',acndx,FALSE,NULL),
 	     orig_sys->rhs[ocndx]-rhscorr,
 	     fabs(dy_sys->rhs[acndx]-(orig_sys->rhs[ocndx]-rhscorr)),
@@ -2076,7 +2076,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
     if (dst_basissze < src_basis->len)
     {
 #     ifdef DYLP_PARANOIA
-      warn(404,rtnnme,"basis",dst_basissze,src_basis->len) ;
+      dywarn(404,rtnnme,"basis",dst_basissze,src_basis->len) ;
 #     endif
       dst_basissze = src_basis->len ; }
     if (dst_basis->el == NULL)
@@ -2096,7 +2096,7 @@ bool dy_dupbasis (int dst_basissze, basis_struct **p_dst_basis,
       if (dst_statussze < src_statuslen)
       {
 #       ifdef DYLP_PARANOIA
-	warn(404,rtnnme,"status",dst_statussze,src_statuslen) ;
+	dywarn(404,rtnnme,"status",dst_statussze,src_statuslen) ;
 #       endif
 	dst_statussze = src_statuslen ; }
       *p_dst_status = (flags *) MALLOC((dst_statussze+1)*sizeof(flags)) ; }
@@ -2283,7 +2283,7 @@ static void build_soln (lpprob_struct *orig_lp)
 		   dy_prtvstat(xjstatus)) ;
 #         ifndef DYLP_NDEBUG
 	  else
-	    warn(359,rtnnme,dy_sys->nme,
+	    dywarn(359,rtnnme,dy_sys->nme,
 		 consys_nme(dy_sys,'v',xjndx,FALSE,NULL),xjndx,
 		 dy_prtvstat(xjstatus)) ;
 #         endif
