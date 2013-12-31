@@ -48,6 +48,7 @@ doxydoc:
 	if test -r doxydoc/doxygen.conf ; then \
 	  doxygen doxydoc/doxygen.conf ; \
 	fi
+	@echo "'make doc' to build typeset documentation."
 
 clean-doxydoc:
 	( cd doxydoc ; rm -rf html *.log *.tag )
@@ -69,7 +70,14 @@ clean-local: clean-doxydoc
 # install-data-local: install-doxydoc
 uninstall-local: uninstall-doxydoc
 
-.PHONY: test unitTest tests unitTests doxydoc
+# Generate typeset documentation --- will work only if there's a complete
+# LaTeX installation in the expected places.
+
+doc:
+	cd DyLP; $(MAKE) doc
+	@echo "'make doxydoc' to build doxygen documentation."
+
+.PHONY: test unitTest tests unitTests doxydoc doc
 
 ########################################################################
 #                         Maintainer Stuff                             #

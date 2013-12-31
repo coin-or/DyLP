@@ -127,6 +127,8 @@ DBG_CXXFLAGS = @DBG_CXXFLAGS@
 DBG_FFLAGS = @DBG_FFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DEPENDENCY_LINKING_FALSE = @DEPENDENCY_LINKING_FALSE@
+DEPENDENCY_LINKING_TRUE = @DEPENDENCY_LINKING_TRUE@
 ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -707,6 +709,7 @@ doxydoc:
 	if test -r doxydoc/doxygen.conf ; then \
 	  doxygen doxydoc/doxygen.conf ; \
 	fi
+	@echo "'make doc' to build typeset documentation."
 
 clean-doxydoc:
 	( cd doxydoc ; rm -rf html *.log *.tag )
@@ -728,7 +731,14 @@ clean-local: clean-doxydoc
 # install-data-local: install-doxydoc
 uninstall-local: uninstall-doxydoc
 
-.PHONY: test unitTest tests unitTests doxydoc
+# Generate typeset documentation --- will work only if there's a complete
+# LaTeX installation in the expected places.
+
+doc:
+	cd DyLP; $(MAKE) doc
+	@echo "'make doxydoc' to build doxygen documentation."
+
+.PHONY: test unitTest tests unitTests doxydoc doc
 
 install-doc: $(DocFiles)
 	test -z "$(DocInstallDir)" || $(mkdir_p) "$(DESTDIR)$(DocInstallDir)"
