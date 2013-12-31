@@ -70,8 +70,17 @@ clean-doxydoc:
 doc:
 	@echo "Attempting to build dylp typeset documentation."
 	@cd doc ; ./build_dylpdoc --ps --pdf dylp
+
+# Clean will get invoked in environments where it's not possible to build
+# the documentation, and, quite possibly, where build_dylpdoc will not run.
+# Execute ':' when build_dylpdoc fails to do nothing (successfully) so that
+# the clean can keep going.
+
 mostlyclean-local:
-	@cd doc ; if test -x build_dylpdoc ; then ./build_dylpdoc --clean || make; fi
+	@cd doc ; \
+	 if test -x build_dylpdoc ; then \
+	   ./build_dylpdoc --clean || : ; \
+	 fi
 
 clean-local: mostlyclean-local clean-doxydoc
 
