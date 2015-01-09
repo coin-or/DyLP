@@ -30,12 +30,14 @@ AC_DEFUN([AC_DYLP_FIX_CPPFLAGS],
   esac
 # Add flags. Strip the option first, then add once, to avoid repetition.
   case "$CXX" in
+    clang* | */clang*) ;;
     cl* | */cl*)
       CXXFLAGS=`echo $CXXFLAGS | sed -e 's/-wd4996//g'`
       CXXFLAGS="$CXXFLAGS -wd4996"
       ;;
   esac
   case "$CC" in
+    clang* | */clang*) ;;
     cl* | */cl*)
       CFLAGS=`echo $CFLAGS | sed -e 's/-wd4996//g'`
       CFLAGS="$CFLAGS -wd4996"
