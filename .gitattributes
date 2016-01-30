@@ -227,6 +227,7 @@ DyLP/test/unitTest.c -text
 /Makefile.am -text
 /Makefile.in -text
 /README -text
+/appveyor.yml -text
 /config.guess -text
 /config.sub -text
 /configure -text
