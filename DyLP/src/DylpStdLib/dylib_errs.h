@@ -28,11 +28,11 @@ void errinit(const char *emsgpath, const char *elogpath, bool errecho),
      errterm(void) ;
 
 void errmsg(int errid, ... ),
-     dywarn(int errid, ... ) ;
+       warn(int errid, ... ) ;
 
 #ifdef _DYLIB_FORTRAN
 void errmsg_(integer *errid, char *ident, ... ) ;
-void dywarn_(integer *errid, char *ident, ... ) ;
+void warn_(integer *errid, char *ident, ... ) ;
 #endif
 
 #endif /* _DYLIB_ERRS_H */
