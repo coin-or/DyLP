@@ -5,5 +5,3 @@ This package contains several subdirectories corresponding to COIN-OR
 projects (www.coin-or.org). The AUTHORS, LICENSE and README files in 
 each of the subdirectories give more information about these projects.
 
-This line is temporary, for testing the pre-commit hook. Just more text. And
-yet more text.
