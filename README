@@ -5,3 +5,4 @@ This package contains several subdirectories corresponding to COIN-OR
 projects (www.coin-or.org). The AUTHORS, LICENSE and README files in 
 each of the subdirectories give more information about these projects.
 
+Trivial change to test SEL type changes for subgit precommit.
