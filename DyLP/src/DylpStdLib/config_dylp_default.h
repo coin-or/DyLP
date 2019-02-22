@@ -5,16 +5,16 @@
 /***************************************************************************/
 
 /* Version number of project */
-#define DYLP_VERSION  "trunk"
+#define DYLP_VERSION "1.10.4"
 
 /* Major Version number of project */
-#define DYLP_VERSION_MAJOR   9999
+#define DYLP_VERSION_MAJOR 1
 
 /* Minor Version number of project */
-#define DYLP_VERSION_MINOR   9999
+#define DYLP_VERSION_MINOR 10
 
 /* Release Version number of project */
-#define DYLP_VERSION_RELEASE 9999
+#define DYLP_VERSION_RELEASE 4
 
 /*
   Define to the C type corresponding to the C++ bool type. `char' is
