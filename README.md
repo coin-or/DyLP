@@ -9,20 +9,20 @@ dylp is a C code, and can be used in a pure C environment completely independent
 COIN-OR [OSI](http://projects.coin-or.org/Osi) interface,
 OsiDylp, which takes advantage of capabilities provided by COIN (_e.g._, enhanced input/output and constraint system preprocessing) and is recommended if you're working in a C++ environment.
 
-The [FAQ list](#dylpFAQ) answers some common questions about dylp.
+The FAQ list below answers some common questions about dylp.
 
 
 ## Repository Structure and Download Instructions
 
 Dylp uses the standard COIN repository structure. Briefly, you can obtain dylp at three levels: point releases, stable versions, and development. Stable versions are indentified by a two digit number X.Y, where X is the major version number and Y is the minor number. Changes to the minor version number will normally not change the user API. Bug fixes accumulate in stable versions. Specific point releases are identified by a three digit number X.Y.Z, where Z specifies the point release. A new point release is generated for each new stable version and then as required to incorporate bug fixes. Please check the [DyLP project summary page](http://www.coin-or.org/projects/DyLP.xml) for the most recent stable version and point release.
 
-*Point releases* are the best choice for individuals who intend to simply use dylp `as is' and should be obtained as a [tarball](http://www.coin-or.org/download/source/DyLP) with a name of the form `DyLP-X.Y.Z.tgz` (_e.g._, `DyLP-1.5.0.tgz`). Point releases never change. Upgrading to a new point release implies downloading a new tarball which completely replaces the previous point release. At any time, the most recent point release is recommended unless you have a specific reason to select an earlier release.  Bug reports will be taken seriously; see [Bugs](./WikiStart/#BugReports) below.
+*Point releases* are the best choice for individuals who intend to simply use dylp `as is' and should be obtained as a [tarball](http://www.coin-or.org/download/source/DyLP) with a name of the form `DyLP-X.Y.Z.tgz` (_e.g._, `DyLP-1.5.0.tgz`). Point releases never change. Upgrading to a new point release implies downloading a new tarball which completely replaces the previous point release. At any time, the most recent point release is recommended unless you have a specific reason to select an earlier release.  Bug reports will be taken seriously; see Bugs below.
 
 *Stable versions* are more suitable for individuals who expect that they will make modifications to the dylp code base or who simply wish to take advantage of the capabilities of the subversion repository for updates. As with point releases, the most recent stable version is recommended unless you have a specific reason to choose an earlier version. As an example, the command
 ```
 svn co https://projects.coin-or.org/svn/DyLP/stable/1.5 DyLP-1.5 
 ```
-will check out stable version 1.5 to the directory `DyLP-1.5`. If prompted, use anonymous as a user id and your email address as a password. Bug reports will be taken seriously; see [Bugs](#BugReports) below.
+will check out stable version 1.5 to the directory `DyLP-1.5`. If prompted, use anonymous as a user id and your email address as a password. Bug reports will be taken seriously; see Bugs below.
 
 *Development* code is recommended only for dylp developers. It represents the bleeding edge of dylp development. Development code may not be bug-free, may not work with the stable releases of other COIN components, and in extreme cases may not even compile. As an example, the command
 ```
@@ -65,7 +65,7 @@ The dylp distribution also provides two simple main programs in the directory `D
 
 When you download a dylp stable version or point release, you'll get appropriate versions of other projects. For example, when you download release 1.5.0, you'll get [these](Dependencies) additional projects. 
 
-== Bugs ==#BugReports
+## Bugs
 
 Ok, there may be a few left somewhere. If you run across one, please let us know. The preferred way is to use a issue.
 You can [browse existing issues](https://github.com/coin-or/DyLP/issues) to see if your bug has already been reported and add additional information.
@@ -83,12 +83,11 @@ for development tasks looking for volunteers.
 
 ## Project Manager
 
-```
-<a href = "mailto:lou`@`cs.sfu.ca">Lou Hafer</a>, Computing Science, Simon Fraser University.
-```
+@LouHafer: Lou Hafer, Computing Science, Simon Fraser University.
 
 ----------
-== dylp FAQs ==#dylpFAQ
+
+## dylp FAQs
 
 
 ### What is dylp?
