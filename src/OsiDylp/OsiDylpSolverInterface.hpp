@@ -713,6 +713,24 @@ public:
   void activateRowCutDebugger (const double *solution,
   			       bool keepContinuous = false) ;
 
+/*! \brief Define to enable paranoid checks.
+
+  When non-zero, enables various paranoid checks. 
+    1: bounds checks on indices
+    2: test for equality after structure copy operations and test for
+       basis internal consistency.
+
+  An error will cause a throw. Configuration should set this symbol to 0 for
+  an optimised build, 2 if --enable-osidylp-paranoia is requested.
+
+  In particular, this symbol must be defined as >= 1 in order for OsiCbc(dylp)
+  to pass the OsiCbc unit test.
+*/
+
+#ifndef ODSI_PARANOIA
+# define ODSI_PARANOIA 1
+#endif
+
 # if ODSI_PARANOIA >= 1
   /*! \brief Check that a row or column index is in range
 
