@@ -50,7 +50,7 @@ namespace {
   const double CoinInfinity = COIN_DBL_MAX ;
 }
 
-#include "CoinTypes.hpp"
+#include "CoinTypes.h"
 
 /* Cut name lengths for readability. */
 
@@ -114,26 +114,6 @@ namespace {
 // #define ODSI_TRACK_FRESH 1
 // #define ODSI_TRACK_SOLVERS 1
 // #define ODSI_TRACK_ACTIVE 1
-
-/*! \brief Define to enable paranoid checks.
-
-  When non-zero, enables various paranoid checks. 
-    1: bounds checks on indices
-    2: test for equality after structure copy operations and test for
-       basis internal consistency.
-
-  An error will cause a throw. Configuration should set this symbol to 0 for
-  an optimised build, 2 if --enable-osidylp-paranoia is requested.
-
-  In particular, this symbol must be defined as >= 1 in order for OsiCbc(dylp)
-  to pass the OsiCbc unit test.
-*/
-
-#ifndef ODSI_PARANOIA
-# define ODSI_PARANOIA 1
-#endif
-// #undef ODSI_PARANOIA
-// #define ODSI_PARANOIA 2
 
 
 /*! \brief Define to enable statistics collection in dylp
