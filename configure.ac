@@ -2,8 +2,6 @@
 # All Rights Reserved.
 # This file is distributed under the Eclipse Public License.
 
-## $Id: configure.ac,v 1.1.2.1 2006/04/19 23:25:12 andreasw Exp $
-
 # Author:  Andreas Waechter            IBM    2006-04-13
 # 	   Lou Hafer		       SFU    many mods since then
 
@@ -11,9 +9,8 @@
 #                       Names and other basic things                        #
 #############################################################################
 
-AC_PREREQ(2.59)
-
-AC_INIT([DyLP],[trunk],[coin-dylp@list.coin-or.org])
+AC_INIT([DyLP],[devel],[https://github.com/coin-or/DyLP/issues/new],[coin-or-dylp],
+  [https://github.com/coin-or/DyLP])
 
 
 AC_COPYRIGHT([
@@ -22,111 +19,74 @@ All Rights Reserved.
 This file is part of the open source package Coin which is distributed
 under the Eclipse Public License.])
 
-AC_REVISION(0.10)
-
 # List one file in the package so that the configure script can test
 # whether the package is actually there
 AC_CONFIG_SRCDIR(src/Dylp/dylp.h)
 
-# Where should everything be installed by default?  Here, we want it
-# to be installed directly in 'bin', 'lib', 'include' subdirectories
-# of the directory where configure is run.  The default would be
-# /usr/local.
-AC_PREFIX_DEFAULT([`pwd`])
+# Do some initialization work (version numbers, change prefix default, ...)
+AC_COIN_INITIALIZE
 
 #############################################################################
 #                         Standard build tool stuff                         #
 #############################################################################
 
-# Get the system type
-AC_CANONICAL_BUILD
-
-# Do a bit of basic setup for configuration
-AC_COIN_PROJECTDIR_INIT(DyLP)
-
-# Check if user wants to produce debugging code
-AC_COIN_DEBUG_COMPILE(DyLP)
-
-# Get the name of the C compiler and appropriate compiler options
+# Get the names of the C and C++ compilers and appropriate compiler options.
 AC_COIN_PROG_CC
-
-# Get the name of the C++ compiler and appropriate compiler options
 AC_COIN_PROG_CXX
 
-# Initialize automake and libtool
-AC_COIN_INIT_AUTO_TOOLS
+# This is a mixed C/C++ package, set the language accordingly.
+AC_LANG_PUSH(C)
+
+# Initialize libtool.
+AC_COIN_PROG_LIBTOOL
+
+# set RPATH_FLAGS to the compiler link flags required to hardcode location
+# of the shared objects (expanded_libdir is set somewhere in configure before)
+# (use in examples Makefile)
+AC_COIN_RPATH_FLAGS([$expanded_libdir])
 
 #############################################################################
-#                              COIN components                              #
+#                   Math headers                                            #
+#############################################################################
+
+# Check for cmath/math.h, cfloat/float.h, cieeefp/ieeefp.h
+AC_COIN_CHECK_MATH_HDRS
+
+# See if we'll need an explicit libm for DylpLib
+
+AC_COIN_CHK_LIBM([DylpLib])
+
+#############################################################################
+#                     COIN-OR components                                    #
 #############################################################################
 
 # None of these are required to build and test libDylp. All are needed to
 # properly test libOsiDylp and to fully link the doxygen documentation.
-# (So we should actually not need to search for CoinUtils separately.)
 
-AC_COIN_CHECK_PACKAGE([CoinUtils],[coinutils],[OsiDyLPLib])
-AC_COIN_CHECK_PACKAGE([Osi],[osi],[OsiDyLPLib])
-AC_COIN_CHECK_PACKAGE([OsiTests],[osi-unittests])
+AC_COIN_CHK_PKG([CoinUtils],[OsiDylpLib])
+AC_COIN_CHK_PKG([Osi],[OsiDylpLib])
+AC_COIN_CHK_PKG([OsiTests],[OsiDylpLib],[osi-unittests])
 
 # Just Sample will be enough to run basic tests. If Netlib is present, the
 # OsiDylp test will run the Netlib problem set.
 
-AC_COIN_CHECK_PACKAGE([Sample],[coindatasample])
-AC_COIN_CHECK_PACKAGE([Netlib],[coindatanetlib])
+AC_COIN_CHK_PKG([Sample],,[coindatasample],,dataonly)
+AC_COIN_CHK_PKG([Netlib],,[coindatanetlib],,dataonly)
+
+# Finalize libs and cflags for OsiDylpLib, then tack on information for dylp,
+# which is not yet installed.
+AC_COIN_FINALIZE_FLAGS(OsiDylpLib)
+AC_COIN_CHK_HERE([DylpLib],[OsiDylpLib],[dylp])
 
 #############################################################################
 #                       Doing project specific tests                        #
 #############################################################################
-
-# Tweak compilation flags.
-AC_DYLP_FIX_CPPFLAGS
 
 # Determine the C type that corresponds to the C++ bool type in size
 
 AC_DYLP_EQUIV_FOR_CPP_BOOL
 
 ########################################################################
-
-AC_SUBST(DYLPLIB_LIBS)
-AC_SUBST(DYLPLIB_PCLIBS)
-AC_SUBST(DYLPLIB_LIBS_INSTALLED)
-
-# The floating point functions we'll be looking for seem to live in one of
-# the following headers: math.h, ieeefp.h, float.h, and sunmath.h. Check
-# for presence. We'll use the results to limit the work below.
-
-# check for presence/absence of -lm (for libmath) and store in DYLP_(PC)LIBS flags
-AC_COIN_CHECK_LIBM(DyLPLib)
-
-AC_CHECK_HEADER([math.h],
-    [AC_DEFINE([HAVE_MATH_H],[1],[Define to 1 if math.h exists.])
-     fp_header_list="math.h" 
-     AC_C_ADD_TO_INCLUDES([math.h])],
-    [AC_MSG_WARN([It appears that math.h is missing.])
-     AC_MSG_WARN([There is no hope of building dylp on this system.])])
-AC_CHECK_HEADER([ieeefp.h],
-    [AC_DEFINE([HAVE_IEEEFP_H],[1],[Define to 1 if ieeefp.h exists.])
-     fp_header_list="ieeefp.h $fp_header_list"
-     AC_C_ADD_TO_INCLUDES([ieeefp.h])],
-    [])
-AC_CHECK_HEADER([float.h],
-    [AC_DEFINE([HAVE_FLOAT_H],[1],[Define to 1 if float.h exists.])
-     fp_header_list="float.h $fp_header_list"
-     AC_C_ADD_TO_INCLUDES([float.h])],
-    [])
-AC_CHECK_HEADER([sunmath.h],
-    [AC_DEFINE([HAVE_SUNMATH_H],[1],[Define to 1 if sunmath.h exists.])
-     fp_header_list="sunmath.h $fp_header_list"
-     AC_C_ADD_TO_INCLUDES([sunmath.h])
-     AC_DYLP_GET_SUNSTUDIO_LIBDIRS
-     DYLPLIB_LIBS="-lsunmath $DYLPLIB_LIBS"
-     DYLPLIB_LIBS_INSTALLED="-lsunmath $DYLPLIB_LIBS_INSTALLED"
-     DYLPLIB_PCLIBS="-lsunmath $DYLPLIB_PCLIBS"],
-    [])
-
-AC_MSG_NOTICE([Found floating point header files $fp_header_list.])
-# AC_MSG_NOTICE([includes are now:])
-# AC_MSG_NOTICE([$ac_includes_default])
 
 # Now determine the names in this environment for isfinite() and isnan(). The
 # most common variants are finite() and isnan(). We check for others. After
@@ -171,15 +131,15 @@ AC_ARG_VAR(DYLP_ERRMSGDIR,
 if test x"$DYLP_ERRMSGDIR" = x; then
   case $build in
     *-mingw*|*-msys*)
-      DYLP_ERRMSGDIR="`(cd "$abs_source_dir";pwd -W)`/src/Dylp/"
+      DYLP_ERRMSGDIR="`(cd "$srcdir";pwd -W)`/src/Dylp/"
       DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,/,\\\\\\\\,g'`
       ;;
     *-cygwin*)
-      DYLP_ERRMSGDIR="`$CYGPATH_W $abs_source_dir/src/Dylp/`"
+      DYLP_ERRMSGDIR="$srcdir/src/Dylp/"
       DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,\\\\,\\\\\\\\,g'`
       ;;
     *)
-      DYLP_ERRMSGDIR="$abs_source_dir/src/Dylp/"
+      DYLP_ERRMSGDIR="$srcdir/src/Dylp/"
       ;;
   esac
 fi
@@ -245,10 +205,9 @@ AC_CONFIG_FILES([doxydoc/doxygen.conf])
 
 # The pkg-config data files
 
-AC_CONFIG_FILES([dylp.pc dylp-uninstalled.pc])
+AC_CONFIG_FILES([dylp.pc])
 if test $coin_has_osi = yes ; then
-  AC_CONFIG_FILES([osi-dylp.pc:src/OsiDylp/osi-dylp.pc.in
-                   osi-dylp-uninstalled.pc:src/OsiDylp/osi-dylp-uninstalled.pc.in])
+  AC_CONFIG_FILES([osi-dylp.pc:src/OsiDylp/osi-dylp.pc.in])
 fi
 
 # And all the stuff that goes into building the documentation. See the note in

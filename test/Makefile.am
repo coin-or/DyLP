@@ -24,14 +24,12 @@ unitTest_SOURCES = \
 # List libraries required for the unitTest
 
 unitTest_LDADD        = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS)
-unitTest_DEPENDENCIES = ../src/Dylp/libDylp.la $(DYLPLIB_DEPENDENCIES)
 
-# Here list all include flags, relative to this "srcdir" directory.  This
-# "cygpath" stuff is necessary to compile with native compilers on Cygwin
+# Here list all include flags, relative to this "srcdir" directory.
 
 AM_CPPFLAGS = \
-        -I`$(CYGPATH_W) $(srcdir)/../src/DylpStdLib` \
-        -I`$(CYGPATH_W) $(srcdir)/../src/Dylp`
+        -I$(srcdir)/../src/DylpStdLib \
+        -I$(srcdir)/../src/Dylp
 
 ########################################################################
 #                      unitTest for OsiDyLP                            #
@@ -44,29 +42,21 @@ noinst_PROGRAMS += osiUnitTest
 osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
 
 osiUnitTest_LDADD = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
-	$(OSITESTS_LIBS) $(OSIDYLPLIB_LIBS) $(DYLPLIB_LIBS)
+	$(OSIDYLPLIB_LFLAGS) $(DYLPLIB_LFLAGS)
 
-osiUnitTest_DEPENDENCIES = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
-	$(OSITESTS_DEPENDENCIES) $(OSIDYLPLIB_DEPENDENCIES) $(DYLPLIB_DEPENDENCIES)
-
-AM_CPPFLAGS += -I`$(CYGPATH_W) $(srcdir)/../src/OsiDylp` \
-	$(COINUTILS_CFLAGS) $(OSITESTS_CFLAGS)
+AM_CPPFLAGS += -I$(srcdir)/../src/OsiDylp $(OSIDYLPLIB_CFLAGS)
 
 osiTestDep = osiUnitTest$(EXEEXT)
 
-osiunittestflags = -mpsDir=`$(CYGPATH_W) $(SAMPLE_DATA)`
+osiunittestflags = -mpsDir=$(SAMPLE_DATA)
 if COIN_HAS_NETLIB
-  osiunittestflags += -netlibDir=`$(CYGPATH_W) $(NETLIB_DATA)` \
-		      -testOsiSolverInterface
+  osiunittestflags += -netlibDir=$(NETLIB_DATA) -testOsiSolverInterface
 endif
 endif
 
 ########################################################################
 #                          test target                                 #
 ########################################################################
-
-# This line is necessary to allow VPATH compilation
-DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/src/DylpStdLib
 
 test: unitTest$(EXEEXT) $(osiTestDep)
 	./unitTest$(EXEEXT) ; \
@@ -88,4 +78,3 @@ DISTCLEANFILES =
 if COIN_HAS_OSITESTS
   DISTCLEANFILES += test.* test2.*
 endif
-DISTCLEANFILES = test.* test2.*

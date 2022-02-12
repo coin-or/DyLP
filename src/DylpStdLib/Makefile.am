@@ -1,12 +1,10 @@
-# Copyright (C) 2006 International Business Machines and others.
+# Copyright (C) 2022 Lou Hafer
 # All Rights Reserved.
 # This file is distributed under the Eclipse Public License.
 
-## $Id: Makefile.am 491 2006-05-19 20:37:52Z andreasw $
+# Author:  Lou Hafer (SFU retired) 2022-02-10
 
-# Author:  Andreas Waechter           IBM    2006-04-13
-
-AUTOMAKE_OPTIONS = foreign
+include $(top_srcdir)/BuildTools/Makemain.inc
 
 ########################################################################
 #                            libDylpStdLib                             #
@@ -35,16 +33,19 @@ libDylpStdLib_la_SOURCES = \
 # This is for libtool
 libDylpStdLib_la_LDFLAGS = $(LT_LDFLAGS)
 
-# This line is necessary to allow VPATH compilation
-DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)`
+# DylpStdLib is self-contained, but it needs DYLPLIB_BUILD to access the
+# configuration in config.h. Give it access to DYLPLIB_CFLAGS just in case.
+
+AM_CPPFLAGS = -DDYLPLIB_BUILD $(DYLPLIB_CFLAGS)
 
 ########################################################################
 #                Headers that need to be installed                     #
 ########################################################################
 
 # Here list all the header files that are required by a user of the library,
-# and that therefore should be installed in 'include/coin'
-includecoindir = $(includedir)/coin
+# and that therefore should be installed in pkgincludedir.
+
+includecoindir = $(pkgincludedir)
 includecoin_HEADERS = \
 	dylib_errs.h \
 	dylib_hash.h \
