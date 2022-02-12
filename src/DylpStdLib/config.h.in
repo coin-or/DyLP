@@ -1,38 +1,38 @@
 /* src/DylpStdLib/config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if building universal (internal helper macro) */
+#undef AC_APPLE_UNIVERSAL_BUILD
+
 /* Define to the C type whose size in bytes matches the size in bytes of the
    the C++ bool type. */
 #undef BOOL
 
-/* Define to the debug sanity check level (0 is no test) */
-#undef COIN_DYLP_CHECKLEVEL
-
-/* Define to the debug verbosity level (0 is no output) */
-#undef COIN_DYLP_VERBOSITY
-
-/* Define to 1 if the CoinUtils package is available */
-#undef COIN_HAS_COINUTILS
-
-/* Define to 1 if the Netlib package is available */
-#undef COIN_HAS_NETLIB
-
-/* Define to 1 if the Osi package is available */
-#undef COIN_HAS_OSI
-
-/* Define to 1 if the OsiTests package is available */
-#undef COIN_HAS_OSITESTS
-
-/* Define to 1 if the Sample package is available */
-#undef COIN_HAS_SAMPLE
+/* Define to 1 if your C++ compiler doesn't accept -c and -o together. */
+#undef CXX_NO_MINUS_C_MINUS_O
 
 /* Directory containing the DyLP error message text file (dy_errmsgs.txt).
    Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native path
    syntax (i.e., drive letters and backslashes on Windows). */
 #undef DYLP_ERRMSGDIR
 
+/* Define to 1 if CoinUtils is available. */
+#undef DYLP_HAS_COINUTILS
+
+/* Define to 1 if Netlib is available. */
+#undef DYLP_HAS_NETLIB
+
+/* Define to 1 if Osi is available. */
+#undef DYLP_HAS_OSI
+
+/* Define to 1 if OsiTests is available. */
+#undef DYLP_HAS_OSITESTS
+
 /* Define this symbol if the quiet_nan function exists. This function should
    return the bit pattern for IEEE quiet NaN. */
 #undef DYLP_HAS_QUIET_NAN
+
+/* Define to 1 if Sample is available. */
+#undef DYLP_HAS_SAMPLE
 
 /* Define to be the name of the C function used to check that an IEEE floating
    point value is finite. */
@@ -51,41 +51,47 @@
 /* Define this variable to enable dylp's statistics collection features. */
 #undef DYLP_STATISTICS
 
-/* SVN revision number of project */
-#undef DYLP_SVN_REV
-
 /* Version number of project */
 #undef DYLP_VERSION
 
-/* Major Version number of project */
+/* Major version number of project. */
 #undef DYLP_VERSION_MAJOR
 
-/* Minor Version number of project */
+/* Minor version number of project. */
 #undef DYLP_VERSION_MINOR
 
-/* Release Version number of project */
+/* Release version number of project. */
 #undef DYLP_VERSION_RELEASE
+
+/* Define to 1 if you have the <cfloat> header file. */
+#undef HAVE_CFLOAT
+
+/* Define to 1 if you have the <cieeefp> header file. */
+#undef HAVE_CIEEEFP
+
+/* Define to 1 if you have the <cmath> header file. */
+#undef HAVE_CMATH
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define to 1 if float.h exists. */
+/* Define to 1 if you have the <float.h> header file. */
 #undef HAVE_FLOAT_H
 
-/* Define to 1 if ieeefp.h exists. */
+/* Define to 1 if you have the <ieeefp.h> header file. */
 #undef HAVE_IEEEFP_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if math.h exists. */
+/* Define to 1 if you have the <math.h> header file. */
 #undef HAVE_MATH_H
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
@@ -96,9 +102,6 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if sunmath.h exists. */
-#undef HAVE_SUNMATH_H
-
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
 
@@ -107,6 +110,9 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#undef LT_OBJDIR
 
 /* Define this variable to enable OsiDylp's informational printing features.
    */
@@ -120,8 +126,8 @@
    features. */
 #undef ODSI_STATISTICS
 
-/* Name of package */
-#undef PACKAGE
+/* Library Visibility Attribute */
+#undef OSIDYLPLIB_EXPORT
 
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
@@ -135,15 +141,25 @@
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
 
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
-/* Version number of package */
-#undef VERSION
-
-/* Define to 1 if your processor stores words with the most significant byte
-   first (like Motorola and SPARC, unlike Intel and VAX). */
-#undef WORDS_BIGENDIAN
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#  undef WORDS_BIGENDIAN
+# endif
+#endif
