@@ -32,7 +32,7 @@
 #define __DYLPCONFIG_H__
 
 #ifdef HAVE_CONFIG_H
-#ifdef DYLP_BUILD
+#ifdef DYLPLIB_BUILD
 #include "config.h"
 #else
 #include "config_dylp.h"
@@ -40,7 +40,7 @@
 
 #else /* HAVE_CONFIG_H */
 
-#ifdef DYLP_BUILD
+#ifdef DYLPLIB_BUILD
 #include "config_default.h"
 #else
 #include "config_dylp_default.h"

@@ -1,12 +1,15 @@
-prefix=@prefix@
+@COIN_RELOCATABLE_FALSE@prefix=@prefix@
+@COIN_RELOCATABLE_TRUE@prefix=${pcfiledir}/../..
 exec_prefix=@exec_prefix@
 libdir=@libdir@
-includedir=@includedir@/coin
+includedir=@includedir@/coin-or
 
-Name: DyLP
+Name: @PACKAGE_NAME@
 Description: dynamic simplex linear programming solver
-URL: https://projects.coin-or.org/DyLP
+URL: @PACKAGE_URL@
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lDylp @DYLPLIB_PCLIBS@
 Cflags: -I${includedir}
-Requires:
+@COIN_STATIC_BUILD_FALSE@Libs: -L${libdir} -lDylp
+@COIN_STATIC_BUILD_FALSE@Requires.private: @DYLPLIB_PCFILES@
+@COIN_STATIC_BUILD_TRUE@Libs: -L${libdir} -lDylp @DYLPLIB_LFLAGS_NOPC@
+@COIN_STATIC_BUILD_TRUE@Requires: @DYLPLIB_PCFILES@

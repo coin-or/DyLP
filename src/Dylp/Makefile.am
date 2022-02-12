@@ -2,13 +2,9 @@
 # All Rights Reserved.
 # This file is distributed under the Eclipse Public License.
 
-## $Id: Makefile.am 491 2006-05-19 20:37:52Z andreasw $
-
 # Author:  Andreas Waechter           IBM    2006-04-13
 
-AUTOMAKE_OPTIONS = foreign
-
-EXTRA_DIST = dy_errmsgs.txt
+include $(top_srcdir)/BuildTools/Makemain.inc
 
 ########################################################################
 #                               libDylp                                #
@@ -65,38 +61,26 @@ libDylp_la_SOURCES = \
 	dy_vector.h \
 	dy_vector_utils.c
 
-# This is for libtool
+# Add libtool flags.
 
 libDylp_la_LDFLAGS = $(LT_LDFLAGS)
 
-# We want to have also the objects from the DylpStdLib in this library
+# List all additionally required libraries
 
-libDylp_la_LIBADD = ../DylpStdLib/libDylpStdLib.la
-if DEPENDENCY_LINKING
-libDylp_la_LIBADD += $(DYLPLIB_LIBS)
-endif
+libDylp_la_LIBADD = ../DylpStdLib/libDylpStdLib.la $(DYLPLIB_LFLAGS)
 
-# Since automake is not doing this on its own, we need to declare the
-# dependencies to the subdirectory libraries here
+# Here list all include flags, relative to this "srcdir" directory.
 
-libDylp_la_DEPENDENCIES = ../DylpStdLib/libDylpStdLib.la
-
-# Here list all include flags, relative to this "srcdir" directory.  This
-# "cygpath" stuff is necessary to compile with native compilers on Windows
-
-AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../DylpStdLib`
-
-# This line is necessary to allow VPATH compilation
-DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/src/DylpStdLib
+AM_CPPFLAGS = -I$(srcdir)/../DylpStdLib -DDYLPLIB_BUILD $(DYLPLIB_CFLAGS)
 
 ########################################################################
 #                Headers that need to be installed                     #
 ########################################################################
 
 # Here list all the header files that are required by a user of the library,
-# and that therefore should be installed in 'include/coin'
+# and that therefore should be installed in pkgincludedir
 
-includecoindir = $(includedir)/coin
+includecoindir = $(pkgincludedir)
 includecoin_HEADERS = \
 	dy_cmdint.h \
 	dy_consys.h \

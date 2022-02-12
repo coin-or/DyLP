@@ -1,13 +1,16 @@
-prefix=@prefix@
+@COIN_RELOCATABLE_FALSE@prefix=@prefix@
+@COIN_RELOCATABLE_TRUE@prefix=${pcfiledir}/../..
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@/coin
 
 Name: OsiDylp
 Description: COIN-OR Open Solver Interface for DyLP
-URL: https://projects.coin-or.org/Osi
+URL: @PACKAGE_URL@
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lOsiDylp
 Cflags: -I${includedir}
-Requires: osi dylp
+@COIN_STATIC_BUILD_FALSE@Libs: -L${libdir} -lOsiDylp
+@COIN_STATIC_BUILD_FALSE@Requires.private: @OSIDYLPLIB_PCFILES@
+@COIN_STATIC_BUILD_TRUE@Libs: -L${libdir} -lOsiDylp @OSIDYLPLIB_LFLAGS_NOPC@
+@COIN_STATIC_BUILD_TRUE@Requires: @OSIDYLPLIB_PCFILES@
 
