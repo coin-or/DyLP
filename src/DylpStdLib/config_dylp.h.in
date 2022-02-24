@@ -15,3 +15,9 @@
 /* Define to the C type whose size in bytes matches the size in bytes of the
    the C++ bool type. */
 #undef BOOL
+
+/* Directory containing the DyLP error message text file (dy_errmsgs.txt).
+   Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native path
+   syntax (i.e., drive letters and backslashes on Windows). */
+#undef DYLP_ERRMSGDIR
+
