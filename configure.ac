@@ -135,11 +135,11 @@ if test x"$DYLP_ERRMSGDIR" = x; then
       DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,/,\\\\\\\\,g'`
       ;;
     *-cygwin*)
-      DYLP_ERRMSGDIR="$srcdir/src/Dylp/"
+      DYLP_ERRMSGDIR="`(cd "$srcdir";pwd)`/src/Dylp/"
       DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,\\\\,\\\\\\\\,g'`
       ;;
     *)
-      DYLP_ERRMSGDIR="$srcdir/src/Dylp/"
+      DYLP_ERRMSGDIR="`(cd "$srcdir";pwd)`/src/Dylp/"
       ;;
   esac
 fi
