@@ -2,11 +2,9 @@
 # All Rights Reserved.
 # This file is distributed under the Eclipse Public License.
 
-## $Id$
-
 # Author:  Andreas Waechter           IBM    2006-04-13
 
-AUTOMAKE_OPTIONS = foreign
+include $(top_srcdir)/BuildTools/Makemain.inc
 
 ########################################################################
 #                      unitTest for DyLP                               #

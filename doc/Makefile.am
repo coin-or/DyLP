@@ -2,17 +2,15 @@
 # All Rights Reserved.
 # This file is distributed under the Eclipse Public License.
 
-## $Id$
-
 # Author:  Lou Hafer		SFU	2009.04.15
 
-AUTOMAKE_OPTIONS = foreign
+include $(top_srcdir)/BuildTools/Makemain.inc
 
 # See the comment for distclean-local in ../Makefile.am
 
 CONFIG_CLEAN_FILES =
 
-DyLPDocInstalldir = @DYLPDOCDIR@
+DyLPDocInstalldir = $(pkgdocdir)
 
 DyLPDocInstall_DATA = dylp.pdf dylp.ps
 

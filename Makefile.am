@@ -10,7 +10,7 @@ include BuildTools/Makemain.inc
 #          Subdirectories and installation of .pc files                #
 ########################################################################
 
-SUBDIRS = src/DylpStdLib src/Dylp
+SUBDIRS = src/DylpStdLib src/Dylp doc
 pkgconfiglib_DATA = dylp.pc
 
 # Build OsiDylp only if Osi is available.

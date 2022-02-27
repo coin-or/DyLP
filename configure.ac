@@ -56,6 +56,10 @@ AC_COIN_CHECK_MATH_HDRS
 
 AC_COIN_CHK_LIBM([DylpLib])
 
+# Finalize the flags. That's as much as DylpLib needs.
+
+AC_COIN_FINALIZE_FLAGS(DylpLib)
+
 #############################################################################
 #                     COIN-OR components                                    #
 #############################################################################

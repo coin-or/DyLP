@@ -2,11 +2,9 @@
 # All Rights Reserved.
 # This file is distributed under the Eclipse Public License.
 
-## $Id$
-
 # Author:  Lou Hafer		SFU	2009.04.15
 
-AUTOMAKE_OPTIONS = foreign
+include $(top_srcdir)/BuildTools/Makemain.inc
 
 # Make sure the source for the figures is distributed.
 
