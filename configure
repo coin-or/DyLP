@@ -702,6 +702,8 @@ COIN_HAS_PKGCONFIG_FALSE
 COIN_HAS_PKGCONFIG_TRUE
 ac_ct_PKG_CONFIG
 PKG_CONFIG
+DYLPLIB_CFLAGS_NOPC
+DYLPLIB_LFLAGS_NOPC
 DYLPLIB_LFLAGS
 RPATH_FLAGS
 COIN_STATIC_BUILD_FALSE
@@ -18015,6 +18017,59 @@ then :
 fi
 
   LIBS="$coin_save_LIBS"
+
+
+# Finalize the flags. That's as much as DylpLib needs.
+
+
+   if test "$BUILDTOOLS_DEBUG" = 1 ; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: FINALIZE_FLAGS for DylpLib:" >&5
+printf "%s\n" "$as_me: FINALIZE_FLAGS for DylpLib:" >&6;}
+      fi
+      DYLPLIB_LFLAGS_NOPC=$DYLPLIB_LFLAGS
+
+      DYLPLIB_CFLAGS_NOPC=$DYLPLIB_CFLAGS
+
+      if test -n "${DYLPLIB_PCFILES}" ; then
+        temp_CFLAGS=`PKG_CONFIG_PATH="$COIN_PKG_CONFIG_PATH" $PKG_CONFIG --cflags ${DYLPLIB_PCFILES}`
+        temp_LFLAGS=`PKG_CONFIG_PATH="$COIN_PKG_CONFIG_PATH" $PKG_CONFIG --libs $pkg_static ${DYLPLIB_PCFILES}`
+        DYLPLIB_CFLAGS="$temp_CFLAGS ${DYLPLIB_CFLAGS}"
+        DYLPLIB_LFLAGS="$temp_LFLAGS ${DYLPLIB_LFLAGS}"
+      fi
+
+      # setup XYZ_EXPORT symbol for library users
+      libexport_attribute=
+      if test "$enable_shared" = yes ; then
+        case $build_os in
+          cygwin* | mingw* | msys* | cegcc* )
+            libexport_attribute="__declspec(dllimport)"
+            if test "$enable_static" = yes ; then
+              as_fn_error $? "Cannot do DLL and static LIB builds simultaneously. Do not add --enable-static without --disable-shared." "$LINENO" 5
+            fi
+          ;;
+        esac
+      fi
+
+printf "%s\n" "#define DYLPLIB_EXPORT $libexport_attribute" >>confdefs.h
+
+
+      # add -DXYZ_BUILD to XYZ_CFLAGS
+      DYLPLIB_CFLAGS="${DYLPLIB_CFLAGS} -DDYLPLIB_BUILD"
+
+      # Define BUILDTOOLS_DEBUG to enable debugging output
+      if test "$BUILDTOOLS_DEBUG" = 1 ; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: DYLPLIB_LFLAGS_NOPC: \"${DYLPLIB_LFLAGS_NOPC}\"" >&5
+printf "%s\n" "$as_me: DYLPLIB_LFLAGS_NOPC: \"${DYLPLIB_LFLAGS_NOPC}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: DYLPLIB_CFLAGS_NOPC: \"${DYLPLIB_CFLAGS_NOPC}\"" >&5
+printf "%s\n" "$as_me: DYLPLIB_CFLAGS_NOPC: \"${DYLPLIB_CFLAGS_NOPC}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: adding \"${DYLPLIB_PCFILES}\"" >&5
+printf "%s\n" "$as_me: adding \"${DYLPLIB_PCFILES}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: DYLPLIB_LFLAGS: \"${DYLPLIB_LFLAGS}\"" >&5
+printf "%s\n" "$as_me: DYLPLIB_LFLAGS: \"${DYLPLIB_LFLAGS}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: DYLPLIB_CFLAGS: \"${DYLPLIB_CFLAGS}\"" >&5
+printf "%s\n" "$as_me: DYLPLIB_CFLAGS: \"${DYLPLIB_CFLAGS}\"" >&6;}
+      fi
+
 
 
 #############################################################################

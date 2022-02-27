@@ -199,7 +199,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = src/DylpStdLib src/Dylp src/OsiDylp
+DIST_SUBDIRS = src/DylpStdLib src/Dylp doc src/OsiDylp
 pkgdatadir = $(datadir)/$(PACKAGE_TARNAME)
 pkgincludedir = $(includedir)/coin-or
 ACLOCAL = @ACLOCAL@
@@ -228,7 +228,9 @@ DEPDIR = @DEPDIR@
 DLLTOOL = @DLLTOOL@
 DSYMUTIL = @DSYMUTIL@
 DUMPBIN = @DUMPBIN@
+DYLPLIB_CFLAGS_NOPC = @DYLPLIB_CFLAGS_NOPC@
 DYLPLIB_LFLAGS = @DYLPLIB_LFLAGS@
+DYLPLIB_LFLAGS_NOPC = @DYLPLIB_LFLAGS_NOPC@
 DYLP_ERRMSGDIR = @DYLP_ERRMSGDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -363,7 +365,7 @@ DOXYTAG_EDIT = sed -e 's|@baredocdir_nosub@|$(datarootdir)/doc|g'
 ########################################################################
 #          Subdirectories and installation of .pc files                #
 ########################################################################
-SUBDIRS = src/DylpStdLib src/Dylp $(am__append_1)
+SUBDIRS = src/DylpStdLib src/Dylp doc $(am__append_1)
 pkgconfiglib_DATA = dylp.pc $(am__append_2)
 
 ########################################################################
