@@ -9,7 +9,7 @@ Description: dynamic simplex linear programming solver
 URL: @PACKAGE_URL@
 Version: @PACKAGE_VERSION@
 Cflags: -I${includedir}
-@COIN_STATIC_BUILD_FALSE@Libs: -L${libdir} -lDylp
-@COIN_STATIC_BUILD_FALSE@Requires.private: @DYLPLIB_PCFILES@
+@COIN_STATIC_BUILD_FALSE@Libs: -L${libdir} -lDylp @DYLPLIB_LFLAGS@
+@COIN_STATIC_BUILD_FALSE@Requires.private:
 @COIN_STATIC_BUILD_TRUE@Libs: -L${libdir} -lDylp @DYLPLIB_LFLAGS_NOPC@
-@COIN_STATIC_BUILD_TRUE@Requires: @DYLPLIB_PCFILES@
+@COIN_STATIC_BUILD_TRUE@Requires:

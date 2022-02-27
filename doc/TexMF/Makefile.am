@@ -2,11 +2,9 @@
 # All Rights Reserved.
 # This file is distributed under the Eclipse Public License.
 
-## $Id$
-
 # Author:  Lou Hafer		SFU	2009.04.15
 
-AUTOMAKE_OPTIONS = foreign
+include $(top_srcdir)/BuildTools/Makemain.inc
 
 # Make sure all the supporting TeX files get distributed. The only thing in
 # this subtree that's directly part of the dylp documenation is dylp.bib. All
