@@ -39,7 +39,7 @@
   example, http://tug.org/texlive/). I don't have access to other TeX
   distributions and cannot guarantee that these same hooks will work.
 
-  Makefile_dylpdoc assumes that you have latex, pdflatex, dvips, and epstopdf
+  makefile.dylpdoc assumes that you have latex, pdflatex, dvips, and epstopdf
   (the latter to convert .eps files to .pdf files for figures). Replace with
   your local equivalent if necessary.
 
@@ -48,8 +48,8 @@
   file search engine, try setting TEXMFHOME according to the value in
   build_dylpdoc. Otherwise, you're on your own.
 
-  Build_dylpdoc will invoke make, using makefile.dylpdoc (created from
-  makefile.dylpdoc.in during configure). Makefile.dylpdoc assumes that you're
+  build_dylpdoc will invoke make, using makefile.dylpdoc (created from
+  makefile.dylpdoc.in during configure). makefile.dylpdoc assumes that you're
   using Gnu make. If you're not, it will almost surely fail.
 
   The general sequence is to build the figures in Figures, then run latex,
