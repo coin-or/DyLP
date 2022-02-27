@@ -731,7 +731,7 @@ public:
 # define ODSI_PARANOIA 1
 #endif
 
-# if ODSI_PARANOIA >= 1
+#if ODSI_PARANOIA >= 1
   /*! \brief Check that a row or column index is in range
 
     Check that a row or column index is in range for the current constraint
@@ -742,7 +742,7 @@ public:
     to pass the OsiCbc unit test.
   */
   void indexCheck (int k, bool isCol, std::string rtnnme) ;
-# endif
+#endif
 
 //@}
 
