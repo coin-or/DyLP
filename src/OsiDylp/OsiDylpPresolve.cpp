@@ -802,7 +802,13 @@ void ODSI::installPresolve ()
 
 CoinPostsolveMatrix *ODSI::initialisePostsolve (CoinPresolveMatrix *&preObj)
 
-{ CoinPostsolveMatrix *postObj = new CoinPostsolveMatrix(0,0,0) ;
+{ 
+
+  const double *origRowLB = getRowLower() ;
+  const double *origRowUB = getRowUpper() ;
+  CoinPostsolveMatrix *postObj =
+      new CoinPostsolveMatrix(0,0,0,origRowLB,origRowUB) ;
+
   postObj->assignPresolveToPostsolve(preObj) ;
 
   CoinWarmStartBasis *ws = dynamic_cast<CoinWarmStartBasis *>(getWarmStart()) ;
