@@ -115,44 +115,6 @@ AC_CHECK_FUNC([quiet_nan],
 
 AC_C_BIGENDIAN
 
-# Finally, dylp needs to know where its error message text file is located.
-# This is made horribly complicated by Windows, which uses drive letters and
-# backslash in the native path format, and by the variation between faked unix
-# environments on Windows. Cygwin isn't too bad --- it provides cygpath to
-# translate a unix path into native Windows format. Mingw/Msys can't be
-# bothered, so we need to work harder.
-
-# Keep in mind the sed expressions are interpreted by the shell and then by
-# sed; the backslashes are halved each time. In the end we're left with
-# s,/,\\,g or s,\,\\,g as the actual substitutions. This gets us a double
-# backslash in DYLP_ERRMSGDIR, which the various compilers can strip down to
-# one. Sheesh.
-
-AC_ARG_VAR(DYLP_ERRMSGDIR,
-    [Directory containing the DyLP error message text file (dy_errmsgs.txt).
-     Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native
-     path syntax (i.e., drive letters and backslashes on Windows).])
-if test x"$DYLP_ERRMSGDIR" = x; then
-  case $build in
-    *-mingw*|*-msys*)
-      DYLP_ERRMSGDIR="`(cd "$srcdir";pwd -W)`/src/Dylp/"
-      DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,/,\\\\\\\\,g'`
-      ;;
-    *-cygwin*)
-      DYLP_ERRMSGDIR="`(cd "$srcdir";pwd)`/src/Dylp/"
-      DYLP_ERRMSGDIR=`echo $DYLP_ERRMSGDIR | sed -e 's,\\\\,\\\\\\\\,g'`
-      ;;
-    *)
-      DYLP_ERRMSGDIR="`(cd "$srcdir";pwd)`/src/Dylp/"
-      ;;
-  esac
-fi
-AC_DEFINE_UNQUOTED([DYLP_ERRMSGDIR],
-    ["$DYLP_ERRMSGDIR"],
-    [Directory containing the DyLP error message text file (dy_errmsgs.txt).
-     Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native
-     path syntax (i.e., drive letters and backslashes on Windows).])
-
 ##############################################################################
 #		Dylp configuration options				     #
 ##############################################################################

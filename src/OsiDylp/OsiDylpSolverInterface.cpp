@@ -355,31 +355,6 @@ extern "C"
 
 #include "dy_cmdint.h"
 
-#ifndef DYLP_ERRMSGDIR
-/*
-  This is the correct path to find dy_errmsgs.txt from Osi/test, assuming the
-  default COIN directory structure for Dylp, to wit:
-      DyLP
-	src
-	  Dylp
-	  OsiDylp
-
-  But you most likely want an absolute path, not a relative path, so that the
-  executable isn't tied to this directory.
-
-  This symbol is normally defined when DyLP is configured, and will be set to
-  the absolute path to DyLP/src/Dylp. You can override the configuration by
-  setting DYLP_ERRMSGDIR in the environment before configuring and building
-  DyLP. Note that the surrounding quotes are part of the definition. The path
-  must end in a directory separator.
-*/
-# ifdef _MSC_VER
-#   define DYLP_ERRMSGDIR "..\\Dylp\\"
-# else
-#   define DYLP_ERRMSGDIR "../Dylp/"
-# endif
-#endif
-
 extern void dy_initbasis(int concnt, int factor_freq, double zero_tol) ;
 extern void dy_freebasis() ;
 
@@ -1277,11 +1252,10 @@ void ODSI::dylp_ioinit ()
 
 { if (reference_count > 1) return ;
 
-  string errfile = string(DYLP_ERRMSGDIR)+string("dy_errmsgs.txt") ;
 # ifdef ODSI_INFOMSGS
-  errinit(const_cast<char *>(errfile.c_str()),0,true) ;
+  errinit(0,true) ;
 # else
-  errinit(const_cast<char *>(errfile.c_str()),0,false) ;
+  errinit(0,false) ;
 # endif
   bool r1 UNUSED = dyio_ioinit() ;
   assert(r1) ;

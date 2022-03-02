@@ -38,20 +38,6 @@
 #define DYLP_STATISTICS 1
 
 /*
-  Set to the full path directory name for the location of the error text
-   message file dy_errmsgs.txt. This file is distributed with dylp source and
-   not normally installed elsewhere. An absolute path to DyLP/src/Dylp/ is
-   appropriate. The string should end with a directory separator ("/" or "\",
-   depending on your system). The surrounding quotes are part of the
-   definition. There is no good default; the value given here will work from
-   the test directory, on a windows system, which seems the most likely
-   environment to be using this part of DylpConfig.h.
-*/
-#ifndef DYLP_ERRMSGDIR
-#define DYLP_ERRMSGDIR "..\\src\\Dylp\\"
-#endif
-
-/*
   Define this symbol if your system is `big-endian', i.e., the most significant
   byte of a multibyte quantity is stored in the lowest byte address. Intel x86
   systems are little-endian. SPARC and Motorola are big-endian.
