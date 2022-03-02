@@ -110,8 +110,8 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libDylpStdLib_la_LIBADD =
 am_libDylpStdLib_la_OBJECTS = dylib_binsrch.lo dylib_bnfrdr.lo \
-	dylib_bnfrdrio.lo dylib_errs.lo dylib_hash.lo dylib_io.lo \
-	dylib_littab.lo dylib_strrtns.lo
+	dylib_bnfrdrio.lo dylib_errs.lo dylib_errmsgs.lo dylib_hash.lo \
+	dylib_io.lo dylib_littab.lo dylib_strrtns.lo
 libDylpStdLib_la_OBJECTS = $(am_libDylpStdLib_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -138,9 +138,9 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/dylib_binsrch.Plo \
 	./$(DEPDIR)/dylib_bnfrdr.Plo ./$(DEPDIR)/dylib_bnfrdrio.Plo \
-	./$(DEPDIR)/dylib_errs.Plo ./$(DEPDIR)/dylib_hash.Plo \
-	./$(DEPDIR)/dylib_io.Plo ./$(DEPDIR)/dylib_littab.Plo \
-	./$(DEPDIR)/dylib_strrtns.Plo
+	./$(DEPDIR)/dylib_errmsgs.Plo ./$(DEPDIR)/dylib_errs.Plo \
+	./$(DEPDIR)/dylib_hash.Plo ./$(DEPDIR)/dylib_io.Plo \
+	./$(DEPDIR)/dylib_littab.Plo ./$(DEPDIR)/dylib_strrtns.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -246,7 +246,6 @@ DUMPBIN = @DUMPBIN@
 DYLPLIB_CFLAGS_NOPC = @DYLPLIB_CFLAGS_NOPC@
 DYLPLIB_LFLAGS = @DYLPLIB_LFLAGS@
 DYLPLIB_LFLAGS_NOPC = @DYLPLIB_LFLAGS_NOPC@
-DYLP_ERRMSGDIR = @DYLP_ERRMSGDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
@@ -391,7 +390,7 @@ libDylpStdLib_la_SOURCES = \
 	dylib_binsrch.c \
 	dylib_bnfrdr.c dylib_bnfrdr.h \
 	dylib_bnfrdrio.c \
-	dylib_errs.c dylib_errs.h \
+	dylib_errs.c dylib_errs.h dylib_errmsgs.c \
 	dylib_fortran.h \
 	dylib_hash.c dylib_hash.h \
 	dylib_io.c dylib_io.h \
@@ -504,6 +503,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylib_binsrch.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylib_bnfrdr.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylib_bnfrdrio.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylib_errmsgs.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylib_errs.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylib_hash.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dylib_io.Plo@am__quote@ # am--include-marker
@@ -664,6 +664,7 @@ distclean: distclean-am
 		-rm -f ./$(DEPDIR)/dylib_binsrch.Plo
 	-rm -f ./$(DEPDIR)/dylib_bnfrdr.Plo
 	-rm -f ./$(DEPDIR)/dylib_bnfrdrio.Plo
+	-rm -f ./$(DEPDIR)/dylib_errmsgs.Plo
 	-rm -f ./$(DEPDIR)/dylib_errs.Plo
 	-rm -f ./$(DEPDIR)/dylib_hash.Plo
 	-rm -f ./$(DEPDIR)/dylib_io.Plo
@@ -717,6 +718,7 @@ maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/dylib_binsrch.Plo
 	-rm -f ./$(DEPDIR)/dylib_bnfrdr.Plo
 	-rm -f ./$(DEPDIR)/dylib_bnfrdrio.Plo
+	-rm -f ./$(DEPDIR)/dylib_errmsgs.Plo
 	-rm -f ./$(DEPDIR)/dylib_errs.Plo
 	-rm -f ./$(DEPDIR)/dylib_hash.Plo
 	-rm -f ./$(DEPDIR)/dylib_io.Plo
