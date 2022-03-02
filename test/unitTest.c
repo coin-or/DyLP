@@ -33,19 +33,6 @@
 #include <math.h>
 
 /*
-  Macro cleverness to specify a default error message file. Depends on ANSI
-  C merge of consecutive string constants. DYLP_ERRMSGDIR should have the
-  form "path/to/distribution/DyLP/src/Dylp/", including the quotes. See
-  DyLP/src/DylpStdLib/DylpConfig.h for further information.
-*/
-
-#ifdef DYLP_ERRMSGDIR
-# define DYLP_ERRMSGPATH DYLP_ERRMSGDIR "dy_errmsgs.txt"
-#else
-# define DYLP_ERRMSGPATH "../src/Dylp/dy_errmsgs.txt"
-#endif
-
-/*
   Variables which control i/o operations.
 
   ttyout		i/o id for output to the user's terminal
@@ -130,7 +117,6 @@ int main (int argc, char **argv)
 { bool errecho = TRUE ;
 
   ioid ttyin,ttyout,outchn ;
-  const char *errmsgpath = DYLP_ERRMSGPATH ;
   char *errlogpath = NULL ;
 
   consys_struct *main_sys ;
@@ -203,7 +189,7 @@ int main (int argc, char **argv)
 /*
   Execute initialization routines for the i/o and error reporting packages.
 */
-  errinit(errmsgpath,errlogpath,errecho) ;
+  errinit(errlogpath,errecho) ;
   if (dyio_ioinit() != TRUE)
   { errmsg(1,rtnnme,__LINE__) ;
     exit (2) ; }

@@ -21,7 +21,7 @@ libDylpStdLib_la_SOURCES = \
 	dylib_binsrch.c \
 	dylib_bnfrdr.c dylib_bnfrdr.h \
 	dylib_bnfrdrio.c \
-	dylib_errs.c dylib_errs.h \
+	dylib_errs.c dylib_errs.h dylib_errmsgs.c \
 	dylib_fortran.h \
 	dylib_hash.c dylib_hash.h \
 	dylib_io.c dylib_io.h \
