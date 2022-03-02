@@ -13,11 +13,6 @@
 /* Library Visibility Attribute */
 #undef DYLPLIB_EXPORT
 
-/* Directory containing the DyLP error message text file (dy_errmsgs.txt).
-   Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native path
-   syntax (i.e., drive letters and backslashes on Windows). */
-#undef DYLP_ERRMSGDIR
-
 /* Define to 1 if CoinUtils is available. */
 #undef DYLP_HAS_COINUTILS
 
