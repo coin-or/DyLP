@@ -33,6 +33,7 @@ Dependencies:
     Required: Required
   - Description: Open Solver Interface (OSI) (required for OsiDylp)
     URL: http://github.com/coin-or/Osi
+    Version: master
     Required: Required
   - Description: Netlib LP problems (optional for OsiDylp unit test)
     URL: https://github.com/coin-or-tools/Data-Netlib
