@@ -1,0 +1,46 @@
+Description:
+  Slug: DyLP
+  ShortName: DyLP
+  LongName: DyLP
+  ShortDescription: An implementation of the dynamic simplex algorithm.
+  LongDescription: |2
+    DyLP is an open-source implementation of the dynamic
+    simplex algorithm for linear programming. DyLP is pure C,
+    heavily instrumented and commented, targetted toward
+    algorithm development. A C++ OSI interface, OsiDylp, is
+    also available.
+
+    Dylp itself has no dependencies. OsiDylp depends on the COIN projects
+    CoinUtils and OSI.
+  Manager: Lou Hafer, lou at sfu dot ca
+  Homepage: https://github.com/coin-or/DyLP
+  License: Eclipse Public License 2.0
+  LicenseURL: http://www.opensource.org/licenses/EPL-2.0
+  Language:
+    - C
+    - C++
+  Categories:
+    - linear programming
+
+Dependencies:
+  - Description: Sample data files (required for OsiDylp unit test)
+    URL: https://github.com/coin-or-tools/Data-Sample
+    Version: master
+    Required: Required
+  - Description: COIN-OR Utilties (required for OsiDylp)
+    URL: https://github.com/coin-or/CoinUtils
+    Version: master
+    Required: Required
+  - Description: Open Solver Interface (OSI) (required for OsiDylp)
+    URL: http://github.com/coin-or/Osi
+    Required: Required
+  - Description: Netlib LP problems (optional for OsiDylp unit test)
+    URL: https://github.com/coin-or-tools/Data-Netlib
+    Version: master
+    Required: Optional
+
+DevelopmentStatus:
+  activityStatus: Attic
+  testedPlatforms:
+  - operatingSystem: Linux
+    compiler: gcc
