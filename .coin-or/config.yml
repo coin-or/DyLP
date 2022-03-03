@@ -28,11 +28,11 @@ Dependencies:
     Version: master
     Required: Required
   - Description: COIN-OR Utilties (required for OsiDylp)
-    URL: https://github.com/coin-or/CoinUtils
+    URL: https://github.com/LouHafer/CoinUtils
     Version: master
     Required: Required
   - Description: Open Solver Interface (OSI) (required for OsiDylp)
-    URL: http://github.com/coin-or/Osi
+    URL: https://github.com/coin-or/Osi
     Version: master
     Required: Required
   - Description: Netlib LP problems (optional for OsiDylp unit test)
