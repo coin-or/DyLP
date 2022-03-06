@@ -32,8 +32,6 @@
 #include <float.h>
 #include <limits.h>
 
-static char sccsid[] UNUSED = "@(#)dy_statistics.c	4.5	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 
 
@@ -71,7 +69,7 @@ void dy_initstats (lpstats_struct **p_lpstats, consys_struct *orig_sys)
   const char *rtnnme = "dy_initstats" ;
 
   if (p_lpstats == NULL)
-  { errmsg(2,rtnnme,"&lpstats") ;
+  { dy_errmsg(2,rtnnme,"&lpstats") ;
     return ; }
 # endif
 
@@ -209,7 +207,7 @@ void dy_freestats (lpstats_struct **p_lpstats)
   const char *rtnnme = "dy_freestats" ;
 
   if (p_lpstats == NULL)
-  { errmsg(2,rtnnme,"&lpstats") ;
+  { dy_errmsg(2,rtnnme,"&lpstats") ;
     return ; }
 # endif
 
@@ -218,7 +216,7 @@ void dy_freestats (lpstats_struct **p_lpstats)
 
 # ifdef DYLP_PARANOIA
   if (lpstats == NULL)
-  { errmsg(2,rtnnme,"lpstats") ;
+  { dy_errmsg(2,rtnnme,"lpstats") ;
     return ; }
 # endif
 
@@ -260,7 +258,7 @@ void dy_finalstats (lpstats_struct *lpstats)
   const char *rtnnme = "dy_finalstats" ;
 
   if (lpstats == NULL)
-  { errmsg(2,rtnnme,"lpstats") ;
+  { dy_errmsg(2,rtnnme,"lpstats") ;
     return ; }
 # endif
 

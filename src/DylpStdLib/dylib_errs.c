@@ -27,6 +27,7 @@
 */
 
 #include "dylib_std.h"
+#include "dylib_errs.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -39,7 +40,7 @@
   Declarations for the error message template array.
 */
 
-extern const char *dy_errmsgs[] ;
+extern const char *dy_errmsgtmplts[] ;
 extern int dy_errmsgCnt ;
 
 /*
@@ -60,7 +61,7 @@ static bool errecho ;
 
 
 
-void errinit (const char *elogpath, bool echo)
+void dy_errinit (const char *elogpath, bool echo)
 
 /*
   This routine initializes the error reporting facilities. It attempts to
@@ -76,7 +77,7 @@ void errinit (const char *elogpath, bool echo)
   Returns: undefined
 */
 
-{ const char *rtnnme = "errinit" ;
+{ const char *rtnnme = "dy_errinit" ;
 
 /*
   If a log file name has been supplied, try to open it. Keep the name locally
@@ -99,7 +100,7 @@ void errinit (const char *elogpath, bool echo)
   return ; }
 
 
-void errterm (void)
+void dy_errterm (void)
 
 /*
   This routine cleans up data structures owned by the error package and closes
@@ -116,7 +117,7 @@ void errterm (void)
   Returns: undefined.
 */
 
-{ char *rtnnme = "errterm" ;
+{ char *rtnnme = "dy_errterm" ;
 
   if (elogchn != NULL && elogchn != stdout && elogchn != stderr &&
       ftell(elogchn) >= 0 )
@@ -139,7 +140,7 @@ void errterm (void)
   io.c
 */
 
-FILE *errlogq (char **elogpath)
+FILE *dy_errlogq (char **elogpath)
 
 /*
   This routine is here to keep the compartmentalisation of errs.c. Its sole
@@ -157,7 +158,7 @@ FILE *errlogq (char **elogpath)
   return (elogchn) ; }
 
 
-bool reseterrlogchn (const char *newpath, FILE *newchn, bool echo, bool close)
+bool dy_reseterrlogchn (const char *newpath, FILE *newchn, bool echo, bool close)
 
 /*
   Another routine solely dedicated to compartmentalisation. If newpath is
@@ -175,7 +176,7 @@ bool reseterrlogchn (const char *newpath, FILE *newchn, bool echo, bool close)
 */
 
 { bool success ;
-  const char *rtnnme = "reseterrlogchn" ;
+  const char *rtnnme = "dy_reseterrlogchn" ;
 
 /*
   If newchn is NULL, try to open the specified path. Retain the previous
@@ -216,9 +217,10 @@ bool reseterrlogchn (const char *newpath, FILE *newchn, bool echo, bool close)
 static void errOrWarn (char *msgType, int errid, va_list varargs)
 
 /*
-  The implementation for errmsg and warn. First check that errid specifies a
-  valid message. If it does not, construct something appropriate and print it.
-  If the errid is valid, invoke vfprintf to print the specified message.
+  The implementation for dy_errmsg and dy_warn. First check that errid
+  specifies a valid message. If it does not, construct something appropriate
+  and print it.  If the errid is valid, invoke vfprintf to print the
+  specified message.
 
   Parameter:
     msgType:	type of message ("error", "warning", ...)
@@ -257,20 +259,20 @@ static void errOrWarn (char *msgType, int errid, va_list varargs)
   { sprintf(msgBuf+pfxLen,"error message %d out of range 1 .. %d.",
       errid,dy_errmsgCnt) ;
     badErr = TRUE ; }
-  else if (strcmp(dy_errmsgs[errid],"<<open>>") == 0)
+  else if (strcmp(dy_errmsgtmplts[errid],"<<open>>") == 0)
   { sprintf(msgBuf+pfxLen,"error message %d is '%s'.",
-      errid,dy_errmsgs[errid]) ;
+      errid,dy_errmsgtmplts[errid]) ;
     badErr = TRUE ; }
   else
-  { strcpy(msgBuf+pfxLen,dy_errmsgs[errid]) ; }
+  { strcpy(msgBuf+pfxLen,dy_errmsgtmplts[errid]) ; }
 /*
   Print as appropriate. The constructed messages for badErr need only the
   ident. Because each call to vfprintf leaves the varargs object in an
   undefined state, make a copy for reuse.
 
-  It's helpful to think about va_start as creating an object which can be
-  used once and then destroyed with va_end. We can't actually create the
-  object here (that has to be done in the calling routines errmsg and warn,
+  It's helpful to think about va_start as creating an object which can be used
+  once and then destroyed with va_end. We can't actually create the object
+  here (that has to be done in the calling routines dy_errmsg and dy_warn,
   which have access to the original variable parameters on the stack). What
   we can do here is make a copy, use it, and destroy it. The original object
   passed in via the varargs parameter is created and destroyed up in the
@@ -306,16 +308,16 @@ static void errOrWarn (char *msgType, int errid, va_list varargs)
   return ; }
 
 
-void errmsg (int errid, ... )
+void dy_errmsg (int errid, ... )
 
 /*
   Actual Call:
-    errmsg(errid,ident,arg1, ... ,argn)
+    dy_errmsg(errid,ident,arg1, ... ,argn)
 
-  errmsg is the error reporting function used by clients of this package.
+  dy_errmsg is the error reporting function used by clients of this package.
   It prints a message with the format "ident (error): error message".
   errid identifies a printf-style error message template which is held in
-  the dy_errmsgs array.
+  the dy_errmsgtmplts array.
 
   A variable number of parameters may follow ident; they are assumed to
   be compatible with the way vfprintf will interpret the error message
@@ -343,19 +345,19 @@ void errmsg (int errid, ... )
 
 #ifdef DYLP_NDEBUG
 
-void dywarn (int errid, ... )
+void dy_warn (int errid, ... )
 
 { return ; }
 
 #else
 
-void dywarn (int errid, ... )
+void dy_warn (int errid, ... )
 
 /*
   Actual Call:
-    dywarn(errid,ident,arg1, ... ,argn)
+    dy_warn(errid,ident,arg1, ... ,argn)
 
-  Warn is functionally identical to errmsg, but prints the message
+  dy_warn is functionally identical to dy_errmsg, but prints the message
   "ident (warning): warning message".
 
   Parameters:

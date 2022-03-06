@@ -15,9 +15,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_force.c	4.6	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 /*
   This file contains a pair of routines that attempt to force a transition
   from primal to dual simplex or from dual to primal simplex, and a final
@@ -176,7 +173,7 @@ static int scanPrimVarDualInfeas (fdcand_struct **p_fdcands)
   const char *rtnnme = "scanPrimVarDualInfeas" ;
 
   if (p_fdcands == NULL)
-  { errmsg(2,rtnnme,"fdcands") ;
+  { dy_errmsg(2,rtnnme,"fdcands") ;
     return (-1) ; }
 
 # endif
@@ -348,10 +345,10 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
       (dy_lp->lpret == lpPUNT || dy_lp->lpret == lpSTALLED))
     retval = TRUE ;
   if (retval == FALSE)
-  { errmsg(441,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   dy_prtlpphase(dy_lp->simplex.active,TRUE),
-	   dy_prtlpret(dy_lp->lpret)) ;
+  { dy_errmsg(441,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      dy_prtlpphase(dy_lp->simplex.active,TRUE),
+	      dy_prtlpret(dy_lp->lpret)) ;
     return (dyINV) ; }
 # endif
 
@@ -361,14 +358,14 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 */
   if (dy_lp->p1obj.installed == TRUE)
   { if (dy_swapobjs(dyPRIMAL2) == FALSE)
-    { errmsg(318,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "remove") ;
+    { dy_errmsg(318,rtnnme,
+	        dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        "remove") ;
       return (dyINV) ; }
     dy_calcduals() ;
     if (dy_calccbar() == FALSE)
-    { errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters) ;
+    { dy_errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters) ;
       return (dyINV) ; } }
 /*
   Call scanPrimVarDualInfeas to return a list of candidates for deactivation.
@@ -376,9 +373,9 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
   candidates = NULL ;
   cand_cnt = scanPrimVarDualInfeas(&candidates) ;
   if (cand_cnt < 0)
-  { errmsg(434,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "variable","forced primal -> dual transition") ;
+  { dy_errmsg(434,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "variable","forced primal -> dual transition") ;
     if (candidates != NULL) FREE(candidates) ;
     return (dyINV) ; }
 # ifdef DYLP_PARANOIA
@@ -386,7 +383,7 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
   We should always find candidates, otherwise why are we here?
 */
   if (cand_cnt == 0)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     if (candidates != NULL) FREE(candidates) ;
     return (dyINV) ; }
 # endif
@@ -407,7 +404,7 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
   { j = candidates[ndx].ndx ;
 #   ifdef DYLP_PARANOIA
     if (j < 1 || j > dy_sys->varcnt)
-    { errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,dy_sys->varcnt) ;
+    { dy_errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,dy_sys->varcnt) ;
       retval = FALSE ;
       break ; }
 #   endif
@@ -447,10 +444,10 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 #     endif
       retval = dy_deactNBPrimArch(orig_sys,j) ;
       if (retval == FALSE)
-      { errmsg(430,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "deactivate","variable",
-	       consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; } }
+      { dy_errmsg(430,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "deactivate","variable",
+		  consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; } }
 /*
   The hard case: we have a nonbasic logical. Not that it looks any more
   difficult from here. If we're primal feasible, this call will create
@@ -468,10 +465,10 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 #     endif
       retval = dy_deactNBLogPrimCon(orig_sys,j) ;
       if (retval == FALSE)
-      { errmsg(430,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "deactivate","constraint",
-	       consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; } }
+      { dy_errmsg(430,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "deactivate","constraint",
+		  consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; } }
     else
     { suppressed++ ; } }
 
@@ -544,18 +541,18 @@ dyphase_enum dy_forcePrimal2Dual (consys_struct *orig_sys)
 */
   if (suppressed == 0)
   { if (concnt == 0 && flgon(calcflgs,ladDUALFEAS))
-    { dywarn(439,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "absence","dual") ; } }
+    { dy_warn(439,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "absence","dual") ; } }
   else
   { if (flgoff(calcflgs,ladDUALFEAS))
-    { dywarn(439,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "presence","dual") ; } }
+    { dy_warn(439,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "presence","dual") ; } }
   if (dy_lp->simplex.active == dyDUAL && flgoff(calcflgs,ladPRIMFEAS))
-  { dywarn(439,rtnnme,
-	 dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	 "presence","primal") ; }
+  { dy_warn(439,rtnnme,
+	    dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	    "presence","primal") ; }
 # endif
 
 /*
@@ -631,7 +628,7 @@ static int scanPrimConForceDeact (int **p_acndxs)
   const char *rtnnme = "scanPrimConForceDeact" ;
 
   if (p_acndxs == NULL)
-  { errmsg(2,rtnnme,"&acndxs") ;
+  { dy_errmsg(2,rtnnme,"&acndxs") ;
     return (-1) ; }
 
 # endif
@@ -744,10 +741,10 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
       (dy_lp->lpret == lpPUNT || dy_lp->lpret == lpSTALLED))
     retval = TRUE ;
   if (retval == FALSE)
-  { errmsg(441,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   dy_prtlpphase(dy_lp->simplex.active,TRUE),
-	   dy_prtlpret(dy_lp->lpret)) ; }
+  { dy_errmsg(441,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      dy_prtlpphase(dy_lp->simplex.active,TRUE),
+	      dy_prtlpret(dy_lp->lpret)) ; }
 # endif
 
   next_phase = dyINV ;
@@ -768,9 +765,9 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
   candidates = NULL ;
   cand_cnt = scanPrimConForceDeact(&candidates) ;
   if (cand_cnt < 0)
-  { errmsg(434,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint","forced dual -> primal transition") ;
+  { dy_errmsg(434,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint","forced dual -> primal transition") ;
     if (candidates != NULL) FREE(candidates) ;
     return (dyINV) ; }
 # ifdef DYLP_PARANOIA
@@ -778,7 +775,7 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
   We should always find candidates, otherwise why are we here?
 */
   if (cand_cnt == 0)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     if (candidates != NULL) FREE(candidates) ;
     return (dyINV) ; }
 # endif
@@ -799,7 +796,7 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
   { j = candidates[ndx] ;
 #   ifdef DYLP_PARANOIA
     if (j < 1 || j > dy_sys->varcnt)
-    { errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,dy_sys->varcnt) ;
+    { dy_errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,dy_sys->varcnt) ;
       retval = FALSE ;
       break ; }
 #   endif
@@ -817,10 +814,10 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 #     endif
       retval = dy_deactBLogPrimCon(orig_sys,j) ;
       if (retval == FALSE)
-      { errmsg(430,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "deactivate","constraint",
-	       consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; } }
+      { dy_errmsg(430,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "deactivate","constraint",
+		  consys_nme(dy_sys,'c',j,TRUE,NULL),j) ; } }
 /*
   The hard case: we have a basic architectural. The ugliness is hidden in
   dy_deactBPrimArch.
@@ -835,10 +832,10 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 #     endif
       retval = dy_deactBPrimArch(orig_sys,j) ;
       if (retval == FALSE)
-      { errmsg(430,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "deactivate","variable",
-	       consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; } }
+      { dy_errmsg(430,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "deactivate","variable",
+		  consys_nme(dy_sys,'v',j,TRUE,NULL),j) ; } }
     else
     { suppressed++ ; } }
 
@@ -915,14 +912,14 @@ dyphase_enum dy_forceDual2Primal (consys_struct *orig_sys)
 # ifdef DYLP_PARANOIA
   if (suppressed == 0)
   { if (varcnt == 0 && flgon(calcflgs,ladPRIMFEAS))
-    { dywarn(439,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "absence","primal") ; } }
+    { dy_warn(439,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "absence","primal") ; } }
   else
   { if (flgoff(calcflgs,ladPRIMFEAS))
-    { dywarn(439,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "presence","primal") ; } }
+    { dy_warn(439,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "presence","primal") ; } }
 # endif
   
   dy_lp->lpret = lpFORCEPRIMAL ;
@@ -972,10 +969,10 @@ static int scanPrimVarForceAct (consys_struct *orig_sys, int **p_ovndxs)
   const char *rtnnme = "scanPrimVarForceAct" ;
 
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
   if (p_ovndxs == NULL)
-  { errmsg(2,rtnnme,"&ovndxs") ;
+  { dy_errmsg(2,rtnnme,"&ovndxs") ;
     return (-1) ; }
 
 # endif
@@ -1049,10 +1046,10 @@ static int scanPrimConForceAct (consys_struct *orig_sys, int **p_ocndxs)
   const char *rtnnme = "scanPrimConForceAct" ;
 
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
   if (p_ocndxs == NULL)
-  { errmsg(2,rtnnme,"&ocndxs") ;
+  { dy_errmsg(2,rtnnme,"&ocndxs") ;
     return (-1) ; }
 
 # endif
@@ -1127,7 +1124,7 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
 # ifdef DYLP_PARANOIA
   if (!(dy_lp->lpret == lpFORCEDUAL || dy_lp->lpret == lpFORCEPRIMAL ||
 	dy_lp->lpret == lpPUNT || dy_lp->lpret == lpACCCHK))
-  { errmsg(4,rtnnme,"simplex return code",dy_prtlpret(dy_lp->lpret)) ;
+  { dy_errmsg(4,rtnnme,"simplex return code",dy_prtlpret(dy_lp->lpret)) ;
     return (dyINV) ; }
 # endif
 
@@ -1138,9 +1135,9 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
   candidates = NULL ;
   concnt = scanPrimConForceAct(orig_sys,&candidates) ;
   if (concnt < 0)
-  { errmsg(434,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint","forced full activation") ;
+  { dy_errmsg(434,rtnnme,dy_sys->nme,
+  	      dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint","forced full activation") ;
     retval = FALSE ; }
   else
   if (concnt > 0)
@@ -1156,10 +1153,10 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
   candidates = NULL ;
   varcnt = scanPrimVarForceAct(orig_sys,&candidates) ;
   if (varcnt < 0)
-  { errmsg(434,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "variable","forced full activation") ; }
-  else
+  { dy_errmsg(434,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "variable","forced full activation") ; }
+    else
   if (varcnt > 0)
   { retval =  dy_actNBPrimArchList(orig_sys,varcnt,candidates) ; }
   else
@@ -1174,7 +1171,7 @@ dyphase_enum dy_forceFull (consys_struct *orig_sys)
   constraint system while we're here.
 */
   if (concnt+varcnt == 0)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (dyINV) ; }
   if (dy_chkdysys(orig_sys) == FALSE) return (dyINV) ;
 # endif

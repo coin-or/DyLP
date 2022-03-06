@@ -135,7 +135,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 */
   basis = consys_create("basisMtx",0,0,m,m,infty) ;
   if (basis == NULL)
-  { errmsg(152,rtnnme,"basis") ;
+  { dy_errmsg(152,rtnnme,"basis") ;
     return (FALSE) ; }
 # ifndef DYLP_NDEBUG
   if (printlvl >= 3)
@@ -148,13 +148,13 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   ai = pkvec_new(0) ;
   for (i = 1 ; i <= m ; i++)
   { if (consys_getrow_pk(sys,i,&ai) == FALSE)
-    { errmsg(122,rtnnme,sys->nme,"row",consys_nme(sys,'c',i,FALSE,NULL),i) ;
+    { dy_errmsg(122,rtnnme,sys->nme,"row",consys_nme(sys,'c',i,FALSE,NULL),i) ;
       if (ai != NULL) pkvec_free(ai) ;
       consys_free(basis) ;
       return (NULL) ; }
     if (consys_addrow_pk(basis,'a',0,ai,0,0,NULL,NULL) == FALSE)
-    { errmsg(112,rtnnme,basis->nme,"add row","constraint",
-	     consys_nme(sys,'c',i,FALSE,NULL),i) ;
+    { dy_errmsg(112,rtnnme,basis->nme,"add row","constraint",
+	        consys_nme(sys,'c',i,FALSE,NULL),i) ;
       if (ai != NULL) pkvec_free(ai) ;
       consys_free(basis) ;
       return (NULL) ; }
@@ -187,7 +187,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 */
   if (consys_attach(basis,
 		    CONSYS_ROW,sizeof(int),((void **) p_basis2sys)) == FALSE)
-  { errmsg(100,rtnnme,basis->nme,"basis2sys") ;
+  { dy_errmsg(100,rtnnme,basis->nme,"basis2sys") ;
     consys_free(basis) ;
     return (NULL) ; }
   basis2sys = *p_basis2sys ;
@@ -209,8 +209,8 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       aj->nme = consys_nme(sys,'v',n+lastRow,FALSE,NULL) ;
       aj->cnt = 1 ;
       if (consys_addcol_pk(basis,vartypCON,aj,0.0,0.0,0.0) == FALSE)
-      { errmsg(112,rtnnme,
-	       basis->nme,"add column","variable",aj->nme,lastRow) ;
+      { dy_errmsg(112,rtnnme,
+		  basis->nme,"add column","variable",aj->nme,lastRow) ;
 	if (aj != NULL) pkvec_free(aj) ;
 	if (basisVec != NULL) FREE(basisVec) ;
 	consys_free(basis) ;
@@ -232,14 +232,14 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       aj->cnt = 1 ; }
     else
     { if (consys_getcol_pk(sys,j,&aj) == FALSE)
-      { errmsg(122,rtnnme,sys->nme,"column",
-	       consys_nme(sys,'v',j,FALSE,NULL),j) ;
+      { dy_errmsg(122,rtnnme,sys->nme,"column",
+		  consys_nme(sys,'v',j,FALSE,NULL),j) ;
 	if (aj != NULL) pkvec_free(ai) ;
 	if (basisVec != NULL) FREE(basisVec) ;
 	consys_free(basis) ;
 	return (NULL) ; } }
     if (consys_addcol_pk(basis,vartypCON,aj,0.0,0.0,0.0) == FALSE)
-    { errmsg(112,rtnnme,basis->nme,"add column","variable",aj->nme,abs(j)) ;
+    { dy_errmsg(112,rtnnme,basis->nme,"add column","variable",aj->nme,abs(j)) ;
       if (aj != NULL) pkvec_free(aj) ;
       if (basisVec != NULL) FREE(basisVec) ;
       consys_free(basis) ;
@@ -270,8 +270,8 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
     aj->nme = consys_nme(sys,'v',n+k,FALSE,NULL) ;
     aj->cnt = 1 ;
     if (consys_addcol_pk(basis,vartypCON,aj,0.0,0.0,0.0) == FALSE)
-    { errmsg(112,rtnnme,
-	     basis->nme,"add column","variable",aj->nme,k) ;
+    { dy_errmsg(112,rtnnme,
+	        basis->nme,"add column","variable",aj->nme,k) ;
       if (aj != NULL) pkvec_free(aj) ;
       consys_free(basis) ;
       return (NULL) ; }
@@ -352,7 +352,7 @@ int dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   basis2sys = NULL ;
   basis = create_basis(main_lp,main_lptols,main_lpopts,&basis2sys) ;
   if (basis == NULL || basis2sys == NULL)
-  { errmsg(152,rtnnme,"basisMtx") ;
+  { dy_errmsg(152,rtnnme,"basisMtx") ;
     consys_free(basis) ;
     if (basis2sys != NULL) FREE(basis2sys) ;
     return (1) ; }
@@ -368,8 +368,8 @@ int dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   for (k = 1 ; k <= m ; k++)
   { j = basis2sys[k] ;
     if (dy_betaj(main_lp,j,&betaj) == FALSE)
-    { errmsg(952,rtnnme,sys->nme,"column",j,"variable",
-	     consys_nme(sys,'v',j,FALSE,NULL),j) ;
+    { dy_errmsg(952,rtnnme,sys->nme,"column",j,"variable",
+	        consys_nme(sys,'v',j,FALSE,NULL),j) ;
       errcnt++ ;
       continue ; }
     for (i = 1 ; i <= m ; i++)
@@ -452,7 +452,7 @@ int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   basis2sys = NULL ;
   basis = create_basis(main_lp,main_lptols,main_lpopts,&basis2sys) ;
   if (basis == NULL || basis2sys == NULL)
-  { errmsg(152,rtnnme,"basisMtx") ;
+  { dy_errmsg(152,rtnnme,"basisMtx") ;
     consys_free(basis) ;
     if (basis2sys != NULL) FREE(basis2sys) ;
     return (1) ; }
@@ -467,12 +467,13 @@ int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   errcnt = 0 ;
   for (j = 1 ; j <= n ; j++)
   { if (dy_abarj(main_lp,j,&abarj) == FALSE)
-    { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	     consys_nme(sys,'v',j,FALSE,NULL),j) ;
+    { dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+	        consys_nme(sys,'v',j,FALSE,NULL),j) ;
       errcnt++ ;
       continue ; }
     if (consys_getcol_ex(sys,j,&aj) == FALSE)
-    { errmsg(122,rtnnme,sys->nme,"column",consys_nme(sys,'v',j,FALSE,NULL),j) ;
+    { dy_errmsg(122,rtnnme,
+    		sys->nme,"column",consys_nme(sys,'v',j,FALSE,NULL),j) ;
       errcnt++ ;
       continue ; }
     for (i = 1 ; i <= m ; i++)
@@ -490,8 +491,8 @@ int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   memset(aj,0,((size_t) ((m+1)*sizeof(double)))) ;
   for (k = 1 ; k <= m ; k++)
   { if (dy_abarj(main_lp,-k,&abarj) == FALSE)
-    { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	     consys_nme(sys,'v',n+k,FALSE,NULL),k) ;
+    { dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+	        consys_nme(sys,'v',n+k,FALSE,NULL),k) ;
       errcnt++ ;
       continue ; }
     aj[k] = 1.0 ;
@@ -572,7 +573,7 @@ int dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
   basis2sys = NULL ;
   basis = create_basis(main_lp,main_lptols,main_lpopts,&basis2sys) ;
   if (basis == NULL || basis2sys == NULL)
-  { errmsg(152,rtnnme,"basisMtx") ;
+  { dy_errmsg(152,rtnnme,"basisMtx") ;
     consys_free(basis) ;
     if (basis2sys != NULL) FREE(basis2sys) ;
     return (1) ; }
@@ -587,8 +588,8 @@ int dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
   errcnt = 0 ;
   for (i = 1 ; i <= m ; i++)
   { if (dy_betai(main_lp,i,&betai) == FALSE)
-    { errmsg(952,rtnnme,sys->nme,"row",i,"constraint",
-	     consys_nme(sys,'c',i,FALSE,NULL),i) ;
+    { dy_errmsg(952,rtnnme,sys->nme,"row",i,"constraint",
+	        consys_nme(sys,'c',i,FALSE,NULL),i) ;
       errcnt++ ;
       continue ; }
     for (j = 1 ; j <= m ; j++)
@@ -675,14 +676,14 @@ int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
   abarj = NULL ;
   for (i = 1 ; i <= m ; i++)
   { if (dy_abari(main_lp,i,&abari,&betai) == FALSE)
-    { errmsg(953,rtnnme,sys->nme,"transformed","row",
-	     consys_nme(sys,'c',i,FALSE,NULL),i) ;
+    { dy_errmsg(953,rtnnme,sys->nme,"transformed","row",
+	        consys_nme(sys,'c',i,FALSE,NULL),i) ;
       errcnt++ ;
       continue ; }
     for (j = 1 ; j <= n ; j++)
     { if (dy_abarj(main_lp,j,&abarj) == FALSE)
-      { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	       consys_nme(sys,'v',j,FALSE,NULL),j) ;
+      { dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+		  consys_nme(sys,'v',j,FALSE,NULL),j) ;
 	errcnt++ ;
 	continue ; }
       expected = abarj[i] ;
@@ -699,8 +700,8 @@ int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
 */
     for (j = 1 ; j <= m ; j++)
     { if (dy_abarj(main_lp,-j,&abarj) == FALSE)
-      { errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	       consys_nme(sys,'v',n+j,FALSE,NULL),j) ;
+      { dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+		  consys_nme(sys,'v',n+j,FALSE,NULL),j) ;
 	errcnt++ ;
 	continue ; }
       expected = abarj[i] ;

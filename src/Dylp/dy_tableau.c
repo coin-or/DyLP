@@ -46,9 +46,6 @@
 
 #include "dylp.h"
 
-static char svnid[] UNUSED = "$Id$" ;
-
-
 
 #if DYLP_PARANOIA > 0
 
@@ -71,17 +68,17 @@ bool dy_std_paranoia (const lpprob_struct *orig_lp, const char *rtnnme,
   Check for presence.
 */
   if (orig_lp == NULL)
-  { errmsg(2,rtnnme,"orig_lp") ;
+  { dy_errmsg(2,rtnnme,"orig_lp") ;
     return (FALSE) ; }
   orig_sys = orig_lp->consys ;
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
 /*
   Check for a corrupt constraint system.
 */
   if (flgon(orig_sys->opts,CONSYS_CORRUPT))
-  { errmsg(115,rtnnme,orig_lp->consys->nme) ;
+  { dy_errmsg(115,rtnnme,orig_lp->consys->nme) ;
     return (FALSE) ; }
 /*
   Check that dylp and the lpprob_struct agree on whether dylp retains valid
@@ -89,7 +86,7 @@ bool dy_std_paranoia (const lpprob_struct *orig_lp, const char *rtnnme,
 */
   if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_owner != NULL) ||
       (flgon(orig_lp->ctlopts,lpctlDYVALID) && dy_owner == NULL))
-  { errmsg(1,rtnnme,line) ;
+  { dy_errmsg(1,rtnnme,line) ;
     return (FALSE) ; }
 
   return (TRUE) ; }
@@ -164,15 +161,15 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_betaj == NULL)
-  { errmsg(2,rtnnme,"betaj") ;
+  { dy_errmsg(2,rtnnme,"betaj") ;
     return (FALSE) ; }
 # endif
 /*
   Always check for valid data structures.
 */
   if (orig_lp->owner != dy_owner)
-  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
-	   "calculate column of basis inverse") ;
+  { dy_errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+	      "calculate column of basis inverse") ;
     return (FALSE) ; }
 
   orig_sys = orig_lp->consys ;
@@ -194,7 +191,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   if (tgt_j < 0)
   { i_orig = -tgt_j ;
     if (i_orig > m_orig)
-    { errmsg(102,rtnnme,orig_sys->nme,"row",i_orig,1,m_orig) ;
+    { dy_errmsg(102,rtnnme,orig_sys->nme,"row",i_orig,1,m_orig) ;
       return (FALSE) ; }
     logical = TRUE ;
     if (ACTIVE_CON(i_orig))
@@ -206,7 +203,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   if (tgt_j > 0)
   { j_orig = tgt_j ;
     if (j_orig > n_orig)
-    { errmsg(102,rtnnme,orig_sys->nme,"column",j_orig,1,n_orig) ;
+    { dy_errmsg(102,rtnnme,orig_sys->nme,"column",j_orig,1,n_orig) ;
       return (FALSE) ; }
     logical = FALSE ;
     if (ACTIVE_VAR(j_orig))
@@ -215,7 +212,7 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
     else
     { active = FALSE ; } }
   else
-  { errmsg(102,rtnnme,orig_sys->nme,"column",tgt_j,1,n_orig) ;
+  { dy_errmsg(102,rtnnme,orig_sys->nme,"column",tgt_j,1,n_orig) ;
     return (FALSE) ; }
 /*
   If the variable is active, it better be basic. For a logical, check if it's
@@ -230,8 +227,8 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
   if (active == TRUE)
   { j_bpos = dy_var2basis[j] ;
     if (j_bpos == 0)
-    { errmsg(951,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-	     "calculate column of basis inverse") ;
+    { dy_errmsg(951,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+	        "calculate column of basis inverse") ;
     return (FALSE) ; }
     i_orig = dy_actcons[j_bpos] ;
     if (j == j_bpos)
@@ -241,9 +238,9 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
     { j_bpos = i_orig ;
       natural = TRUE ; }
     else
-    { errmsg(950,rtnnme,"architectural variable",
-	     consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig,
-	     "calculate column of basis inverse") ;
+    { dy_errmsg(950,rtnnme,"architectural variable",
+	        consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig,
+	        "calculate column of basis inverse") ;
       return (FALSE) ; } }
 /*
   Special case: The basis inverse column for a logical is simply a unit
@@ -398,8 +395,8 @@ bool dy_betaj (lpprob_struct *orig_lp, int tgt_j, double **p_betaj)
 		    consys_nme(orig_sys,'c',i_orig,FALSE,NULL),i_orig) ; }
 #     endif
       if (consys_getrow_pk(orig_sys,i_orig,&ai) == FALSE)
-      { errmsg(122,rtnnme,orig_sys->nme,"row",
-	       consys_nme(orig_sys,'c',i_orig,TRUE,NULL),i_orig) ;
+      { dy_errmsg(122,rtnnme,orig_sys->nme,"row",
+		  consys_nme(orig_sys,'c',i_orig,TRUE,NULL),i_orig) ;
 	if (ai != NULL) pkvec_free(ai) ;
 	if (betaj != NULL) FREE(betaj) ;
 	return (FALSE) ; }
@@ -477,15 +474,15 @@ bool dy_betak (lpprob_struct *orig_lp, int orig_k, double **p_betak)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_betak == NULL)
-  { errmsg(2,rtnnme,"betak") ;
+  { dy_errmsg(2,rtnnme,"betak") ;
     return (FALSE) ; }
 # endif
 /*
   Always check for valid data structures.
 */
   if (orig_lp->owner != dy_owner)
-  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
-	   "calculate column of basis inverse") ;
+  { dy_errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+	      "calculate column of basis inverse") ;
     return (FALSE) ; }
 /*
   Check to see whether constraint k is active.
@@ -578,15 +575,15 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_abarj == NULL)
-  { errmsg(2,rtnnme,"abarj") ;
+  { dy_errmsg(2,rtnnme,"abarj") ;
     return (FALSE) ; }
 # endif
 /*
   Always check for valid data structures.
 */
   if (orig_lp->owner != dy_owner)
-  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
-	   "calculate column of basis inverse") ;
+  { dy_errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+	      "calculate column of basis inverse") ;
     return (FALSE) ; }
 
   orig_sys = orig_lp->consys ;
@@ -615,7 +612,7 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   if (tgt_j < 0)
   { i_orig = -tgt_j ;
     if (i_orig > m_orig)
-    { errmsg(102,rtnnme,orig_sys->nme,"row",i_orig,1,m_orig) ;
+    { dy_errmsg(102,rtnnme,orig_sys->nme,"row",i_orig,1,m_orig) ;
       return (FALSE) ; }
     logical = TRUE ;
     if (ACTIVE_CON(i_orig))
@@ -627,7 +624,7 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   if (tgt_j > 0)
   { j_orig = tgt_j ;
     if (j_orig > n_orig)
-    { errmsg(102,rtnnme,orig_sys->nme,"column",j_orig,1,n_orig) ;
+    { dy_errmsg(102,rtnnme,orig_sys->nme,"column",j_orig,1,n_orig) ;
       return (FALSE) ; }
     logical = FALSE ;
     if (ACTIVE_VAR(j_orig))
@@ -636,7 +633,7 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
     else
     { active = FALSE ; } }
   else
-  { errmsg(102,rtnnme,orig_sys->nme,"column",tgt_j,1,n_orig) ;
+  { dy_errmsg(102,rtnnme,orig_sys->nme,"column",tgt_j,1,n_orig) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -688,8 +685,8 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
     { sc_abarj[j] = 1.0 ; }
     else
     if (consys_getcol_ex(dy_sys,j,&sc_abarj) == FALSE)
-    { errmsg(122,rtnnme,dy_sys->nme,"column",
-	     consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
+    { dy_errmsg(122,rtnnme,dy_sys->nme,"column",
+	        consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
       if (sc_abarj != NULL) FREE(sc_abarj) ;
       return (FALSE) ; }
     dy_ftran(sc_abarj,FALSE) ;
@@ -712,8 +709,8 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
   else
   { aj_pk = NULL ;
     if (consys_getcol_pk(orig_sys,j_orig,&aj_pk) == FALSE)
-    { errmsg(122,rtnnme,orig_sys->nme,"column",
-	     consys_nme(orig_sys,'v',j_orig,TRUE,NULL),j_orig) ;
+    { dy_errmsg(122,rtnnme,orig_sys->nme,"column",
+	        consys_nme(orig_sys,'v',j_orig,TRUE,NULL),j_orig) ;
       if (aj_pk != NULL) pkvec_free(aj_pk) ;
       return (FALSE) ; }
     if (scaled == TRUE)
@@ -812,8 +809,8 @@ bool dy_abarj (lpprob_struct *orig_lp, int tgt_j, double **p_abarj)
 		    consys_nme(orig_sys,'c',i_orig,FALSE,NULL),i_orig) ; }
 #     endif
       if (consys_getrow_pk(orig_sys,i_orig,&ai) == FALSE)
-      { errmsg(122,rtnnme,orig_sys->nme,"row",
-	       consys_nme(orig_sys,'c',i_orig,TRUE,NULL),i_orig) ;
+      { dy_errmsg(122,rtnnme,orig_sys->nme,"row",
+		  consys_nme(orig_sys,'c',i_orig,TRUE,NULL),i_orig) ;
 	if (ai != NULL) pkvec_free(ai) ;
 	if (abarj != NULL) FREE(abarj) ;
 	return (FALSE) ; }
@@ -924,15 +921,15 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_betai == NULL)
-  { errmsg(2,rtnnme,"betai") ;
+  { dy_errmsg(2,rtnnme,"betai") ;
     return (FALSE) ; }
 # endif
 /*
   Always check for valid data structures.
 */
   if (orig_lp->owner != dy_owner)
-  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
-  	   "calculate row of basis inverse") ;
+  { dy_errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+	      "calculate row of basis inverse") ;
     return (FALSE) ; }
 /*
   Do a bit of setup. Pull constraint system sizes for convenient use. Grab the
@@ -1006,8 +1003,8 @@ bool dy_betai (lpprob_struct *orig_lp, int tgt_i, double **p_betai)
   else
   { ai = NULL ;
     if (consys_getrow_pk(orig_sys,tgt_i,&ai) == FALSE)
-    { errmsg(122,rtnnme,orig_sys->nme,"row",
-	     consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
+    { dy_errmsg(122,rtnnme,orig_sys->nme,"row",
+	        consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
       if (ai != NULL) pkvec_free(ai) ;
       if (sc_betai != NULL) FREE(sc_betai) ;
       return (FALSE) ; }
@@ -1143,7 +1140,7 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_abari == NULL)
-  { errmsg(2,rtnnme,"abari") ;
+  { dy_errmsg(2,rtnnme,"abari") ;
     return (FALSE) ; }
 # endif
 
@@ -1153,8 +1150,8 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
   Always check for valid data structures.
 */
   if (orig_lp->owner != dy_owner)
-  { errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
-  	   "calculate row of basis inverse") ;
+  { dy_errmsg(396,rtnnme,orig_lp->consys->nme,orig_lp->owner,dy_owner,
+	      "calculate row of basis inverse") ;
     return (FALSE) ; }
 /*
   Do a bit of setup. Pull constraint system sizes for convenient use.
@@ -1201,8 +1198,8 @@ bool dy_abari (lpprob_struct *orig_lp, int tgt_i, double **p_abari,
   retval = dy_betai(orig_lp,tgt_i,&betai) ;
 # endif
   if (retval == FALSE)
-  { errmsg(952,rtnnme,orig_sys->nme,"row",tgt_i,"constraint",
-	   consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
+  { dy_errmsg(952,rtnnme,orig_sys->nme,"row",tgt_i,"constraint",
+	      consys_nme(orig_sys,'c',tgt_i,FALSE,NULL),tgt_i) ;
     if (betai != NULL) FREE(betai) ;
     return (FALSE) ; }
 /*

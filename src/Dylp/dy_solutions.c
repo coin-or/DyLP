@@ -84,7 +84,7 @@
   These routines predate the comprehensive set of solution routines described
   above.
 
-  Dy_orig_soln is a utility which is (at present) a fairly specialised
+  dy_orig_soln is a utility which is (at present) a fairly specialised
   routine used by dylp_utils:buildsoln.
 
   There's also a routine, dy_expandxopt, which takes the primal solution
@@ -96,7 +96,6 @@
 
 #include "dylp.h"
 
-static char svnid[] UNUSED = "$Id$" ;
 
 #ifdef DYLP_PARANOIA
 extern bool dy_std_paranoia (const lpprob_struct *orig_lp,
@@ -179,7 +178,7 @@ void dy_colDuals (lpprob_struct *orig_lp, double **p_cbar, bool trueDuals)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_cbar == NULL)
-  { errmsg(2,rtnnme,"cbar") ;
+  { dy_errmsg(2,rtnnme,"cbar") ;
     return ; }
 
 # endif
@@ -320,7 +319,7 @@ void dy_rowDuals (lpprob_struct *orig_lp, double **p_y, bool trueDuals)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_y == NULL)
-  { errmsg(2,rtnnme,"y") ;
+  { dy_errmsg(2,rtnnme,"y") ;
     return ; }
 # endif
 
@@ -452,7 +451,7 @@ void dy_rowDualsGivenC (lpprob_struct *orig_lp, double **p_y,
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_y == NULL)
-  { errmsg(2,rtnnme,"y") ;
+  { dy_errmsg(2,rtnnme,"y") ;
     return ; }
 # endif
 
@@ -586,7 +585,7 @@ void dy_colPrimals (lpprob_struct *orig_lp, double **p_x)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_x == NULL)
-  { errmsg(2,rtnnme,"x") ;
+  { dy_errmsg(2,rtnnme,"x") ;
     return ; }
 # endif
 
@@ -635,9 +634,9 @@ void dy_colPrimals (lpprob_struct *orig_lp, double **p_x)
 	{ xj = 0 ;
 	  break ; }
 	default:
-	{ dywarn(359,rtnnme,orig_sys->nme,
-	       consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig,
-		 dy_prtvstat(statj)) ;
+	{ dy_warn(359,rtnnme,orig_sys->nme,
+		  consys_nme(orig_sys,'v',j_orig,FALSE,NULL),j_orig,
+		  dy_prtvstat(statj)) ;
 	  xj = 0.0 ;
 	  break ; } } }
 
@@ -725,10 +724,10 @@ void dy_rowPrimals (lpprob_struct *orig_lp, double **p_xB, int **p_indB)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_xB == NULL)
-  { errmsg(2,rtnnme,"x") ;
+  { dy_errmsg(2,rtnnme,"x") ;
     return ; }
   if (p_indB == NULL)
-  { errmsg(2,rtnnme,"x") ;
+  { dy_errmsg(2,rtnnme,"x") ;
     return ; }
 # endif
 
@@ -876,7 +875,7 @@ void dy_logPrimals (lpprob_struct *orig_lp, double **p_logx)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_logx == NULL)
-  { errmsg(2,rtnnme,"logx") ;
+  { dy_errmsg(2,rtnnme,"logx") ;
     return ; }
 # endif
 
@@ -984,7 +983,7 @@ void dy_colStatus (lpprob_struct *orig_lp, flags **p_colstat)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_colstat == NULL)
-  { errmsg(2,rtnnme,"colstat") ;
+  { dy_errmsg(2,rtnnme,"colstat") ;
     return ; }
 # endif
 
@@ -1075,7 +1074,7 @@ void dy_logStatus (lpprob_struct *orig_lp, flags **p_logstat)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return ; }
   if (p_logstat == NULL)
-  { errmsg(2,rtnnme,"logstat") ;
+  { dy_errmsg(2,rtnnme,"logstat") ;
     return ; }
 # endif
 
@@ -1141,7 +1140,7 @@ void dy_logStatus (lpprob_struct *orig_lp, flags **p_logstat)
 	case contypNB:
 	{ continue ; }
 	default:
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  break ; } }
       if (belowbnd(xi,lbi))
       { stati = vstatBLLB ; }
@@ -1274,25 +1273,25 @@ bool dy_expandxopt (lpprob_struct *lp, double **p_xopt)
 
 # ifdef DYLP_PARANOIA
   if (p_xopt == NULL)
-  { errmsg(2,rtnnme,"&x<opt>") ;
+  { dy_errmsg(2,rtnnme,"&x<opt>") ;
     return (FALSE) ; }
   if (lp == NULL)
-  { errmsg(2,rtnnme,"lp problem") ;
+  { dy_errmsg(2,rtnnme,"lp problem") ;
     return (FALSE) ; }
   if (lp->lpret != lpOPTIMAL)
-  { errmsg(4,rtnnme,"lp return code",dy_prtlpret(lp->lpret)) ;
+  { dy_errmsg(4,rtnnme,"lp return code",dy_prtlpret(lp->lpret)) ;
     return (FALSE) ; }
   if (lp->consys == NULL)
-  { errmsg(2,rtnnme,"lp constraint system") ;
+  { dy_errmsg(2,rtnnme,"lp constraint system") ;
     return (FALSE) ; }
   if (lp->basis == NULL)
-  { errmsg(2,rtnnme,"lp basis") ;
+  { dy_errmsg(2,rtnnme,"lp basis") ;
     return (FALSE) ; }
   if (lp->basis->el == NULL)
-  { errmsg(2,rtnnme,"lp basis vector") ;
+  { dy_errmsg(2,rtnnme,"lp basis vector") ;
     return (FALSE) ; }
   if (lp->status == NULL)
-  { errmsg(2,rtnnme,"lp status") ;
+  { dy_errmsg(2,rtnnme,"lp status") ;
     return (FALSE) ; }
 # endif
 
@@ -1325,8 +1324,8 @@ bool dy_expandxopt (lpprob_struct *lp, double **p_xopt)
 	{ xopt[j] = 0 ;
 	  break ; }
 	default:
-	{ errmsg(359,rtnnme,consys->nme,
-		 consys_nme(consys,'v',j,FALSE,NULL),j,dy_prtvstat(jstat)) ;
+	{ dy_errmsg(359,rtnnme,consys->nme,
+		    consys_nme(consys,'v',j,FALSE,NULL),j,dy_prtvstat(jstat)) ;
 	  if (*p_xopt == NULL) FREE(xopt) ;
 	  return (FALSE) ; } } } }
 

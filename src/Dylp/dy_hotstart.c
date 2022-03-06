@@ -56,9 +56,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_hotstart.c	4.5	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 
 
 /*
@@ -109,7 +106,7 @@ void dy_setfinalstatus (void)
     ubk = dy_sys->vub[xkndx] ;
 #   ifdef DYLP_PARANOIA
     if (xkndx <= 0 || xkndx > dy_sys->varcnt)
-    { errmsg(303,rtnnme,dy_sys->nme,aindx,1,xkndx,dy_sys->varcnt) ;
+    { dy_errmsg(303,rtnnme,dy_sys->nme,aindx,1,xkndx,dy_sys->varcnt) ;
       continue ; }
 #   endif
     switch (dy_status[xkndx])
@@ -224,14 +221,14 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
   to make sure of this.
 */
   if (!VALID_STATUS(xkstatus))
-  { errmsg(300,rtnnme,(int) xkstatus,
-	   consys_nme(orig_sys,'v',oxkndx,FALSE,NULL),oxkndx) ;
+  { dy_errmsg(300,rtnnme,(int) xkstatus,
+	      consys_nme(orig_sys,'v',oxkndx,FALSE,NULL),oxkndx) ;
     return (FALSE) ; }
   if (flgoff(xkstatus,vstatNONBASIC|vstatNBFR))
-  { errmsg(433,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "inactive",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx,
-	   dy_prtvstat(xkstatus)) ;
+  { dy_errmsg(433,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "inactive",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx,
+	      dy_prtvstat(xkstatus)) ;
     return (FALSE) ; }
 # endif
 /*
@@ -311,7 +308,7 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
       break ; }
     default:
     { xk = 0 ;
-      errmsg(1,rtnnme,__LINE__) ;
+      dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; } }
   orig_lp->status[oxkndx] = xkstatus ;
   dy_origvars[oxkndx] = -((int) xkstatus) ;
@@ -322,8 +319,8 @@ static bool process_inactive (lpprob_struct *orig_lp, int oxkndx)
   if (flgon(orig_lp->ctlopts,lpctlRHSCHG|lpctlLBNDCHG|lpctlUBNDCHG))
   { ak = NULL ;
     if (consys_getcol_pk(orig_sys,oxkndx,&ak) == FALSE)
-    { errmsg(122,rtnnme,orig_sys->nme,"variable",
-	     consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
+    { dy_errmsg(122,rtnnme,orig_sys->nme,"variable",
+	        consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
       if (ak != NULL) pkvec_free(ak) ;
       return (FALSE) ; }
     for (ndx = 0, aik = &ak->coeffs[0] ; ndx < ak->cnt ; ndx++, aik++)
@@ -407,8 +404,8 @@ static void process_active (lpprob_struct *orig_lp, int oxkndx)
       strcpy(buf,dy_prtvstat(orig_lp->status[oxkndx])) ;
     else
       strcpy(buf,"unspecified basic") ;
-    errmsg(398,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',xkndx,FALSE,NULL),
-	   xkndx,dy_prtvstat(xkstatus),buf) ;
+    dy_errmsg(398,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',xkndx,FALSE,NULL),
+	      xkndx,dy_prtvstat(xkstatus),buf) ;
     return ; }
 # endif
 /*
@@ -654,7 +651,7 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
   it's a good investment of our time.
 */
   if (dy_calcprimals() == FALSE)
-  { errmsg(316,rtnnme,dy_sys->nme) ;
+  { dy_errmsg(316,rtnnme,dy_sys->nme) ;
     return (dyrFATAL) ; }
   for (xkndx = 1 ; xkndx <= dy_sys->concnt ; xkndx++)
   { if (dy_var2basis[xkndx] != 0)
@@ -671,8 +668,8 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
 */
   if (dy_lp->p1obj.installed == TRUE)
   { if (dy_swapobjs(dyPRIMAL2) == FALSE)
-    { errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,"remove") ;
+    { dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters,"remove") ;
       return (dyrFATAL) ; } }
 /*
   Calculate duals and reduced costs and see if we're primal or dual feasible.
@@ -680,16 +677,16 @@ dyret_enum dy_hotstart (lpprob_struct *orig_lp)
 */
   dy_calcduals() ;
   if (dy_calccbar() == FALSE)
-  { errmsg(384,rtnnme,dy_sys->nme,
-	   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
+  { dy_errmsg(384,rtnnme,dy_sys->nme,
+	      dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
     return (dyrFATAL) ; }
   dy_lp->z = dy_calcobj() ;
 
   calcflgs = ladPRIMFEAS|ladPFQUIET|ladDUALFEAS|ladDFQUIET ;
   retval = dy_accchk(&calcflgs) ;
   if (retval != dyrOK)
-  { errmsg(304,rtnnme,dy_sys->nme,
-	   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
+  { dy_errmsg(304,rtnnme,dy_sys->nme,
+	      dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
     return (retval) ; }
   if (flgoff(calcflgs,ladPRIMFEAS))
   { dy_lp->simplex.next = dyPRIMAL2 ; }

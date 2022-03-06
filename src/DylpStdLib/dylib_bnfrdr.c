@@ -163,10 +163,10 @@ static void strenter (int ndx, const char *txt)
   Check out the parameters.
 */
   if (ndx < 0 || ndx > SAVE_SLOTS)
-  { errmsg(40,rtnnme,ndx,SAVE_SLOTS) ;
+  { dy_errmsg(40,rtnnme,ndx,SAVE_SLOTS) ;
     return ; }
   if (txt == NULL)
-  { errmsg(2,rtnnme,"txt") ;
+  { dy_errmsg(2,rtnnme,"txt") ;
     return ; }
 /*
   Clean out the slot, if necessary, and store the new pointer.
@@ -195,12 +195,12 @@ static const char *strretrv (int ndx)
   Check out the parameter.
 */
   if (ndx < 0 || ndx > SAVE_SLOTS)
-  { errmsg(40,rtnnme,ndx,SAVE_SLOTS) ;
+  { dy_errmsg(40,rtnnme,ndx,SAVE_SLOTS) ;
     return (NULL) ; }
 /*
   Fetch back the text.
 */
-  if (savedtxt[ndx] == NULL) errmsg(51,rtnnme,ndx) ;
+  if (savedtxt[ndx] == NULL) dy_errmsg(51,rtnnme,ndx) ;
 
   return (savedtxt[ndx]) ; }
 
@@ -250,10 +250,10 @@ static deflbl_struct *finddlbl (deflbl_struct **lst, const char *txt)
   Check out the parameters.
 */
   if (lst == NULL)
-  { errmsg(2,rtnnme,"label list") ;
+  { dy_errmsg(2,rtnnme,"label list") ;
     return (NULL) ; }
   if (txt == NULL)
-  { errmsg(2,rtnnme,"label name") ;
+  { dy_errmsg(2,rtnnme,"label name") ;
     return (NULL) ; }
 /*
   Search the list for the named entry.
@@ -289,10 +289,10 @@ static void lblresolve (udeflbl_struct **lst, deflbl_struct *dlbl)
   Check out the parameters.
 */
   if (lst == NULL)
-  { errmsg(2,rtnnme,"label list") ;
+  { dy_errmsg(2,rtnnme,"label list") ;
     return ; }
   if (dlbl == NULL)
-  { errmsg(2,rtnnme,"defined label") ;
+  { dy_errmsg(2,rtnnme,"defined label") ;
     return ; }
 /*
   Search through the list, resolving any references we find.
@@ -390,8 +390,8 @@ void rdrclear (void)
   { FREE(newtxt) ;
     newtxt = NULL ; }
 
-  if (curnde != NULL) dywarn(71,rtnnme,"curnde") ;
-  if (curtxt != NULL) dywarn(71,rtnnme,"curtxt") ;
+  if (curnde != NULL) dy_warn(71,rtnnme,"curnde") ;
+  if (curtxt != NULL) dy_warn(71,rtnnme,"curtxt") ;
   
   return ; }
 
@@ -442,14 +442,14 @@ static bool dogenerator (bnfGref_struct *ref)
   First test the reference to make sure that it references a generator.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfGdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfG)
-  { errmsg(36,rtnnme) ;
+  { dy_errmsg(36,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -472,10 +472,10 @@ static bool dogenerator (bnfGref_struct *ref)
 */
   if (flgon(ref->uflgs,bnfstore) == TRUE && flgoff(ref->uflgs,bnflst) == TRUE)
   { if (curnde == NULL)
-    { errmsg(68,rtnnme) ;
+    { dy_errmsg(68,rtnnme) ;
       return (FALSE) ; }
     if (offset_in_range(ref->offset,sizeof(void *)) == FALSE)
-    { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(void *))) ;
+    { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(void *))) ;
       return (FALSE) ; }
     socket = make_socket(curnde,ref->offset) ; }
   else
@@ -487,7 +487,7 @@ static bool dogenerator (bnfGref_struct *ref)
   dealing with down in doterminal.
 */
   if (def->size <= 0)
-  { errmsg(31,rtnnme,def->size) ;
+  { dy_errmsg(31,rtnnme,def->size) ;
     return (FALSE) ; }
   savcnde = curnde ;
   savcndesze = cndesze ;
@@ -511,7 +511,7 @@ static bool dogenerator (bnfGref_struct *ref)
        compndx < compnum && success == TRUE ;
        compndx++, compref.com = *comprefs++)
   { if (compref.com == NULL)
-    { errmsg(32,rtnnme,compndx+1,compnum) ;
+    { dy_errmsg(32,rtnnme,compndx+1,compnum) ;
       success = FALSE ;
       break ; }
     switch (compref.com->type)
@@ -540,7 +540,7 @@ static bool dogenerator (bnfGref_struct *ref)
       { success = doimmediate(compref.I) ;
 	break ; }
       case bnfL:
-      { errmsg(34,rtnnme,"literal","generator") ;
+      { dy_errmsg(34,rtnnme,"literal","generator") ;
 	success = FALSE ;
 	break ; }
       case bnfDS:
@@ -552,7 +552,7 @@ static bool dogenerator (bnfGref_struct *ref)
       { success = doreference(compref.LB) ;
 	break ; }
       default:
-      { errmsg(35,rtnnme,compref.com->type) ;
+      { dy_errmsg(35,rtnnme,compref.com->type) ;
 	success = FALSE ;
 	break ; } } }
 
@@ -614,14 +614,14 @@ static bool dononprimitive (bnfNPref_struct *ref)
   First test the reference to make sure that it references a non-primitive.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfNPdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfNP)
-  { errmsg(38,rtnnme) ;
+  { dy_errmsg(38,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -643,7 +643,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
   marker = dyio_mark(bnfchn) ;
   if (curnde != NULL)
   { if (cndesze <= 0)
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; }
     savcnde = (void *) MALLOC(cndesze) ;
     memcpy((void *) savcnde,(void *) curnde,cndesze) ; }
@@ -678,7 +678,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
 #   endif
 
     if (comprefs == NULL)
-    { errmsg(37,rtnnme,altndx+1,altnum) ;
+    { dy_errmsg(37,rtnnme,altndx+1,altnum) ;
       break ; }
     else
     { compnum = addrToInt(*comprefs++) ;
@@ -690,7 +690,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
 	 compndx < compnum && success == TRUE ;
 	 compndx++, compref.com = *comprefs++)
     { if (compref.com == NULL)
-      { errmsg(32,rtnnme,compndx+1,compnum) ;
+      { dy_errmsg(32,rtnnme,compndx+1,compnum) ;
 	success = FALSE ;
 	break ; }
       switch (compref.com->type)
@@ -719,7 +719,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
 	{ success = doimmediate(compref.I) ;
 	  break ; }
 	case bnfL:
-	{ errmsg(34,rtnnme,"literal","non-primitive") ;
+	{ dy_errmsg(34,rtnnme,"literal","non-primitive") ;
 	  success = FALSE ;
 	  break ; }
 	case bnfDS:
@@ -731,7 +731,7 @@ static bool dononprimitive (bnfNPref_struct *ref)
 	{ success = doreference(compref.LB) ;
 	  break ; }
 	default:
-	{ errmsg(35,rtnnme,compref.com->type) ;
+	{ dy_errmsg(35,rtnnme,compref.com->type) ;
 	  success = FALSE ;
 	  break ; } } }
 
@@ -815,14 +815,14 @@ static bool doprimitive (bnfNPref_struct *ref)
   First test the reference to make sure that it references a primitive.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfPdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfP)
-  { errmsg(39,rtnnme) ;
+  { dy_errmsg(39,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -847,7 +847,7 @@ static bool doprimitive (bnfNPref_struct *ref)
   marker = dyio_mark(bnfchn) ;
   if (curnde != NULL)
   { if (cndesze <= 0)
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; }
     savcnde = (void *) MALLOC(cndesze) ;
     memcpy((void *) savcnde,(void *) curnde,cndesze) ; }
@@ -886,7 +886,7 @@ static bool doprimitive (bnfNPref_struct *ref)
 #   endif
 
     if (comprefs == NULL)
-    { errmsg(37,rtnnme,altndx+1,altnum) ;
+    { dy_errmsg(37,rtnnme,altndx+1,altnum) ;
       break ; }
     else
     { compnum = addrToInt(*comprefs++) ;
@@ -898,7 +898,7 @@ static bool doprimitive (bnfNPref_struct *ref)
 	 compndx < compnum && success == TRUE ;
 	 compndx++, compref.com = *comprefs++)
     { if (compref.com == NULL)
-      { errmsg(32,rtnnme,compndx+1,compnum) ;
+      { dy_errmsg(32,rtnnme,compndx+1,compnum) ;
 	success = FALSE ;
 	break ; }
       switch (compref.com->type)
@@ -947,7 +947,7 @@ static bool doprimitive (bnfNPref_struct *ref)
 	{ success = doreference(compref.LB) ;
 	  break ; }
 	default:
-	{ errmsg(35,rtnnme,compref.com->type) ;
+	{ dy_errmsg(35,rtnnme,compref.com->type) ;
 	  success = FALSE ;
 	  break ; } } }
 
@@ -985,19 +985,19 @@ static bool doprimitive (bnfNPref_struct *ref)
       { strenter(ref->offset,newtxt) ; }
       else
       { if (curnde == NULL)
-	{ errmsg(68,rtnnme) ;
+	{ dy_errmsg(68,rtnnme) ;
 	  newtxt = NULL ;
 	  break ; }
         socket = make_socket(curnde,ref->offset) ;
 	if (flgon(ref->uflgs,bnfatsgn) == TRUE)
 	{ if (offset_in_range(ref->offset,sizeof(char *)) == FALSE)
-	  { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(char *))) ;
+	  { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(char *))) ;
 	    newtxt = NULL ;
 	    break ; }
 	  *((const char **) socket) = STRALLOC(newtxt) ; }
 	else
 	{ if (offset_in_range(ref->offset,strlen(newtxt)+1) == FALSE)
-	  { errmsg(30,rtnnme,ref->offset,max_offset(strlen(newtxt)+1)) ;
+	  { dy_errmsg(30,rtnnme,ref->offset,max_offset(strlen(newtxt)+1)) ;
 	    newtxt = NULL ;
 	    break ; }
 	  (void) strcpy((char *) socket,newtxt) ; } } }
@@ -1101,14 +1101,14 @@ bool doterminal (bnfTref_struct *ref)
   we sort out just what will be stored.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfTdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfT)
-  { errmsg(41,rtnnme) ;
+  { dy_errmsg(41,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1153,7 +1153,7 @@ bool doterminal (bnfTref_struct *ref)
       if (lex->class != DY_LCQS && lex->class != DY_LCNIL) success = FALSE ;
       break ; }
     default:
-    { errmsg(42,rtnnme,def->ttype) ;
+    { dy_errmsg(42,rtnnme,def->ttype) ;
       success = FALSE ;
       break ; } }
 
@@ -1192,7 +1192,7 @@ bool doterminal (bnfTref_struct *ref)
   { socket = make_socket(curnde,ref->offset) ;
     if (flgon(ref->uflgs,bnfatsgn) == TRUE)
     { if (offset_in_range(ref->offset,sizeof(char *)) == FALSE)
-      { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(char *))) ;
+      { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(char *))) ;
 	return (FALSE) ; }
       if (lex->class != DY_LCNIL)
       { *((const char **) socket) = STRALLOC(lex->string) ; } }
@@ -1203,24 +1203,24 @@ bool doterminal (bnfTref_struct *ref)
 	case bnfttN:
 	{ if (flgon(ref->uflgs,bnfflt) == TRUE)
 	  { if (offset_in_range(ref->offset,sizeof(float)) == FALSE)
-	    { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(float))) ;
+	    { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(float))) ;
 	      return (FALSE) ; }
 	    if (def->parm1 != 10)
-	    { errmsg(46,rtnnme,def->parm1,"float") ;
+	    { dy_errmsg(46,rtnnme,def->parm1,"float") ;
 	      return (FALSE) ; }
 	    cnt = sscanf(lex->string,"%f",(float *) socket) ; }
 	  else
 	  if (flgon(ref->uflgs,bnfdbl) == TRUE)
 	  { if (offset_in_range(ref->offset,sizeof(double)) == FALSE)
-	    { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(double))) ;
+	    { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(double))) ;
 	      return (FALSE) ; }
 	    if (def->parm1 != 10)
-	    { errmsg(46,rtnnme,def->parm1,"double") ;
+	    { dy_errmsg(46,rtnnme,def->parm1,"double") ;
 	      return (FALSE) ; }
 	    cnt = sscanf(lex->string,"%lf",(double *) socket) ; }
 	  else
 	  { if (offset_in_range(ref->offset,sizeof(int)) == FALSE)
-	    { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(int))) ;
+	    { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(int))) ;
 	      return (FALSE) ; }
 	    switch (def->parm1)
 	    { case 10:
@@ -1236,39 +1236,43 @@ bool doterminal (bnfTref_struct *ref)
 	      { cnt = scanbinary(lex->string,(int *) socket) ;
 		break ; }
 	      default:
-	      { errmsg(46,rtnnme,def->parm1,"int") ;
+	      { dy_errmsg(46,rtnnme,def->parm1,"int") ;
 		return (FALSE) ; } } }
 	  if (cnt != 1)
-	  { errmsg(45,rtnnme,lex->string) ;
+	  { dy_errmsg(45,rtnnme,lex->string) ;
 	    return (FALSE) ; }
 	  break ; }
 	case bnfttID:
 	{ if (offset_in_range(ref->offset,strlen(lex->string)+1) == FALSE)
-	  { errmsg(30,rtnnme,ref->offset,max_offset(strlen(lex->string)+1)) ;
+	  { dy_errmsg(30,rtnnme,
+	  	      ref->offset,max_offset(strlen(lex->string)+1)) ;
 	    return (FALSE) ; }
 	  (void) strcpy((char *) socket,lex->string) ;
 	  break ; }
 	case bnfttD:
 	{ if (offset_in_range(ref->offset,sizeof(char)) == FALSE)
-	  { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(char))) ;
+	  { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(char))) ;
 	    return (FALSE) ; }
 	  *((char *) socket) = *lex->string ;
 	  break ; }
 	case bnfttF:
 	{ if (flgon(ref->uflgs,bnfexact) == TRUE)
 	  { if (offset_in_range(ref->offset,strlen(lex->string)) == FALSE)
-	    { errmsg(30,rtnnme,ref->offset,max_offset(strlen(lex->string))) ;
+	    { dy_errmsg(30,rtnnme,
+	  		ref->offset,max_offset(strlen(lex->string))) ;
 	      return (FALSE) ; }
 	    (void) strncpy((char *) socket,lex->string,def->parm1) ; }
 	  else
 	  { if (offset_in_range(ref->offset,strlen(lex->string)+1) == FALSE)
-	    { errmsg(30,rtnnme,ref->offset,max_offset(strlen(lex->string)+1)) ;
+	    { dy_errmsg(30,rtnnme,
+	    		ref->offset,max_offset(strlen(lex->string)+1)) ;
 	      return (FALSE) ; }
 	    (void) strcpy((char *) socket,lex->string) ; }
 	  break ; }
 	case bnfttQ:
 	{ if (offset_in_range(ref->offset,strlen(lex->string)+1) == FALSE)
-	  { errmsg(30,rtnnme,ref->offset,max_offset(strlen(lex->string)+1)) ;
+	  { dy_errmsg(30,rtnnme,
+	  	      ref->offset,max_offset(strlen(lex->string)+1)) ;
 	    return (FALSE) ; }
 	  if (lex->class != DY_LCNIL) (void) strcpy((char *) socket,lex->string) ;
 	  break ; } } }
@@ -1309,14 +1313,14 @@ bool doimmediate (bnfIref_struct *ref)
   that the storage offset is in bounds.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfIdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfI)
-  { errmsg(47,rtnnme) ;
+  { dy_errmsg(47,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1335,7 +1339,7 @@ bool doimmediate (bnfIref_struct *ref)
 # endif
 
   if (offset_in_range(ref->offset,sizeof(int)) == FALSE)
-  { errmsg(30,rtnnme,ref->offset,max_offset(sizeof(int))) ;
+  { dy_errmsg(30,rtnnme,ref->offset,max_offset(sizeof(int))) ;
     return (FALSE) ; }
 /*
   Do the store.
@@ -1371,14 +1375,14 @@ bool doliteral (bnfLref_struct *ref)
   in an active primitive.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfLdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfL)
-  { errmsg(48,rtnnme) ;
+  { dy_errmsg(48,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1409,10 +1413,10 @@ bool doliteral (bnfLref_struct *ref)
 # endif
 
   if (txt == NULL)
-  { errmsg(49,rtnnme) ;
+  { dy_errmsg(49,rtnnme) ;
     return (FALSE) ; }
   if (curtxt == NULL)
-  { errmsg(50,rtnnme) ;
+  { dy_errmsg(50,rtnnme) ;
     return (FALSE) ; }
 /*
   It looks OK, so go ahead and get the text and concatenate it to curtxt.
@@ -1462,14 +1466,14 @@ bool dolabel (bnfLBref_struct *ref)
   First test the reference to make sure that it references a label definition.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfLBdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfDS && def->type != bnfDL)
-  { errmsg(52,rtnnme) ;
+  { dy_errmsg(52,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1492,10 +1496,10 @@ bool dolabel (bnfLBref_struct *ref)
   switch (def->nmcd)
   { case bnfncBNF:
     { if (def->nmsrc == NULL)
-      { errmsg(53,rtnnme,"name") ;
+      { dy_errmsg(53,rtnnme,"name") ;
 	return (FALSE) ; }
       if (doprimitive((bnfPref_struct *) def->nmsrc) == FALSE)
-      { errmsg(56,rtnnme,"name") ;
+      { dy_errmsg(56,rtnnme,"name") ;
 	return (FALSE) ; }
       nmtxt = newtxt ;
       if (flgon(def->dflgs,bnfsvnm) == TRUE) strenter(def->savnm,nmtxt) ;
@@ -1504,10 +1508,10 @@ bool dolabel (bnfLBref_struct *ref)
     { nmtxt = strretrv(addrToInt(def->nmsrc)) ;
       break ; }
     default:
-    { errmsg(55,rtnnme,def->nmcd,"name") ;
+    { dy_errmsg(55,rtnnme,def->nmcd,"name") ;
       return (FALSE) ; } }
   if (nmtxt == NULL)
-  { errmsg(57,rtnnme,"name") ;
+  { dy_errmsg(57,rtnnme,"name") ;
     return (FALSE) ; }
   nmtxt = STRALLOC(nmtxt) ;
 
@@ -1526,20 +1530,20 @@ bool dolabel (bnfLBref_struct *ref)
   switch (def->ndcd)
   { case bnfncBNF:
     { if (def->ndsrc == NULL)
-      { errmsg(53,rtnnme,"value") ;
+      { dy_errmsg(53,rtnnme,"value") ;
 	STRFREE(nmtxt) ;
 	return (FALSE) ; }
       if (doprimitive((bnfPref_struct *) def->ndsrc) == FALSE)
-      { errmsg(56,rtnnme,"value") ;
+      { dy_errmsg(56,rtnnme,"value") ;
 	STRFREE(nmtxt) ;
 	return (FALSE) ; }
       ndtxt = newtxt ;
       lblnde = finddlbl(&blbllst,ndtxt) ;
       if (lblnde == NULL)
       { if (ndtxt == NULL)
-	  errmsg(57,rtnnme,"value") ;
+	  dy_errmsg(57,rtnnme,"value") ;
 	else
-	  errmsg(54,rtnnme,ndtxt) ;
+	  dy_errmsg(54,rtnnme,ndtxt) ;
 	STRFREE(nmtxt) ;
 	return (FALSE) ; }
       if (flgon(def->dflgs,bnfsvnd) == TRUE) strenter(def->savnd,ndtxt) ;
@@ -1556,15 +1560,15 @@ bool dolabel (bnfLBref_struct *ref)
       lblnde = finddlbl(&blbllst,ndtxt) ;
       if (lblnde == NULL)
       { if (ndtxt == NULL)
-	  errmsg(57,rtnnme,"value") ;
+	  dy_errmsg(57,rtnnme,"value") ;
 	else
-	  errmsg(54,rtnnme,ndtxt) ;
+	  dy_errmsg(54,rtnnme,ndtxt) ;
 	STRFREE(nmtxt) ;
 	return (FALSE) ; }
       lblval = lblnde->lblval ;
       break ; }
     default:
-    { errmsg(55,rtnnme,def->nmcd,"value") ;
+    { dy_errmsg(55,rtnnme,def->nmcd,"value") ;
       STRFREE(nmtxt) ;
       return (FALSE) ; } }
 /*
@@ -1575,7 +1579,7 @@ bool dolabel (bnfLBref_struct *ref)
 
 # ifndef DYLP_NDEBUG
   if (lblval == NULL && warnzlbl == TRUE)
-    dywarn(58,rtnnme,nmtxt) ;
+    dy_warn(58,rtnnme,nmtxt) ;
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     dyio_outfmt(dbgchn,dbgecho,"[ value: %#1x ]\n",nmtxt) ;
@@ -1659,14 +1663,14 @@ bool doreference (bnfLBref_struct *ref)
   First test the reference to make sure that it references a label reference.
 */
   if (ref == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   def = (bnfLBdef_struct *) ref->defn ;
   if (def == NULL)
-  { errmsg(33,rtnnme) ;
+  { dy_errmsg(33,rtnnme) ;
     return (FALSE) ; }
   if (def->type != bnfRS && def->type != bnfRL)
-  { errmsg(52,rtnnme) ;
+  { dy_errmsg(52,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1690,14 +1694,14 @@ bool doreference (bnfLBref_struct *ref)
   switch (def->nmcd)
   { case bnfncBNF:
     { if (def->nmsrc == NULL)
-      { errmsg(59,rtnnme,"socket") ;
+      { dy_errmsg(59,rtnnme,"socket") ;
 	return (FALSE) ; }
       if (doprimitive((bnfPref_struct *) def->nmsrc) == FALSE)
-      { errmsg(60,rtnnme,"socket") ;
+      { dy_errmsg(60,rtnnme,"socket") ;
 	return (FALSE) ; }
       nmtxt = newtxt ;
       if (nmtxt == NULL)
-      { errmsg(61,rtnnme,"socket") ;
+      { dy_errmsg(61,rtnnme,"socket") ;
 	return (FALSE) ; }
       lblnde = finddlbl(&flbllst,nmtxt) ;
       if (lblnde == NULL)
@@ -1716,7 +1720,7 @@ bool doreference (bnfLBref_struct *ref)
     case bnfncS:
     { nmtxt = strretrv(addrToInt(def->nmsrc)) ;
       if (nmtxt == NULL)
-      { errmsg(61,rtnnme,"socket") ;
+      { dy_errmsg(61,rtnnme,"socket") ;
 	return (FALSE) ; }
       lblnde = finddlbl(&flbllst,nmtxt) ;
       if (lblnde == NULL)
@@ -1726,10 +1730,10 @@ bool doreference (bnfLBref_struct *ref)
 	socket = make_socket(lblnde->lblval,0) ;
       break ; }
     default:
-    { errmsg(64,rtnnme,def->nmcd,"socket") ;
+    { dy_errmsg(64,rtnnme,def->nmcd,"socket") ;
       return (FALSE) ; } }
   if (socket_valid == TRUE && socket == NULL)
-  { errmsg(62,rtnnme) ;
+  { dy_errmsg(62,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1749,14 +1753,14 @@ bool doreference (bnfLBref_struct *ref)
   switch (def->ndcd)
   { case bnfncBNF:
     { if (def->ndsrc == NULL)
-      { errmsg(59,rtnnme,"value") ;
+      { dy_errmsg(59,rtnnme,"value") ;
 	return (FALSE) ; }
       if (doprimitive((bnfPref_struct *) def->ndsrc) == FALSE)
-      { errmsg(60,rtnnme,"value") ;
+      { dy_errmsg(60,rtnnme,"value") ;
 	return (FALSE) ; }
       ndtxt = newtxt ;
       if (ndtxt == NULL)
-      { errmsg(61,rtnnme,"value") ;
+      { dy_errmsg(61,rtnnme,"value") ;
 	return (FALSE) ; }
       lblnde = finddlbl(&blbllst,ndtxt) ;
       if (lblnde == NULL)
@@ -1775,7 +1779,7 @@ bool doreference (bnfLBref_struct *ref)
     case bnfncS:
     { ndtxt = strretrv(addrToInt(def->ndsrc)) ;
       if (ndtxt == NULL)
-      { errmsg(61,rtnnme,"value") ;
+      { dy_errmsg(61,rtnnme,"value") ;
 	return (FALSE) ; }
       lblnde = finddlbl(&blbllst,ndtxt) ;
       if (lblnde == NULL)
@@ -1785,12 +1789,12 @@ bool doreference (bnfLBref_struct *ref)
 	val = make_label(lblnde->lblval,0) ;
       break ; }
     default:
-    { errmsg(64,rtnnme,def->ndcd,"value") ;
+    { dy_errmsg(64,rtnnme,def->ndcd,"value") ;
       return (FALSE) ; } }
 
 # ifndef DYLP_NDEBUG
   if (warnzlbl == TRUE && val == NULL && val_valid == TRUE)
-    dywarn(65,rtnnme) ;
+    dy_warn(65,rtnnme) ;
   if (debug > 0)
   { printtab(dbgchn,dbgecho,nestlvl,numlvl,tablvl) ;
     dyio_outfmt(dbgchn,dbgecho,"[ \"%s\" = %#1x ]\n",nmtxt) ;
@@ -1806,7 +1810,7 @@ bool doreference (bnfLBref_struct *ref)
 */
   if (def->type == bnfRS)
   { if (val_valid  == FALSE)
-    { errmsg(63,rtnnme) ;
+    { dy_errmsg(63,rtnnme) ;
       return (FALSE) ; }
     if (socket_valid == TRUE)
       *socket = val ;
@@ -1818,7 +1822,7 @@ bool doreference (bnfLBref_struct *ref)
       ulblnde->lblval = val ; } }
   else
   { if (socket_valid  == FALSE)
-    { errmsg(66,rtnnme) ;
+    { dy_errmsg(66,rtnnme) ;
       return (FALSE) ; }
     if (val_valid == TRUE)
       *socket = val ;
@@ -1867,11 +1871,11 @@ bool dolist (bnfref_any ref)
   as part of the loop setup.
 */
   if (ref.t3 == NULL)
-  { errmsg(2,rtnnme,"bnf ref") ;
+  { dy_errmsg(2,rtnnme,"bnf ref") ;
     return (FALSE) ; }
   sepref = ref.t3->sep ;
   if (sepref->type != bnfP && sepref->type != bnfT)
-  { errmsg(67,rtnnme) ;
+  { dy_errmsg(67,rtnnme) ;
     return (FALSE) ; }
 
 # ifndef DYLP_NDEBUG
@@ -1900,25 +1904,25 @@ bool dolist (bnfref_any ref)
   { case bnfG:
     { if (flgon(ref.G->uflgs,bnfstore) == TRUE)
       { if (curnde == NULL)
-	{ errmsg(68,rtnnme) ;
+	{ dy_errmsg(68,rtnnme) ;
 	  return (FALSE) ; }
 	if (offset_in_range(ref.G->offset,sizeof(void *)) == FALSE)
-	{ errmsg(30,rtnnme,ref.G->offset,max_offset(sizeof(void *))) ;
+	{ dy_errmsg(30,rtnnme,ref.G->offset,max_offset(sizeof(void *))) ;
 	  return (FALSE) ; } }
       if (def.G->link < 0 ||
 	  def.G->link > def.G->size - ((int) sizeof(void *)))
-      { errmsg(69,rtnnme,def.G->link,def.G->size-sizeof(void *)) ;
+      { dy_errmsg(69,rtnnme,def.G->link,def.G->size-sizeof(void *)) ;
 	return (FALSE) ; }
       savcnde = curnde ;
       break ; }
     case bnfP:
     { if (flgon(ref.P->uflgs,bnfstore) == TRUE)
       { if (curnde == NULL)
-	{ errmsg(68,rtnnme) ;
+	{ dy_errmsg(68,rtnnme) ;
 	  return (FALSE) ; }
 	if (flgon(ref.P->uflgs,bnfatsgn) == TRUE)
 	  if (offset_in_range(ref.P->offset,sizeof(char *)) == FALSE)
-	  { errmsg(30,rtnnme,ref.P->offset,max_offset(sizeof(char *))) ;
+	  { dy_errmsg(30,rtnnme,ref.P->offset,max_offset(sizeof(char *))) ;
 	    return (FALSE) ; } }
       savctxt = curtxt ;
       curtxt = (char *) MALLOC(sizeof(char)) ;
@@ -1927,7 +1931,7 @@ bool dolist (bnfref_any ref)
     case bnfNP:
     { break ; }
     default:
-    { errmsg(70,rtnnme,def.com->type) ;
+    { dy_errmsg(70,rtnnme,def.com->type) ;
       return (FALSE) ; } }
 /*
   Now we come to the processing loop. First we try to parse a list element
@@ -1958,7 +1962,7 @@ bool dolist (bnfref_any ref)
       { success = doprimitive(ref.P) ;
 	break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (FALSE) ; } }
     if (success == FALSE) break ;
 
@@ -2026,7 +2030,8 @@ bool dolist (bnfref_any ref)
 	    { *((const char **) socket) = STRALLOC(newtxt) ; }
 	    else
 	    { if (offset_in_range(ref.P->offset,strlen(newtxt)+1) == FALSE)
-	      { errmsg(30,rtnnme,ref.P->offset,max_offset(strlen(newtxt)+1)) ;
+	      { dy_errmsg(30,rtnnme,
+	      		  ref.P->offset,max_offset(strlen(newtxt)+1)) ;
 		FREE(newtxt) ;
 		newtxt = NULL ;
 		return (FALSE) ; }
@@ -2085,17 +2090,17 @@ bool parse (ioid chn, struct bnfref_type3 *bnfid, parse_any *result)
   generators and primitives.
 */
   if (bnfid == NULL)
-  { errmsg(2,rtnnme,"bnf") ;
+  { dy_errmsg(2,rtnnme,"bnf") ;
     return (FALSE) ; }
   ref.t3 = bnfid ;
   if (ref.com->type != bnfG &&
       ref.com->type != bnfNP &&
       ref.com->type != bnfP)
-  { errmsg(43,rtnnme) ;
+  { dy_errmsg(43,rtnnme) ;
     return (FALSE) ; }
   if (ref.com->type != bnfNP)
     if (result == NULL)
-    { errmsg(2,rtnnme,"result") ;
+    { dy_errmsg(2,rtnnme,"result") ;
       return (FALSE) ; }
 /*
   Now set the input channel, call the appropriate routine to do the parse, and
@@ -2124,7 +2129,7 @@ bool parse (ioid chn, struct bnfref_type3 *bnfid, parse_any *result)
       if (success == TRUE) result->c = newtxt ;
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       success = FALSE ;
       break ; } }
   

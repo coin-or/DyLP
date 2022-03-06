@@ -20,8 +20,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_warmstart.c	4.5	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 
 
@@ -283,7 +281,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 # endif
   dy_sys = consys_create(nmebuf,parts,opts,dycsze,dyvsze,dy_tols->inf) ;
   if (dy_sys == NULL)
-  { errmsg(152,rtnnme,nmebuf) ;
+  { dy_errmsg(152,rtnnme,nmebuf) ;
     return (dyrFATAL) ; }
 /*
   Hang a set of translation vectors onto each system: origcons and origvars
@@ -291,19 +289,19 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 */
   if (consys_attach(dy_sys,CONSYS_ROW,
 		    sizeof(int),(void **) &dy_actvars) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"active -> original variable map") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"active -> original variable map") ;
     return (dyrFATAL) ; }
   if (consys_attach(dy_sys,CONSYS_COL,
 		    sizeof(int),(void **) &dy_actcons) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"active -> original constraint map") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"active -> original constraint map") ;
     return (dyrFATAL) ; }
   if (consys_attach(orig_sys,CONSYS_ROW,
 		    sizeof(int),(void **) &dy_origvars) == FALSE)
-  { errmsg(100,rtnnme,orig_sys->nme,"original -> active variable map") ;
+  { dy_errmsg(100,rtnnme,orig_sys->nme,"original -> active variable map") ;
     return (dyrFATAL) ; }
   if (consys_attach(orig_sys,CONSYS_COL,
 		    sizeof(int),(void **) &dy_origcons) == FALSE)
-  { errmsg(100,rtnnme,orig_sys->nme,"original -> active constraint map") ;
+  { dy_errmsg(100,rtnnme,orig_sys->nme,"original -> active constraint map") ;
     return (dyrFATAL) ; }
 /*
   dy_origvars is cleared to 0 as it's attached, indicating that the original
@@ -338,13 +336,13 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	vstat = vstatB ;
       if (orig_actvars[vndx] == TRUE && flgoff(vstat,vstatNBFX))
       { if (consys_getcol_pk(orig_sys,vndx,&pkcol) == FALSE)
-	{ errmsg(122,rtnnme,orig_sys->nme,"variable",
-		 consys_nme(orig_sys,'v',vndx,TRUE,NULL),vndx) ;
+	{ dy_errmsg(122,rtnnme,orig_sys->nme,"variable",
+		    consys_nme(orig_sys,'v',vndx,TRUE,NULL),vndx) ;
 	  retval = dyrFATAL ;
 	  break ; }
 	if (consys_addcol_pk(dy_sys,vartypCON,pkcol,
 			     orig_sys->obj[vndx],vlb[vndx],vub[vndx]) == FALSE)
-	{ errmsg(156,rtnnme,"variable",dy_sys->nme,pkcol->nme) ;
+	{ dy_errmsg(156,rtnnme,"variable",dy_sys->nme,pkcol->nme) ;
 	  retval = dyrFATAL ;
 	  break ; }
 	dyvndx = pkcol->ndx ;
@@ -362,9 +360,9 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
       {
 #       ifdef DYLP_PARANOIA
 	if (flgon(vstat,vstatBASIC))
-	{ errmsg(380,rtnnme,orig_sys->nme,
-		 consys_nme(orig_sys,'v',vndx,FALSE,NULL),vndx,
-		 dy_prtvstat(vstat),"non-basic") ;
+	{ dy_errmsg(380,rtnnme,orig_sys->nme,
+		    consys_nme(orig_sys,'v',vndx,FALSE,NULL),vndx,
+		    dy_prtvstat(vstat),"non-basic") ;
 	  retval = dyrFATAL ;
 	  break ; }
 #	endif
@@ -399,10 +397,10 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
     if (dy_stats != NULL) dy_stats->cons.init[cndx] = TRUE ;
 #   endif
     if (dy_loadcon(orig_sys,cndx,noactvarspec,NULL) == FALSE)
-    { errmsg(430,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "activate","constraint",
-	     consys_nme(orig_sys,'c',cndx,TRUE,NULL),cndx) ;
+    { dy_errmsg(430,rtnnme,
+	        dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        "activate","constraint",
+	        consys_nme(orig_sys,'c',cndx,TRUE,NULL),cndx) ;
       return (dyrFATAL) ; }
     if (orig_sys->ctyp[cndx] == contypRNG) rngseen = TRUE ; }
 /*
@@ -423,10 +421,10 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
       if (dy_stats != NULL) dy_stats->cons.init[cndx] = TRUE ;
 #     endif
       if (dy_loadcon(orig_sys,cndx,noactvarspec,NULL) == FALSE)
-      { errmsg(430,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "activate","constraint",
-	       consys_nme(orig_sys,'c',cndx,TRUE,NULL),cndx) ;
+      { dy_errmsg(430,rtnnme,
+		  dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "activate","constraint",
+		  consys_nme(orig_sys,'c',cndx,TRUE,NULL),cndx) ;
 	return (dyrFATAL) ; }
       if (orig_sys->ctyp[cndx] == contypRNG) rngseen = TRUE ; } }
 # ifdef DYLP_PARANOIA
@@ -461,10 +459,10 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	    { xi = 0 ;
 	      break ; }
 	    default:
-	    { errmsg(433,rtnnme,dy_sys->nme,
-		     dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-		     "inactive",consys_nme(orig_sys,'v',vndx,TRUE,NULL),
-		     vndx,dy_prtvstat(vstat)) ;
+	    { dy_errmsg(433,rtnnme,dy_sys->nme,
+		        dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		        "inactive",consys_nme(orig_sys,'v',vndx,TRUE,NULL),
+		        vndx,dy_prtvstat(vstat)) ;
 	      return (dyrINV) ; } }
 	  if (xi != 0)
 	  { if (nbfxcnt == 0)
@@ -484,11 +482,11 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 */
   if (consys_attach(dy_sys,CONSYS_COL,
 		    sizeof(int),(void **) &dy_basis) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"basis vector") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"basis vector") ;
     return (dyrFATAL) ; }
   if (consys_attach(dy_sys,CONSYS_ROW,
 		    sizeof(int),(void **) &dy_var2basis) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"inverse basis vector") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"inverse basis vector") ;
     return (dyrFATAL) ; }
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.crash >= 1)
@@ -532,37 +530,37 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 
 #   ifdef DYLP_PARANOIA
     if (dycndx <= 0)
-    { errmsg(369,rtnnme,orig_sys->nme,"constraint",
-	     consys_nme(orig_sys,'c',cndx,FALSE,NULL),cndx,
-	     "cons",cndx,dycndx) ;
+    { dy_errmsg(369,rtnnme,orig_sys->nme,"constraint",
+	        consys_nme(orig_sys,'c',cndx,FALSE,NULL),cndx,
+	        "cons",cndx,dycndx) ;
       retval = dyrINV ;
       break ; }
     if (dy_actcons[bpos] != cndx)
-    { errmsg(370,rtnnme,dy_sys->nme,
-	     consys_nme(orig_sys,'c',cndx,FALSE,NULL),cndx,bpos,
-	     consys_nme(orig_sys,'c',dy_actcons[bpos],FALSE,NULL),
-	     dy_actcons[bpos]) ;
-      if (dycndx != bpos) { errmsg(1,rtnnme,__LINE__) ; }
+    { dy_errmsg(370,rtnnme,dy_sys->nme,
+	        consys_nme(orig_sys,'c',cndx,FALSE,NULL),cndx,bpos,
+	        consys_nme(orig_sys,'c',dy_actcons[bpos],FALSE,NULL),
+	        dy_actcons[bpos]) ;
+      if (dycndx != bpos) { dy_errmsg(1,rtnnme,__LINE__) ; }
       retval = dyrINV ;
       break ; }
 
     if (vndx < 0)
     { if (dyvndx <= 0)
-      { errmsg(369,rtnnme,orig_sys->nme,"constraint",
-	       consys_nme(orig_sys,'c',-vndx,FALSE,NULL),-vndx,
-	       "cons",-vndx,dyvndx) ;
+      { dy_errmsg(369,rtnnme,orig_sys->nme,"constraint",
+		  consys_nme(orig_sys,'c',-vndx,FALSE,NULL),-vndx,
+		  "cons",-vndx,dyvndx) ;
 	retval = dyrINV ;
 	break ; } }
     else
     { if (dyvndx <= 0)
-      { errmsg(369,rtnnme,orig_sys->nme,"variable",
-	       consys_nme(orig_sys,'v',vndx,FALSE,NULL),vndx,
-	       "vars",vndx,dyvndx) ;
+      { dy_errmsg(369,rtnnme,orig_sys->nme,"variable",
+		  consys_nme(orig_sys,'v',vndx,FALSE,NULL),vndx,
+		  "vars",vndx,dyvndx) ;
 	retval = dyrINV ;
 	break ; }
       if (consys_getcol_pk(dy_sys,dyvndx,&pkcol) == FALSE)
-      { errmsg(122,rtnnme,orig_sys->nme,"variable",
-	       consys_nme(orig_sys,'v',vndx,TRUE,NULL),vndx) ;
+      { dy_errmsg(122,rtnnme,orig_sys->nme,"variable",
+		  consys_nme(orig_sys,'v',vndx,TRUE,NULL),vndx) ;
 	retval = dyrFATAL ;
 	break ; }
       if (pkcol->cnt == 0 && dy_opts->print.crash >= 4)
@@ -617,7 +615,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
       case dyrPATCHED:
       { break ; }
       default:
-      { errmsg(309,rtnnme,dy_sys->nme) ;
+      { dy_errmsg(309,rtnnme,dy_sys->nme) ;
 	return (retval) ; } } }
 /*
   Attach and clear the vectors which will hold the status, values of primal and
@@ -625,23 +623,23 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 */
   if (consys_attach(dy_sys,CONSYS_ROW,
 		    sizeof(flags),(void **) &dy_status) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"status vector") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"status vector") ;
     return (dyrFATAL) ; }
   if (consys_attach(dy_sys,CONSYS_COL,
 		    sizeof(double),(void **) &dy_xbasic) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"basic variable vector") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"basic variable vector") ;
     return (dyrFATAL) ; }
   if (consys_attach(dy_sys,CONSYS_ROW,
 		    sizeof(double),(void **) &dy_x) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"primal variable vector") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"primal variable vector") ;
     return (dyrFATAL) ; }
   if (consys_attach(dy_sys,CONSYS_COL,
 		    sizeof(double),(void **) &dy_y) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"dual variable vector") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"dual variable vector") ;
     return (dyrFATAL) ; }
   if (consys_attach(dy_sys,CONSYS_ROW,
 		    sizeof(double),(void **) &dy_cbar) == FALSE)
-  { errmsg(100,rtnnme,dy_sys->nme,"reduced cost vector") ;
+  { dy_errmsg(100,rtnnme,dy_sys->nme,"reduced cost vector") ;
     return (dyrFATAL) ; }
 /*
   Calculate dual variables and reduced costs. Might as well make a try for a
@@ -653,8 +651,8 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 # endif
   dy_calcduals() ;
   if (dy_calccbar() == FALSE)
-  { errmsg(384,rtnnme,dy_sys->nme,
-	   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
+  { dy_errmsg(384,rtnnme,dy_sys->nme,
+	      dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
     return (dyrFATAL) ; }
 /*
   Initialise dy_status for logicals, using dy_var2basis and dy_cbar as guides.
@@ -703,7 +701,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	    dy_x[dyvndx] = vlb[dyvndx] ; }
 	  break ; }
 	default:
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  return (dyrFATAL) ; } } }
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.crash >= 4)
@@ -748,7 +746,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	case vstatNBFR:
 	{ break ; }
 	default:
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  return (dyrINV) ; }
 #	endif
       } }
@@ -775,7 +773,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
 	    break ; }
 #	  ifdef DYLP_PARANOIA
 	  default:
-	  { errmsg(1,rtnnme,__LINE__) ;
+	  { dy_errmsg(1,rtnnme,__LINE__) ;
 	    return (dyrINV) ; }
 #	  endif
 	} }
@@ -808,7 +806,7 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
     dyio_outfmt(dy_logchn,dy_gtxecho,"\n    calculating primal values ...") ;
 # endif
   if (dy_calcprimals() == FALSE)
-  { errmsg(316,rtnnme,dy_sys->nme) ;
+  { dy_errmsg(316,rtnnme,dy_sys->nme) ;
     return (dyrFATAL) ; }
   dy_lp->z = dy_calcobj() ;
   dy_setfinalstatus() ;
@@ -819,8 +817,8 @@ dyret_enum dy_warmstart (lpprob_struct *orig_lp)
   calcflgs = ladPRIMFEAS|ladPFQUIET|ladDUALFEAS|ladDFQUIET ;
   retval = dy_accchk(&calcflgs) ;
   if (retval != dyrOK)
-  { errmsg(304,rtnnme,dy_sys->nme,
-	   dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
+  { dy_errmsg(304,rtnnme,dy_sys->nme,
+	      dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
     return (retval) ; }
   if (flgoff(calcflgs,ladPRIMFEAS))
   { dy_lp->simplex.next = dyPRIMAL2 ; }

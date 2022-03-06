@@ -113,7 +113,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 DIST_COMMON = $(srcdir)/Makefile.am
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/DylpStdLib/config.h \
-	$(top_builddir)/src/DylpStdLib/config_dylp.h
+	$(top_builddir)/src/DylpStdLib/config_dylp.h \
+	$(top_builddir)/src/OsiDylp/config_osidylp.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 @COIN_HAS_OSITESTS_TRUE@am__EXEEXT_1 = osiUnitTest$(EXEEXT)
@@ -149,7 +150,7 @@ AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/DylpStdLib
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/DylpStdLib -I$(top_builddir)/src/OsiDylp
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/OsiDylpSolverInterfaceTest.Po \

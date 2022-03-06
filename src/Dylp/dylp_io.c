@@ -19,9 +19,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dylp_io.c	4.5	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 
 /*
   Output control variables
@@ -94,7 +91,7 @@ const char *dy_prtlpret (lpret_enum lpret)
     case lpFATAL:
     { return ("unspecified fatal error") ; }
     default:
-    { errmsg(5,rtnnme,"lpret",(int) lpret) ;
+    { dy_errmsg(5,rtnnme,"lpret",(int) lpret) ;
       return ("nonsense") ; } } }
 
 
@@ -170,7 +167,7 @@ char *dy_prtvstat (flags status)
       { strcpy(buffer,"INV") ;
 	break ; }
       default:
-      { errmsg(6,rtnnme,"status",(int) status) ;
+      { dy_errmsg(6,rtnnme,"status",(int) status) ;
         strcpy(buffer,"NONSENSE") ;
 	return (buffer) ; } }
 /*
@@ -235,7 +232,7 @@ const char *dy_prtlpphase (dyphase_enum phase, bool abbrv)
     case dyINV:
     { return ((abbrv == TRUE)?"NV":"invalid") ; }
     default:
-    { errmsg(6,rtnnme,"lp phase",(int) phase) ;
+    { dy_errmsg(6,rtnnme,"lp phase",(int) phase) ;
       return ((abbrv == TRUE)?"??":"nonsense") ; } } }
 
 
@@ -301,7 +298,7 @@ const char *dy_prtdyret (dyret_enum retcode)
     case dyINV:
     { return ("invalid") ; }
     default:
-    { errmsg(6,rtnnme,"dyret_enum code",(int) retcode) ;
+    { dy_errmsg(6,rtnnme,"dyret_enum code",(int) retcode) ;
       return ("nonsense") ; } } }
 
 
@@ -490,11 +487,11 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
 
 # ifdef DYLP_PARANOIA
   if (soln == NULL)
-  { errmsg(2,rtnnme,"solution") ;
+  { dy_errmsg(2,rtnnme,"solution") ;
     return (FALSE) ; }
   sys = soln->consys ;
   if (sys == NULL)
-  { errmsg(2,rtnnme,"constraint system") ;
+  { dy_errmsg(2,rtnnme,"constraint system") ;
     return (FALSE) ; }
 # else
   sys = soln->consys ;
@@ -575,7 +572,7 @@ bool dy_dumpcompact (ioid chn, bool echo, lpprob_struct *soln, bool nbzeros)
 	  break ; }
 	default:
 	{ val = quiet_nan(0) ;
-	  errmsg(1,rtnnme,__LINE__) ;
+	  dy_errmsg(1,rtnnme,__LINE__) ;
 	  break ; } }
       dyio_outfmt(chn,echo,"\n(%4d) %-8s %3s %12.7g",vndx,
 		  consys_nme(sys,'v',vndx,FALSE,NULL),

@@ -189,9 +189,9 @@ int main (int argc, char **argv)
 /*
   Execute initialization routines for the i/o and error reporting packages.
 */
-  errinit(errlogpath,errecho) ;
+  dy_errinit(errlogpath,errecho) ;
   if (dyio_ioinit() != TRUE)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     exit (2) ; }
 /*
   Connect ttyout to the standard output. Initialize ttyin, setting the mode to
@@ -200,11 +200,11 @@ int main (int argc, char **argv)
 */
   ttyout = dyio_openfile("stdout","w") ;
   if (ttyout == IOID_INV)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     exit(3) ; }
   ttyin = dyio_openfile("stdin","r") ;
   if (ttyin == IOID_INV)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     exit(4) ; }
   (void) dyio_setmode(ttyin,'l') ;
   dy_logchn = IOID_NOSTRM ;
@@ -1042,7 +1042,7 @@ int main (int argc, char **argv)
   if (dy_logchn != IOID_INV && dy_logchn != IOID_NOSTRM)
   { (void) dyio_closefile(dy_logchn) ; }
   dyio_ioterm() ;
-  errterm() ;
+  dy_errterm() ;
 
   return (errcnt) ; }
 

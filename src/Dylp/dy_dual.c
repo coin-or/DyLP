@@ -132,9 +132,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_dual.c	4.7	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 
 
 static dyret_enum preoptimality (dyret_enum lpretval, flags *result)
@@ -174,7 +171,7 @@ static dyret_enum preoptimality (dyret_enum lpretval, flags *result)
 # ifdef DYLP_PARANOIA
   if (!(lpretval == dyrOPTIMAL || lpretval == dyrUNBOUND ||
 	lpretval == dyrPUNT))
-  { errmsg(4,rtnnme,"lp return code",dy_prtdyret(lpretval)) ;
+  { dy_errmsg(4,rtnnme,"lp return code",dy_prtdyret(lpretval)) ;
     return (dyrFATAL) ; }
 # endif
 # ifndef DYLP_NDEBUG
@@ -322,10 +319,10 @@ static dyret_enum dual2 (void)
 
 # ifdef DYLP_PARANOIA
   if (dy_lp->degen != 0)
-  { errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
+  { dy_errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
     return (dyrFATAL) ; }
   if (dy_lp->d2.iters != 0)
-  { errmsg(5,rtnnme,"dual iteration count",dy_lp->d2.iters) ;
+  { dy_errmsg(5,rtnnme,"dual iteration count",dy_lp->d2.iters) ;
     return (dyrFATAL) ; }
 # endif
 
@@ -409,8 +406,8 @@ static dyret_enum dual2 (void)
 		    "\nloop: %s(%d) INVALID LEAVING VAR = %d, outresult = %s",
 		    dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
 		    xindx,dy_prtdyret(outresult)) ; 
-	errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,"leaving") ;
+	dy_errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,"leaving") ;
 	return (dyrFATAL) ; }
 #     endif
       xistatus = dy_status[xindx] ;
@@ -556,8 +553,8 @@ static dyret_enum dual2 (void)
 	    do_pivots = FALSE ;
 	    break ; }
 	  default:
-	  { errmsg(7,rtnnme,__LINE__,"La Duenna return code",
-		   (int) duennaresult) ;
+	  { dy_errmsg(7,rtnnme,__LINE__,"La Duenna return code",
+		      (int) duennaresult) ;
 	    do_pivots = FALSE ;
 	    lpretval = dyrFATAL ;
 	    break ; } } }
@@ -666,8 +663,8 @@ static dyret_enum dual2 (void)
 
       if (lpretval == dyrINV)
       { if (optcnt > 15)
-	{ errmsg(387,rtnnme,dy_sys->nme,
-		 dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,optcnt) ;
+	{ dy_errmsg(387,rtnnme,dy_sys->nme,
+		    dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,optcnt) ;
 	  lpretval = dyrFATAL ; }
 #       ifndef DYLP_NDEBUG
 	else

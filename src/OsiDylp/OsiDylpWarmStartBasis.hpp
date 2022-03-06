@@ -14,12 +14,9 @@
     \brief Declaration of the warm start class for dylp.
 */
 
-/*
-  sccs: @(#)OsiDylpWarmStartBasis.hpp	1.5	09/16/04
-  cvs: $Id: OsiDylpWarmStartBasis.hpp 1408 2009-10-04 10:27:59Z stefan $
-*/
-
 #include "CoinWarmStartBasis.hpp"
+
+#include "OsiDylpConfig.h"
 
 class CoinMessageHandler;
 
@@ -41,7 +38,8 @@ extern "C" {
 */
 
 
-class OsiDylpWarmStartBasis : public CoinWarmStartBasis
+class OSIDYLPLIB_EXPORT
+OsiDylpWarmStartBasis : public CoinWarmStartBasis
 
 { public:
 

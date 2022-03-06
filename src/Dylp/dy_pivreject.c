@@ -29,9 +29,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_pivreject.c	4.4	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 
 
 /*
@@ -249,13 +246,13 @@ bool dy_clrpivrej (int *entries)
       statj = dy_status[j] ;
 #     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
-      { errmsg(102,rtnnme,dy_sys->nme,"rejected variable",j,1,n) ;
+      { dy_errmsg(102,rtnnme,dy_sys->nme,"rejected variable",j,1,n) ;
 	return (FALSE) ; }
       if (flgoff(statj,vstatNOPIVOT) || flgoff(statj,chkflgs))
-      { errmsg(329,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,ndx,dy_prtvstat(statj),
-	       (dy_lp->phase == dyDUAL)?"basic":"nonbasic") ;
+      { dy_errmsg(329,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,ndx,dy_prtvstat(statj),
+		  (dy_lp->phase == dyDUAL)?"basic":"nonbasic") ;
 	return (FALSE) ; }
 #     endif
 #     ifndef DYLP_NDEBUG
@@ -282,21 +279,21 @@ bool dy_clrpivrej (int *entries)
     { ndx = entries[endx] ;
 #     ifdef DYLP_PARANOIA
       if (ndx < 0 || ndx >= pivrej_ctl.cnt)
-      { errmsg(102,rtnnme,dy_sys->nme,"pivrej list index",ndx,
-	       0,pivrej_ctl.cnt-1) ;
+      { dy_errmsg(102,rtnnme,dy_sys->nme,"pivrej list index",ndx,
+		  0,pivrej_ctl.cnt-1) ;
 	return (FALSE) ; }
 #     endif
       j = pivrejlst[ndx].ndx ;
       statj = dy_status[j] ;
 #     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
-      { errmsg(102,rtnnme,dy_sys->nme,"rejected variable",j,1,n) ;
+      { dy_errmsg(102,rtnnme,dy_sys->nme,"rejected variable",j,1,n) ;
 	return (FALSE) ; }
       if (flgoff(statj,vstatNOPIVOT) || flgoff(statj,chkflgs))
-      { errmsg(329,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,ndx,dy_prtvstat(statj),
-	       (dy_lp->phase == dyDUAL)?"basic":"nonbasic") ;
+      { dy_errmsg(329,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,ndx,dy_prtvstat(statj),
+		  (dy_lp->phase == dyDUAL)?"basic":"nonbasic") ;
 	return (FALSE) ; }
 #     endif
       clrflg(dy_status[j],vstatNOPIVOT) ;
@@ -316,7 +313,7 @@ bool dy_clrpivrej (int *entries)
 	  { pivrej_ctl.mad-- ;
 	    break ; }
 	  default:
-	  { errmsg(1,rtnnme,__LINE__) ;
+	  { dy_errmsg(1,rtnnme,__LINE__) ;
 	    return (FALSE) ; } } }
       last-- ; } }
 
@@ -378,10 +375,10 @@ dyret_enum dy_addtopivrej (int j, dyret_enum why,
 # endif
 # ifdef DYLP_PARANOIA
   if (j < 1 || j > n)
-  { errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,n) ;
+  { dy_errmsg(102,rtnnme,dy_sys->nme,"variable",j,1,n) ;
     return (dyrFATAL) ; }
   if (!(why == dyrSINGULAR || why == dyrMADPIV))
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (dyrFATAL) ; }
 # endif
 # ifndef DYLP_NDEBUG
@@ -401,7 +398,7 @@ dyret_enum dy_addtopivrej (int j, dyret_enum why,
       { dyio_outfmt(dy_logchn,dy_gtxecho,"(%s = %g).",dy_prtdyret(why),ratio) ;
 	break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (dyrFATAL) ; } } }
 # endif
 
@@ -423,7 +420,7 @@ dyret_enum dy_addtopivrej (int j, dyret_enum why,
     pivrejlst =
       (pivrej_struct *) REALLOC(pivrejlst,newsze*sizeof(pivrej_struct)) ;
     if (pivrejlst == NULL)
-    { errmsg(337,rtnnme,dy_sys->nme,pivrej_ctl.sze,newsze) ;
+    { dy_errmsg(337,rtnnme,dy_sys->nme,pivrej_ctl.sze,newsze) ;
       return (dyrFATAL) ; }
     pivrej_ctl.sze = newsze ; }
   pivrejlst[ndx].ndx = j ;
@@ -439,7 +436,7 @@ dyret_enum dy_addtopivrej (int j, dyret_enum why,
       pivrejlst[ndx].ratio = ratio*dy_tols->pivot ;
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (dyrFATAL) ; } }
 
 # ifdef DYLP_STATISTICS
@@ -452,7 +449,7 @@ dyret_enum dy_addtopivrej (int j, dyret_enum why,
       { dy_stats->pivrej.mad++ ;
 	break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (dyrFATAL) ; } }
     if (pivrej_ctl.cnt > dy_stats->pivrej.max)
     { dy_stats->pivrej.max = pivrej_ctl.cnt ; } }
@@ -564,9 +561,9 @@ dyret_enum dy_dealWithPunt (void)
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pivreject >= 1)
-      { dywarn(376,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     dy_tols->pivot,1/pivmul) ; }
+      { dy_warn(376,rtnnme,
+	        dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        dy_tols->pivot,1/pivmul) ; }
 #     endif
       dy_tols->pivot = 1/pivmul ;
 #     ifdef DYLP_STATISTICS
@@ -597,9 +594,9 @@ dyret_enum dy_dealWithPunt (void)
     { 
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pivreject >= 1)
-      { dywarn(383,rtnnme,dy_sys->nme,
-	     dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     dy_tols->zero,dy_prtdyret(dyrPUNT)) ; }
+      { dy_warn(383,rtnnme,dy_sys->nme,
+	        dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        dy_tols->zero,dy_prtdyret(dyrPUNT)) ; }
 #     endif
       retval = dyrPUNT ; } }
   else

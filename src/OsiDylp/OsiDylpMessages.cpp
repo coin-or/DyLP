@@ -10,10 +10,6 @@
 #include "OsiDylpSolverInterface.hpp"
 #include "OsiDylpMessages.hpp"
 
-namespace {
-  char sccsid[] UNUSED = "@(#)OsiDylpMessages.cpp	1.6	09/25/04" ;
-  char cvsid[] UNUSED = "$Id: OsiDylpMessages.cpp 1312 2008-10-10 00:26:32Z lou $" ;
-}
 
 /* Cut name lengths for readability. */
 

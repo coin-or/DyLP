@@ -19,8 +19,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_primal.c	4.6	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 
 
@@ -238,7 +236,7 @@ static dyret_enum preoptimality (dyret_enum lpretval, flags *result)
 # ifdef DYLP_PARANOIA
   if (!(lpretval == dyrOPTIMAL || lpretval == dyrINFEAS ||
 	lpretval == dyrPUNT || lpretval == dyrUNBOUND))
-  { errmsg(4,rtnnme,"lp return code",dy_prtdyret(lpretval)) ;
+  { dy_errmsg(4,rtnnme,"lp return code",dy_prtdyret(lpretval)) ;
     return (dyrFATAL) ; }
 # endif
 # ifndef DYLP_NDEBUG
@@ -382,7 +380,7 @@ bool dy_swapobjs (dyphase_enum phase)
   reinitialize the P1 objective, so no warning is issued.
 */
   if (!(phase == dyPRIMAL1 || phase == dyPRIMAL2 || phase == dyDONE))
-  { errmsg(4,rtnnme,"direction",dy_prtlpphase(phase,FALSE)) ;
+  { dy_errmsg(4,rtnnme,"direction",dy_prtlpphase(phase,FALSE)) ;
     return (FALSE) ; }
   if (dy_lp->p1obj.installed == FALSE && phase == dyPRIMAL2)
   { dywarn(399,rtnnme,
@@ -411,12 +409,12 @@ bool dy_swapobjs (dyphase_enum phase)
 	dy_lp->p1obj.p1obj = NULL ;
 	if (consys_attach(dy_sys,CONSYS_OBJ,sizeof(double),
 			  (void **) &dy_lp->p1obj.p1obj) == FALSE)
-	{ errmsg(100,rtnnme,dy_sys->nme,"&dy_lp->p1obj.p1obj") ;
+	{ dy_errmsg(100,rtnnme,dy_sys->nme,"&dy_lp->p1obj.p1obj") ;
 	  return (FALSE) ; }
 	dy_lp->p1obj.p2obj = dy_sys->obj ;
 	if (consys_attach(dy_sys,CONSYS_OBJ,sizeof(double),
 			  (void **) &dy_lp->p1obj.p2obj) == FALSE)
-	{ errmsg(100,rtnnme,dy_sys->nme,"&dy_lp->p1obj.p2obj") ;
+	{ dy_errmsg(100,rtnnme,dy_sys->nme,"&dy_lp->p1obj.p2obj") ;
 	  return (FALSE) ; } }
       else
       { if (dy_lp->infeascnt > dy_lp->p1obj.infvars_sze)
@@ -425,12 +423,12 @@ bool dy_swapobjs (dyphase_enum phase)
 	      REALLOC(dy_lp->p1obj.infvars,dy_lp->infeascnt*sizeof(int)) ; } }
 
     if (consys_detach(dy_sys,(void **) &dy_sys->obj,FALSE) == FALSE)
-    { errmsg(105,rtnnme,dy_sys->nme,"&dy_sys->obj (P2)") ;
+    { dy_errmsg(105,rtnnme,dy_sys->nme,"&dy_sys->obj (P2)") ;
       return (FALSE) ; }
     dy_sys->obj = dy_lp->p1obj.p1obj ;
     if (consys_attach(dy_sys,CONSYS_OBJ,
 		      sizeof(double),(void **) &dy_sys->obj) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"&dy_sys->obj (P1)") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"&dy_sys->obj (P1)") ;
       return (FALSE) ; }
     dy_lp->p1obj.installed = TRUE ; } }
 /*
@@ -442,12 +440,12 @@ bool dy_swapobjs (dyphase_enum phase)
   if (phase == dyPRIMAL2)
   { if (dy_lp->p1obj.installed == FALSE) return (TRUE) ;
     if (consys_detach(dy_sys,(void **) &dy_sys->obj,FALSE) == FALSE)
-    { errmsg(105,rtnnme,dy_sys->nme,"&dy_sys->obj (P1)") ;
+    { dy_errmsg(105,rtnnme,dy_sys->nme,"&dy_sys->obj (P1)") ;
       return (FALSE) ; }
     dy_sys->obj = dy_lp->p1obj.p2obj ;
     if (consys_attach(dy_sys,CONSYS_OBJ,
 		      sizeof(double),(void **) &dy_sys->obj) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"&dy_sys->obj (P2)") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"&dy_sys->obj (P2)") ;
       return (FALSE) ; } ;
     dy_lp->p1obj.installed = FALSE ; }
 /*
@@ -501,8 +499,8 @@ bool dy_initp1obj (void)
   that with a paranoid check until after we scan the basis.
 */
   if (dy_swapobjs(dyPRIMAL1) == FALSE)
-  { errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	   dy_lp->tot.iters,"install/resize") ;
+  { dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dy_lp->tot.iters,"install/resize") ;
     return (FALSE) ; }
 /*
   Clear the phase I objective to 0. We can track the changes under most
@@ -555,7 +553,7 @@ bool dy_initp1obj (void)
   run. If we don't match, there's a problem.
 */
   if (infcnt != dy_lp->infeascnt)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (FALSE) ; }
 # endif
 # ifndef DYLP_NDEBUG
@@ -571,8 +569,8 @@ bool dy_initp1obj (void)
 */
   dy_calcduals() ;
   if (dy_calccbar() == FALSE)
-  { errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	   dy_lp->tot.iters) ;
+  { dy_errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dy_lp->tot.iters) ;
     return (FALSE) ; }
   dy_lp->z = dy_calcobj() ;
 
@@ -750,9 +748,9 @@ static dyret_enum tweakp1obj (bool *reselect, int candxj)
   for (xkndx = 1 ; xkndx <= dy_sys->varcnt ; xkndx++)
   { statk = dy_status[xkndx] ;
     if (flgoff(statk,vstatBLLB|vstatBUUB) && dy_sys->obj[xkndx] != 0.0)
-    { errmsg(389,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,
-	     dy_prtvstat(statk),xkndx,dy_sys->obj[xkndx]) ;
+    { dy_errmsg(389,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters,consys_nme(dy_sys,'v',xkndx,FALSE,NULL),xkndx,
+	        dy_prtvstat(statk),xkndx,dy_sys->obj[xkndx]) ;
       return (dyrFATAL) ; } }
   if (newfeas == 1 && recalccbar == FALSE)
   { chkz = dy_calcobj() ;
@@ -796,8 +794,8 @@ static dyret_enum tweakp1obj (bool *reselect, int candxj)
   if (recalccbar == TRUE)
   { dy_calcduals() ;
     if (dy_calccbar() == FALSE)
-    { errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters) ;
+    { dy_errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters) ;
       return (dyrFATAL) ; }
     dy_lp->z = dy_calcobj() ;
     *reselect = TRUE ;
@@ -994,13 +992,13 @@ static dyret_enum primal1 (void)
 
 # ifdef DYLP_PARANOIA
   if (dy_lp->degen != 0)
-  { errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
+  { dy_errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
     return (dyrFATAL) ; }
   if (dy_lp->p1.iters != 0)
-  { errmsg(5,rtnnme,"phase 1 iteration count",dy_lp->p1.iters) ;
+  { dy_errmsg(5,rtnnme,"phase 1 iteration count",dy_lp->p1.iters) ;
     return (dyrFATAL) ; }
   if (dy_lp->infeascnt <= 0)
-  { errmsg(319,rtnnme,dy_sys->nme) ;
+  { dy_errmsg(319,rtnnme,dy_sys->nme) ;
     return (dyrFATAL) ; }
 # endif
 # ifdef DYLP_STATISTICS
@@ -1017,8 +1015,8 @@ static dyret_enum primal1 (void)
 */
   if (dy_lp->p1obj.installed == FALSE)
   { if (dy_initp1obj() == FALSE)
-    { errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,"initialise") ;
+    { dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters,"initialise") ;
       return (dyrFATAL) ; } }
 /*
   Open the control loop. The purpose of this outer loop is to allow easy
@@ -1089,8 +1087,8 @@ static dyret_enum primal1 (void)
     { 
 #     ifdef DYLP_PARANOIA
       if (xjndx <= 0)
-      { errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,"entering") ;
+      { dy_errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,"entering") ;
 	return (dyrFATAL) ; }
 #     endif
       indir = 0 ;
@@ -1103,7 +1101,7 @@ static dyret_enum primal1 (void)
       { indir = -1 ; }
 #     ifdef DYLP_PARANOIA
       else
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (dyrFATAL) ; }
 #     endif
 #     ifndef DYLP_NDEBUG
@@ -1202,13 +1200,13 @@ static dyret_enum primal1 (void)
 	      do_pivots = FALSE ;
 	      break ; }
 	    case dyrFATAL:
-	    { errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		     dy_lp->tot.iters,"tweak") ;
+	    { dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		        dy_lp->tot.iters,"tweak") ;
 	      do_pivots = FALSE ;
 	      lpretval = p1objresult ;
 	      break ; }
 	    default:
-	    { errmsg(7,rtnnme,__LINE__,"tweakp1obj code",p1objresult) ;
+	    { dy_errmsg(7,rtnnme,__LINE__,"tweakp1obj code",p1objresult) ;
 	      do_pivots = FALSE ;
 	      lpretval = p1objresult ;
 	      break ; } }
@@ -1238,8 +1236,8 @@ static dyret_enum primal1 (void)
 	  lpretval = duennaresult ;
 	  break ; }
 	default:
-	{ errmsg(7,rtnnme,__LINE__,"La Duenna return code",
-		 (int) duennaresult) ;
+	{ dy_errmsg(7,rtnnme,__LINE__,"La Duenna return code",
+		    (int) duennaresult) ;
 	  do_pivots = FALSE ;
 	  lpretval = dyrFATAL ;
 	  break ; } } }
@@ -1286,8 +1284,8 @@ static dyret_enum primal1 (void)
 	    if (dy_initp1obj() == TRUE)
 	    { lpretval = dyrINV ;
 	      continue ; }
-	    errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		   dy_lp->tot.iters,"reinitialise") ;
+	    dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		      dy_lp->tot.iters,"reinitialise") ;
 	    p1objresult = dyrFATAL ;
 	    break ; }
 	  default:
@@ -1412,8 +1410,8 @@ static dyret_enum primal1 (void)
 
       if (lpretval == dyrINV)
       { if (optcnt > 15)
-	{ errmsg(387,rtnnme,dy_sys->nme,
-		 dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,optcnt) ;
+	{ dy_errmsg(387,rtnnme,dy_sys->nme,
+		    dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,optcnt) ;
 	  lpretval = dyrFATAL ; }
 #       ifndef DYLP_NDEBUG
 	else
@@ -1444,13 +1442,13 @@ static dyret_enum primal1 (void)
 
   if (lpretval == dyrOPTIMAL)
   { if (dy_swapobjs(dyPRIMAL2) == FALSE)
-    { errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,"remove") ;
+    { dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters,"remove") ;
       return (dyrFATAL) ; }
     dy_calcduals() ;
     if (dy_calccbar() == FALSE)
-    { errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters) ;
+    { dy_errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters) ;
       return (dyrFATAL) ; }
     dy_lp->z = dy_calcobj() ;
     dy_pseinit() ; }
@@ -1521,10 +1519,10 @@ static dyret_enum primal2 (void)
 
 # ifdef DYLP_PARANOIA
   if (dy_lp->degen != 0)
-  { errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
+  { dy_errmsg(317,rtnnme,dy_sys->nme,dy_lp->degen) ;
     return (dyrFATAL) ; }
   if (dy_lp->p2.iters != 0)
-  { errmsg(5,rtnnme,"phase 2 iteration count",dy_lp->p2.iters) ;
+  { dy_errmsg(5,rtnnme,"phase 2 iteration count",dy_lp->p2.iters) ;
     return (dyrFATAL) ; }
 # endif
 
@@ -1598,8 +1596,8 @@ static dyret_enum primal2 (void)
     { 
 #     ifdef DYLP_PARANOIA
       if (xjndx <= 0)
-      { errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,"entering") ;
+      { dy_errmsg(386,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,"entering") ;
 	return (dyrFATAL) ; }
 #     endif
       indir = 0 ;
@@ -1612,7 +1610,7 @@ static dyret_enum primal2 (void)
       { indir = -1 ; }
 #     ifdef DYLP_PARANOIA
       else
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (dyrFATAL) ; }
 #     endif
 #     ifndef DYLP_NDEBUG
@@ -1715,8 +1713,8 @@ static dyret_enum primal2 (void)
 	  lpretval = duennaresult ;
 	  break ; }
 	default:
-	{ errmsg(7,rtnnme,__LINE__,"La Duenna return code",
-		 (int) duennaresult) ;
+	{ dy_errmsg(7,rtnnme,__LINE__,"La Duenna return code",
+		    (int) duennaresult) ;
 	  do_pivots = FALSE ;
 	  lpretval = dyrFATAL ;
 	  break ; } } }
@@ -1825,8 +1823,8 @@ static dyret_enum primal2 (void)
 
       if (lpretval == dyrINV)
       { if (optcnt > 15)
-	{ errmsg(387,rtnnme,dy_sys->nme,
-		 dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,optcnt) ;
+	{ dy_errmsg(387,rtnnme,dy_sys->nme,
+		    dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,optcnt) ;
 	  lpretval = dyrFATAL ; }
 #       ifndef DYLP_NDEBUG
 	else
@@ -1974,8 +1972,8 @@ lpret_enum dy_primal (void)
       if (lostfeascnt+1 < 10)
       { dy_lp->phase = dyPRIMAL1 ;
 	if (forcesuperbasic() == FALSE)
-	{ errmsg(391,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		 dy_lp->tot.iters) ;
+	{ dy_errmsg(391,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		    dy_lp->tot.iters) ;
 	  dyret = dyrFATAL ;
 	  break ; }
 	(void) dy_setpivparms(0,+1) ; }

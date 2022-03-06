@@ -15,11 +15,6 @@
 */
 
 /*
-  @(#)dylib_std.h	1.5	09/25/04
-  svn/cvs: $Id$
-*/
-
-/*
   This file contains common definitions.
 
   First thing to do is haul in the Ansi C standard definitions. Takes care of
@@ -29,6 +24,11 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+
+/*
+  Dylp's configuration, as determined by autotools (config.h) or by various
+  config*_default.h files.
+*/
 
 #include "DylpConfig.h"
 
@@ -54,10 +54,10 @@
 /*
   We need a boolean type. Never could understand why C doesn't have this.
 
-  [Aug 10, 01] For compatibility with C++, TRUE and FALSE are defined to be
-  the corresponding C++ values. BOOL should be set in the compiler command
-  line to be the storage type (char/short/int/long) that matches the size of
-  a C++ "bool".
+  [Aug 10, 2001] For compatibility with C++, TRUE and FALSE are defined
+  to be the corresponding C++ values. BOOL should be set in the compiler
+  command line to be the storage type (char/short/int/long) that matches
+  the size of a C++ "bool".
 */
 
 #ifndef	__cplusplus
@@ -68,12 +68,14 @@
 # else
 /*
   You're in trouble. Normally a definition for BOOL is determined by the
-  configure script; apparently you're outside of whatever framework should
-  do this. If you're not worried about C++ compatibility, int is a good a
-  choice as anything. If you're concerned about C++ compatibility, write a
-  small C++ program that prints out sizeof(bool) and add the definition here.
+  autotools configure script; if not there, it should be set in one of the
+  config*_default.h files. See DylpConfig.h for the logic.  If you're not
+  worried about C++ compatibility, int is as good a choice as anything. If
+  you're concerned about C++ compatibility, char is a good first guess. If
+  that doesn't work, write a small C++ program that prints out sizeof(bool)
+  and add the definition here.
 */
-# warning The compile-time symbol BOOL is not defined (dylib_std.h)
+# warning The compile-time symbol BOOL is not defined (dylib_std.h); using int
   typedef int bool ;
 # endif
 #endif

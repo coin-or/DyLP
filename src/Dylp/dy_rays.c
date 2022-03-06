@@ -68,8 +68,6 @@
 
 #include "dylp.h"
 
-static char svnid[] UNUSED = "$Id$" ;
-
 #if DYLP_PARANOIA > 0
 
 /* dy_tableau.c */
@@ -124,8 +122,8 @@ static bool check_dualRay (lpprob_struct *orig_lp, bool fullRay,
 */
   betai_ray = NULL ;
   if (dy_betai(orig_lp,i_ray,&betai_ray) == FALSE)
-  { errmsg(952,rtnnme,sys->nme,"row",i_ray,"constraint",
-	   consys_nme(sys,'c',i_ray,FALSE,NULL),i_ray) ;
+  { dy_errmsg(952,rtnnme,sys->nme,"row",i_ray,"constraint",
+	      consys_nme(sys,'c',i_ray,FALSE,NULL),i_ray) ;
     if (betai_ray != NULL) FREE(betai_ray) ;
     return (FALSE) ; }
 /*
@@ -325,7 +323,7 @@ static bool testForPrimalRay (int j, int *p_dir, double **p_abarj)
 	{ rayUp = FALSE ; }
 	break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (FALSE) ; } } }
   if (rayUp == FALSE && rayDown == FALSE)
   {
@@ -348,8 +346,8 @@ static bool testForPrimalRay (int j, int *p_dir, double **p_abarj)
 */
   abarj = NULL ;
   if (consys_getcol_ex(dy_sys,j,&abarj) == FALSE)
-  { errmsg(122,rtnnme,dy_sys->nme,
-	   "column",consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
+  { dy_errmsg(122,rtnnme,dy_sys->nme,
+	      "column",consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
     if (abarj != NULL) FREE(abarj) ;
     return (FALSE) ; }
   dy_ftran(abarj,FALSE) ;
@@ -523,10 +521,10 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_numRays == NULL)
-  { errmsg(2,rtnnme,"&numRays") ;
+  { dy_errmsg(2,rtnnme,"&numRays") ;
     return (FALSE) ; }
   if (p_rays == NULL)
-  { errmsg(2,rtnnme,"&rays") ;
+  { dy_errmsg(2,rtnnme,"&rays") ;
     return (FALSE) ; }
 # endif
 
@@ -553,10 +551,11 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
     { break ; }
     case lpOPTIMAL:
     case lpINFEAS:
-    { dywarn(954,rtnnme,orig_sys->nme,"primal",dy_prtlpret(orig_lp->lpret)) ;
+    { dy_warn(954,rtnnme,orig_sys->nme,"primal",dy_prtlpret(orig_lp->lpret)) ;
       return (TRUE) ; }
     default:
-    { errmsg(954,rtnnme,orig_sys->nme,"primal",dy_prtlpret(orig_lp->lpret)) ;
+    { dy_errmsg(954,rtnnme,
+    		orig_sys->nme,"primal",dy_prtlpret(orig_lp->lpret)) ;
       return (FALSE) ; } }
 /*
   The lp was unbounded, so we have one sure ray specified in orig_lp.  Since
@@ -615,8 +614,8 @@ bool dy_primalRays (lpprob_struct *orig_lp, int *p_numRays, double ***p_rays)
 */
     retval = testForPrimalRay(j_ray,&rayDir,&sc_abarj) ;
     if (retval == FALSE)
-    { errmsg(447,rtnnme,dy_sys->nme,
-	     consys_nme(dy_sys,'v',j_ray,FALSE,NULL),j_ray,"primal") ;
+    { dy_errmsg(447,rtnnme,dy_sys->nme,
+	        consys_nme(dy_sys,'v',j_ray,FALSE,NULL),j_ray,"primal") ;
       error = TRUE ;
       break ; }
     if (rayDir == 0) continue ;
@@ -1068,10 +1067,10 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
   if (dy_std_paranoia(orig_lp,rtnnme,__LINE__) == FALSE)
   { return (FALSE) ; }
   if (p_numRays == NULL)
-  { errmsg(2,rtnnme,"&numRays") ;
+  { dy_errmsg(2,rtnnme,"&numRays") ;
     return (FALSE) ; }
   if (p_rays == NULL)
-  { errmsg(2,rtnnme,"&rays") ;
+  { dy_errmsg(2,rtnnme,"&rays") ;
     return (FALSE) ; }
 # endif
 
@@ -1098,10 +1097,10 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
     { break ; }
     case lpOPTIMAL:
     case lpUNBOUNDED:
-    { dywarn(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
+    { dy_warn(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
       return (TRUE) ; }
     default:
-    { errmsg(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
+    { dy_errmsg(954,rtnnme,orig_sys->nme,"dual",dy_prtlpret(orig_lp->lpret)) ;
       return (FALSE) ; } }
 /*
   The lp was infeasible, so with high probability we'll have a ray.
@@ -1243,9 +1242,9 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
 	  {
 #	    if DYLP_PARANOIA > 0
 	    if (rayk > dy_tols->cost)
-	    { errmsg(739,rtnnme,dy_sys->nme,"active",
-		     consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-		     dy_prtvstat(dy_status[j]),rayk) ;
+	    { dy_errmsg(739,rtnnme,dy_sys->nme,"active",
+		        consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		        dy_prtvstat(dy_status[j]),rayk) ;
 	      error = TRUE ; }
 #	    endif
 	    rayk = -rayk ; }
@@ -1275,9 +1274,9 @@ bool dy_dualRays (lpprob_struct *orig_lp, bool fullRay,
 	  {
 #	    if DYLP_PARANOIA > 0
 	    if (rayk > dy_tols->cost)
-	    { errmsg(739,rtnnme,dy_sys->nme,"active",
-		     consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-		     dy_prtvstat(dy_status[j]),rayk) ;
+	    { dy_errmsg(739,rtnnme,dy_sys->nme,"active",
+		        consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		        dy_prtvstat(dy_status[j]),rayk) ;
 	      error = TRUE ; }
 #	    endif
 	    rayk = -rayk ; }

@@ -14,19 +14,9 @@
 #ifndef _DYLP_VECTOR_H
 #define _DYLP_VECTOR_H
 
-/* The part that requires information from the private header file config.h
- * is only needed for building DyLP itself, so we only do this if DYLP_INTERNAL
- * had been defined.
- */
-#ifdef DYLP_INTERNAL
-
-/*
-  @(#)dy_vector.h         4.5         11/06/04
-  svn/cvs: $Id$
-*/
-
 #include <DylpConfig.h>
- 
+
+#ifdef DYLP_INTERNAL
 /*
   Why, you might ask, are we including ctype.h? Well, it's required by the
   ANSI C specification, so it's pretty well guaranteed to exist. And, at least
@@ -204,7 +194,7 @@
 # define isnan  DYLP_ISNAN
 #endif
 
-#endif
+#endif   /* DYLP_INTERNAL */
 
 /*
   Packed Vectors
@@ -246,19 +236,22 @@ typedef struct { int ndx ;
                    int sze ;
                    pkcoeff_struct *coeffs ; } pkvec_struct ;
  
-pkvec_struct *pkvec_new(int sze) ;
-bool pkvec_resize(pkvec_struct *pkvec, int sze) ;
-void pkvec_free(pkvec_struct *pkvec) ;
+extern DYLPLIB_EXPORT pkvec_struct *pkvec_new(int sze) ;
+extern DYLPLIB_EXPORT bool pkvec_resize(pkvec_struct *pkvec, int sze) ;
+extern DYLPLIB_EXPORT void pkvec_free(pkvec_struct *pkvec) ;
  
-bool pkvec_check(pkvec_struct *pkvec, const char *caller) ;
+extern DYLPLIB_EXPORT
+  bool pkvec_check(pkvec_struct *pkvec, const char *caller) ;
  
-double pkvec_2norm(pkvec_struct *vec) ;
+extern DYLPLIB_EXPORT double pkvec_2norm(pkvec_struct *vec) ;
  
-double exvec_1norm(double *vec, int len),
-       exvec_ssq(double *vec, int len),
-       exvec_2norm(double *vec, int len),
-       exvec_infnorm(double *vec, int len, int *p_jmax) ;
- 
-double pkvec_dotexvec(pkvec_struct *pkvec, double *exvec) ;
- 
+extern DYLPLIB_EXPORT
+  double exvec_1norm(double *vec, int len),
+	 exvec_ssq(double *vec, int len),
+	 exvec_2norm(double *vec, int len),
+	 exvec_infnorm(double *vec, int len, int *p_jmax) ;
+
+extern DYLPLIB_EXPORT
+  double pkvec_dotexvec(pkvec_struct *pkvec, double *exvec) ;
+   
 #endif /* _DYLP_VECTOR_H */

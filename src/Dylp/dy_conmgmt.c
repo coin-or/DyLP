@@ -16,9 +16,6 @@
 #include "dylp.h"
 #include <limits.h>
 
-static char sccsid[] UNUSED = "@(#)dy_conmgmt.c	4.6	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 /*
   This file contains routines for primal constraint management. It provides
   routines to handle the the activation and deactivation of a primal
@@ -212,41 +209,41 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
     { print = dy_opts->print.conmgmt+1 ;
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; } }
 # endif
 
 # ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
   if (genvars == TRUE && dy_lp->phase != dyINIT)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (FALSE) ; }
   if (i <= 0 || i > orig_sys->concnt)
-  { errmsg(102,rtnnme,orig_sys->nme,"constraint",i,1,orig_sys->concnt) ;
+  { dy_errmsg(102,rtnnme,orig_sys->nme,"constraint",i,1,orig_sys->concnt) ;
     return (FALSE) ; }
   ndx = (orig_sys->concnt-dy_lp->sys.cons.unloadable) -
 	(dy_lp->sys.cons.loadable+dy_sys->concnt) ;
   if (ndx != 0)
-  { errmsg(444,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint",orig_sys->concnt,dy_lp->sys.cons.unloadable,
-	   dy_lp->sys.cons.loadable,dy_sys->concnt,ndx) ;
+  { dy_errmsg(444,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint",orig_sys->concnt,dy_lp->sys.cons.unloadable,
+	      dy_lp->sys.cons.loadable,dy_sys->concnt,ndx) ;
     return (FALSE) ; }
   if (ACTIVE_CON(i))
   { char onmbuf[128] ;
     act_j = dy_origcons[i] ;
     (void) consys_nme(orig_sys,'c',i,TRUE,onmbuf) ;
-    errmsg(431,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint",onmbuf,i,
-	   consys_nme(dy_sys,'c',act_j,TRUE,NULL),act_j) ;
+    dy_errmsg(431,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint",onmbuf,i,
+	      consys_nme(dy_sys,'c',act_j,TRUE,NULL),act_j) ;
     return (FALSE) ; }
   if (!LOADABLE_CON(i))
-  { errmsg(445,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint",consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
+  { dy_errmsg(445,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint",consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
     return (FALSE) ; }
 # endif
 
@@ -261,8 +258,8 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
   { aj = NULL ; }
   ai = NULL ;
   if (consys_getrow_pk(orig_sys,i,&ai) == FALSE)
-  { errmsg(122,rtnnme,orig_sys->nme,
-	   "row",consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
+  { dy_errmsg(122,rtnnme,orig_sys->nme,
+	      "row",consys_nme(orig_sys,'c',i,TRUE,NULL),i) ;
     if (aj != NULL) pkvec_free(aj) ;
     if (ai != NULL) pkvec_free(ai) ;
     return (FALSE) ; }
@@ -283,11 +280,11 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
     j = aij->ndx ;
 #   ifdef DYLP_PARANOIA
     if (j <= 0 || j > orig_sys->varcnt)
-    { errmsg(102,rtnnme,orig_sys->nme,"variable",j,1,orig_sys->varcnt) ;
+    { dy_errmsg(102,rtnnme,orig_sys->nme,"variable",j,1,orig_sys->varcnt) ;
       retval = FALSE ;
       break ; }
     if (dy_origvars[j] == 0)
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       retval = FALSE ;
       break ; }
 #   endif
@@ -310,23 +307,23 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
       else
       { retval = flgon(statj,vstatNONBASIC|vstatNBFR) ; }
       if (retval == FALSE)
-      { errmsg(433,rtnnme,dy_sys->nme,
-	       dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),
-	       j,dy_prtvstat(statj)) ;
+      { dy_errmsg(433,rtnnme,dy_sys->nme,
+		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),
+		  j,dy_prtvstat(statj)) ;
 	break ; }
 #     endif
       if (genvars == TRUE && LOADABLE_VAR(j))
       { retval = consys_getcol_pk(orig_sys,j,&aj) ;
 	if (retval == FALSE)
-	{ errmsg(122,rtnnme,orig_sys->nme,"variable",
-		 consys_nme(orig_sys,'v',j,TRUE,NULL),j) ;
+	{ dy_errmsg(122,rtnnme,orig_sys->nme,"variable",
+		    consys_nme(orig_sys,'v',j,TRUE,NULL),j) ;
 	  break ; }
 	retval =
 	  consys_addcol_pk(dy_sys,vartypCON,aj,orig_sys->obj[j],
 			   orig_sys->vlb[j],orig_sys->vub[j]) ;
 	if ( retval == FALSE)
-	{ errmsg(156,rtnnme,"variable",dy_sys->nme,aj->nme) ;
+	{ dy_errmsg(156,rtnnme,"variable",dy_sys->nme,aj->nme) ;
 	  break ; }
 	act_j = aj->ndx ;
 #       ifndef DYLP_NDEBUG
@@ -407,7 +404,7 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
   retval = consys_addrow_pk(dy_sys,'a',orig_sys->ctyp[i],
 			    ai,act_rhs,act_rhslow,NULL,NULL) ;
   if (retval == FALSE)
-  { errmsg(156,rtnnme,"constraint",dy_sys->nme,ai->nme) ;
+  { dy_errmsg(156,rtnnme,"constraint",dy_sys->nme,ai->nme) ;
     if (ai != NULL) pkvec_free(ai) ;
     return (FALSE) ; }
   act_i = ai->ndx ;
@@ -426,7 +423,7 @@ bool dy_loadcon (consys_struct *orig_sys, int i,
     j = dy_actvars[act_j] ;
 #   ifdef DYLP_PARANOIA
     if (dy_origvars[j] != act_i)
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; }
 #   endif
     dy_origvars[j] = act_j ;
@@ -493,10 +490,10 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
   A little paranoia. Check that origi is valid.
 */
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
   if (origi <= 0 || origi > orig_sys->concnt)
-  { errmsg(102,rtnnme,"original constraint",origi,1,orig_sys->concnt) ;
+  { dy_errmsg(102,rtnnme,"original constraint",origi,1,orig_sys->concnt) ;
     return (FALSE) ; }
 # endif
 
@@ -518,10 +515,10 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
   Load the constraint into dy_sys. No new architectural variables.
 */
   if (dy_loadcon(orig_sys,origi,FALSE,inactvars) == FALSE)
-  { errmsg(430,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "activate","original constraint",
-	   consys_nme(orig_sys,'c',origi,TRUE,NULL),origi) ;
+  { dy_errmsg(430,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "activate","original constraint",
+	      consys_nme(orig_sys,'c',origi,TRUE,NULL),origi) ;
     return (FALSE) ; }
 /*
   Correct the basis. The new constraint has index i = m+1 and the logical
@@ -583,10 +580,10 @@ bool dy_actBLogPrimCon (consys_struct *orig_sys, int origi, int *inactvars)
 	 (dy_lp->lpret == lpSWING || dy_lp->lpret == lpUNBOUNDED)))
     { /* ok */ }
     else
-    { dywarn(442,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   consys_nme(dy_sys,'c',i,FALSE,NULL),i,dy_prtvstat(dy_status[i]),
-	   (dy_opts->con.actlvl == 0)?"violated":"tight or violated") ; } }
+    { dy_warn(442,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      consys_nme(dy_sys,'c',i,FALSE,NULL),i,dy_prtvstat(dy_status[i]),
+	      (dy_opts->con.actlvl == 0)?"violated":"tight or violated") ; } }
 # endif
 
   return (TRUE) ; }
@@ -631,13 +628,13 @@ bool dy_actBLogPrimConList (consys_struct *orig_sys,
 
 # ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
   if (ocndxs == NULL)
-  { errmsg(2,rtnnme,"ocndxs") ;
+  { dy_errmsg(2,rtnnme,"ocndxs") ;
     return (FALSE) ; }
   if (cnt <= 0 || cnt > orig_sys->concnt)
-  { errmsg(5,rtnnme,"cnt",cnt) ;
+  { dy_errmsg(5,rtnnme,"cnt",cnt) ;
     return (FALSE) ; }
 # endif
 
@@ -684,10 +681,10 @@ bool dy_actBLogPrimConList (consys_struct *orig_sys,
 #   endif
     retval = dy_actBLogPrimCon(orig_sys,ocndxs[k],onecon) ;
     if (retval == FALSE)
-    { errmsg(430,rtnnme,
-	     orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "activate","constraint",
-	     consys_nme(orig_sys,'c',ocndxs[k],TRUE,NULL),ocndxs[k]) ; }
+    { dy_errmsg(430,rtnnme,orig_sys->nme,
+    		dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        "activate","constraint",
+	        consys_nme(orig_sys,'c',ocndxs[k],TRUE,NULL),ocndxs[k]) ; }
     if (with_vars == TRUE)
     { onecon_cnt = onecon[0] ;
       for (ndx = 1 ; ndx <= onecon_cnt ; ndx++)
@@ -770,15 +767,15 @@ bool dy_deactNBLogPrimCon (consys_struct *orig_sys, int i)
   n = dy_sys->varcnt ;
 # ifdef DYLP_PARANOIA
   if (i <= 0 || i > m)
-  { errmsg(102,rtnnme,"constraint",i,1,m) ;
+  { dy_errmsg(102,rtnnme,"constraint",i,1,m) ;
     return (FALSE) ; }
 # endif
   stati = getflg(dy_status[i],vstatSTATUS) ;
 # ifdef DYLP_PARANOIA
   if (flgoff(stati,vstatNBLB|vstatNBUB|vstatNBFX))
-  { errmsg(437,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   consys_nme(dy_sys,'c',i,TRUE,NULL),i,dy_prtvstat(stati)) ;
+  { dy_errmsg(437,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      consys_nme(dy_sys,'c',i,TRUE,NULL),i,dy_prtvstat(stati)) ;
     return (FALSE) ; }
 # endif
 /*
@@ -826,7 +823,7 @@ bool dy_deactNBLogPrimCon (consys_struct *orig_sys, int i)
       valj = dy_x[j] ; 
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; } }
   switch (stati)
   { case vstatNBLB:
@@ -839,7 +836,7 @@ bool dy_deactNBLogPrimCon (consys_struct *orig_sys, int i)
     { stati = vstatBFX ;
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; } }
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.conmgmt >= 3)
@@ -933,7 +930,7 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 
 # ifdef DYLP_PARANOIA
   if (i <= 0 || i > m)
-  { errmsg(102,rtnnme,"constraint",i,1,m) ;
+  { dy_errmsg(102,rtnnme,"constraint",i,1,m) ;
     return (FALSE) ; }
 # endif
 
@@ -942,15 +939,15 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 
 # ifdef DYLP_PARANOIA
   if (flgoff(stati,vstatBASIC))
-  { errmsg(436,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   consys_nme(dy_sys,'c',i,TRUE,NULL),i,dy_prtvstat(stati)) ;
-    return (FALSE) ; }
+  { dy_errmsg(436,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      consys_nme(dy_sys,'c',i,TRUE,NULL),i,dy_prtvstat(stati)) ;
+      return (FALSE) ; }
   if (bposi <= 0 || dy_basis[bposi] != i)
-  { errmsg(330,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   consys_nme(dy_sys,'v',i,FALSE,NULL),i,dy_prtvstat(stati),
-	   bposi,dy_basis[bposi]) ;
+  { dy_errmsg(330,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      consys_nme(dy_sys,'v',i,FALSE,NULL),i,dy_prtvstat(stati),
+	      bposi,dy_basis[bposi]) ;
     return (FALSE) ; }
 # endif
 
@@ -958,18 +955,18 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
 
 # ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (FALSE) ; }
   if (origi <= 0 || origi > orig_sys->concnt)
-  { errmsg(102,rtnnme,"original constraint",origi,1,orig_sys->concnt) ;
+  { dy_errmsg(102,rtnnme,"original constraint",origi,1,orig_sys->concnt) ;
     return (FALSE) ; }
   k = (orig_sys->concnt-dy_lp->sys.cons.unloadable) -
 	(dy_lp->sys.cons.loadable+dy_sys->concnt) ;
   if (k != 0)
-  { errmsg(444,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint",orig_sys->concnt,dy_lp->sys.cons.unloadable,
-	   dy_lp->sys.cons.loadable,dy_sys->concnt,k) ;
+  { dy_errmsg(444,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint",orig_sys->concnt,dy_lp->sys.cons.unloadable,
+	      dy_lp->sys.cons.loadable,dy_sys->concnt,k) ;
     return (FALSE) ; }
 # endif
 
@@ -1032,8 +1029,8 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
   k = dy_actcons[i] ;
   MARK_INACTIVE_CON(k) ;
   if (consys_delrow(dy_sys,i) == FALSE)
-  { errmsg(112,rtnnme,dy_sys->nme,"delete","constraint",
-	   consys_nme(dy_sys,'c',i,FALSE,NULL),i) ;
+  { dy_errmsg(112,rtnnme,dy_sys->nme,"delete","constraint",
+	      consys_nme(dy_sys,'c',i,FALSE,NULL),i) ;
     return (FALSE) ; }
 
 # ifdef DYLP_PARANOIA
@@ -1046,12 +1043,12 @@ bool dy_deactBLogPrimCon (consys_struct *orig_sys, int i)
   if (i <= dy_sys->concnt)
   { k = dy_actcons[i] ;
     if (dy_origcons[k] != m)
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; } }
   if (m <= dy_sys->varcnt)
   { k = dy_actvars[m] ;
     if (dy_origvars[k] != n)
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (FALSE) ; } }
 # endif
 
@@ -1161,10 +1158,10 @@ static bool deactBLogPrimConList (consys_struct *orig_sys,
 
 # ifdef DYLP_PARANOIA
   if (acndxs == NULL)
-  { errmsg(2,rtnnme,"acndxs") ;
+  { dy_errmsg(2,rtnnme,"acndxs") ;
     return (FALSE) ; }
   if (cnt <= 0 || cnt > dy_sys->concnt)
-  { errmsg(5,rtnnme,"cnt",cnt) ;
+  { dy_errmsg(5,rtnnme,"cnt",cnt) ;
     return (FALSE) ; }
 # endif
 
@@ -1185,10 +1182,10 @@ static bool deactBLogPrimConList (consys_struct *orig_sys,
 #   endif
     retval = dy_deactBLogPrimCon(orig_sys,acndxs[k]) ;
     if (retval == FALSE)
-    { errmsg(430,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "deactivate","constraint",
-	     consys_nme(dy_sys,'c',acndxs[k],TRUE,NULL),acndxs[k]) ; } }
+    { dy_errmsg(430,rtnnme,
+	        dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        "deactivate","constraint",
+	        consys_nme(dy_sys,'c',acndxs[k],TRUE,NULL),acndxs[k]) ; } }
 
 # ifdef DYLP_PARANOIA
   if (retval == TRUE)
@@ -1231,10 +1228,10 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
 
 # ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
   if (p_ocndxs == NULL)
-  { errmsg(2,rtnnme,"&ocndxs") ;
+  { dy_errmsg(2,rtnnme,"&ocndxs") ;
     return (-1) ; }
 # endif
 
@@ -1250,7 +1247,7 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
   cand_limit = dy_lp->sys.cons.loadable ;
 # ifdef DYLP_PARANOIA
   if (cand_limit == 0)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (-1) ; }
 # endif
   if (dy_opts->con.actlim > 0)
@@ -1274,10 +1271,10 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
     { statj = (flags) -k ;
 #     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
-      { errmsg(433,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),j,
-	       dy_prtvstat(statj)) ;
+      { dy_errmsg(433,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),j,
+		  dy_prtvstat(statj)) ;
 	if (orig_x != NULL) FREE(orig_x) ;
 	if (*p_ocndxs == NULL) FREE(ocndxs) ;
 	return (-1) ; }
@@ -1328,7 +1325,7 @@ static int scanPrimConStdAct (consys_struct *orig_sys, int **p_ocndxs)
 	{ activate = FALSE ; }
 	break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	if (orig_x != NULL) FREE(orig_x) ;
 	if (*p_ocndxs == NULL) FREE(ocndxs) ;
 	return (-1) ; } }
@@ -1431,7 +1428,7 @@ static int scanPrimConStdDeact (int **p_acndxs)
 
 # ifdef DYLP_PARANOIA
   if (p_acndxs == NULL)
-  { errmsg(2,rtnnme,"&acndxs") ;
+  { dy_errmsg(2,rtnnme,"&acndxs") ;
     return (-1) ; }
 # endif
 
@@ -1465,7 +1462,7 @@ static int scanPrimConStdDeact (int **p_acndxs)
 	    purge = TRUE ;
 	  break ; }
 	default:
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  if (*p_acndxs == NULL && acndxs != NULL) FREE(acndxs) ;
 	  return (-1) ; } } }
 
@@ -1560,9 +1557,9 @@ int dy_deactivateCons (consys_struct *orig_sys)
   candidates = NULL ;
   cand_cnt = scanPrimConStdDeact(&candidates) ;
   if (cand_cnt < 0)
-  { errmsg(434,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint","normal deactivation") ; }
+  { dy_errmsg(434,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint","normal deactivation") ; }
   else
   if (cand_cnt > 0)
   { if (deactBLogPrimConList(orig_sys,cand_cnt,candidates) == TRUE)
@@ -1666,9 +1663,9 @@ int dy_activateCons (consys_struct *orig_sys, bool with_vars)
   inact_cnt = 0 ;
   cand_cnt = scanPrimConStdAct(orig_sys,&candidates) ;
   if (cand_cnt < 0)
-  { errmsg(434,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint","normal activation") ;
+  { dy_errmsg(434,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint","normal activation") ;
     actresult = FALSE ; }
   else
   if (cand_cnt > 0)
@@ -1735,8 +1732,8 @@ int dy_activateCons (consys_struct *orig_sys, bool with_vars)
     if (with_vars == TRUE && inact_cnt > 0)
     { var_retval = dy_activateVars(orig_sys,inactvars) ;
       if (var_retval < 0)
-      { errmsg(440,rtnnme,dy_sys->nme,
-	       dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
+      { dy_errmsg(440,rtnnme,dy_sys->nme,
+		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
 	retval = var_retval ; } } }
   if (inactvars != NULL) FREE(inactvars) ;
 

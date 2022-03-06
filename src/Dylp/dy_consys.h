@@ -15,9 +15,6 @@
 #define _CONSYS_H
 
 /*
-  @(#)dy_consys.h	4.4	11/11/04
-  svn/cvs: $Id$
-
   This header file contains declarations for a constraint system data
   structure, tailored for LP-based branch-and-cut MILP algorithms (more
   generally, for any situation where dynamic change in the number of rows
@@ -502,66 +499,78 @@ typedef struct
   consys_utils.c
 */
 
-extern consys_struct *consys_create(const char *nme, flags parts, flags opts,
-				    int concnt, int varcnt, double infinity) ;
-extern bool consys_dupsys(consys_struct *src, consys_struct **dst,
-			  flags dstvecs) ;
-extern void consys_free (consys_struct *consys) ;
-extern bool consys_realloc(consys_struct *consys, char rowcol, int incr),
-	    consys_attach(consys_struct *consys, flags what, int elsze,
-			  void **pvec),
-	    consys_update(consys_struct *consys, void *oldvec, void *newvec),
-	    consys_detach(consys_struct *consys, void **pvec, bool all) ;
+extern DYLPLIB_EXPORT consys_struct*
+  consys_create(const char *nme, flags parts, flags opts,
+		int concnt, int varcnt, double infinity) ;
 
-extern bool consys_addcol_pk(consys_struct *consys,
-			     vartyp_enum vartyp, pkvec_struct *pkcol,
-			     double obj, double vlb, double vub),
-	    consys_addcol_ex(consys_struct *consys, vartyp_enum vartyp,
-			     const char **nme, double *excol,
-			     double obj, double vlb, double vub),
-	    consys_addrow_pk(consys_struct *consys, char rowclass,
-			     contyp_enum contyp, pkvec_struct *pkrow,
-			     double rhs, double rhslow,
-			     conbnd_struct *cub, conbnd_struct *clb),
-	    consys_getcol_pk(consys_struct *consys, int colndx,
-			     pkvec_struct **pkvec),
-	    consys_getcol_ex(consys_struct *consys, int colndx, double **vec),
-	    consys_getrow_pk(consys_struct *consys, int rowndx,
-			     pkvec_struct **pkvec),
-	    consys_getrow_ex(consys_struct *consys, int rowndx, double **vec),
-	    consys_delcol(consys_struct *consys, int colndx),
-            consys_delrow(consys_struct *consys, int rowndx),
-	    consys_delrow_stable(consys_struct *consys, int rowndx) ;
+extern DYLPLIB_EXPORT bool
+  consys_dupsys(consys_struct *src, consys_struct **dst, flags dstvecs) ;
 
-extern bool consys_setcoeff(consys_struct *consys,
-			    int rowndx, int colndx, double val) ;
-extern double consys_getcoeff(consys_struct *consys, int rowndx, int colndx) ;
+extern DYLPLIB_EXPORT void consys_free (consys_struct *consys) ;
 
-extern bool consys_logicals(consys_struct *consys) ;
+extern DYLPLIB_EXPORT bool
+  consys_realloc(consys_struct *consys, char rowcol, int incr),
+  consys_attach(consys_struct *consys, flags what, int elsze,
+		void **pvec),
+  consys_update(consys_struct *consys, void *oldvec, void *newvec),
+  consys_detach(consys_struct *consys, void **pvec, bool all) ;
+
+extern DYLPLIB_EXPORT bool
+  consys_addcol_pk(consys_struct *consys,
+		   vartyp_enum vartyp, pkvec_struct *pkcol,
+		   double obj, double vlb, double vub),
+  consys_addcol_ex(consys_struct *consys, vartyp_enum vartyp,
+		   const char **nme, double *excol,
+		   double obj, double vlb, double vub),
+  consys_addrow_pk(consys_struct *consys, char rowclass,
+		   contyp_enum contyp, pkvec_struct *pkrow,
+		   double rhs, double rhslow,
+		   conbnd_struct *cub, conbnd_struct *clb),
+  consys_getcol_pk(consys_struct *consys, int colndx, pkvec_struct **pkvec),
+  consys_getcol_ex(consys_struct *consys, int colndx, double **vec),
+  consys_getrow_pk(consys_struct *consys, int rowndx, pkvec_struct **pkvec),
+  consys_getrow_ex(consys_struct *consys, int rowndx, double **vec),
+  consys_delcol(consys_struct *consys, int colndx),
+  consys_delrow(consys_struct *consys, int rowndx),
+  consys_delrow_stable(consys_struct *consys, int rowndx) ;
+
+extern DYLPLIB_EXPORT bool
+  consys_setcoeff(consys_struct *consys, int rowndx, int colndx, double val) ;
+
+extern DYLPLIB_EXPORT double
+  consys_getcoeff(consys_struct *consys, int rowndx, int colndx) ;
+
+extern DYLPLIB_EXPORT bool consys_logicals(consys_struct *consys) ;
 
 /*
   consys_mathutils.c
 */
 
-extern int consys_gcdrow(consys_struct *consys, int rowndx) ;
+extern DYLPLIB_EXPORT
+  int consys_gcdrow(consys_struct *consys, int rowndx) ;
 
-extern double consys_dotcol(consys_struct *consys, int colndx, double *vec),
-	      consys_dotrow(consys_struct *consys, int rowndx, double *vec) ;
-extern double consys_1normrow(consys_struct *consys, int rowndx),
-	      consys_ssqrow(consys_struct *consys, int rowndx),
-	      consys_2normrow(consys_struct *consys, int rowndx),
-	      consys_infnormrow(consys_struct *consys, int rowndx),
-	      consys_1normcol(consys_struct *consys, int rowndx),
-	      consys_ssqcol(consys_struct *consys, int rowndx),
-	      consys_2normcol(consys_struct *consys, int rowndx),
-	      consys_infnormcol(consys_struct *consys, int rowndx) ;
+extern DYLPLIB_EXPORT
+  double consys_dotcol(consys_struct *consys, int colndx, double *vec),
+	 consys_dotrow(consys_struct *consys, int rowndx, double *vec) ;
 
-extern bool consys_mulrow(consys_struct *consys, int rowndx, double scalar) ;
-extern bool consys_divrow(consys_struct *consys, int rowndx, double scalar) ;
+extern DYLPLIB_EXPORT
+  double consys_1normrow(consys_struct *consys, int rowndx),
+  consys_ssqrow(consys_struct *consys, int rowndx),
+  consys_2normrow(consys_struct *consys, int rowndx),
+  consys_infnormrow(consys_struct *consys, int rowndx),
+  consys_1normcol(consys_struct *consys, int rowndx),
+  consys_ssqcol(consys_struct *consys, int rowndx),
+  consys_2normcol(consys_struct *consys, int rowndx),
+  consys_infnormcol(consys_struct *consys, int rowndx) ;
 
-extern bool consys_accumcol(consys_struct *consys, int colndx, double *vec) ;
-extern bool consys_mulaccumcol(consys_struct *consys, int colndx,
-			       double scalar, double *vec) ;
+extern DYLPLIB_EXPORT
+  bool consys_mulrow(consys_struct *consys, int rowndx, double scalar),
+       consys_divrow(consys_struct *consys, int rowndx, double scalar) ;
+
+extern DYLPLIB_EXPORT
+  bool consys_accumcol(consys_struct *consys, int colndx, double *vec),
+       consys_mulaccumcol(consys_struct *consys, int colndx,
+			  double scalar, double *vec) ;
 
 /*
   consys_scaling.c
@@ -579,19 +588,22 @@ extern bool consys_geomscale(consys_struct *consys,
   consys_io.c
 */
 
-extern const char *consys_prtvartyp(vartyp_enum vartyp),
-		  *consys_prtcontyp(contyp_enum contyp) ;
-extern char *consys_assocnme(consys_struct *consys, flags which),
-	    *consys_conbndnme(char bndlett, int cndx, conbnd_struct *bnd),
-	    *consys_conbndval(conbnd_struct *bnd) ;
+extern DYLPLIB_EXPORT
+  const char *consys_prtvartyp(vartyp_enum vartyp),
+			       *consys_prtcontyp(contyp_enum contyp) ;
+extern DYLPLIB_EXPORT
+  char *consys_assocnme(consys_struct *consys, flags which),
+       *consys_conbndnme(char bndlett, int cndx, conbnd_struct *bnd),
+       *consys_conbndval(conbnd_struct *bnd) ;
 
 #ifndef DYLP_NDEBUG
 
 #include "dylib_io.h"
 #include "dylib_std.h"
 
-extern void consys_prtcon(ioid chn, bool echo,
-			  consys_struct *consys, int i, const char *pfx) ;
+extern DYLPLIB_EXPORT
+  void consys_prtcon(ioid chn, bool echo,
+		     consys_struct *consys, int i, const char *pfx) ;
 #endif
 
 /*
@@ -599,8 +611,8 @@ extern void consys_prtcon(ioid chn, bool echo,
   variable.
 */
 
-extern void consys_chgnme(consys_struct *consys, char cv,
-			  int ndx, const char *newnme) ;
+extern DYLPLIB_EXPORT void
+  consys_chgnme(consys_struct *consys, char cv,int ndx, const char *newnme) ;
 
 /*
   consys_nme returns a string containing the name of the specified constraint
@@ -623,8 +635,9 @@ extern void consys_chgnme(consys_struct *consys, char cv,
 */
 
 #define CONSYS_MAXBUFLEN 32
-extern const char *consys_nme(consys_struct *consys,
-			      char cv, int ndx, bool pfx, char *clientbuf) ;
+extern DYLPLIB_EXPORT
+  const char*consys_nme(consys_struct *consys,
+		        char cv, int ndx, bool pfx, char *clientbuf) ;
 
 
 #endif /* _CONSYS_H */

@@ -84,9 +84,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dylp.c	4.7	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 /*
   To avoid passing an excessive number of parameters around inside the dylp
   implementation, the following globals are used to communicate between modules.
@@ -213,7 +210,7 @@ static void updateOptsAndTols (lpopts_struct *client_opts,
 # ifdef DYLP_PARANOIA
   if ((dy_owner != NULL && (dy_tols == NULL || dy_opts == NULL)) ||
       (dy_owner == NULL && (dy_tols != NULL || dy_opts != NULL)))
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return ; }
 # endif
 
@@ -389,11 +386,11 @@ static dyphase_enum addcon_nextphase (int actcnt)
     { retval = dyINV ; } }
 
   if (retval == dyINV)
-  { errmsg(435,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   actcnt,"constraints",dy_prtlpphase(dy_lp->simplex.active,TRUE),
-	   dy_prtlpret(dy_lp->lpret),
-	   dy_prtlpphase(dy_lp->simplex.next,TRUE)) ; }
+  { dy_errmsg(435,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      actcnt,"constraints",dy_prtlpphase(dy_lp->simplex.active,TRUE),
+	      dy_prtlpret(dy_lp->lpret),
+	      dy_prtlpphase(dy_lp->simplex.next,TRUE)) ; }
   
 # ifndef NDEBUG
   if (dy_opts->print.major >= 2)
@@ -529,11 +526,11 @@ static dyphase_enum addvar_nextphase (int actcnt)
     { retval = dyINV ; } }
 
   if (retval == dyINV)
-  { errmsg(435,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   actcnt,"variables",dy_prtlpphase(dy_lp->simplex.active,TRUE),
-	   dy_prtlpret(dy_lp->lpret),
-	   dy_prtlpphase(dy_lp->simplex.next,TRUE)) ; }
+  { dy_errmsg(435,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      actcnt,"variables",dy_prtlpphase(dy_lp->simplex.active,TRUE),
+	      dy_prtlpret(dy_lp->lpret),
+	      dy_prtlpphase(dy_lp->simplex.next,TRUE)) ; }
   
   return (retval) ; }
 
@@ -584,8 +581,8 @@ static dyphase_enum initial_activation (lpprob_struct *orig_lp)
     { calcflgs = ladPRIMFEAS|ladPFQUIET|ladDUALFEAS|ladDFQUIET ;
       retval = dy_accchk(&calcflgs) ;
       if (retval != dyrOK)
-      { errmsg(304,rtnnme,dy_sys->nme,
-	       dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
+      { dy_errmsg(304,rtnnme,dy_sys->nme,
+		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters) ;
 	return (dyINV) ; }
       if (flgoff(calcflgs,ladPRIMFEAS))
       { dy_lp->simplex.next = dyPRIMAL2 ; }
@@ -659,15 +656,15 @@ static bool commonstart (start_enum start)
   if (start != startHOT)
   { if (consys_attach(dy_sys,CONSYS_COL,
 		      sizeof(int),(void **) &dy_brkout) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"breakout vector") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"breakout vector") ;
       return (FALSE) ; }
     if (consys_attach(dy_sys,CONSYS_COL,
 		      sizeof(int),(void **) &dy_degenset) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"primal degenerate set vector") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"primal degenerate set vector") ;
       return (FALSE) ; }
     if (consys_attach(dy_sys,CONSYS_ROW,
 		      sizeof(int),(void **) &dy_ddegenset) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"dual degenerate set vector") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"dual degenerate set vector") ;
       return (FALSE) ; }
       }
   dy_lp->degen = 0 ;
@@ -683,15 +680,15 @@ static bool commonstart (start_enum start)
   if (start != startHOT)
   { if (consys_attach(dy_sys,CONSYS_ROW,
 		      sizeof(double),(void **) &dy_gamma) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"column norm vector") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"column norm vector") ;
       return (FALSE) ; }
     if (consys_attach(dy_sys,CONSYS_ROW,
 		      sizeof(bool),(void **) &dy_frame) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"reference frame vector") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"reference frame vector") ;
       return (FALSE) ; }
     if (consys_attach(dy_sys,CONSYS_COL,
 		      sizeof(double),(void **) &dy_rho) == FALSE)
-    { errmsg(100,rtnnme,dy_sys->nme,"basis inverse row norm") ;
+    { dy_errmsg(100,rtnnme,dy_sys->nme,"basis inverse row norm") ;
       return (FALSE) ; } }
 /*
   Set up for steepest edge pricing. If we're headed into primal simplex, scan
@@ -768,10 +765,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 
 # ifdef DYLP_PARANOIA
   if (orig_lp == NULL)
-  { errmsg(2,rtnnme,"orig_lp") ;
+  { dy_errmsg(2,rtnnme,"orig_lp") ;
     return (lpINV) ; }
   if (orig_opts == NULL)
-  { errmsg(2,rtnnme,"orig_opts") ;
+  { dy_errmsg(2,rtnnme,"orig_opts") ;
     return (lpINV) ; }
 # endif
 /*
@@ -794,10 +791,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   wrong. Paranoid checks don't attempt to clean up.
 */
   if (orig_lp->consys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (lpINV) ; }
   if (orig_tols == NULL)
-  { errmsg(2,rtnnme,"orig_tols") ;
+  { dy_errmsg(2,rtnnme,"orig_tols") ;
     return (lpINV) ; }
 # endif
 
@@ -812,7 +809,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   orig_lp->phase = dyINV ;
   orig_sys = orig_lp->consys ;
   if (flgon(orig_sys->opts,CONSYS_CORRUPT))
-  { errmsg(115,rtnnme,orig_sys->nme) ;
+  { dy_errmsg(115,rtnnme,orig_sys->nme) ;
     if (dy_owner != NULL)
     { 
 #     ifndef DYLP_NDEBUG
@@ -842,7 +839,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 # ifdef DYLP_PARANOIA
   if ((flgoff(orig_lp->ctlopts,lpctlDYVALID) && dy_owner != NULL) ||
       (flgon(orig_lp->ctlopts,lpctlDYVALID) && dy_owner == NULL))
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (lpINV) ; }
 # endif
 
@@ -854,11 +851,11 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   else
   { start = startHOT ;
     if (dy_owner != orig_lp->owner)
-    { errmsg(396,rtnnme,orig_sys->nme,orig_lp->owner,dy_owner,"hot start") ;
+    { dy_errmsg(396,rtnnme,orig_sys->nme,orig_lp->owner,dy_owner,"hot start") ;
       return (lpINV) ; }
     if (!(orig_lp->lpret == lpOPTIMAL || orig_lp->lpret == lpUNBOUNDED ||
 	  orig_lp->lpret == lpINFEAS || orig_lp->lpret == lpITERLIM))
-    { errmsg(395,rtnnme,orig_sys->nme,dy_prtlpret(orig_lp->lpret)) ;
+    { dy_errmsg(395,rtnnme,orig_sys->nme,dy_prtlpret(orig_lp->lpret)) ;
       return (lpINV) ; } }
 
 # ifndef DYLP_NDEBUG
@@ -874,10 +871,10 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   0x0 system. Warn about it if we're paranoid.
 */
   if (orig_sys->concnt < 1 || orig_sys->varcnt < 1)
-  { dywarn(351,rtnnme,orig_sys->nme,dy_prtlpphase(dyINV,TRUE),0,
-	 orig_sys->concnt,orig_sys->varcnt) ; }
+  { dy_warn(351,rtnnme,orig_sys->nme,dy_prtlpphase(dyINV,TRUE),0,
+	    orig_sys->concnt,orig_sys->varcnt) ; }
   if (flgon(orig_sys->opts,CONSYS_LVARS))
-  { errmsg(123,rtnnme,orig_sys->nme) ;
+  { dy_errmsg(123,rtnnme,orig_sys->nme) ;
     return (lpINV) ; }
 # endif
 
@@ -916,7 +913,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   replaced by a scaled copy. See dy_scaling for details.
 */
   if (dy_initlclsystem(orig_lp,(start == startHOT)?TRUE:FALSE) != TRUE)
-  { errmsg(406,rtnnme,orig_sys->nme) ;
+  { dy_errmsg(406,rtnnme,orig_sys->nme) ;
     orig_lp->lpret = lpFATAL ;
     dy_finishup(orig_lp,dy_lp->phase) ;
     return (lpFATAL) ; }
@@ -942,25 +939,25 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   switch (start)
   { case startHOT:
     { if (dy_hotstart(orig_lp) != dyrOK)
-      { errmsg(371,rtnnme,
-	       orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),0,"hot start") ;
+      { dy_errmsg(371,rtnnme,orig_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),0,"hot start") ;
 	dy_lp->lpret = lpFATAL ; }
       break ; }
     case startWARM:
     { if (dy_warmstart(orig_lp) != dyrOK)
-      { errmsg(371,rtnnme,
-	       orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),0,"warm start") ;
+      { dy_errmsg(371,rtnnme,orig_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),0,"warm start") ;
 	dy_lp->lpret = lpFATAL ; }
       break ; }
     case startCOLD:
     { if (dy_coldstart(orig_sys) != dyrOK)
-      { errmsg(371,rtnnme,
-	       orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),0,"cold start") ;
+      { dy_errmsg(371,rtnnme,orig_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),0,"cold start") ;
 	dy_lp->lpret = lpFATAL ; }
       else
       if (dy_crash() != dyrOK)
-      { errmsg(302,rtnnme,dy_sys->nme,
-	       dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,"crash") ;
+      { dy_errmsg(302,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,"crash") ;
 	dy_lp->lpret = lpFATAL ; }
       break ; } }
   if (dy_lp->lpret != lpINV)
@@ -988,8 +985,8 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   dy_lp->simplex.init_dse = TRUE ;
   dy_lp->simplex.init_pse = TRUE ;
   if (commonstart(start) == FALSE)
-  { errmsg(371,rtnnme,
-	   orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),0,"common start") ;
+  { dy_errmsg(371,rtnnme,orig_sys->nme,
+  	      dy_prtlpphase(dy_lp->phase,TRUE),0,"common start") ;
     orig_lp->lpret = lpFATAL ;
     dy_finishup(orig_lp,dy_lp->phase) ;
     return (lpFATAL) ; }
@@ -1031,12 +1028,12 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
       dy_sys->archvcnt > dy_opts->coldvars)
   { cnt = dy_deactivateVars(orig_sys) ;
     if (cnt < 0)
-    { errmsg(371,rtnnme,orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),0,
-	     "initial variable deactivation") ; }
+    { dy_errmsg(371,rtnnme,orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),0,
+	        "initial variable deactivation") ; }
     if (phase == dyPRIMAL1 && cnt > 0)
     { if (dy_initp1obj() == FALSE)
-      { errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,"initialise") ;
+      { dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,"initialise") ;
 	phase = dyINV ; } } }
 /*
   Is the user requesting initial constraint and/or variable activation? This
@@ -1133,7 +1130,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	      { phase = dyDONE ; }
   #	    ifdef DYLP_PARANOIA
 	      if (dy_lp->ubnd.ndx == 0)
-	      { errmsg(1,rtnnme,__LINE__) ;
+	      { dy_errmsg(1,rtnnme,__LINE__) ;
 		phase = dyINV ;
 		break ; }
   #	    endif
@@ -1142,7 +1139,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	    { phase = dyGENCON ;
   #	    ifdef DYLP_PARANOIA
 	      if (dy_lp->ubnd.ndx == 0)
-	      { errmsg(1,rtnnme,__LINE__) ;
+	      { dy_errmsg(1,rtnnme,__LINE__) ;
 		phase = dyINV ;
 		break ; }
   #	    endif
@@ -1156,8 +1153,8 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	      break ; }
 	    default:
 	    { if (!(dy_opts->context == cxBANDC && lpresult == lpITERLIM))
-	      { errmsg(353,rtnnme,orig_sys->nme,"primal",
-		       dy_prtlpret(lpresult)) ; }
+	      { dy_errmsg(353,rtnnme,orig_sys->nme,"primal",
+			  dy_prtlpret(lpresult)) ; }
 	      phase = dyDONE ;
 	      break ; } } }
 	break ; }
@@ -1476,8 +1473,8 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	      break ; }
 	    default:
 	    { if (!(dy_opts->context == cxBANDC && lpresult == lpITERLIM))
-	      { errmsg(353,rtnnme,orig_sys->nme,"dual",
-		       dy_prtlpret(lpresult)) ; }
+	      { dy_errmsg(353,rtnnme,orig_sys->nme,"dual",
+			  dy_prtlpret(lpresult)) ; }
 	      phase = dyDONE ;
 	      break ; } } }
 	break ; }
@@ -1498,7 +1495,7 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 	break ; }
       default:
       { phase = dyINV ;
-	errmsg(1,rtnnme,__LINE__) ;
+	dy_errmsg(1,rtnnme,__LINE__) ;
 	break ; } } }
 /*
   End of main loop on dylp phase. phase has where we're going, and should be
@@ -1522,9 +1519,8 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
 #     endif
       cnt = dy_deactivateVars(orig_sys) ;
       if (cnt < 0)
-      { errmsg(371,rtnnme,
-	       orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.pivs,
-	       "final variable deactivation") ; } }
+      { dy_errmsg(371,rtnnme,orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+      		  dy_lp->tot.pivs,"final variable deactivation") ; } }
     if (dy_opts->finpurge.cons == TRUE)
     { 
 #     ifndef DYLP_NDEBUG
@@ -1537,9 +1533,8 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
       dy_opts->con.deactlvl = 0 ;
       cnt = dy_deactivateCons(orig_sys) ;
       if (cnt < 0)
-      { errmsg(371,rtnnme,
-	       orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.pivs,
-	       "final constraint deactivation") ; } }
+      { dy_errmsg(371,rtnnme,orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+      		  dy_lp->tot.pivs,"final constraint deactivation") ; } }
   }
 /*
   If we're infeasible, and the phase I objective is still in place (the
@@ -1551,14 +1546,14 @@ lpret_enum dylp (lpprob_struct *orig_lp, lpopts_struct *orig_opts,
   { phase = dyPRIMAL2 ;
     if (dy_swapobjs(dyPRIMAL2) == FALSE)
     { phase = dyDONE ;
-      errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,"remove") ;
+      dy_errmsg(318,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters,"remove") ;
       dy_lp->lpret = lpFATAL ; }
     dy_calcduals() ;
     if (dy_calccbar() == FALSE)
     { phase = dyDONE ;
-      errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters) ;
+      dy_errmsg(384,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters) ;
       dy_lp->lpret = lpFATAL ; }
     phase = dyDONE ; }
 /*

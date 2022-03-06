@@ -77,7 +77,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
 
 # ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
 # endif
 
@@ -96,7 +96,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
 
 # ifdef DYLP_PARANOIA
   if (act_j < 1 || act_j > dy_sys->varcnt)
-  { errmsg(102,rtnnme,"active variable",act_j,1,dy_sys->varcnt) ;
+  { dy_errmsg(102,rtnnme,"active variable",act_j,1,dy_sys->varcnt) ;
     return (-1) ; }
 # endif
 
@@ -105,8 +105,8 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
 */
   abarj = NULL ;
   if (consys_getcol_ex(dy_sys,act_j,&abarj) == FALSE)
-  { errmsg(122,rtnnme,dy_sys->nme,
-	   "column",consys_nme(dy_sys,'v',act_j,TRUE,NULL),act_j) ;
+  { dy_errmsg(122,rtnnme,dy_sys->nme,
+	      "column",consys_nme(dy_sys,'v',act_j,TRUE,NULL),act_j) ;
     if (abarj != NULL) FREE(abarj) ;
     return (-1) ; }
   dy_ftran(abarj,FALSE) ;
@@ -142,7 +142,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
     { j = dy_actvars[k] ;
 #     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
-      { errmsg(102,rtnnme,"original variable",j,1,n) ;
+      { dy_errmsg(102,rtnnme,"original variable",j,1,n) ;
 	retval = -1 ;
 	break ; }
 #     endif
@@ -153,7 +153,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
   if (abarj != NULL) FREE(abarj) ;
 # ifdef DYLP_PARANOIA
   if (j < 1 || j > n)
-  { errmsg(102,rtnnme,"original variable",j,1,n) ;
+  { dy_errmsg(102,rtnnme,"original variable",j,1,n) ;
     retval = -1 ; }
   if (retval < 0)
   { if (orig_etaj != NULL) FREE(orig_etaj) ;
@@ -171,7 +171,7 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
     { 
 #     ifdef DYLP_PARANOIA
       if (k <= act_m || k > dy_sys->varcnt)
-      { errmsg(102,rtnnme,"original variable",j,act_m+1,dy_sys->varcnt) ;
+      { dy_errmsg(102,rtnnme,"original variable",j,act_m+1,dy_sys->varcnt) ;
 	retval = -1 ;
 	break ; }
 #     endif
@@ -180,10 +180,10 @@ int dbg_scanPrimConBndAct (consys_struct *orig_sys, int act_j,
     { statj = (flags) -k ;
 #     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
-      { errmsg(433,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),j,
-	       dy_prtvstat(statj)) ;
+      { dy_errmsg(433,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),j,
+		  dy_prtvstat(statj)) ;
 	retval = -1 ;
 	break ; }
 #     endif
@@ -362,10 +362,10 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
 
 # ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (-1) ;  }
   if (p_ocndxs == NULL)
-  { errmsg(2,rtnnme,"&ocndxs") ;
+  { dy_errmsg(2,rtnnme,"&ocndxs") ;
     return (-1) ; }
 # endif
 
@@ -381,7 +381,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
 
 # ifdef DYLP_PARANOIA
   if (act_j < 1 || act_j > dy_sys->varcnt)
-  { errmsg(102,rtnnme,"active variable",act_j,1,dy_sys->varcnt) ;
+  { dy_errmsg(102,rtnnme,"active variable",act_j,1,dy_sys->varcnt) ;
     return (-1) ; }
 # endif
 
@@ -390,8 +390,8 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
 */
   abarj = NULL ;
   if (consys_getcol_ex(dy_sys,act_j,&abarj) == FALSE)
-  { errmsg(122,rtnnme,dy_sys->nme,
-	   "column",consys_nme(dy_sys,'v',act_j,TRUE,NULL),act_j) ;
+  { dy_errmsg(122,rtnnme,dy_sys->nme,
+	      "column",consys_nme(dy_sys,'v',act_j,TRUE,NULL),act_j) ;
     if (abarj != NULL) FREE(abarj) ;
     return (-1) ; }
   dy_ftran(abarj,FALSE) ;
@@ -427,7 +427,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
     { j = dy_actvars[k] ;
 #     ifdef DYLP_PARANOIA
       if (j < 1 || j > n)
-      { errmsg(102,rtnnme,"original variable",j,1,n) ;
+      { dy_errmsg(102,rtnnme,"original variable",j,1,n) ;
 	retval = -1 ;
 	break ; }
 #     endif
@@ -438,7 +438,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
   if (abarj != NULL) FREE(abarj) ;
 # ifdef DYLP_PARANOIA
   if (j < 1 || j > n)
-  { errmsg(102,rtnnme,"original variable",j,1,n) ;
+  { dy_errmsg(102,rtnnme,"original variable",j,1,n) ;
     retval = -1 ; }
   if (retval < 0)
   { if (orig_etaj != NULL) FREE(orig_etaj) ;
@@ -456,7 +456,7 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
     { 
 #     ifdef DYLP_PARANOIA
       if (k <= act_m || k > dy_sys->varcnt)
-      { errmsg(102,rtnnme,"original variable",j,act_m+1,dy_sys->varcnt) ;
+      { dy_errmsg(102,rtnnme,"original variable",j,act_m+1,dy_sys->varcnt) ;
 	retval = -1 ;
 	break ; }
 #     endif
@@ -465,10 +465,10 @@ static int scanPrimConBndAct (consys_struct *orig_sys,
     { statj = (flags) -k ;
 #     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNONBASIC|vstatNBFR))
-      { errmsg(433,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),j,
-	       dy_prtvstat(statj)) ;
+      { dy_errmsg(433,rtnnme,
+		  dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "inactive",consys_nme(orig_sys,'v',j,TRUE,NULL),j,
+		  dy_prtvstat(statj)) ;
 	retval = -1 ;
 	break ; }
 #     endif
@@ -630,9 +630,9 @@ int dy_activateBndCons (consys_struct *orig_sys)
   act_j = dy_lp->ubnd.ndx ;
   cand_cnt = scanPrimConBndAct(orig_sys,act_j,&candidates) ;
   if (cand_cnt < 0)
-  { errmsg(434,rtnnme,
-	   dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "constraint","bounding activation") ;
+  { dy_errmsg(434,rtnnme,
+	      dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "constraint","bounding activation") ;
     actresult = FALSE ; }
   else
   if (cand_cnt > 0)
@@ -670,7 +670,7 @@ int dy_activateBndCons (consys_struct *orig_sys)
 #	ifdef DYLP_PARANOIA
 	if (dy_lp->simplex.active == dyPRIMAL2 && factorresult == dyrOK &&
 	    (flgon(calcflgs,ladPRIMFEAS)))
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  retval = -1 ;
 	  break ; }
 #	endif
@@ -769,10 +769,10 @@ static int type1var (consys_struct *orig_sys,
 #   endif
 
     if (dy_actNBPrimArch(orig_sys,oxkndx) == FALSE)
-    { errmsg(430,rtnnme,
-	     orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "activate","variable",
-	     consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
+    { dy_errmsg(430,rtnnme,orig_sys->nme,
+		dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		"activate","variable",
+		consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
       return (-1) ; }
     xkndx = dy_origvars[oxkndx] ;
     dy_cbar[xkndx] = cbark ;
@@ -1106,10 +1106,10 @@ static int type2activate (consys_struct *orig_sys,
   Try to activate the variable.
 */
   if (dy_actNBPrimArch(orig_sys,oxjndx) == FALSE)
-  { errmsg(430,rtnnme,
-	   orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	   "activate","variable",
-	   consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
+  { dy_errmsg(430,rtnnme,orig_sys->nme,
+  	      dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	      "activate","variable",
+	      consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
     return (-1) ; }
   xjndx = dy_origvars[oxjndx] ;
   dy_cbar[xjndx] = cbarj ;
@@ -1285,10 +1285,10 @@ static int type3activate (consys_struct *orig_sys, double *betai,
   Try to activate the variable.
 */
     if (dy_actNBPrimArch(orig_sys,oxjndx) == FALSE)
-    { errmsg(430,rtnnme,
-	     orig_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "activate","variable",
-	     consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
+    { dy_errmsg(430,rtnnme,orig_sys->nme,
+		dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		"activate","variable",
+		consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
       return (-1) ; }
     actcnt++ ;
 /*
@@ -1305,7 +1305,7 @@ static int type3activate (consys_struct *orig_sys, double *betai,
       dy_x[xjndx] = dy_sys->vlb[xjndx] ; }
     dy_cbar[xjndx] = cbarj ;
     if (dy_calcprimals() == FALSE)
-    { errmsg(316,rtnnme,dy_sys->nme) ;
+    { dy_errmsg(316,rtnnme,dy_sys->nme) ;
       return (-1) ; }
     dy_setbasicstatus() ;
 /*
@@ -1384,8 +1384,8 @@ static int type3activate (consys_struct *orig_sys, double *betai,
   abar<ik> = 0, there's no point in activating the variable.
 */
       if (consys_getcol_pk(orig_sys,oxkndx,&ak) == FALSE)
-      { errmsg(122,rtnnme,orig_sys->nme,
-	       "column",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
+      { dy_errmsg(122,rtnnme,orig_sys->nme,
+		  "column",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
 	fatal = TRUE ;
 	break ; }
       abarik = 0.0 ;
@@ -1533,16 +1533,16 @@ int dy_dualaddvars (consys_struct *orig_sys)
 
 # ifdef DYLP_PARANOIA
   if (orig_sys == NULL)
-  { errmsg(2,rtnnme,"orig_sys") ;
+  { dy_errmsg(2,rtnnme,"orig_sys") ;
     return (retval) ; }
   if (dy_lp->simplex.next != dyDUAL)
-  { errmsg(4,rtnnme,"phase",dy_prtlpphase(dy_lp->simplex.next,FALSE)) ;
+  { dy_errmsg(4,rtnnme,"phase",dy_prtlpphase(dy_lp->simplex.next,FALSE)) ;
     return (retval) ; }
   if (!dy_lp->lpret == lpINFEAS)
-  { errmsg(4,rtnnme,"lp return code",dy_prtlpret(dy_lp->lpret)) ;
+  { dy_errmsg(4,rtnnme,"lp return code",dy_prtlpret(dy_lp->lpret)) ;
     return (retval) ; }
   if (dy_lp->ubnd.ndx == 0 || abs(dy_lp->ubnd.ndx) > dy_sys->varcnt )
-  { errmsg(102,rtnnme,dy_sys->nme,"variable",abs(dy_lp->ubnd.ndx),
+  { dy_errmsg(102,rtnnme,dy_sys->nme,"variable",abs(dy_lp->ubnd.ndx),
 	   1,dy_sys->varcnt) ;
     return (retval) ; }
 # endif
@@ -1559,7 +1559,7 @@ int dy_dualaddvars (consys_struct *orig_sys)
   xipos = dy_var2basis[xindx] ;
 # ifdef DYLP_PARANOIA
   if (xipos <= 0 || xipos > dy_sys->concnt)
-  { errmsg(102,rtnnme,dy_sys->nme,"constraint",xipos,1,dy_sys->concnt) ;
+  { dy_errmsg(102,rtnnme,dy_sys->nme,"constraint",xipos,1,dy_sys->concnt) ;
     return (retval) ; }
 # endif
   betai = (double *) CALLOC(dy_sys->concnt+1,sizeof(double)) ;
@@ -1608,10 +1608,10 @@ int dy_dualaddvars (consys_struct *orig_sys)
       continue ; }
 #   ifdef DYLP_PARANOIA
     if (flgoff(xkstatus,vstatNBUB|vstatNBLB|vstatNBFR))
-    { errmsg(433,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "inactive",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),
-	     oxkndx,dy_prtvstat(xkstatus)) ;
+    { dy_errmsg(433,rtnnme,dy_sys->nme,
+    		dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		"inactive",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),
+		oxkndx,dy_prtvstat(xkstatus)) ;
       fatal = TRUE ;
       break ; }
 #   endif
@@ -1621,8 +1621,8 @@ int dy_dualaddvars (consys_struct *orig_sys)
   abar<ik> = 0, there's no point in activating the variable.
 */
     if (consys_getcol_pk(orig_sys,oxkndx,&ak) == FALSE)
-    { errmsg(122,rtnnme,orig_sys->nme,
-	     "column",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
+    { dy_errmsg(122,rtnnme,orig_sys->nme,
+		"column",consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
       fatal = TRUE ;
       break ; }
     abarik = 0.0 ;
@@ -1656,9 +1656,9 @@ int dy_dualaddvars (consys_struct *orig_sys)
     if (diri*(-deltak) >= 0)
     { evalcode = type1var(orig_sys,xindx,diri,oxkndx,xkstatus,abarik,cbark) ;
       if (evalcode < 0)
-      { errmsg(400,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,1,
-	       consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
+      { dy_errmsg(400,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,1,
+		  consys_nme(orig_sys,'v',oxkndx,TRUE,NULL),oxkndx) ;
 	fatal = TRUE ;
 	break ; }
       else

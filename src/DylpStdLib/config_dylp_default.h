@@ -5,7 +5,7 @@
 /***************************************************************************/
 
 /* Version number of project */
-#define DYLP_VERSION  "trunk"
+#define DYLP_VERSION  "master"
 
 /* Major Version number of project */
 #define DYLP_VERSION_MAJOR   9999

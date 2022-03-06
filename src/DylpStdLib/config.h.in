@@ -1,5 +1,10 @@
 /* src/DylpStdLib/config.h.in.  Generated from configure.ac by autoheader.  */
 
+
+#ifndef _DYLP_AUTO_CONFIG_H_
+#define _DYLP_AUTO_CONFIG_H_
+
+
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
@@ -161,3 +166,5 @@
 #  undef WORDS_BIGENDIAN
 # endif
 #endif
+
+#endif /* _DYLP_AUTO_CONFIG_H_ */

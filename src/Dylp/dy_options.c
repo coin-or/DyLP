@@ -27,8 +27,6 @@
 #include <limits.h>
 #include <float.h>
 
-static char sccsid[] UNUSED = "@(#)options.c	3.5	09/25/04" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 /*
   Routines to acquire dylp's defaults and limits for options and tolerances.
@@ -73,7 +71,7 @@ static bool string_opt (ioid cmdchn, bool cmdecho, char **str)
   rdrinit() ;
   if (parse(cmdchn,&zgetstring,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zgetstring") ;
+    dy_errmsg(240,rtnnme,"zgetstring") ;
     return (FALSE) ; }
   dyio_outfmt(dy_logchn,cmdecho," %s",*(char **) result.g) ;
   dyio_flushio(dy_logchn,cmdecho) ;
@@ -121,7 +119,7 @@ static bool integer_opt (ioid cmdchn, bool cmdecho, int *iloc)
   rdrinit() ;
   if (parse(cmdchn,&zgetnum,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zgetnum") ;
+    dy_errmsg(240,rtnnme,"zgetnum") ;
     return (FALSE) ; }
   dyio_outfmt(dy_logchn,cmdecho," %d",*(int *) result.g) ;
   dyio_flushio(dy_logchn,cmdecho) ;
@@ -170,7 +168,7 @@ static bool double_opt (ioid cmdchn, bool cmdecho, double *rloc)
   rdrinit() ;
   if (parse(cmdchn,&zgetnum,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zgetnum") ;
+    dy_errmsg(240,rtnnme,"zgetnum") ;
     return (FALSE) ; }
   dyio_outfmt(dy_logchn,cmdecho," %g",*(double *) result.g) ;
   dyio_flushio(dy_logchn,cmdecho) ;
@@ -219,7 +217,7 @@ static UNUSED bool real_opt (ioid cmdchn, bool cmdecho, float *rloc)
   rdrinit() ;
   if (parse(cmdchn,&zgetnum,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zgetnum") ;
+    dy_errmsg(240,rtnnme,"zgetnum") ;
     return (FALSE) ; }
   dyio_outfmt(dy_logchn,cmdecho," %g",*(float *) result.g) ;
   dyio_flushio(dy_logchn,cmdecho) ;
@@ -293,7 +291,7 @@ static bool bool_opt (ioid cmdchn, bool cmdecho, bool *bloc)
   rdrinit() ;
   if (parse(cmdchn,&zgetbool,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zgetbool") ;
+    dy_errmsg(240,rtnnme,"zgetbool") ;
     return (FALSE) ; }
   boolopt = (struct boolopt_struct *) result.g ;
   rdrclear() ;
@@ -395,9 +393,9 @@ cmd_retval dy_printopt (ioid cmdchn, bool cmdecho, const char *keywd,
   { code = ambig(what,prntkwds,numprntcodes) ;
     if (code < 0) 
     { if (code < -1)
-	errmsg(233,rtnnme,what) ;
+	dy_errmsg(233,rtnnme,what) ;
       else
-	errmsg(234,rtnnme,what) ; }
+	dy_errmsg(234,rtnnme,what) ; }
     else
       prntcode = (enum prntcodes) code ; }
 /*
@@ -514,7 +512,7 @@ cmd_retval dy_printopt (ioid cmdchn, bool cmdecho, const char *keywd,
       ub = opts_ub->print.varmgmt ;
       break ; }
     default:
-    { errmsg(236,rtnnme,"<what>","keyword",keywd) ;
+    { dy_errmsg(236,rtnnme,"<what>","keyword",keywd) ;
       return (cmdOK) ; } }
 /*
   Last but not least, the actual work. A negative value is taken as a request
@@ -523,12 +521,12 @@ cmd_retval dy_printopt (ioid cmdchn, bool cmdecho, const char *keywd,
   if (integer_opt(cmdchn,cmdecho,opt) == TRUE)
   { if (*opt >= 0)
     { if (*opt > ub)
-      { dywarn(241,rtnnme,lb,cmdstr,ub,*opt,ub) ;
+      { dy_warn(241,rtnnme,lb,cmdstr,ub,*opt,ub) ;
 	*opt  = ub ; } }
     else
-    { dywarn(243,rtnnme,cmdstr,dflt) ; } }
+    { dy_warn(243,rtnnme,cmdstr,dflt) ; } }
   else
-  { errmsg(236,rtnnme,"<level>","parameter",keywd) ; }
+  { dy_errmsg(236,rtnnme,"<level>","parameter",keywd) ; }
 
   STRFREE(what) ;
 
@@ -608,7 +606,7 @@ static bool lpctl_active (ioid cmdchn, bool cmdecho,
   rdrinit() ;
   if (parse(cmdchn,&zactfracs,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zactfracs") ;
+    dy_errmsg(240,rtnnme,"zactfracs") ;
     return (FALSE) ; }
   actfrac = (struct actfrac_struct *) result.g ;
   rdrclear() ;
@@ -621,25 +619,25 @@ static bool lpctl_active (ioid cmdchn, bool cmdecho,
       dyio_outchr(dy_logchn,dy_gtxecho,',') ;
     if (actfrac->varfrac >= 0)
     { if (actfrac->varfrac > opts_ub->active.vars)
-      { dywarn(244,rtnnme,opts_lb->active.vars,"variables",
-	     opts_ub->active.vars,actfrac->varfrac,opts_ub->active.vars) ;
+      { dy_warn(244,rtnnme,opts_lb->active.vars,"variables",
+	        opts_ub->active.vars,actfrac->varfrac,opts_ub->active.vars) ;
 	lpopts->active.vars = opts_ub->active.vars ; }
       else
 	lpopts->active.vars = actfrac->varfrac ; }
     else
-    { dywarn(245,rtnnme,"variables",opts_dflt->active.vars) ; } }
+    { dy_warn(245,rtnnme,"variables",opts_dflt->active.vars) ; } }
 
   if (actfrac->con_seen == TRUE)
   { dyio_outfmt(dy_logchn,dy_gtxecho," constraints %.2f",actfrac->confrac) ;
     if (actfrac->confrac >= 0)
     { if (actfrac->confrac > opts_ub->active.cons)
-      { dywarn(244,rtnnme,opts_lb->active.cons,"constraints",
-	     opts_ub->active.cons,actfrac->confrac,opts_ub->active.cons) ;
+      { dy_warn(244,rtnnme,opts_lb->active.cons,"constraints",
+	        opts_ub->active.cons,actfrac->confrac,opts_ub->active.cons) ;
 	lpopts->active.cons = opts_ub->active.cons ; }
       else
 	lpopts->active.cons = actfrac->confrac ; }
     else
-    { dywarn(245,rtnnme,"constraints",opts_dflt->active.cons) ; } }
+    { dy_warn(245,rtnnme,"constraints",opts_dflt->active.cons) ; } }
 
   FREE(actfrac) ;
 
@@ -745,7 +743,7 @@ static bool lpctl_finpurge (ioid cmdchn, bool cmdecho,
   rdrinit() ;
   if (parse(cmdchn,&zfinpurge,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zfinspec") ;
+    dy_errmsg(240,rtnnme,"zfinspec") ;
     return (FALSE) ; }
   optvals = (struct finpurge_struct *) result.g ;
   rdrclear() ;
@@ -754,10 +752,10 @@ static bool lpctl_finpurge (ioid cmdchn, bool cmdecho,
   value.
 */
   if (optvals->vars < 0 && optvals->cons < 0)
-  { dywarn(246,rtnnme,"final variable deactivation",
-	 (opts_dflt->finpurge.vars == TRUE)?"true":"false") ;
-    dywarn(246,rtnnme,"final constraint deactivation",
-	 (opts_dflt->finpurge.cons == TRUE)?"true":"false") ;
+  { dy_warn(246,rtnnme,"final variable deactivation",
+	    (opts_dflt->finpurge.vars == TRUE)?"true":"false") ;
+    dy_warn(246,rtnnme,"final constraint deactivation",
+	    (opts_dflt->finpurge.cons == TRUE)?"true":"false") ;
     return (TRUE) ; }
 /*
   Something is specified. Check variables, then constraints.
@@ -911,7 +909,7 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   rdrinit() ;
   if (parse(cmdchn,&zload,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zload") ;
+    dy_errmsg(240,rtnnme,"zload") ;
     return (FALSE) ; }
   loadspec = (struct load_struct *) result.g ;
   rdrclear() ;
@@ -920,7 +918,7 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   value.
 */
   if (loadspec->frac_valid == FALSE && loadspec->intervals == NULL)
-  { dywarn(245,rtnnme,"initial load fraction",opts_dflt->initcons.frac) ;
+  { dy_warn(245,rtnnme,"initial load fraction",opts_dflt->initcons.frac) ;
     intvndx = 0 ;
     intvlen = sizeof(intvstr)-1 ;
     if (opts_dflt->initcons.i1uopen == TRUE)
@@ -951,7 +949,7 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
 	intvstr[intvndx] = ']' ;
       intvndx++ ; }
     intvstr[intvndx] = '\0' ;
-    dywarn(246,rtnnme,"load interval",intvstr) ;
+    dy_warn(246,rtnnme,"load interval",intvstr) ;
     return (TRUE) ; }
 /*
   The load fraction first.
@@ -960,8 +958,8 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   { dyio_outfmt(dy_logchn,dy_gtxecho," %.2f",loadspec->frac) ;
     if (loadspec->frac < opts_lb->initcons.frac ||
 	loadspec->frac > opts_ub->initcons.frac)
-    { dywarn(244,rtnnme,opts_lb->initcons.frac,"initial load fraction",
-	   opts_ub->initcons.frac,loadspec->frac,opts_ub->initcons.frac) ;
+    { dy_warn(244,rtnnme,opts_lb->initcons.frac,"initial load fraction",
+	      opts_ub->initcons.frac,loadspec->frac,opts_ub->initcons.frac) ;
       lpopts->initcons.frac = opts_ub->initcons.frac ; }
     else
     { lpopts->initcons.frac = loadspec->frac ; } }
@@ -980,14 +978,14 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   else
     lpopts->initcons.i1uopen = FALSE ;
   if (intv->ub > opts_ub->initcons.i1u || intv->ub < opts_lb->initcons.i1u)
-  { dywarn(244,rtnnme,opts_lb->initcons.i1u,"initial load angle bound",
-	   opts_ub->initcons.i1u,intv->ub,opts_ub->initcons.i1u) ;
+  { dy_warn(244,rtnnme,opts_lb->initcons.i1u,"initial load angle bound",
+	    opts_ub->initcons.i1u,intv->ub,opts_ub->initcons.i1u) ;
     lpopts->initcons.i1u = opts_ub->initcons.i1u ; }
   else
   { lpopts->initcons.i1u = intv->ub ; }
   if (intv->lb > opts_ub->initcons.i1l || intv->lb < opts_lb->initcons.i1l)
-  { dywarn(244,rtnnme,opts_lb->initcons.i1l,"initial load angle bound",
-	   opts_ub->initcons.i1l,intv->lb,opts_lb->initcons.i1l) ;
+  { dy_warn(244,rtnnme,opts_lb->initcons.i1l,"initial load angle bound",
+	    opts_ub->initcons.i1l,intv->lb,opts_lb->initcons.i1l) ;
     lpopts->initcons.i1l = opts_lb->initcons.i1l ; }
   else
   { lpopts->initcons.i1l = intv->lb ; }
@@ -1013,14 +1011,14 @@ static bool lpctl_load  (ioid cmdchn, bool cmdecho,
   else
     lpopts->initcons.i2uopen = FALSE ;
   if (intv->ub > opts_ub->initcons.i2u || intv->ub < opts_lb->initcons.i2u)
-  { dywarn(244,rtnnme,opts_lb->initcons.i2u,"initial load angle bound",
-	   opts_ub->initcons.i2u,intv->ub,opts_ub->initcons.i2u) ;
+  { dy_warn(244,rtnnme,opts_lb->initcons.i2u,"initial load angle bound",
+	    opts_ub->initcons.i2u,intv->ub,opts_ub->initcons.i2u) ;
     lpopts->initcons.i2u = opts_ub->initcons.i2u ; }
   else
   { lpopts->initcons.i2u = intv->ub ; }
   if (intv->lb > opts_ub->initcons.i2l || intv->lb < opts_lb->initcons.i2l)
-  { dywarn(244,rtnnme,opts_lb->initcons.i2l,"initial load angle bound",
-	   opts_ub->initcons.i2l,intv->lb,opts_lb->initcons.i2l) ;
+  { dy_warn(244,rtnnme,opts_lb->initcons.i2l,"initial load angle bound",
+	    opts_ub->initcons.i2l,intv->lb,opts_lb->initcons.i2l) ;
     lpopts->initcons.i2l = opts_lb->initcons.i2l ; }
   else
   { lpopts->initcons.i2l = intv->lb ; }
@@ -1115,7 +1113,7 @@ static bool lpctl_infinity (ioid cmdchn, bool cmdecho,
   rdrinit() ;
   if (parse(cmdchn,&zinfinity,&result) == FALSE)
   { rdrclear() ;
-    errmsg(240,rtnnme,"zinfinity") ;
+    dy_errmsg(240,rtnnme,"zinfinity") ;
     return (FALSE) ; }
   infinityspec = (struct infinity_struct *) result.g ;
   rdrclear() ;
@@ -1129,7 +1127,7 @@ static bool lpctl_infinity (ioid cmdchn, bool cmdecho,
     { dyio_outfmt(dy_logchn,dy_gtxecho," IEEE (%g)",HUGE_VAL) ;
       infinity = HUGE_VAL ;
       if (finite(infinity))
-      { dywarn(314,rtnnme,infinity) ; }
+      { dy_warn(314,rtnnme,infinity) ; }
       break ; }
     case 2:
     { dyio_outfmt(dy_logchn,dy_gtxecho," DBL_MAX (%g)",DBL_MAX) ;
@@ -1140,10 +1138,10 @@ static bool lpctl_infinity (ioid cmdchn, bool cmdecho,
       infinity = infinityspec->val ;
       if (infinity == 0)
       { infinity = lptols->inf ;
-	dywarn(245,rtnnme,"infinity",infinity) ; }
+	dy_warn(245,rtnnme,"infinity",infinity) ; }
       else
       if (infinity < 0)
-      { errmsg(242,rtnnme,infinity,"infinity") ;
+      { dy_errmsg(242,rtnnme,infinity,"infinity") ;
 	infinity = tols_dflt->inf ; }
       break ; }
     default:
@@ -1362,9 +1360,9 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
   { code = ambig(what,ctlkwds,numctlkwds) ;
     if (code < 0) 
     { if (code < -1)
-	errmsg(233,rtnnme,what) ;
+	dy_errmsg(233,rtnnme,what) ;
       else
-	errmsg(234,rtnnme,what) ; }
+	dy_errmsg(234,rtnnme,what) ; }
     else
       ctlcode = (enum ctlcodes) code ; }
 /*
@@ -1599,7 +1597,7 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
       else
       { return (cmdHALTERROR) ; } }
     default:
-    { errmsg(236,rtnnme,"<what>","keyword",keywd) ;
+    { dy_errmsg(236,rtnnme,"<what>","keyword",keywd) ;
       STRFREE(what) ;
       return (cmdHALTERROR) ; } }
 /*
@@ -1629,25 +1627,25 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
     { if (integer_opt(cmdchn,cmdecho,intopt) == TRUE)
       { if (*intopt >= 0)
 	{ if (intub > 0 && *intopt > intub)
-	  { dywarn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ;
+	  { dy_warn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ;
 	    *intopt = intub ; } }
 	else
-	{ dywarn(243,rtnnme,cmdstr,intdflt) ; }
+	{ dy_warn(243,rtnnme,cmdstr,intdflt) ; }
 	retval = cmdOK ; }
       else
-      { errmsg(236,rtnnme,"<integer>","parameter",keywd) ; }
+      { dy_errmsg(236,rtnnme,"<integer>","parameter",keywd) ; }
       break ; }
     case ctlCOLDVARS:
     case ctlFACTOR:
     { if (integer_opt(cmdchn,cmdecho,intopt) == TRUE)
       { if (*intopt >= 0)
 	{ if (intub > 0 && *intopt > intub)
-	  { dywarn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ; } }
+	  { dy_warn(241,rtnnme,intlb,cmdstr,intub,*intopt,intub) ; } }
 	else
-	{ dywarn(243,rtnnme,cmdstr,intdflt) ; }
+	{ dy_warn(243,rtnnme,cmdstr,intdflt) ; }
 	retval = cmdOK ; }
       else
-      { errmsg(236,rtnnme,"<integer>","parameter",keywd) ; }
+      { dy_errmsg(236,rtnnme,"<integer>","parameter",keywd) ; }
       break ; }
     case ctlCOLD:
     case ctlCPYORIG:
@@ -1659,7 +1657,7 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
     { if (bool_opt(cmdchn,cmdecho,boolopt) == TRUE)
       { retval = cmdOK ; }
       else
-      { errmsg(236,rtnnme,"<bool>","parameter",keywd) ; }
+      { dy_errmsg(236,rtnnme,"<bool>","parameter",keywd) ; }
       break ; }
     case ctlBOGUS:
     case ctlCOSTZ:
@@ -1675,12 +1673,12 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
     case ctlZERO:
     { if (double_opt(cmdchn,cmdecho,&dblopt) == TRUE)
       { if (dblopt <= 0)
-	{ dywarn(245,rtnnme,cmdstr,tolerdflt) ; }
+	{ dy_warn(245,rtnnme,cmdstr,tolerdflt) ; }
 	else
 	{ *toler = dblopt ; }
 	retval = cmdOK ; }
       else
-      { errmsg(236,rtnnme,"<double>","parameter",keywd) ; }
+      { dy_errmsg(236,rtnnme,"<double>","parameter",keywd) ; }
       break ; }
     case ctlGROOM:
     case ctlCOLDBASIS:
@@ -1690,17 +1688,17 @@ cmd_retval dy_ctlopt (ioid cmdchn, bool cmdecho, const char *keywd,
       { code = ambig(what,kwds,numkwds) ;
 	if (code < 0)
 	{ if (code < -1)
-	    errmsg(233,rtnnme,what) ;
+	    dy_errmsg(233,rtnnme,what) ;
 	  else
-	    errmsg(234,rtnnme,what) ; }
+	    dy_errmsg(234,rtnnme,what) ; }
 	else
 	{ *intopt = code ;
 	  retval = cmdOK ; } }
       else
-      { errmsg(236,rtnnme,"<string>","parameter",cmdstr) ; }
+      { dy_errmsg(236,rtnnme,"<string>","parameter",cmdstr) ; }
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       break ; } }
 
   STRFREE(what) ;
