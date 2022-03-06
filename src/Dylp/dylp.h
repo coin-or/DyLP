@@ -15,9 +15,6 @@
 #define _DYLP_H
 
 /*
-  @(#)dylp.h	4.6	10/15/05
-  svn/cvs: $Id$
-
   This file contains definitions related to dylp, a subroutine library which
   implements a dynamic (primal-dual) linear programming algorithm based on
   the algorithm described by Padberg in Linear Optimisation & Extensions,
@@ -25,9 +22,9 @@
   codes the author has worked with --- la05, bandbx, zoom/xmp, ylp, and glpk.
 
   At minimum, dylp requires only a constraint system. Since it manages a
-  dynamically sized private copy of the constraint system while solving the
-  LP, there's no point in having the client attach logical variables (they'd
-  just get in the way, really).
+  dynamically sized private copy of the constraint system while solving
+  the LP, there's no point in having the client attach logical variables
+  (they'd just get in the way, really).
 
   dylp will accept a basis specification. This takes the form of a status
   vector giving the status of all variables, and a basis vector specifying
@@ -37,14 +34,30 @@
   constraints making up the nonbasic partition.
 
   dylp returns as a solution the simplex termination code, the objective
-  value (or related value, appropriate for the termination code), status for
-  all variables, the active constraints, and the associated primal and dual
-  variables (put a little differently, a basis, the values of the basic
+  value (or related value, appropriate for the termination code), status
+  for all variables, the active constraints, and the associated primal and
+  dual variables (put a little differently, a basis, the values of the basic
   variables, and the dual variables associated with the active constraints).
 
   The conditional compilation symbol DYLP_INTERNAL is used to delimit
   definitions that should be considered internal to dylp. Don't define this
   symbol in a client.
+
+  Buried down in dylib_std.h (one of the very basic include files for
+  dylp) is an include for DylpConfig.h. This is where system configuration
+  information is acquired and where DYLPLIB_EXPORT is set up. Start there
+  if you're wondering where symbols are being defined.
+
+  Dylp is set up to be compiled with symbols hidden by default
+  (-fvisibility=hidden in the GCC world). The purpose of DYLPLIB_EXPORT
+  is to override this for functions that should be available to you,
+  the client. This refinement came long after dylp was developed,
+  so it's entirely possible that there are declarations that should
+  have DYLPLIB_EXPORT but do not. If you're trying to use something
+  and getting `undefined symbol' messages, try recompiling libdylp with
+  -fvisibility=default (or the equivalent for your compiler). If your code
+  links, that's the problem. Find the offending extern declaration(s),
+  add DYLIB_EXPORT, and recompile with -fvisibility=hidden.
 */
 
 #include "dylib_errs.h"
@@ -1761,6 +1774,10 @@ extern dyret_enum dy_hotstart(lpprob_struct *orig_lp) ;
   dy_basis.c
 */
 
+extern DYLPLIB_EXPORT void
+  dy_initbasis(int concnt, int factor, double zero_tol),
+  dy_freebasis(void) ;
+
 extern dyret_enum dy_factor(flags *calcflgs),
 		  dy_pivot(int xipos, double abarij, double maxabarj) ;
 extern double dy_chkpiv(double abarij, double maxabarj) ;
@@ -1861,19 +1878,22 @@ extern lpret_enum dy_dual(void) ;
   dy_setup.c
 */
 
-extern void dy_defaults(lpopts_struct **opts, lptols_struct **tols),
-	    dy_checkdefaults(consys_struct *sys,
-			     lpopts_struct *opts, lptols_struct *tols),
-	    dy_setprintopts(int lvl, lpopts_struct *opts) ;
+extern DYLPLIB_EXPORT void
+  dy_defaults(lpopts_struct **opts, lptols_struct **tols),
+  dy_checkdefaults(consys_struct *sys,
+		   lpopts_struct *opts, lptols_struct *tols),
+  dy_setprintopts(int lvl, lpopts_struct *opts) ;
 
 
 /*
   dylp.c
 */
 
-extern lpret_enum dylp(lpprob_struct *orig_lp, lpopts_struct *orig_opts,
-		       lptols_struct *orig_tols, lpstats_struct *orig_stats) ;
-extern void *dy_getOwner() ;
+extern DYLPLIB_EXPORT lpret_enum
+  dylp(lpprob_struct *orig_lp, lpopts_struct *orig_opts,
+       lptols_struct *orig_tols, lpstats_struct *orig_stats) ;
+
+extern DYLPLIB_EXPORT void *dy_getOwner() ;
 
 /*
   dylp_utils.c
@@ -1900,63 +1920,78 @@ extern void dy_chkdual(int lvl) ;
 
 #endif /* DYLP_INTERNAL */
 
-extern bool dy_dupbasis(int dst_basissze, basis_struct **p_dst_basis,
-			basis_struct *src_basis, int dst_statussze,
-			flags **p_dst_status,
-			int src_statuslen, flags *src_status) ;
-extern void dy_freesoln(lpprob_struct *lpprob) ;
+extern DYLPLIB_EXPORT bool
+  dy_dupbasis(int dst_basissze, basis_struct **p_dst_basis,
+	      basis_struct *src_basis, int dst_statussze,
+	      flags **p_dst_status,
+	      int src_statuslen, flags *src_status) ;
+
+extern DYLPLIB_EXPORT void dy_freesoln(lpprob_struct *lpprob) ;
 
 /*
   dy_penalty.c
 */
 
-extern bool dy_pricenbvars(lpprob_struct *orig_lp, flags priceme,
-			   double **p_ocbar, int *p_nbcnt, int **p_nbvars),
-	    dy_pricedualpiv(lpprob_struct *orig_lp, int oxindx,
-			    double nubi, double xi, double nlbi,
-			    int nbcnt, int *nbvars,
-			    double *cbar, double *p_upeni, double *p_dpeni) ;
+extern DYLPLIB_EXPORT bool
+  dy_pricenbvars(lpprob_struct *orig_lp, flags priceme,
+		 double **p_ocbar, int *p_nbcnt, int **p_nbvars),
+  dy_pricedualpiv(lpprob_struct *orig_lp, int oxindx,
+		  double nubi, double xi, double nlbi,
+		  int nbcnt, int *nbvars,
+		  double *cbar, double *p_upeni, double *p_dpeni) ;
 
 /*
   dy_tableau.c
 */
 
-extern bool dy_abarj(lpprob_struct *orig_lp, int tgt_j, double **p_abarj) ;
-extern bool dy_betaj(lpprob_struct *orig_lp, int tgt_j, double **p_betaj) ;
-extern bool dy_betak(lpprob_struct *orig_lp, int col_k, double **p_betaj) ;
-extern bool dy_betai(lpprob_struct *orig_lp, int tgt_i, double **p_betai) ;
-extern bool dy_abari(lpprob_struct *orig_lp, int tgt_i, double **p_abari,
-		     double **p_betai) ;
+extern DYLPLIB_EXPORT bool
+  dy_abarj(lpprob_struct *orig_lp, int tgt_j, double **p_abarj),
+  dy_betaj(lpprob_struct *orig_lp, int tgt_j, double **p_betaj),
+  dy_betak(lpprob_struct *orig_lp, int col_k, double **p_betaj),
+  dy_betai(lpprob_struct *orig_lp, int tgt_i, double **p_betai),
+  dy_abari(lpprob_struct *orig_lp, int tgt_i, double **p_abari,
+	   double **p_betai) ;
 
 /*
   dy_rays.c
 */
 
-extern bool dy_primalRays(lpprob_struct *orig_lp,
-			  int *p_numRays, double ***p_rays) ;
-extern bool dy_dualRays(lpprob_struct *orig_lp, bool fullRay,
-			int *p_numRays, double ***p_rays, bool trueDuals) ;
+extern DYLPLIB_EXPORT bool
+  dy_primalRays(lpprob_struct *orig_lp,int *p_numRays, double ***p_rays),
+  dy_dualRays(lpprob_struct *orig_lp, bool fullRay,
+	      int *p_numRays, double ***p_rays, bool trueDuals) ;
 
 /*
   dy_solutions.c
 */
 
-extern void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar,
-			bool trueDuals) ;
-extern void dy_rowDuals(lpprob_struct *orig_lp, double **p_y,
-			bool trueDuals) ;
-extern void dy_rowDualsGivenC(lpprob_struct *orig_lp, double **p_y,
-			      const double *c, bool trueDuals) ;
+extern DYLPLIB_EXPORT
+  void dy_colDuals(lpprob_struct *orig_lp, double **p_cbar, bool trueDuals) ;
 
-extern void dy_colPrimals(lpprob_struct *orig_lp, double **p_x) ;
-extern void dy_rowPrimals(lpprob_struct *orig_lp,
-			  double **p_xB, int **p_indB) ;
-extern void dy_logPrimals(lpprob_struct *orig_lp, double **p_logx) ;
+extern DYLPLIB_EXPORT
+  void dy_rowDuals(lpprob_struct *orig_lp, double **p_y, bool trueDuals) ;
 
-extern void dy_colStatus(lpprob_struct *orig_lp, flags **p_colstat) ;
-extern void dy_logStatus(lpprob_struct *orig_lp, flags **p_logstat) ;
+extern DYLPLIB_EXPORT
+  void dy_rowDualsGivenC(lpprob_struct *orig_lp, double **p_y,
+			 const double *c, bool trueDuals) ;
 
-extern bool dy_expandxopt(lpprob_struct *lp, double **p_xopt) ;
+extern DYLPLIB_EXPORT
+  void dy_colPrimals(lpprob_struct *orig_lp, double **p_x) ;
+
+extern DYLPLIB_EXPORT
+  void dy_rowPrimals(lpprob_struct *orig_lp, double **p_xB, int **p_indB) ;
+
+extern DYLPLIB_EXPORT
+  void dy_logPrimals(lpprob_struct *orig_lp, double **p_logx) ;
+
+extern DYLPLIB_EXPORT
+  void dy_colStatus(lpprob_struct *orig_lp, flags **p_colstat) ;
+
+extern DYLPLIB_EXPORT
+  void dy_logStatus(lpprob_struct *orig_lp, flags **p_logstat) ;
+
+extern DYLPLIB_EXPORT
+  bool dy_expandxopt(lpprob_struct *lp, double **p_xopt) ;
 
 /*
   dylp_io.c
@@ -1972,13 +2007,17 @@ extern const char *dy_prtdyret(dyret_enum retcode) ;
 
 #endif /* DYLP_INTERNAL */
 
-extern const char *dy_prtlpret(lpret_enum lpret),
-		  *dy_prtlpphase(dyphase_enum phase, bool abbrv) ;
-extern char *dy_prtvstat(flags status) ;
-extern bool dy_dumpcompact(ioid chn, bool echo, lpprob_struct *soln,
-			   bool nbzeros) ;
-extern void dy_setlogchn (ioid chn) ;
-extern void dy_setgtxecho (bool echo) ;
+extern DYLPLIB_EXPORT
+  const char *dy_prtlpret(lpret_enum lpret),
+	     *dy_prtlpphase(dyphase_enum phase, bool abbrv) ;
+
+extern DYLPLIB_EXPORT  char *dy_prtvstat(flags status) ;
+
+extern DYLPLIB_EXPORT
+  bool dy_dumpcompact(ioid chn, bool echo, lpprob_struct *soln, bool nbzeros) ;
+
+extern DYLPLIB_EXPORT void dy_setlogchn (ioid chn) ;
+extern DYLPLIB_EXPORT void dy_setgtxecho (bool echo) ;
 
 /*
   dy_statistics.c
@@ -1989,10 +2028,11 @@ extern void dy_setgtxecho (bool echo) ;
   instructions.
 */
 
-extern void dy_initstats(lpstats_struct **p_lpstats, consys_struct *orig_sys),
-	    dy_dumpstats(ioid chn, bool echo, lpstats_struct *lpstats,
-			 consys_struct *orig_sys),
-	    dy_freestats(lpstats_struct **p_lpstats) ;
+extern DYLPLIB_EXPORT void
+  dy_initstats(lpstats_struct **p_lpstats, consys_struct *orig_sys),
+  dy_dumpstats(ioid chn, bool echo, lpstats_struct *lpstats,
+	       consys_struct *orig_sys),
+  dy_freestats(lpstats_struct **p_lpstats) ;
 
 #ifdef DYLP_INTERNAL
 

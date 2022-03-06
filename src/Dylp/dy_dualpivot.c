@@ -101,9 +101,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_dualpivot.c	4.7	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 /*
   Define this symbol to enable a thorough check of the updates to cbar and
   rho. Set to FALSE if you want errors to trigger a fatal error, TRUE to note
@@ -216,8 +213,8 @@ dyret_enum dy_confirmDualPivot (int i, int j, double *abari,
 */
   abarj = NULL ;
   if (consys_getcol_ex(dy_sys,j,&abarj) == FALSE)
-  { errmsg(122,rtnnme,dy_sys->nme,
-	   "column",consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
+  { dy_errmsg(122,rtnnme,dy_sys->nme,
+	      "column",consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
     if (abarj != NULL) FREE(abarj) ;
     return (dyrFATAL) ; }
 
@@ -277,9 +274,9 @@ dyret_enum dy_confirmDualPivot (int i, int j, double *abari,
   { 
 #   ifdef DYLP_PARANOIA
     if (!(err > tol*1000))
-    { dywarn(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	   dy_lp->tot.iters+1,i,j,abari_j,abarj_i,err,
-	   fabs(err/abarj_i),pctErr) ; }
+    { dy_warn(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dy_lp->tot.iters+1,i,j,abari_j,abarj_i,err,
+	      fabs(err/abarj_i),pctErr) ; }
 #   endif
 /*
   If we've done at least one pivot since refactoring, request a refactor. But
@@ -390,8 +387,8 @@ static bool check_dualpivrow (int xipos, const double *abari, double maxabari)
   Acquire column a<k> and calculate abar<k> = inv(B)a<k>.
 */
     if (consys_getcol_ex(dy_sys,k,&abark) == FALSE)
-    { errmsg(122,rtnnme,dy_sys->nme,"column",
-	     consys_nme(dy_sys,'c',k,TRUE,NULL),k) ;
+    { dy_errmsg(122,rtnnme,dy_sys->nme,"column",
+	        consys_nme(dy_sys,'c',k,TRUE,NULL),k) ;
       retval = CHECK_DUAL_PIVROW ;
       continue ; }
     dy_ftran(abark,FALSE) ;
@@ -418,9 +415,9 @@ static bool check_dualpivrow (int xipos, const double *abari, double maxabari)
 	maxerr = diff ;
 	maxerrcoeff = fabs(abark_i) ; }
       if (pct > .01)
-      { dywarn(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters+1,dy_basis[xipos],k,abari_k,abark_i,
-	     fabs(abark_i-abari_k),.01*fabs(abark_i)) ; }
+      { dy_warn(385,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters+1,dy_basis[xipos],k,abari_k,abark_i,
+	        fabs(abark_i-abari_k),.01*fabs(abark_i)) ; }
       retval = CHECK_DUAL_PIVROW ; } }
   FREE(abark) ;
 /*
@@ -495,8 +492,8 @@ bool dualpivrow (int xipos, double *betai, double *abari, double *maxabari)
 	        "\n    nonbasic coefficients of leaving row a<%d>:",xipos) ;
     ai = NULL ;
     if (consys_getrow_pk(dy_sys,xipos,&ai) == FALSE)
-    { errmsg(122,rtnnme,dy_sys->nme,"row",
-	     consys_nme(dy_sys,'c',xipos,TRUE,NULL),xipos) ;
+    { dy_errmsg(122,rtnnme,dy_sys->nme,"row",
+	        consys_nme(dy_sys,'c',xipos,TRUE,NULL),xipos) ;
       if (ai != NULL) pkvec_free(ai) ;
       return (FALSE) ; }
     cnt = 1 ;
@@ -669,12 +666,12 @@ static void dualdegenin (void)
 	break ; }
       case vstatNBFR:
       case vstatSB:
-      { errmsg(346,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,dy_prtvstat(statj),
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
+      { dy_errmsg(346,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,dy_prtvstat(statj),
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
 	return ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return ; } }
     dy_cbar[j] = perturb ;
 #   if defined(DYLP_PARANOIA) || defined(DYLP_STATISTICS)
@@ -690,7 +687,7 @@ static void dualdegenin (void)
 
 # ifdef DYLP_PARANOIA
   if (degencnt <= 0)
-  { errmsg(327,rtnnme,dy_sys->nme) ;
+  { dy_errmsg(327,rtnnme,dy_sys->nme) ;
     return ; }
 # endif
 # ifndef DYLP_NDEBUG
@@ -842,9 +839,9 @@ static bool check_dse_update (int xkndx, double u_cbark, double u_rhok,
     dy_btran(betak) ;
     rhok = exvec_ssq(betak,dy_sys->concnt) ;
     if (!withintol(rhok,u_rhok,dy_tols->reframe*(1+fabs(rhok))))
-    { errmsg(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,"rho",xkpos,u_rhok,rhok,fabs(u_rhok-rhok),
-	     dy_tols->reframe*(1+fabs(rhok))) ;
+    { dy_errmsg(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters,"rho",xkpos,u_rhok,rhok,fabs(u_rhok-rhok),
+	        dy_tols->reframe*(1+fabs(rhok))) ;
       if (recalc == FALSE) retval = CHECK_DSE_UPDATES ; }
     FREE(betak) ; }
 /*
@@ -856,8 +853,8 @@ static bool check_dse_update (int xkndx, double u_cbark, double u_rhok,
   else
   { abark = NULL ;
     if (consys_getcol_ex(dy_sys,xkndx,&abark) == FALSE)
-    { errmsg(122,rtnnme,dy_sys->nme,
-	     "column",consys_nme(dy_sys,'v',xkndx,TRUE,NULL),xkndx) ;
+    { dy_errmsg(122,rtnnme,dy_sys->nme,
+	        "column",consys_nme(dy_sys,'v',xkndx,TRUE,NULL),xkndx) ;
       if (abark != NULL) FREE(abark) ;
       return (FALSE) ; }
     dy_ftran(abark,FALSE) ;
@@ -867,20 +864,20 @@ static bool check_dse_update (int xkndx, double u_cbark, double u_rhok,
       cbark -= dy_sys->obj[xindx]*abark[xipos] ; }
     if (dy_ddegenset[xkndx] == 0)
     { if (!withintol(cbark,u_cbark,dy_tols->reframe*(1+fabs(cbark))))
-      { errmsg(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,"cbar",xkndx,u_cbark,cbark,fabs(u_cbark-cbark),
-	       dy_tols->reframe*(1+fabs(cbark))) ;
+      { dy_errmsg(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,"cbar",xkndx,u_cbark,cbark,
+		  fabs(u_cbark-cbark),dy_tols->reframe*(1+fabs(cbark))) ;
 	if (recalc == FALSE) retval = CHECK_DSE_UPDATES ; } }
     else
     { if (!withintol(cbark,0.0,dy_tols->dfeas))
       { if (withintol(cbark,0.0,1000*dy_tols->dfeas))
-	{ dywarn(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,"cbar",xkndx,0.0,cbark,
-	       fabs(cbark),dy_tols->dfeas) ; }
+	{ dy_warn(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,"cbar",xkndx,0.0,cbark,
+		  fabs(cbark),dy_tols->dfeas) ; }
 	else
-	{ errmsg(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		 dy_lp->tot.iters,"cbar",xkndx,0.0,cbark,
-		 fabs(cbark),dy_tols->dfeas) ;
+	{ dy_errmsg(388,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		    dy_lp->tot.iters,"cbar",xkndx,0.0,cbark,
+		    fabs(cbark),dy_tols->dfeas) ;
 	  if (recalc == FALSE) retval = CHECK_DSE_UPDATES ; } } }
     FREE(abark) ; }
   
@@ -963,7 +960,7 @@ static void dualpricexk (int xkndx, int *xindx, double *nbbari,
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.pricing >= 3)
       { dyio_outfmt(dy_logchn,dy_gtxecho," << zero!? >>") ;
-	errmsg(1,rtnnme,__LINE__) ; }
+	dy_errmsg(1,rtnnme,__LINE__) ; }
 #     endif
       return ; }
     else
@@ -1519,10 +1516,10 @@ static dyret_enum dualin (int xindx, int outdir,
 	      withintol(abarij,0,dy_tols->bogus*dy_tols->zero))
 	  { retval = dyrREQCHK ;
 #  	    ifndef DYLP_NDEBUG
-	    dywarn(381,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		 dy_lp->tot.iters+1,"abar",xindx,*xjndx,abarij,
-		 dy_tols->bogus*dy_tols->zero,
-		 dy_tols->bogus*dy_tols->zero-fabs(abarij)) ;
+	    dy_warn(381,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		    dy_lp->tot.iters+1,"abar",xindx,*xjndx,abarij,
+		    dy_tols->bogus*dy_tols->zero,
+		    dy_tols->bogus*dy_tols->zero-fabs(abarij)) ;
 #  	    endif
 	  }
 	  else
@@ -1537,7 +1534,7 @@ static dyret_enum dualin (int xindx, int outdir,
 	retval = dyrUNBOUND ; }
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (dyrFATAL) ; } }
 /*
   If we think this pivot is ok (including degenerate), confirm it.
@@ -1671,14 +1668,14 @@ static dyret_enum dseupdate (int xindx, int xjndx, int *candxi, double *tau,
   rhok = exvec_ssq(betai,dy_sys->concnt) ;
   if (!withintol(rhoi,rhok,dy_tols->zero*(1+rhok)))
   { if (!withintol(rhoi,rhok,dy_tols->zero+dy_tols->bogus*(1+rhok)))
-    { errmsg(394,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,xipos,xipos,rhoi,xipos,rhok,fabs(rhoi-rhok),
-	     dy_tols->zero*dy_tols->bogus*(1+rhok)) ;
+    { dy_errmsg(394,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	        dy_lp->tot.iters,xipos,xipos,rhoi,xipos,rhok,fabs(rhoi-rhok),
+	        dy_tols->zero*dy_tols->bogus*(1+rhok)) ;
       return (dyrFATAL) ; }
     else
-    { dywarn(394,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	   dy_lp->tot.iters,xipos,xipos,rhoi,xipos,rhok,fabs(rhoi-rhok),
-	   dy_tols->zero*dy_tols->bogus*(1+rhok)) ; } }
+    { dy_warn(394,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dy_lp->tot.iters,xipos,xipos,rhoi,xipos,rhok,fabs(rhoi-rhok),
+	      dy_tols->zero*dy_tols->bogus*(1+rhok)) ; } }
 # endif
 /*
   Have we drifted so far that we should reset the norms from scratch?  The
@@ -2005,21 +2002,21 @@ static dyret_enum dualupdate (int xjndx, int indir,
   infeasible).
 */
   if (!flgon(statj,vstatNBLB|vstatNBUB|vstatNBFR))
-  { errmsg(355,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',xjndx,FALSE,NULL),
-	   xjndx,dy_prtvstat(statj)) ;
+  { dy_errmsg(355,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',xjndx,FALSE,NULL),
+	      xjndx,dy_prtvstat(statj)) ;
     return (dyrFATAL) ; }
   if (!flgon(stati,vstatBLLB|vstatBUUB))
-  { errmsg(349,rtnnme,dy_sys->nme,
-	   consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,xi,
-	   dy_prtvstat(stati),lbi,ubi) ;
+  { dy_errmsg(349,rtnnme,dy_sys->nme,
+	      consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,xi,
+	      dy_prtvstat(stati),lbi,ubi) ;
     return (dyrFATAL) ; }
 /*
   If x<i> is within bounds, we're confused -- what are we doing trying to
   pivot on a primal variable that's already feasible?
 */
   if (withinbnds(lbi,xi,ubi))
-  { errmsg(358,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',xindx,FALSE,NULL),
-	   xindx,lbi,xi,ubi,abarij) ;
+  { dy_errmsg(358,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',xindx,FALSE,NULL),
+	      xindx,lbi,xi,ubi,abarij) ;
     return (dyrFATAL)  ; }
 # endif
 
@@ -2092,7 +2089,7 @@ static dyret_enum dualupdate (int xjndx, int indir,
       { retval = dyrREQCHK ;
 	break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	retval = dyrFATAL ;
 	break ; } }
     stati = dy_status[xindx] ;
@@ -2107,24 +2104,24 @@ static dyret_enum dualupdate (int xjndx, int indir,
       if (fabs(ubi-xi) < fabs(lbi-xi))
       { epsu = snaptol2(fabs(deltak),fabs(ubi)) ;
 	if (fabs(ubi-xi) < 100*epsu)
-	{ dywarn(357,rtnnme,dy_sys->nme,
-	       consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
-	       dy_prtvstat(stati),"ub",ubi,xi,xi-ubi,epsu) ; }
+	{ dy_warn(357,rtnnme,dy_sys->nme,
+		  consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
+		  dy_prtvstat(stati),"ub",ubi,xi,xi-ubi,epsu) ; }
 	else
-	{ errmsg(357,rtnnme,dy_sys->nme,
-		 consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
-		 dy_prtvstat(stati),"ub",ubi,xi,xi-ubi,epsu) ;
+	{ dy_errmsg(357,rtnnme,dy_sys->nme,
+		    consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
+		    dy_prtvstat(stati),"ub",ubi,xi,xi-ubi,epsu) ;
 	  return (dyrFATAL) ; } }
       else
       { epsl = snaptol2(fabs(deltak),fabs(lbi)) ;
 	if (fabs(lbi-xi) < 100*epsl)
-	{ dywarn(357,rtnnme,dy_sys->nme,
-	       consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
-	       dy_prtvstat(stati),"lb",lbi,xi,lbi-xi,epsl) ; }
+	{ dy_warn(357,rtnnme,dy_sys->nme,
+		  consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
+		  dy_prtvstat(stati),"lb",lbi,xi,lbi-xi,epsl) ; }
 	else
-	{ errmsg(357,rtnnme,dy_sys->nme,
-		 consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
-		 dy_prtvstat(stati),"lb",lbi,xi,lbi-xi,epsl) ;
+	{ dy_errmsg(357,rtnnme,dy_sys->nme,
+		    consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx,
+		    dy_prtvstat(stati),"lb",lbi,xi,lbi-xi,epsl) ;
 	  return (dyrFATAL) ; } } }
 #   endif
   }
@@ -2237,9 +2234,10 @@ static dyret_enum dualupdate (int xjndx, int indir,
       { retval = dyrREQCHK ; 
 #	ifndef DYLP_NDEBUG
 	if (dy_opts->print.pivoting >= 1)
-	  dywarn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	       dy_lp->tot.iters,"x",xjndx,fabs(xj),dy_tols->zero*dy_tols->bogus,
-	       dy_tols->zero*dy_tols->bogus-xj) ;
+	  dy_warn(374,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		  dy_lp->tot.iters,
+		  "x",xjndx,fabs(xj),dy_tols->zero*dy_tols->bogus,
+		  dy_tols->zero*dy_tols->bogus-xj) ;
 #	endif
       } }
     if (flgon(statj,vstatBLLB|vstatBUUB))
@@ -2268,9 +2266,9 @@ static dyret_enum dualupdate (int xjndx, int indir,
 # ifdef DYLP_PARANOIA
   { deltak = dy_calcobj() ;
     if (fabs(deltak-dy_lp->z) > fabs(.001*(1+fabs(deltak))))
-    { dywarn(405,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	   dy_lp->tot.iters+1,dy_lp->z,deltak,fabs(dy_lp->z-deltak),
-	   fabs(.001*deltak)) ; } }
+    { dy_warn(405,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dy_lp->tot.iters+1,dy_lp->z,deltak,fabs(dy_lp->z-deltak),
+	      fabs(.001*deltak)) ; } }
 # endif
 
 /*
@@ -2491,9 +2489,9 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
   betai = (double *) CALLOC(dy_sys->concnt+1,sizeof(double)) ;
   abari = (double *) CALLOC(dy_sys->varcnt+1,sizeof(double)) ;
   if (dualpivrow(xipos,betai,abari,&maxabari) == FALSE)
-  { errmsg(392,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	   dy_lp->tot.iters,xipos,xipos,
-	   consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx) ;
+  { dy_errmsg(392,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+	      dy_lp->tot.iters,xipos,xipos,
+	      consys_nme(dy_sys,'v',xindx,FALSE,NULL),xindx) ;
     FREE(betai) ;
     FREE(abari) ;
     return (dyrFATAL) ; }
@@ -2664,7 +2662,7 @@ dyret_enum dy_dualpivot (int xindx, int outdir,
 	{ reselect = FALSE ;
 	  break ; }
 	default:
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  reselect = FALSE ;
 	  break ; } } }
 /*

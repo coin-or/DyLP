@@ -20,8 +20,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_setup.c	4.7	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 /*
   dyopts_dflt
@@ -406,10 +404,10 @@ void dy_defaults (lpopts_struct **opts, lptols_struct **tols)
   const char *rtnnme = "dy_defaults" ;
 
   if (opts == NULL)
-  { errmsg(2,rtnnme,"&opts") ;
+  { dy_errmsg(2,rtnnme,"&opts") ;
     return ; }
   if (tols == NULL)
-  { errmsg(2,rtnnme,"&tols") ;
+  { dy_errmsg(2,rtnnme,"&tols") ;
     return ; }
 
 # endif

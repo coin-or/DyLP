@@ -111,7 +111,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/DylpStdLib/config.h \
-	$(top_builddir)/src/DylpStdLib/config_dylp.h
+	$(top_builddir)/src/DylpStdLib/config_dylp.h \
+	$(top_builddir)/src/OsiDylp/config_osidylp.h
 CONFIG_CLEAN_FILES = examples/Makefile doxydoc/doxygen.conf dylp.pc \
 	osi-dylp.pc
 CONFIG_CLEAN_VPATH_FILES = examples/plain examples/generic.spc \

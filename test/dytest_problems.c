@@ -972,7 +972,7 @@ static consys_struct *load_consys (
     const char *probname,
     const int objndx, const char *objname,
     const char **rowname, const char *rowsense,
-      const double *rlb, const double *rub,
+    const double *rlb, const double *rub,
     const char **colname, const double *vlb, const double *vub,
     const int *colndx, const int *rowndx, const double *coeff)
 /*
@@ -1059,7 +1059,7 @@ static consys_struct *load_consys (
 */
   sys = consys_create(probname,parts,opts,m,n,infty) ;
   if (sys == NULL)
-  { errmsg(152,rtnnme,probname) ;
+  { dy_errmsg(152,rtnnme,probname) ;
     return (NULL) ; }
   consys_chgnme(sys,'o',0,objname) ;
 /*
@@ -1090,7 +1090,7 @@ static consys_struct *load_consys (
 	break ; }
       default:
       { ctypi = contypINV ;
-	errmsg(154,rtnnme,sys->nme,((unsigned) typlett),typlett,ai->nme) ;
+	dy_errmsg(154,rtnnme,sys->nme,((unsigned) typlett),typlett,ai->nme) ;
 	break ; } }
 /*
   One of dylp's idiosyncracies is that it uses rhs to hold the right-hand-side
@@ -1116,7 +1116,7 @@ static consys_struct *load_consys (
 		  consys_prtcontyp(ctypi),typlett,rubi) ; }
 #   endif
     if (retval == FALSE)
-    { errmsg(156,rtnnme,"row",sys->nme,ai->nme) ; }
+    { dy_errmsg(156,rtnnme,"row",sys->nme,ai->nme) ; }
     if (retval == FALSE || ctypi == contypINV)
     { retval = FALSE ;
       break ; } }
@@ -1171,7 +1171,7 @@ static consys_struct *load_consys (
 	      vlbj,consys_nme(sys,'v',aj->ndx,FALSE,NULL),aj->ndx,vubj,cj) ; }
 #     endif
       if (retval == FALSE)
-      { errmsg(156,rtnnme,"column",sys->nme,aj->nme) ;
+      { dy_errmsg(156,rtnnme,"column",sys->nme,aj->nme) ;
 	break ; }
       if (k+1 <= q)
       { v = 0 ;
@@ -1187,8 +1187,8 @@ static consys_struct *load_consys (
 */
   retval = consys_delrow_stable(sys,objndx) ;
   if (retval == FALSE)
-  { errmsg(112,rtnnme,sys->nme,"delete","constraint",
-	   consys_nme(sys,'c',objndx,FALSE,NULL),objndx) ;
+  { dy_errmsg(112,rtnnme,sys->nme,"delete","constraint",
+	      consys_nme(sys,'c',objndx,FALSE,NULL),objndx) ;
     consys_free(sys) ;
     return (NULL) ; }
 

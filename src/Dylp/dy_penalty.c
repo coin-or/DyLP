@@ -54,8 +54,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_penalty.c	4.5	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 
 
@@ -181,19 +179,19 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 
 # ifdef DYLP_PARANOIA
   if (p_ocbar == NULL)
-  { errmsg(2,rtnnme,"&cbar") ;
+  { dy_errmsg(2,rtnnme,"&cbar") ;
     return (FALSE) ; }
   if (p_nbcnt == NULL)
-  { errmsg(2,rtnnme,"&nbcnt") ;
+  { dy_errmsg(2,rtnnme,"&nbcnt") ;
     return (FALSE) ; }
   if (p_nbvars == NULL)
-  { errmsg(2,rtnnme,"&nbvars") ;
+  { dy_errmsg(2,rtnnme,"&nbvars") ;
     return (FALSE) ; }
   if (orig_lp == NULL)
-  { errmsg(2,rtnnme,"orig_lp") ;
+  { dy_errmsg(2,rtnnme,"orig_lp") ;
     return (FALSE) ; }
   if (orig_lp->consys == NULL)
-  { errmsg(2,rtnnme,"orig_lp->consys") ;
+  { dy_errmsg(2,rtnnme,"orig_lp->consys") ;
     return (FALSE) ; }
 # endif
 
@@ -203,8 +201,8 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
   constraint system with the local scaled copy, if it exists.
 */
   if (orig_lp->owner != dy_owner)
-  { errmsg(396,rtnnme,orig_lp->consys->nme,
-  	   orig_lp->owner,dy_owner,"price nonbasic columns") ;
+  { dy_errmsg(396,rtnnme,orig_lp->consys->nme,
+	      orig_lp->owner,dy_owner,"price nonbasic columns") ;
     return (FALSE) ; }
   (void) dy_initlclsystem(orig_lp,TRUE) ;
   orig_sys = orig_lp->consys ;
@@ -238,9 +236,9 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 #       ifdef DYLP_PARANOIA
 	if ((flgon(statj,vstatNBUB) && cbarj > 0) ||
 	    (flgon(statj,vstatNBLB) && cbarj < 0))
-	{ errmsg(739,rtnnme,dy_sys->nme,"active",
-		 consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx,
-		 dy_prtvstat(statj),cbarj) ;
+	{ dy_errmsg(739,rtnnme,dy_sys->nme,"active",
+		    consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx,
+		    dy_prtvstat(statj),cbarj) ;
 	  retval = FALSE ;
 	  break ; }
 #       endif
@@ -256,18 +254,18 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
     { statj = (flags) -dy_origvars[oxjndx] ;
 #     ifdef DYLP_PARANOIA
       if (flgoff(statj,vstatNBFX|vstatNBUB|vstatNBLB|vstatNBFR))
-      { errmsg(433,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	       "inactive",consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),
-	       oxjndx,dy_prtvstat(statj)) ;
+      { dy_errmsg(433,rtnnme,dy_sys->nme,
+      		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+		  "inactive",consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),
+		  oxjndx,dy_prtvstat(statj)) ;
 	retval = FALSE ;
 	break ; }
 #     endif
       if (flgon(statj,priceme))
       { cbarj = orig_sys->obj[oxjndx] ;
 	if (consys_getcol_pk(orig_sys,oxjndx,&aj) == FALSE)
-	{ errmsg(122,rtnnme,orig_sys->nme,"column",
-		 consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
+	{ dy_errmsg(122,rtnnme,orig_sys->nme,"column",
+		    consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
 	  retval = FALSE ;
 	  break ; }
 	for (pkndx = 0,aij = aj->coeffs ; pkndx < aj->cnt ; pkndx++,aij++)
@@ -278,9 +276,9 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 #       ifdef DYLP_PARANOIA
 	if ((flgon(statj,vstatNBUB) && cbarj > 0) ||
 	    (flgon(statj,vstatNBLB) && cbarj < 0))
-	{ errmsg(739,rtnnme,dy_sys->nme,"inactive",
-		 consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx,
-		 dy_prtvstat(statj),cbarj) ;
+	{ dy_errmsg(739,rtnnme,dy_sys->nme,"inactive",
+		    consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx,
+		    dy_prtvstat(statj),cbarj) ;
 	  retval = FALSE ;
 	  break ; }
 #       endif
@@ -299,9 +297,9 @@ bool dy_pricenbvars (lpprob_struct *orig_lp, flags priceme,
 #     ifdef DYLP_PARANOIA
       if ((flgon(statj,vstatNBUB) && cbarj > 0) ||
 	  (flgon(statj,vstatNBLB) && cbarj < 0))
-      { errmsg(739,rtnnme,dy_sys->nme,"logical",
-	       consys_nme(dy_sys,'v',xjndx,TRUE,NULL),xjndx,
-	       dy_prtvstat(statj),cbarj) ;
+      { dy_errmsg(739,rtnnme,dy_sys->nme,"logical",
+		  consys_nme(dy_sys,'v',xjndx,TRUE,NULL),xjndx,
+		  dy_prtvstat(statj),cbarj) ;
 	retval = FALSE ;
 	break ; }
 #     endif
@@ -434,12 +432,12 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
   { if (INACTIVE_CON(-oxindx)) activexi = FALSE ; }
   else
   { if (INACTIVE_VAR(oxindx))
-    { errmsg(737,rtnnme,orig_sys->nme,
-	     consys_nme(orig_sys,'v',oxindx,FALSE,NULL),oxindx) ;
+    { dy_errmsg(737,rtnnme,orig_sys->nme,
+	        consys_nme(orig_sys,'v',oxindx,FALSE,NULL),oxindx) ;
       return (FALSE) ; } }
 # ifdef DYLP_PARANOIA
   if (activexi == FALSE && ai == NULL)
-  { errmsg(2,rtnnme,"a<i> (inactive)") ;
+  { dy_errmsg(2,rtnnme,"a<i> (inactive)") ;
     return (FALSE) ; }
 # endif
 /*
@@ -476,8 +474,8 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
       statj = dy_status[cndx] ; }
     else
     { if (consys_getcol_pk(orig_sys,oxjndx,&aj) == FALSE)
-      { errmsg(122,rtnnme,orig_sys->nme,"column",
-	       consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
+      { dy_errmsg(122,rtnnme,orig_sys->nme,"column",
+		  consys_nme(orig_sys,'v',oxjndx,TRUE,NULL),oxjndx) ;
 	retval = FALSE ;
 	break ; }
       abarij = 0 ;
@@ -511,8 +509,8 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 	{ vndx = orig_sys->varcnt-oxjndx ; }
 	else
 	{ vndx = oxjndx ; }
-	errmsg(740,rtnnme,orig_sys->nme,"ftran'd column",
-	       consys_nme(orig_sys,'v',vndx,TRUE,NULL),oxjndx) ;
+	dy_errmsg(740,rtnnme,orig_sys->nme,"ftran'd column",
+		  consys_nme(orig_sys,'v',vndx,TRUE,NULL),oxjndx) ;
 	retval = FALSE ;
 	break ; }
       if (oxindx < 0)
@@ -521,8 +519,8 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
       { i = dy_origvars[oxindx] ; }
       ipos = dy_var2basis[i] ;
     if (!withintol(abarj[ipos],abarij,1000*dy_tols->zero))
-    { errmsg(741,rtnnme,orig_sys->nme,oxindx,oxjndx,abarij,ipos,abarj[ipos],
-	     abarj[ipos]-abarij,1000*dy_tols->zero) ;
+    { dy_errmsg(741,rtnnme,orig_sys->nme,oxindx,oxjndx,abarij,ipos,abarj[ipos],
+	        abarj[ipos]-abarij,1000*dy_tols->zero) ;
       retval = FALSE ;
       break ; } }
 #   endif
@@ -545,9 +543,9 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 	tmpndx = -oxjndx ;
       else
 	tmpndx = oxjndx ;
-      errmsg(738,rtnnme,orig_sys->nme,tmpndx,cbarj,dy_prtvstat(statj),
-	     consys_nme(orig_sys,'v',tmpndx+orig_sys->varcnt,FALSE,NULL),
-	     tmpndx,dy_tols->dfeas,dy_tols->dfeas-fabs(cbarj)) ;
+      dy_errmsg(738,rtnnme,orig_sys->nme,tmpndx,cbarj,dy_prtvstat(statj),
+	        consys_nme(orig_sys,'v',tmpndx+orig_sys->varcnt,FALSE,NULL),
+	        tmpndx,dy_tols->dfeas,dy_tols->dfeas-fabs(cbarj)) ;
       retval = FALSE ;
       break ; }
 #   endif
@@ -563,7 +561,7 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 #	endif
 #       ifdef DYLP_PARANOIA
 	if (dpenij < 0)
-	{ errmsg(736,rtnnme,orig_sys->nme,"dpen",oxindx,oxjndx,dpenij) ;
+	{ dy_errmsg(736,rtnnme,orig_sys->nme,"dpen",oxindx,oxjndx,dpenij) ;
 	  retval = FALSE ;
 	  break ; }
 #	endif
@@ -580,7 +578,7 @@ static bool pricedualpiv (consys_struct *orig_sys, double *betai, double *ai,
 #	endif
 #       ifdef DYLP_PARANOIA
 	if (upenij < 0)
-	{ errmsg(736,rtnnme,orig_sys->nme,"upen",oxindx,oxjndx,upenij) ;
+	{ dy_errmsg(736,rtnnme,orig_sys->nme,"upen",oxindx,oxjndx,upenij) ;
 	  retval = FALSE ;
 	  break ; }
 #	endif
@@ -682,16 +680,16 @@ bool dy_pricedualpiv (lpprob_struct *orig_lp, int oxindx,
 			       double **betai, double **ai) ;
 # ifdef DYLP_PARANOIA
   if (p_upeni == NULL)
-  { errmsg(2,rtnnme,"&upen<i>") ;
+  { dy_errmsg(2,rtnnme,"&upen<i>") ;
     return (FALSE) ; }
   if (p_dpeni == NULL)
-  { errmsg(2,rtnnme,"&dpen<i>") ;
+  { dy_errmsg(2,rtnnme,"&dpen<i>") ;
     return (FALSE) ; }
   if (orig_lp == NULL)
-  { errmsg(2,rtnnme,"orig_lp") ;
+  { dy_errmsg(2,rtnnme,"orig_lp") ;
     return (FALSE) ; }
   if (orig_lp->consys == NULL)
-  { errmsg(2,rtnnme,"orig_lp->consys") ;
+  { dy_errmsg(2,rtnnme,"orig_lp->consys") ;
     return (FALSE) ; }
 # endif
 
@@ -700,8 +698,8 @@ bool dy_pricedualpiv (lpprob_struct *orig_lp, int oxindx,
   the client's (unscaled) copy, so we don't swap in the scaled local copy.
 */
   if (orig_lp->owner != dy_owner)
-  { errmsg(396,rtnnme,orig_lp->consys->nme,
-  	   orig_lp->owner,dy_owner,"calculate penalty") ;
+  { dy_errmsg(396,rtnnme,orig_lp->consys->nme,
+	      orig_lp->owner,dy_owner,"calculate penalty") ;
     return (FALSE) ; }
   orig_sys = orig_lp->consys ;
 /*

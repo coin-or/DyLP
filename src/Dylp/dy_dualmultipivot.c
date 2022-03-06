@@ -15,9 +15,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_dualmultipivot.c	4.6	10/15/05" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 /*
   This is an experimental dual pivoting algorithm. The inspiration comes from
   two places:
@@ -382,7 +379,7 @@ static dyret_enum scanForDualInCands (dualcand_struct *incands, int outdir,
 
 # ifdef DYLP_PARANOIA
   if (incands == NULL)
-  { errmsg(2,rtnnme,"incands array") ;
+  { dy_errmsg(2,rtnnme,"incands array") ;
     return (dyrFATAL) ; }
 # endif
 
@@ -709,8 +706,8 @@ static int calcInfChange (dualcand_struct *candk, int i, double *xbasic)
 */
   abark = NULL ;
   if (consys_getcol_ex(dy_sys,k,&abark) == FALSE)
-  { errmsg(122,rtnnme,dy_sys->nme,
-	   "column",consys_nme(dy_sys,'v',k,TRUE,NULL),k) ;
+  { dy_errmsg(122,rtnnme,dy_sys->nme,
+	      "column",consys_nme(dy_sys,'v',k,TRUE,NULL),k) ;
     if (abark != NULL) FREE(abark) ;
     return (-1) ; }
   dy_ftran(abark,FALSE) ;
@@ -920,15 +917,15 @@ bool selectWithInf (int i, dualcand_struct *incands,
   # ifdef DYLP_PARANOIA
     if (dy_lp->d2.iters > 0 && predictiter+1 == dy_lp->d2.iters)
     { if (!atbnd(predicttotinf,starttotinf))
-      { dywarn(350,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "total",predicttotinf,predictiter,
-	     starttotinf,predicttotinf-starttotinf) ; }
+      { dy_warn(350,rtnnme,
+	        dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        "total",predicttotinf,predictiter,
+	        starttotinf,predicttotinf-starttotinf) ; }
       if (!atbnd(predictmaxinf,startmaxinf))
-      { dywarn(350,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "maximum",predictmaxinf,predictiter,
-	     startmaxinf,predictmaxinf-startmaxinf) ; } }
+      { dy_warn(350,rtnnme,
+	        dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
+	        "maximum",predictmaxinf,predictiter,
+	        startmaxinf,predictmaxinf-startmaxinf) ; } }
   # endif
 */
 
@@ -980,9 +977,9 @@ bool selectWithInf (int i, dualcand_struct *incands,
     { price_retval = 1 ; }
     if (price_retval < 0)
     { FREE(xbasic) ;
-      errmsg(348,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters+1,
-	     consys_nme(dy_sys,'v',candk->ndx,FALSE,NULL),candk->ndx) ;
+      dy_errmsg(348,rtnnme,dy_sys->nme,
+      		dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters+1,
+	        consys_nme(dy_sys,'v',candk->ndx,FALSE,NULL),candk->ndx) ;
       return (FALSE) ; }
     flipinfk = candk->flip.maxinf ;
     pivinfk = candk->piv.maxinf ;
@@ -1064,9 +1061,9 @@ bool selectWithInf (int i, dualcand_struct *incands,
     { price_retval = calcInfChange(candk,i,xbasic) ;
       if (price_retval < 0)
       { FREE(xbasic) ;
-	errmsg(348,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters+1,
-	       consys_nme(dy_sys,'v',candk->ndx,FALSE,NULL),candk->ndx) ;
+	dy_errmsg(348,rtnnme,dy_sys->nme,
+		  dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters+1,
+		  consys_nme(dy_sys,'v',candk->ndx,FALSE,NULL),candk->ndx) ;
 	return (FALSE) ; }
       flipinfk = candk->flip.maxinf ;
       pivinfk = candk->piv.maxinf ;
@@ -1137,7 +1134,7 @@ bool selectWithInf (int i, dualcand_struct *incands,
 # ifdef DYLP_PARANOIA
   if ((bestpivcand > 0 && lastpivcand < 0) ||
       (bestpivcand < 0 && lastpivcand > 0))
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (FALSE) ; }
 # endif
 
@@ -1260,9 +1257,9 @@ bool selectWithoutInf (int i, double *abari, dualcand_struct *incands,
     else
     if (dy_lp->d2.iters > 0 && predictiter+1 == dy_lp->d2.iters)
     { if (!atbnd(predictinf,startinf))
-      { dywarn(350,rtnnme,
-	     dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,
-	     "x<i>",predictinf,predictiter,startinf,predictinf-startinf) ; } }
+      { dy_warn(350,rtnnme,dy_sys->nme,
+      		dy_prtlpphase(dy_lp->phase,TRUE),dy_lp->tot.iters,"x<i>",
+		predictinf,predictiter,startinf,predictinf-startinf) ; } }
   # endif
 */
 
@@ -1646,7 +1643,7 @@ dyret_enum dualmultiin (int i, int outdir,
 	bestinf = quiet_nan(0) ; }
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       FREE(incands) ;
       return (dyrFATAL) ; } }
 
@@ -1777,8 +1774,8 @@ dyret_enum dualmultiin (int i, int outdir,
       if (dy_ddegenset[j] == 0)
       { dy_lp->z += dy_cbar[j]*deltaj ; }
       if (consys_mulaccumcol(dy_sys,j,deltaj,accumj) == FALSE)
-      { errmsg(122,rtnnme,dy_sys->nme,
-	       "column",consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
+      { dy_errmsg(122,rtnnme,dy_sys->nme,
+		  "column",consys_nme(dy_sys,'v',j,TRUE,NULL),j) ;
 	retval = dyrFATAL ;
 	break ; } }
     if (retval == dyrFATAL)

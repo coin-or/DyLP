@@ -54,8 +54,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_scaling.c	4.5	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 /*
   Constraint system pointers maintained by this module.
@@ -169,10 +167,10 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 
 # ifdef DYLP_PARANOIA
   if (orig_lp == NULL)
-  { errmsg(2,rtnnme,"orig_lp") ;
+  { dy_errmsg(2,rtnnme,"orig_lp") ;
     return (FALSE) ; }
   if (orig_lp->consys == NULL && dy_opts->context != cxUNLOAD)
-  { errmsg(2,rtnnme,"orig_lp->consys") ;
+  { dy_errmsg(2,rtnnme,"orig_lp->consys") ;
     return (FALSE) ; }
 # endif
 
@@ -192,7 +190,7 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 */
   orig_sys = orig_lp->consys ;
   if (consys_evalsys(orig_sys,&orig_scm,&orig_gecnt) == FALSE)
-  { errmsg(138,rtnnme,orig_sys->nme) ;
+  { dy_errmsg(138,rtnnme,orig_sys->nme) ;
     return (FALSE) ; }
   if (orig_gecnt > 0)
   { pmone = TRUE ; }
@@ -226,10 +224,10 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
       scale = TRUE ;
 #     ifdef DYLP_PARANOIA
       if (orig_sys->rowscale == NULL)
-      { errmsg(101,rtnnme,"row scaling vector") ;
+      { dy_errmsg(101,rtnnme,"row scaling vector") ;
 	return (FALSE) ; }
       if (orig_sys->colscale == NULL)
-      { errmsg(101,rtnnme,"column scaling vector") ;
+      { dy_errmsg(101,rtnnme,"column scaling vector") ;
 	return (FALSE) ; }
 #     endif
 #     ifndef DYLP_NDEBUG
@@ -260,11 +258,11 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 #     endif
       break ; }
     default:
-    { errmsg(7,rtnnme,__LINE__,"scaling option code",dy_opts->scaling) ;
+    { dy_errmsg(7,rtnnme,__LINE__,"scaling option code",dy_opts->scaling) ;
       return (FALSE) ; } }
 # ifdef DYLP_PARANOIA
   if (scale == TRUE && localcopy == FALSE)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (FALSE) ; }
 # endif
   if (pmone == TRUE)
@@ -278,7 +276,7 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 		  CONSYS_CTYP|CONSYS_RHS|CONSYS_RHSLOW|CONSYS_RSCALE|
 		  CONSYS_VTYP|CONSYS_VLB|CONSYS_VUB|CONSYS_CSCALE ;
     if (consys_dupsys(orig_sys,&local_sys,scaled_vecs) == FALSE)
-    { errmsg(137,rtnnme,orig_sys->nme) ;
+    { dy_errmsg(137,rtnnme,orig_sys->nme) ;
       return (FALSE) ; }
     client_sys = orig_lp->consys ;
     orig_lp->consys = local_sys ; }
@@ -309,7 +307,7 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
     else
     { if (consys_geomscale(local_sys,&local_sys->rowscale,
 					  &local_sys->colscale) == FALSE)
-      { errmsg(135,rtnnme,local_sys->nme) ;
+      { dy_errmsg(135,rtnnme,local_sys->nme) ;
 	return (FALSE) ; }
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.scaling >= 2)
@@ -322,7 +320,7 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 #     endif
       if (consys_equiscale(local_sys,&local_sys->rowscale,
 					  &local_sys->colscale) == FALSE)
-      { errmsg(135,rtnnme,local_sys->nme) ;
+      { dy_errmsg(135,rtnnme,local_sys->nme) ;
 	return (FALSE) ; }
 #     ifndef DYLP_NDEBUG
       if (dy_opts->print.scaling >= 2)
@@ -341,13 +339,13 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
     if (localcopy == TRUE)
     { if (consys_attach(local_sys,CONSYS_RSCALE,sizeof(double),
 			(void **) &lcl_rowscale) == FALSE)
-      { errmsg(100,rtnnme,local_sys->nme,
-	       consys_assocnme(NULL,CONSYS_RSCALE)) ;
+      { dy_errmsg(100,rtnnme,local_sys->nme,
+		  consys_assocnme(NULL,CONSYS_RSCALE)) ;
 	return (FALSE) ; }
       if (consys_attach(local_sys,CONSYS_CSCALE,sizeof(double),
 			(void **) &lcl_colscale) == FALSE)
-      { errmsg(100,rtnnme,local_sys->nme,
-	       consys_assocnme(NULL,CONSYS_CSCALE)) ;
+      { dy_errmsg(100,rtnnme,local_sys->nme,
+		  consys_assocnme(NULL,CONSYS_CSCALE)) ;
 	return (FALSE) ; } } }
 /*
   Do we need to scale by -1 to convert >= constraints to <= constraints? If
@@ -360,15 +358,15 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
     { if (lcl_rowscale == NULL)
       { if (consys_attach(local_sys,CONSYS_RSCALE,sizeof(double),
 			  (void **) &lcl_rowscale) == FALSE)
-	{ errmsg(100,rtnnme,local_sys->nme,
-		 consys_assocnme(NULL,CONSYS_RSCALE)) ;
+	{ dy_errmsg(100,rtnnme,local_sys->nme,
+		    consys_assocnme(NULL,CONSYS_RSCALE)) ;
 	  return (FALSE) ; }
 	local_sys->rowscale = lcl_rowscale ;}
       if (lcl_colscale == NULL)
       { if (consys_attach(local_sys,CONSYS_CSCALE,sizeof(double),
 			  (void **) &lcl_colscale) == FALSE)
-	{ errmsg(100,rtnnme,local_sys->nme,
-		 consys_assocnme(NULL,CONSYS_CSCALE)) ;
+	{ dy_errmsg(100,rtnnme,local_sys->nme,
+		    consys_assocnme(NULL,CONSYS_CSCALE)) ;
 	  return (FALSE) ; }
 	local_sys->colscale = lcl_colscale ; } }
     for (i = 1 ; i <= orig_sys->concnt ; i++)
@@ -380,7 +378,7 @@ bool dy_initlclsystem (lpprob_struct *orig_lp, bool hotstart)
 */
   if (scale == TRUE || pmone == TRUE)
   { if (consys_applyscale(local_sys,pmone,lcl_rowscale,lcl_colscale) == FALSE)
-    { errmsg(135,rtnnme,local_sys->nme) ;
+    { dy_errmsg(135,rtnnme,local_sys->nme) ;
       return (FALSE) ; }
     scaled_scm = sqrt(local_sys->maxaij/local_sys->minaij) ;
 #   ifndef DYLP_NDEBUG
@@ -459,7 +457,7 @@ void dy_refreshlclsystem (flags what)
 # ifdef DYLP_PARANOIA
   if (getflg(client_sys->opts,CONSYS_FININF) !=
       getflg(local_sys->opts,CONSYS_FININF))
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return ; }
 # endif
 

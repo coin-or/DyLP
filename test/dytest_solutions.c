@@ -131,8 +131,8 @@ int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { errcnt++ ;
       if (j < 0)
       { j = n-j ; }
-      errmsg(952,rtnnme,sys->nme,"column",i,"variable",
-	     consys_nme(sys,'v',j,FALSE,NULL),j-n) ;
+      dy_errmsg(952,rtnnme,sys->nme,"column",i,"variable",
+	        consys_nme(sys,'v',j,FALSE,NULL),j-n) ;
       continue ; }
     cBdotbetai = 0 ;
     for (k = 1 ; k <= m ; k++)
@@ -398,7 +398,7 @@ int dytest_allDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 	{ ydotaj += cbarj ;
 	  break ; }
 	default:
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  errcnt += 10000 ;
 	  ydotaj = quiet_nan(42.0L) ;
 	  break ; } } }
@@ -525,8 +525,8 @@ int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
       i_bpos = basis[k].cndx ;
       if (dy_betai(main_lp,i_bpos,&betai) == FALSE)
       { berrs++ ;
-	errmsg(952,rtnnme,sys->nme,"row",i_bpos,"variable",
-	       consys_nme(sys,'v',j,FALSE,NULL),j) ;
+	dy_errmsg(952,rtnnme,sys->nme,"row",i_bpos,"variable",
+		  consys_nme(sys,'v',j,FALSE,NULL),j) ;
 	continue ; }
       betaidotb = 0 ;
       for (i = 1 ; i <= m ; i++)
@@ -574,8 +574,8 @@ int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     if (xj == 0.0) continue ;
     if (dy_abarj(main_lp,j,&abarj) == FALSE)
     { nberrs++ ;
-      errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	     consys_nme(sys,'v',j,FALSE,NULL),j) ;
+      dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+	        consys_nme(sys,'v',j,FALSE,NULL),j) ;
       continue ; }
     for (k = 1 ; k <= m ; k++)
     { xB[k] -= abarj[k]*xj ; } } }
@@ -592,8 +592,8 @@ int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { xj = rhs[i]-rhslow[i] ;
       if (dy_abarj(main_lp,-i,&abarj) == FALSE)
       { nberrs++ ;
-	errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	       consys_nme(sys,'v',n+i,FALSE,NULL),i) ;
+	dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+		  consys_nme(sys,'v',n+i,FALSE,NULL),i) ;
 	continue ; }
       for (k = 1 ; k <= m ; k++)
       { xB[k] -= abarj[k]*xj ; } } }
@@ -824,8 +824,8 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
       { statj = n-j ; }
       else
       { statj = j ; }
-      errmsg(952,rtnnme,sys->nme,"row",i,"basic variable",
-	     consys_nme(sys,'v',statj,FALSE,NULL),j) ;
+      dy_errmsg(952,rtnnme,sys->nme,"row",i,"basic variable",
+	        consys_nme(sys,'v',statj,FALSE,NULL),j) ;
       continue ; }
     betaidotb = 0 ;
     for (k = 1 ; k <= m ; k++)
@@ -866,8 +866,8 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     if (xj == 0.0) continue ;
     if (dy_abarj(main_lp,j,&abarj) == FALSE)
     { nberrs++ ;
-      errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	     consys_nme(sys,'v',j,FALSE,NULL),j) ;
+      dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+	        consys_nme(sys,'v',j,FALSE,NULL),j) ;
       continue ; }
     for (k = 1 ; k <= m ; k++)
     { xBaccum[k] -= abarj[k]*xj ; } }
@@ -884,8 +884,8 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { xj = rhs[i]-rhslow[i] ;
       if (dy_abarj(main_lp,-i,&abarj) == FALSE)
       { nberrs++ ;
-	errmsg(953,rtnnme,sys->nme,"ftran'd","column",
-	       consys_nme(sys,'v',n+i,FALSE,NULL),i) ;
+	dy_errmsg(953,rtnnme,sys->nme,"ftran'd","column",
+		  consys_nme(sys,'v',n+i,FALSE,NULL),i) ;
 	continue ; }
       for (k = 1 ; k <= m ; k++)
       { xBaccum[k] -= abarj[k]*xj ; } } }

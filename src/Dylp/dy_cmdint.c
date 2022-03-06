@@ -168,10 +168,10 @@ static cmd_retval docmd (ioid cmdchn, bool cmdecho, lex_struct *txt,
 
 
   if (txt == NULL)
-  { errmsg(2,rtnnme,"txt") ;
+  { dy_errmsg(2,rtnnme,"txt") ;
     return (cmdHALTERROR) ; }
   if (txt->class != DY_LCID)
-  { errmsg(5,rtnnme,(int) txt->class) ;
+  { dy_errmsg(5,rtnnme,(int) txt->class) ;
     return (cmdHALTERROR) ; }
 /*
   Look up the command in the command table. Return code of -1 means we can't
@@ -182,9 +182,9 @@ static cmd_retval docmd (ioid cmdchn, bool cmdecho, lex_struct *txt,
   cmd = ambig(txt->string,usercmds,NUMUSERCMDS) ;
   if (cmd < 0) 
   { if (cmd < -1)
-      errmsg(233,rtnnme,txt->string) ;
+      dy_errmsg(233,rtnnme,txt->string) ;
     else
-      errmsg(234,rtnnme,txt->string) ;
+      dy_errmsg(234,rtnnme,txt->string) ;
     return (cmdHALTERROR) ; }
 /*
   Call the appropriate execution routine. Go to free input mode while parsing
@@ -287,7 +287,7 @@ static cmd_retval indcmd (ioid *cmdchn, bool *cmdecho, bool silent)
 */
   file = dyio_scanstr(*cmdchn,DY_LCQS,0,'"','"') ;
   if (file->class != DY_LCQS)
-  { errmsg(236,rtnnme,"file name","parameter","@") ;
+  { dy_errmsg(236,rtnnme,"file name","parameter","@") ;
     return (cmdHALTERROR) ; }
 /*
   Stash the old command channel, then try to open the new file.
@@ -349,10 +349,10 @@ static cmd_retval dobuiltin (ioid *cmdchn, bool *cmdecho, lex_struct *txt,
   const char *rtnnme = "dobuiltin" ;
 
   if (txt == NULL)
-  { errmsg(2,rtnnme,"txt") ;
+  { dy_errmsg(2,rtnnme,"txt") ;
     return (cmdHALTERROR) ; }
   if (txt->class != DY_LCDEL)
-  { errmsg(5,rtnnme,(int) txt->class) ;
+  { dy_errmsg(5,rtnnme,(int) txt->class) ;
     return (cmdHALTERROR) ; }
 /*
   Deal with empty lines, comments, and garbage.
@@ -367,7 +367,7 @@ static cmd_retval dobuiltin (ioid *cmdchn, bool *cmdecho, lex_struct *txt,
     return (cmdOK) ; }
 
   if (*txt->string != '@')
-  { errmsg(230,rtnnme,txt->string) ;
+  { dy_errmsg(230,rtnnme,txt->string) ;
     return (cmdHALTERROR) ; }
 /*
   The various 'built-in' commands. For now, just opening an indirect command
@@ -452,7 +452,7 @@ cmd_retval dy_processcmds (ioid cmdchn, bool silent,
 	{ retval = cmdHALTNOERROR ; }
 	else
 	{ if (dyio_closefile(cmdchn) == FALSE)
-	    dywarn(232,rtnnme,dyio_idtopath(cmdchn)) ;
+	    dy_warn(232,rtnnme,dyio_idtopath(cmdchn)) ;
 	  cmdchn = cmdchns[--level].chn ;
 	  dyio_outfmt(dy_logchn,dy_gtxecho,
 		      "\n\treturning to command source file %s\n",
@@ -464,13 +464,13 @@ cmd_retval dy_processcmds (ioid cmdchn, bool silent,
       case DY_LCERR:
       { break ; }
       default: /* DY_LCNIL, DY_LCNUM, DY_LCFS, DY_LCQS */
-      { errmsg(230,rtnnme,(txt->string == NULL)?"<<nil>>":txt->string) ;
+      { dy_errmsg(230,rtnnme,(txt->string == NULL)?"<<nil>>":txt->string) ;
 	break ; } }
     dyio_flushio(dy_logchn,cmdecho) ; }
 /*
   Command interpretation has been stopped. Fix up the return code and return.
 */
-  if (retval == cmdHALTERROR) errmsg(235,rtnnme) ;
+  if (retval == cmdHALTERROR) dy_errmsg(235,rtnnme) ;
   if (retval == cmdHALTNOERROR && txt->class == DY_LCEOF) retval = cmdOK ;
 
   return (retval) ; }

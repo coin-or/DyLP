@@ -49,3 +49,15 @@ includecoin_HEADERS = \
 	OsiDylpSolverInterface.hpp \
 	OsiDylpWarmStartBasis.hpp
 
+# Trickery here. During the build we need a non-trivial OsiDylpConfig.h to
+# set OSIDYLPLIB_EXPORT. It's part of the source.  Users need only a trivial
+# file that undefines OSIDYLPLIB_EXPORT.  We deal with this by installing
+# config_osidylp.h as OsiDylpConfig.h. Then we're responsible for removing it.
+
+install-exec-local:
+	$(install_sh_DATA) \
+	  config_osidylp.h $(DESTDIR)$(includecoindir)/OsiDylpConfig.h
+
+uninstall-local:
+	rm -f $(DESTDIR)$(includecoindir)/OsiDylpConfig.h
+

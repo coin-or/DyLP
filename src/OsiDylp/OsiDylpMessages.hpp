@@ -10,11 +10,6 @@
   under the terms of the Eclipse Public License (EPL)
 */
 
-/*
-  sccs: @(#)OsiDylpMessages.hpp	1.5     09/16/04
-  cvs: $Id: OsiDylpMessages.hpp 1312 2008-10-10 00:26:32Z lou $
-*/
-
 
 #include "CoinMessageHandler.hpp"
 

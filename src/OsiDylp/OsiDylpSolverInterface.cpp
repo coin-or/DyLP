@@ -1253,9 +1253,9 @@ void ODSI::dylp_ioinit ()
 { if (reference_count > 1) return ;
 
 # ifdef ODSI_INFOMSGS
-  errinit(0,true) ;
+  dy_errinit(0,true) ;
 # else
-  errinit(0,false) ;
+  dy_errinit(0,false) ;
 # endif
   bool r1 UNUSED = dyio_ioinit() ;
   assert(r1) ;
@@ -2190,7 +2190,7 @@ ODSI::~OsiDylpSolverInterface ()
     { dy_freebasis() ;
       basis_ready = false ; }
     dyio_ioterm() ;
-    errterm() ; }
+    dy_errterm() ; }
 
 # if ODSI_TRACK_SOLVERS > 0
   std::cout

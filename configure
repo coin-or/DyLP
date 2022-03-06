@@ -20288,10 +20288,17 @@ ac_config_files="$ac_config_files doc/Makefile doc/dylpabsdir.tex doc/makefile.d
 ac_config_files="$ac_config_files doc/build_dylpdoc"
 
 
-# Here put the location and name of the configuration header files
+# Here put the location and name of the configuration header files. Dylp needs
+# config.h to be idempotent, so insist on guards.
+
+
 
 ac_config_headers="$ac_config_headers src/DylpStdLib/config.h src/DylpStdLib/config_dylp.h"
 
+if test $coin_has_osi = yes ; then
+  ac_config_headers="$ac_config_headers src/OsiDylp/config_osidylp.h"
+
+fi
 
 # Finally, we let configure write all the output...
 
@@ -21477,6 +21484,7 @@ do
     "doc/build_dylpdoc") CONFIG_FILES="$CONFIG_FILES doc/build_dylpdoc" ;;
     "src/DylpStdLib/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/DylpStdLib/config.h" ;;
     "src/DylpStdLib/config_dylp.h") CONFIG_HEADERS="$CONFIG_HEADERS src/DylpStdLib/config_dylp.h" ;;
+    "src/OsiDylp/config_osidylp.h") CONFIG_HEADERS="$CONFIG_HEADERS src/OsiDylp/config_osidylp.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

@@ -33,6 +33,8 @@
 #include <CoinMpsIO.hpp>
 #include <CoinPresolveMatrix.hpp>
 
+#include "OsiDylpConfig.h"
+
 #define DYLP_INTERNAL
 extern "C" {
 #include "dylp.h"
@@ -104,7 +106,8 @@ typedef enum { startInvalid = 0,
   which is not normally scanned when generating COIN OSI API documentation.
 */
 
-class OsiDylpSolverInterface: virtual public OsiSolverInterface
+class OSIDYLPLIB_EXPORT
+OsiDylpSolverInterface: virtual public OsiSolverInterface
 
 { friend void OsiDylpSolverInterfaceUnitTest(const std::string &mpsDir,
 					     const std::string &netLibDir) ;
@@ -566,12 +569,12 @@ public:
 
   /*! \brief Change the language for OsiDylp messages */
 
-  inline void newLanguage(CoinMessages::Language language)
+  void newLanguage(CoinMessages::Language language)
   { setOsiDylpMessages(language) ; }
 
   /*! \brief An alias for OsiDylpSolverInterface::newLanguage. */
 
-  inline void setLanguage(CoinMessages::Language language)
+  void setLanguage(CoinMessages::Language language)
   { setOsiDylpMessages(language) ; }
 
 //@}

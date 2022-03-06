@@ -146,7 +146,7 @@ char *dy_prtpivparms (int lvl)
   const char *rtnnme = "dy_prtpivparms" ;
 
   if (luf_basis == NULL)
-  { errmsg(2,rtnnme,"luf_basis") ;
+  { dy_errmsg(2,rtnnme,"luf_basis") ;
     return ("<<error: no basis!>>") ; }
 # endif
 
@@ -190,7 +190,7 @@ bool dy_setpivparms (int curdelta, int mindelta)
   const char *rtnnme = "dy_setpivparms" ;
 
   if (luf_basis == NULL)
-  { errmsg(2,rtnnme,"luf_basis") ;
+  { dy_errmsg(2,rtnnme,"luf_basis") ;
     return (FALSE) ; }
 # endif
 
@@ -298,7 +298,7 @@ double dy_chkpiv (double abarij, double maxabar)
 
 # ifdef DYLP_PARANOIA
   if (luf_basis == NULL)
-  { errmsg(2,rtnnme,"luf_basis") ;
+  { dy_errmsg(2,rtnnme,"luf_basis") ;
     return (dyrFATAL) ; }
 # endif
 
@@ -365,10 +365,10 @@ void dy_initbasis (int concnt, int factor, double zero_tol)
   luf_basis = inv_create(luf_capacity,factor) ;
   if (luf_basis == NULL)
   { if (dy_lp == NULL)
-    { errmsg(302,rtnnme,"empty","pre-init",0,"create") ; }
+    { dy_errmsg(302,rtnnme,"empty","pre-init",0,"create") ; }
     else
-    { errmsg(302,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters,"create") ; }
+    { dy_errmsg(302,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		dy_lp->tot.iters,"create") ; }
     return ; }
 /*
   WARNING: We're going to reach inside glpluf to get it to triple the amount
@@ -588,19 +588,19 @@ static void adjust_basis (int *p_patchcnt, patch_struct **p_patches)
   const char *rtnnme = "adjust_basis" ;
 
   if (dy_sys == NULL)
-  { errmsg(2,rtnnme,"dy_sys") ;
+  { dy_errmsg(2,rtnnme,"dy_sys") ;
     return ; }
   if (dy_basis == NULL)
-  { errmsg(2,rtnnme,"basis") ;
+  { dy_errmsg(2,rtnnme,"basis") ;
     return ; }
   if (dy_var2basis == NULL)
-  { errmsg(2,rtnnme,"var2basis") ;
+  { dy_errmsg(2,rtnnme,"var2basis") ;
     return ; }
   if (luf_basis == NULL)
-  { errmsg(2,rtnnme,"LUF basis") ;
+  { dy_errmsg(2,rtnnme,"LUF basis") ;
     return ; }
   if (p_patches == NULL)
-  { errmsg(2,rtnnme,"p_patches") ;
+  { dy_errmsg(2,rtnnme,"p_patches") ;
     return ; }
 #endif
 
@@ -710,16 +710,16 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 
 # ifdef DYLP_PARANOIA
   if (dy_sys == NULL)
-  { errmsg(2,rtnnme,"dy_sys") ;
+  { dy_errmsg(2,rtnnme,"dy_sys") ;
     return (dyrFATAL) ; }
   if (dy_basis == NULL)
-  { errmsg(2,rtnnme,"basis") ;
+  { dy_errmsg(2,rtnnme,"basis") ;
     return (dyrFATAL) ; }
   if (dy_var2basis == NULL)
-  { errmsg(2,rtnnme,"var2basis") ;
+  { dy_errmsg(2,rtnnme,"var2basis") ;
     return (dyrFATAL) ; }
   if (patches == NULL)
-  { errmsg(2,rtnnme,"patch") ;
+  { dy_errmsg(2,rtnnme,"patch") ;
     return (dyrFATAL) ; }
 # endif
 
@@ -729,17 +729,17 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
   if (!(phase == dyINIT || phase == dyADDVAR || phase == dyADDCON ||
 	phase == dyPRIMAL1 || phase == dyPRIMAL2 || phase == dyDUAL ||
 	phase == dyFORCEPRIMAL || phase == dyFORCEDUAL))
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     return (dyrFATAL) ; }
   if (!(phase == dyINIT))
   { if (dy_status == NULL)
-    { errmsg(2,rtnnme,"status") ;
+    { dy_errmsg(2,rtnnme,"status") ;
       return (dyrFATAL) ; }
     if (dy_x == NULL)
-    { errmsg(2,rtnnme,"x") ;
+    { dy_errmsg(2,rtnnme,"x") ;
       return (dyrFATAL) ; }
     if (dy_xbasic == NULL)
-    { errmsg(2,rtnnme,"x<B>") ;
+    { dy_errmsg(2,rtnnme,"x<B>") ;
       return (dyrFATAL) ; } }
 #endif
 
@@ -818,15 +818,15 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 	{ 
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.dual >= 1)
-	  { dywarn(346,rtnnme,
-		 dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
-		 dy_prtvstat(statj),consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
+	  { dy_warn(346,rtnnme,dy_sys->nme,dy_prtlpphase(phase,TRUE),
+	  	    dy_lp->tot.iters+1,dy_prtvstat(statj),
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j) ; }
 #	  endif
 	  retval = dyrLOSTDFEAS ; }
 	break ; }
       default:
-      { errmsg(380,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-	       dy_prtvstat(statj),"basic") ;
+      { dy_errmsg(380,rtnnme,dy_sys->nme,consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		  dy_prtvstat(statj),"basic") ;
 	return (dyrFATAL) ; } }
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.basis >= 3)
@@ -862,7 +862,7 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 */
   dy_calcduals() ;
   if (dy_calccbar() == FALSE)
-  { errmsg(384,rtnnme,
+  { dy_errmsg(384,rtnnme,
 	   dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters) ;
     return (dyrFATAL) ; }
 
@@ -887,10 +887,10 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 #	ifndef DYLP_NDEBUG
 	cbarj = dy_cbar[j] ;
 	if (dy_opts->print.dual >= 1)
-	{ dywarn(347,rtnnme,
-	       dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
-	       consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-	       dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
+	{ dy_warn(347,rtnnme,
+		  dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
+		  consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		  dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
 #	endif
 	break ; }
       cbarj = dy_cbar[j] ;
@@ -899,10 +899,10 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.dual >= 1)
-	  { dywarn(347,rtnnme,
-		 dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
-		 consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-		 dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
+	  { dy_warn(347,rtnnme,
+		    dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		    dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
 #	  endif
 	  retval = dyrLOSTDFEAS ;
 	  break ; }
@@ -915,10 +915,10 @@ static dyret_enum adjust_therest (int patchcnt, patch_struct *patches)
 	{
 #	  ifndef DYLP_NDEBUG
 	  if (dy_opts->print.dual >= 1)
-	  { dywarn(347,rtnnme,
-		 dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
-		 consys_nme(dy_sys,'v',j,FALSE,NULL),j,
-		 dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
+	  { dy_warn(347,rtnnme,
+		    dy_sys->nme,dy_prtlpphase(phase,TRUE),dy_lp->tot.iters+1,
+		    consys_nme(dy_sys,'v',j,FALSE,NULL),j,
+		    dy_prtvstat(statj),j,cbarj,dy_tols->dfeas) ; }
 #	  endif
 	  retval = dyrLOSTDFEAS ;
 	  break ; }
@@ -987,13 +987,13 @@ static int factor_loadcol (void *p_consys, int i, int *rndx, double *coeff)
 
 # ifdef DYLP_PARANOIA
   if (p_consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (-1) ; }
   if (rndx == NULL)
-  { errmsg(2,rtnnme,"row index vector") ;
+  { dy_errmsg(2,rtnnme,"row index vector") ;
     return (-1) ; }
   if (coeff == NULL)
-  { errmsg(2,rtnnme,"coefficient") ;
+  { dy_errmsg(2,rtnnme,"coefficient") ;
     return (-1) ; }
 # endif
 
@@ -1005,8 +1005,8 @@ static int factor_loadcol (void *p_consys, int i, int *rndx, double *coeff)
 */
   j = dy_basis[i] ;
   if (consys_getcol_pk(consys,j,&aj) == FALSE)
-  { errmsg(112,rtnnme,dy_sys->nme,"retrieve","column",
-	   consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
+  { dy_errmsg(112,rtnnme,dy_sys->nme,"retrieve","column",
+	      consys_nme(dy_sys,'v',j,FALSE,NULL),j) ;
     if (aj != NULL) pkvec_free(aj) ;
     return (-1) ; }
 /*
@@ -1087,10 +1087,10 @@ dyret_enum dy_factor (flags *calcflgs)
 
 #ifdef DYLP_PARANOIA
   if (dy_sys == NULL)
-  { errmsg(2,rtnnme,"dy_sys") ;
+  { dy_errmsg(2,rtnnme,"dy_sys") ;
     return (dyrFATAL) ; }
   if (dy_basis == NULL)
-  { errmsg(2,rtnnme,"basis") ;
+  { dy_errmsg(2,rtnnme,"basis") ;
     return (dyrFATAL) ; }
 #endif
 
@@ -1161,8 +1161,8 @@ dyret_enum dy_factor (flags *calcflgs)
 */
       case 1:
       { if (dy_opts->patch == FALSE)
-	{ errmsg(308,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		 dy_lp->tot.iters,dy_prtdyret(dyrSINGULAR)) ;
+	{ dy_errmsg(308,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		    dy_lp->tot.iters,dy_prtdyret(dyrSINGULAR)) ;
 	  clrflg(*calcflgs,ladPRIMALS|ladDUALS) ;
 	  return (dyrSINGULAR) ; }
 #	ifndef DYLP_NDEBUG
@@ -1186,8 +1186,8 @@ dyret_enum dy_factor (flags *calcflgs)
 		      luf_basis->luf->big_v,luf_basis->luf->max_gro) ; }
 # 	endif
 	if (dy_setpivparms(+1,0) == FALSE)
-	{ errmsg(307,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-		 dy_lp->tot.iters,dy_prtpivparms(-1)) ;
+	{ dy_errmsg(307,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		    dy_lp->tot.iters,dy_prtpivparms(-1)) ;
 	  return (retcode) ; }
 #	ifndef DYLP_NDEBUG
 	if (dy_opts->print.basis >= 2)
@@ -1196,7 +1196,7 @@ dyret_enum dy_factor (flags *calcflgs)
 #	endif
 	break ; }
       default:
-      { errmsg(7,rtnnme,__LINE__,"inv_decomp return code",retval) ;
+      { dy_errmsg(7,rtnnme,__LINE__,"inv_decomp return code",retval) ;
 	return (dyrFATAL) ; } }
   }
 /*
@@ -1211,8 +1211,8 @@ dyret_enum dy_factor (flags *calcflgs)
   { retcode = adjust_therest(patchcnt,patches) ;
     FREE(patches) ;
     if (retcode == dyrFATAL)
-    { errmsg(306,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
-	     dy_lp->tot.iters) ;
+    { dy_errmsg(306,rtnnme,dy_sys->nme,dy_prtlpphase(dy_lp->phase,TRUE),
+		dy_lp->tot.iters) ;
       return (dyrFATAL) ; }
 #   ifndef DYLP_NDEBUG
     if (dy_opts->print.basis >= 1)
@@ -1338,7 +1338,7 @@ dyret_enum dy_pivot (int xipos, double abarij, double maxabarj)
 #     endif
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       retcode = dyrFATAL ;
       break ; } }
   

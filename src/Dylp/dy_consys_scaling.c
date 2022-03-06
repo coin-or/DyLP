@@ -88,22 +88,22 @@ bool consys_evalsys (consys_struct *consys, double *p_scm, int *p_gecnt)
   char *rtnnme = "consys_evalsys" ;
 
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(2,rtnnme,"row header") ;
+  { dy_errmsg(2,rtnnme,"row header") ;
     return (FALSE) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(2,rtnnme,"column header") ;
+  { dy_errmsg(2,rtnnme,"column header") ;
     return (FALSE) ; }
   if (consys->ctyp == NULL)
-  { errmsg(101,rtnnme,consys->nme,"constraint type vector") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"constraint type vector") ;
     return (FALSE) ; }
   if (p_scm == NULL)
-  { errmsg(2,rtnnme,"scm") ;
+  { dy_errmsg(2,rtnnme,"scm") ;
     return (FALSE) ; }
   if (p_gecnt == NULL)
-  { errmsg(2,rtnnme,"gecnt") ;
+  { dy_errmsg(2,rtnnme,"gecnt") ;
     return (FALSE) ; }
 # endif
 
@@ -123,15 +123,15 @@ bool consys_evalsys (consys_struct *consys, double *p_scm, int *p_gecnt)
   { rowi = consys->mtx.rows[i] ;
 #   ifdef DYLP_PARANOIA
     if (rowi == NULL)
-    { errmsg(103,rtnnme,consys->nme,"row",i) ;
+    { dy_errmsg(103,rtnnme,consys->nme,"row",i) ;
       return (FALSE) ; }
     if (rowi->ndx != i)
-    { errmsg(126,rtnnme,consys->nme,"row",rowi,rowi->ndx,i,rowi) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",rowi,rowi->ndx,i,rowi) ;
       return (FALSE) ; }
     if ((rowi->coeffs == NULL && rowi->len != 0) ||
 	(rowi->coeffs != NULL && rowi->len == 0))
-    { errmsg(134,rtnnme,consys->nme,"row",rowi->nme,i,rowi->len,
-	     (rowi->coeffs == NULL)?"null":"non-null") ;
+    { dy_errmsg(134,rtnnme,consys->nme,"row",rowi->nme,i,rowi->len,
+	        (rowi->coeffs == NULL)?"null":"non-null") ;
       return (FALSE) ; }
 #   endif
     if (consys->ctyp[i] == contypGE)
@@ -141,14 +141,14 @@ bool consys_evalsys (consys_struct *consys, double *p_scm, int *p_gecnt)
     {
 #     ifdef DYLP_PARANOIA
       if (coeffij->rowhdr != rowi)
-      { errmsg(125,rtnnme,"rowhdr",coeffij,"row",rowi->nme,i) ;
+      { dy_errmsg(125,rtnnme,"rowhdr",coeffij,"row",rowi->nme,i) ;
 	return (FALSE) ; }
       if (coeffij->colhdr == NULL)
-      { errmsg(125,rtnnme,"colhdr",coeffij,"row",rowi->nme,i) ;
+      { dy_errmsg(125,rtnnme,"colhdr",coeffij,"row",rowi->nme,i) ;
 	return (FALSE) ; }
       if (coeffij->colhdr->ndx <= 0 || coeffij->colhdr->ndx > consys->varcnt)
-      { errmsg(102,rtnnme,consys->nme,"column",coeffij->colhdr->ndx,1,
-	       consys->varcnt) ;
+      { dy_errmsg(102,rtnnme,consys->nme,"column",coeffij->colhdr->ndx,1,
+		  consys->varcnt) ;
 	return (FALSE) ; }
 #     endif
 
@@ -213,19 +213,19 @@ bool consys_geomscale (consys_struct *consys,
   char *rtnnme = "consys_geomscale" ;
 
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(2,rtnnme,"row header") ;
+  { dy_errmsg(2,rtnnme,"row header") ;
     return (FALSE) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(2,rtnnme,"column header") ;
+  { dy_errmsg(2,rtnnme,"column header") ;
     return (FALSE) ; }
   if (p_rowscale == NULL)
-  { errmsg(2,rtnnme,"&rowscale") ;
+  { dy_errmsg(2,rtnnme,"&rowscale") ;
     return (FALSE) ; }
   if (p_colscale == NULL)
-  { errmsg(2,rtnnme,"&colscale") ;
+  { dy_errmsg(2,rtnnme,"&colscale") ;
     return (FALSE) ; }
 
 # endif
@@ -349,19 +349,19 @@ bool consys_equiscale (consys_struct *consys,
   char *rtnnme = "consys_equiscale" ;
 
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(2,rtnnme,"row header") ;
+  { dy_errmsg(2,rtnnme,"row header") ;
     return (FALSE) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(2,rtnnme,"column header") ;
+  { dy_errmsg(2,rtnnme,"column header") ;
     return (FALSE) ; }
   if (p_rowscale == NULL)
-  { errmsg(2,rtnnme,"&rowscale") ;
+  { dy_errmsg(2,rtnnme,"&rowscale") ;
     return (FALSE) ; }
   if (p_colscale == NULL)
-  { errmsg(2,rtnnme,"&colscale") ;
+  { dy_errmsg(2,rtnnme,"&colscale") ;
     return (FALSE) ; }
 
 # endif
@@ -466,19 +466,19 @@ bool consys_applyscale (consys_struct *consys, bool convctyp,
   char *rtnnme = "consys_applyscale" ;
 
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(2,rtnnme,"row header") ;
+  { dy_errmsg(2,rtnnme,"row header") ;
     return (FALSE) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(2,rtnnme,"column header") ;
+  { dy_errmsg(2,rtnnme,"column header") ;
     return (FALSE) ; }
   if (rowscale == NULL)
-  { errmsg(2,rtnnme,"rowscale") ;
+  { dy_errmsg(2,rtnnme,"rowscale") ;
     return (FALSE) ; }
   if (colscale == NULL)
-  { errmsg(2,rtnnme,"colscale") ;
+  { dy_errmsdy_errmsg(2,rtnnme,"colscale") ;
     return (FALSE) ; }
 # endif
 
@@ -501,7 +501,7 @@ bool consys_applyscale (consys_struct *consys, bool convctyp,
       { 
 #       ifdef DYLP_PARANOIA
 	if (consys->ctyp[i] != contypGE)
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  return (FALSE) ; }
 #       endif
 	consys->ctyp[i] = contypLE ; } } }

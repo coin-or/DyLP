@@ -17,7 +17,7 @@
 
 //   General error messages, useful pretty much anywhere
 
-const char *dy_errmsgs[] = {
+const char *dy_errmsgtmplts[] = {
   /*0*/ "<<unused>>",
   /*1*/ "internal confusion, line %d.",
   /*2*/ "%s parameter is null.",
@@ -1215,4 +1215,4 @@ const char *dy_errmsgs[] = {
   /*954*/ "[%s]: cannot calculate %s rays; incompatible lp return code %s.",
   /*955*/ "[%s]: error while generating %s rays." } ; 
 
-const int dy_errmsgCnt = (sizeof(dy_errmsgs)/sizeof(char *))-1 ;
+const int dy_errmsgCnt = (sizeof(dy_errmsgtmplts)/sizeof(char *))-1 ;

@@ -37,8 +37,6 @@
 
 #include "dylp.h"
 
-static char sccsid[] UNUSED = "@(#)dy_primalmultipivot.c	1.4	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 /*
   The structure to hold pivot candidates
@@ -304,7 +302,7 @@ static dyret_enum scanForPrimOutCands (primcand_struct *outcands,
 
 # ifdef DYLP_PARANOIA
   if (outcands == NULL)
-  { errmsg(2,rtnnme,"outcands array") ;
+  { dy_errmsg(2,rtnnme,"outcands array") ;
     return (dyrFATAL) ; }
 # endif
 

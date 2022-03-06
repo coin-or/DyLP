@@ -237,8 +237,8 @@ void test_starts (const std::string& mpsDir)
 */
   { const double *cbar = osi->getReducedCost() ;
     ws = osi->getWarmStart() ;
-    const OsiDylpWarmStartBasis *odsi_wsb =
-	dynamic_cast<OsiDylpWarmStartBasis *>(ws) ;
+    const CoinWarmStartBasis *odsi_wsb = 
+    			dynamic_cast<CoinWarmStartBasis *>(ws) ;
     std::cout
       << "Performing sanity test on reduced costs." << std::endl ;
     bool signsok = true;

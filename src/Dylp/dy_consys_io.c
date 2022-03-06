@@ -56,7 +56,7 @@ const char *consys_prtcontyp (contyp_enum contyp)
     case contypINV:
     { return ("invalid") ; }
     default:
-    { errmsg(5,rtnnme,"contyp",(int) contyp) ;
+    { dy_errmsg(5,rtnnme,"contyp",(int) contyp) ;
       return ("unrecognised") ; } } }
 
 
@@ -83,7 +83,7 @@ const char *consys_prtvartyp (vartyp_enum vartyp)
     case vartypINV:
     { return ("invalid") ; }
     default:
-    { errmsg(5,rtnnme,"vartyp",(int) vartyp) ;
+    { dy_errmsg(5,rtnnme,"vartyp",(int) vartyp) ;
       return ("unrecognised") ; } } }
 
 
@@ -199,48 +199,48 @@ void consys_chgnme (consys_struct *consys, char cv,
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return ; }
 
   switch (cv)
   { case 'c':
     { if (consys->mtx.rows == NULL)
-      { errmsg(101,rtnnme,consys->nme,"row header") ;
+      { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
 	return ; }
       if (ndx <= 0 || ndx > consys->concnt)
-      { errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->concnt) ;
+      { dy_errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->concnt) ;
 	return ; }
       if (consys->mtx.rows[ndx] == NULL)
-      { errmsg(103,rtnnme,consys->nme,"row",ndx) ;
+      { dy_errmsg(103,rtnnme,consys->nme,"row",ndx) ;
 	return ; }
       break ; }
     case 'v':
     { if (consys->mtx.cols == NULL)
-      { errmsg(101,rtnnme,consys->nme,"column header") ;
+      { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
 	return ; }
       if (flgon(consys->opts,CONSYS_LVARS))
 	varcnt = consys->varcnt ;
       else
 	varcnt = consys->varcnt+consys->concnt ;
       if (ndx <= 0 || ndx > varcnt)
-      { errmsg(102,rtnnme,consys->nme,"variable",ndx,1,varcnt) ;
+      { dy_errmsg(102,rtnnme,consys->nme,"variable",ndx,1,varcnt) ;
 	return ; }
       if (consys->mtx.cols[ndx] == NULL)
-      { errmsg(103,rtnnme,consys->nme,"column",ndx) ;
+      { dy_errmsg(103,rtnnme,consys->nme,"column",ndx) ;
 	return ; }
       break ; }
     case 'o':
     case 's':
     { break ; }
     default:
-    { errmsg(3,rtnnme,"cv",cv) ;
+    { dy_errmsg(3,rtnnme,"cv",cv) ;
       return ; } }
 
   if (newnme == NULL)
-  { errmsg(2,rtnnme,"newnme") ;
+  { dy_errmsg(2,rtnnme,"newnme") ;
     return ; }
   if (strlen(newnme) == 0)
-  { errmsg(4,rtnnme,"newnme","<null string>") ;
+  { dy_errmsg(4,rtnnme,"newnme","<null string>") ;
     return ; }
 # endif
 
@@ -274,7 +274,7 @@ void consys_chgnme (consys_struct *consys, char cv,
       consys->nme = STRALLOC(newnme) ;
       break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return ; } }
 
   return ; }
@@ -315,21 +315,21 @@ char *consys_lognme (consys_struct *consys, int rowndx, char *clientbuf)
   we're being paranoid.
 */
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_ROWHDR)) ;
+  { dy_errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_ROWHDR)) ;
     return (FALSE) ; }
 /* ZZ_TABLEAU_ZZ
   if (consys->ctyp == NULL)
-  { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
+  { dy_errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
     return (FALSE) ; }
 */
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (FALSE) ; }
   if (consys->mtx.rows[rowndx] == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
 # endif
 
@@ -419,37 +419,37 @@ const char *consys_nme (consys_struct *consys,
 	     *errname = "<<error>>" ;
 
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (errname) ; }
   switch (cv)
   { case 'c':
     { if (consys->mtx.rows == NULL)
-      { errmsg(101,rtnnme,consys->nme,"row header") ;
+      { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
 	return (errname) ; }
       if (ndx <= 0 || ndx > consys->concnt)
-      { errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->concnt) ;
+      { dy_errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->concnt) ;
 	return (errname) ; }
       if (consys->mtx.rows[ndx] == NULL)
-      { errmsg(103,rtnnme,consys->nme,"row",ndx) ;
+      { dy_errmsg(103,rtnnme,consys->nme,"row",ndx) ;
 	return (errname) ; }
       break ; }
     case 'v':
     { if (consys->mtx.cols == NULL)
-      { errmsg(101,rtnnme,consys->nme,"column header") ;
+      { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
 	return (errname) ; }
       if (flgon(consys->opts,CONSYS_LVARS))
 	nmlen = consys->varcnt ;
       else
 	nmlen = consys->varcnt+consys->concnt ;
       if (ndx <= 0 || ndx > nmlen)
-      { errmsg(102,rtnnme,consys->nme,"variable",ndx,1,nmlen) ;
+      { dy_errmsg(102,rtnnme,consys->nme,"variable",ndx,1,nmlen) ;
 	return (errname) ; }
       if (ndx < consys->varcnt && consys->mtx.cols[ndx] == NULL)
-      { errmsg(103,rtnnme,consys->nme,"column",ndx) ;
+      { dy_errmsg(103,rtnnme,consys->nme,"column",ndx) ;
 	return (errname) ; }
       break ; }
     default:
-    { errmsg(3,rtnnme,"cv",cv) ;
+    { dy_errmsg(3,rtnnme,"cv",cv) ;
       return (errname) ; } }
 #endif
 
@@ -642,11 +642,11 @@ void consys_prtcon (ioid chn, bool echo,
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     dyio_outfmt(chn,echo,errstring) ;
     return ; }
   if (i < 0 || i > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"constraint",i,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"constraint",i,1,consys->concnt) ;
     dyio_outfmt(chn,echo,errstring) ;
     return ; }
 # endif
@@ -671,8 +671,8 @@ void consys_prtcon (ioid chn, bool echo,
 */
   coni = NULL ;
   if (consys_getrow_pk(consys,i,&coni) == FALSE)
-  { errmsg(122,rtnnme,consys->nme,
-	   "constraint",consys_nme(consys,'c',i,FALSE,NULL),i) ;
+  { dy_errmsg(122,rtnnme,consys->nme,
+	      "constraint",consys_nme(consys,'c',i,FALSE,NULL),i) ;
     dyio_outfmt(chn,echo,errstring) ;
     if (coni != NULL) pkvec_free(coni) ;
     return ; }

@@ -16,10 +16,12 @@
 
 #include "dylib_std.h"
 
-void errinit(const char *elogpath, bool errecho),
-     errterm(void) ;
+extern DYLPLIB_EXPORT void
+  dy_errinit(const char *elogpath, bool errecho),
+  dy_errterm(void) ;
 
-void errmsg(int errid, ... ),
-     dywarn(int errid, ... ) ;
+extern DYLPLIB_EXPORT void
+  dy_errmsg(int errid, ... ),
+  dy_warn(int errid, ... ) ;
 
 #endif /* _DYLIB_ERRS_H */

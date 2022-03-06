@@ -1,0 +1,18 @@
+/* src/Osi/config_osidylp.h.in. */
+
+#ifndef __CONFIG_OSIDYLP_H__
+#define __CONFIG_OSIDYLP_H__
+
+/* Define this variable to enable OsiDylp's informational printing features.
+   */
+#undef ODSI_INFOMSGS
+
+/* Control OsiDylp's paranoid checks. Legal values: 0 - off; 1 - normal; 2 -
+   consistency (expensive) */
+#undef ODSI_PARANOIA
+
+/* Define this variable to enable support for dylp's statistics collection
+   features. */
+#undef ODSI_STATISTICS
+
+#endif

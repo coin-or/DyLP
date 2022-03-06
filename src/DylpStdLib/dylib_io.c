@@ -27,31 +27,12 @@
 
 #include "dylib_std.h"
 
-static char sccsid[] UNUSED = "@(#)io.c	3.14	11/11/04" ;
-static char svnid[] UNUSED = "$Id$" ;
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include "dylib_io.h"
 #include "dylib_errs.h"
 
-
-/*
-  These declarations are used only by dyio_outfmt_, the version of dyio_outfmt
-  that's designed to be called from Fortran. Unless you're the proud
-  possessor of some ancient LP software, you likely don't want to know about
-  xmp.h.
-
-  WARNING!
-
-  The Fortran hooks haven't been tested since the last millenium. It's highly
-  unlikely that they still work.
-*/
-
-#ifdef _DYLIB_FORTRAN
-#  include "dylib_fortran.h"
-#endif
 
 #ifndef MALLOC
 #define MALLOC(zz_sze_zz) malloc(zz_sze_zz)
@@ -320,10 +301,10 @@ bool dyio_ioinit (void)
     file.  We need this entry here so that a later call to dyio_openfile can
     find it (the particular case of interest would be a desire to log normal
     and error messages to the same file). To maintain information hiding,
-    there is a routine, errlogq, which returns the required information.
+    there is a routine, dy_errlogq, which returns the required information.
 
   Parameters:
-    errlogpath:	the path name of the error log file; used only if errlogq
+    errlogpath:	the path name of the error log file; used only if dy_errlogq
 		returns a non-NULL FILE handle
 
   Returns: TRUE if the initialisation succeeds, FALSE otherwise
@@ -334,7 +315,7 @@ bool dyio_ioinit (void)
   char *fname,*errlogpath,*tmp ;
   const char *rtnnme = "dyio_ioinit" ;
 
-  extern FILE *errlogq(char **elogpath) ;
+  extern FILE *dy_errlogq(char **elogpath) ;
 
 /*
   See the comments on the filblks array at the beginning of the file, for the
@@ -368,11 +349,11 @@ bool dyio_ioinit (void)
   Check for an error log file, and make a filblks entry for it, if necessary.
 */
   filblk = &filblks[4] ;
-  filblk->stream = errlogq(&errlogpath) ;
+  filblk->stream = dy_errlogq(&errlogpath) ;
   if (filblk->stream != NULL)
   { if (errlogpath == NULL)
-    { errmsg(14,rtnnme) ;
-      errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(14,rtnnme) ;
+      dy_errmsg(1,rtnnme,__LINE__) ;
       return(FALSE) ; }
     fname = strrchr(errlogpath,'/') ;
     if (fname == NULL)
@@ -442,10 +423,10 @@ static bool rwmodecmp (filblk_struct *filblk, const char *mode)
   bool rw ;
 
   if (mode == NULL)
-  { errmsg(2,rtnnme,"r/w mode") ;
+  { dy_errmsg(2,rtnnme,"r/w mode") ;
     return (FALSE) ; }
   if (filblk == NULL)
-  { errmsg(2,rtnnme,"filblk") ;
+  { dy_errmsg(2,rtnnme,"filblk") ;
     return (FALSE) ; }
   modes = filblk->modes ;
 
@@ -461,7 +442,7 @@ static bool rwmodecmp (filblk_struct *filblk, const char *mode)
       if (rw == TRUE && flgoff(modes,io_read) == TRUE) return (FALSE) ;
       return (TRUE) ; }
     default:
-    { errmsg(4,rtnnme,"r/w mode",mode) ;
+    { dy_errmsg(4,rtnnme,"r/w mode",mode) ;
       return (FALSE) ; } } }
 
 
@@ -482,10 +463,10 @@ static bool setrwmode (filblk_struct *filblk, char *mode)
   bool rw ;
 
   if (mode == NULL)
-  { errmsg(2,rtnnme,"r/w mode") ;
+  { dy_errmsg(2,rtnnme,"r/w mode") ;
     return (FALSE) ; }
   if (filblk == NULL)
-  { errmsg(2,rtnnme,"filblk") ;
+  { dy_errmsg(2,rtnnme,"filblk") ;
     return (FALSE) ; }
 
   rw = (mode[1] == '+')?TRUE:FALSE ;
@@ -504,7 +485,7 @@ static bool setrwmode (filblk_struct *filblk, char *mode)
 	setflg(filblk->modes,io_write) ;
       return (TRUE) ; }
     default:
-    { errmsg(4,rtnnme,"r/w mode",mode) ;
+    { dy_errmsg(4,rtnnme,"r/w mode",mode) ;
       return (FALSE) ; } } }
 
 
@@ -528,14 +509,14 @@ bool dyio_setmode (ioid id, char mode)
   Check to make sure the stream ID is OK.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (FALSE) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (FALSE) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
+  { dy_errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (FALSE) ; }
 /*
   Now set the mode.
@@ -552,7 +533,7 @@ bool dyio_setmode (ioid id, char mode)
       setflg(filblk->modes,io_free) ;
       break ; }
     default:
-    { errmsg(3,rtnnme,"scanning mode",mode) ;
+    { dy_errmsg(3,rtnnme,"scanning mode",mode) ;
       return (FALSE) ; } }
   
   return (TRUE) ; }
@@ -579,11 +560,11 @@ const char *dyio_idtopath (ioid id)
   Check to make sure the stream ID is OK.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (badid) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (badid) ; }
 /*
   Now construct the full pathname from the directory and file names.
@@ -619,7 +600,7 @@ ioid dyio_pathtoid (const char *path, const char *mode)
   const char *rtnnme = "dyio_pathtoid" ;
 
   if (path == NULL)
-  { errmsg(2,rtnnme,"path") ;
+  { dy_errmsg(2,rtnnme,"path") ;
     return (-1) ; }
 
   fname = strrchr(path,'/') ;
@@ -672,11 +653,11 @@ bool dyio_ttyq (ioid id)
   Check to make sure the stream ID is OK.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (FALSE) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (FALSE) ; }
 /*
   Now inquire if the stream is attached to a terminal.
@@ -730,10 +711,10 @@ ioid dyio_openfile (const char *path, const char *mode)
   Make sure the parameters are ok.
 */
   if (path == NULL)
-  { errmsg(2,rtnnme,"path") ;
+  { dy_errmsg(2,rtnnme,"path") ;
     return (IOID_INV) ; }
   if (mode == NULL)
-  { errmsg(2,rtnnme,"r/w mode") ;
+  { dy_errmsg(2,rtnnme,"r/w mode") ;
     return (IOID_INV) ; }
 /*
   Get a copy of mode so we can play with the string.
@@ -775,7 +756,7 @@ ioid dyio_openfile (const char *path, const char *mode)
     case 'a':
     { break ; }
     default:
-    { errmsg(4,rtnnme,"r/w mode",mode) ;
+    { dy_errmsg(4,rtnnme,"r/w mode",mode) ;
       return (IOID_INV) ; } }
 
 /*
@@ -796,12 +777,12 @@ ioid dyio_openfile (const char *path, const char *mode)
 	{ fclose(filblks[id].stream) ;
 	  filblks[id].stream = fopen(path,mode_var) ; 
 	  if (filblks[id].stream == NULL) 
-	  { errmsg(10,rtnnme,dyio_idtopath(id),mode_var) ;
+	  { dy_errmsg(10,rtnnme,dyio_idtopath(id),mode_var) ;
 	    perror(rtnnme) ;
 	    return (IOID_INV) ; }
 	  break ; }
 	case 'a':
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  return (IOID_INV) ; } } }
     filblks[id].refcnt++ ;
     return (id) ; }
@@ -812,7 +793,7 @@ ioid dyio_openfile (const char *path, const char *mode)
        id <= maxfiles && flgon(filblks[id].modes,io_active) == TRUE ;
        id++) ;
   if (id > maxfiles)
-  { errmsg(13,rtnnme) ;
+  { dy_errmsg(13,rtnnme) ;
     return (IOID_INV) ; }
   filblk = &filblks[id] ;
 /*
@@ -823,7 +804,7 @@ ioid dyio_openfile (const char *path, const char *mode)
   { if (mode_var[0] == 'r' && mustexist == FALSE)
     { return (IOID_NOSTRM) ; }
     else
-    { errmsg(10,rtnnme,path,mode_var) ;
+    { dy_errmsg(10,rtnnme,path,mode_var) ;
       perror(rtnnme) ;
       return (IOID_INV) ; } }
 /*
@@ -868,7 +849,7 @@ bool dyio_isactive (ioid id)
   We'll still complain if the id isn't valid.
 */
   if (INVALID_IOID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (FALSE) ; }
 
   if (id == IOID_NOSTRM) return (FALSE) ;
@@ -896,11 +877,11 @@ bool dyio_closefile (ioid id)
   Make sure the id is valid.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (FALSE) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (FALSE) ; }
 /*
   Decrement the reference count. If it's non-zero, someone else is still using
@@ -911,7 +892,7 @@ bool dyio_closefile (ioid id)
   Reference count is 0, so close the stream.
 */
   if (fclose(filblk->stream) == EOF)
-  { errmsg(11,rtnnme,dyio_idtopath(id)) ;
+  { dy_errmsg(11,rtnnme,dyio_idtopath(id)) ;
     perror(rtnnme) ;
     retval = FALSE ; }
   else
@@ -961,15 +942,15 @@ bool dyio_chgerrlog (const char *newerrpath, bool echo)
 
   const char *rtnnme = "dyio_chgerrlog" ;
 
-  extern FILE *errlogq(char **elogpath) ;
-  extern bool reseterrlogchn(const char *elogpath, FILE *elogchn,
+  extern FILE *dy_errlogq(char **elogpath) ;
+  extern bool dy_reseterrlogchn(const char *elogpath, FILE *elogchn,
 			     bool echo, bool close) ;
 
 /*
   Just here to change the echo?
 */
   if (newerrpath == NULL)
-  { (void) reseterrlogchn(NULL,NULL,echo,FALSE) ;
+  { (void) dy_reseterrlogchn(NULL,NULL,echo,FALSE) ;
     return (TRUE) ; }
 /*
   The first thing we need to do is check for the existence of the present
@@ -977,7 +958,7 @@ bool dyio_chgerrlog (const char *newerrpath, bool echo)
   logging package to close out the old file. If we have a record, we'll do
   it here.
 */
-  (void) errlogq(&olderrpath) ;
+  (void) dy_errlogq(&olderrpath) ;
   if (olderrpath == NULL)
   { close = FALSE ;
     olderrid = IOID_INV ; }
@@ -994,15 +975,15 @@ bool dyio_chgerrlog (const char *newerrpath, bool echo)
   if (newerrid == IOID_INV)
   { newerrid = dyio_openfile(newerrpath,"w") ;
     if (newerrid == IOID_INV)
-    { errmsg(10,rtnnme,newerrpath,"w") ;
+    { dy_errmsg(10,rtnnme,newerrpath,"w") ;
       return (FALSE) ; } }
   newerrchn = filblks[newerrid].stream ;
 /*
   Do the swap. Once we've finished, we may need to deactivate the filblks
   entry for olderrid.
 */
-  if (reseterrlogchn(newerrpath,newerrchn,echo,close) == FALSE)
-  { errmsg(18,rtnnme,olderrpath,newerrpath) ;
+  if (dy_reseterrlogchn(newerrpath,newerrchn,echo,close) == FALSE)
+  { dy_errmsg(18,rtnnme,olderrpath,newerrpath) ;
     return (FALSE) ; }
 /*
   Did we have a record for this file? If so, call dyio_closefile to tidy up.
@@ -1033,18 +1014,18 @@ long dyio_mark (ioid id)
   Check to make sure the stream ID is OK.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (-1) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (-1) ; }
 /*
   Now try the call to ftell to get the mark.
 */
   here = ftell(filblk->stream) ;
   if (here < 0)
-  { errmsg(23,rtnnme,dyio_idtopath(id)) ;
+  { dy_errmsg(23,rtnnme,dyio_idtopath(id)) ;
     perror(rtnnme) ; }
 
   return (here) ; }
@@ -1070,17 +1051,17 @@ bool dyio_backup (ioid id, long there)
   Check to make sure the stream ID is OK.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (FALSE) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (FALSE) ; }
 /*
   Call fseek to position the file pointer to there.
 */
   if (fseek(filblk->stream,there,SEEK_SET) < 0)
-  { errmsg(24,rtnnme,dyio_idtopath(id),there) ;
+  { dy_errmsg(24,rtnnme,dyio_idtopath(id),there) ;
     perror(rtnnme) ;
     return (FALSE) ; }
   
@@ -1117,10 +1098,10 @@ static chartab_struct *nxtchar (FILE *stream, flags modes)
   { if (ferror(stream) != 0)
     { for (id = 1 ; id <= maxfiles && filblks[id].stream != stream ; id++) ;
       if (id <= maxfiles)
-      { errmsg(12,rtnnme,dyio_idtopath(id)) ; }
+      { dy_errmsg(12,rtnnme,dyio_idtopath(id)) ; }
       else
-      { errmsg(12,rtnnme,"unknown") ;
-	errmsg(1,rtnnme,__LINE__) ; }
+      { dy_errmsg(12,rtnnme,"unknown") ;
+	dy_errmsg(1,rtnnme,__LINE__) ; }
       perror(rtnnme) ;
       return (&chartab_err) ; }
     else
@@ -1182,21 +1163,21 @@ bool dyio_scan (ioid id, const char pattern[], bool rwnd, bool wrap)
   Check to make sure the stream ID is OK and lex points to a string.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (FALSE) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (FALSE) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
+  { dy_errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (FALSE) ; }
   if (pattern == NULL)
-  { errmsg(2,rtnnme,"pattern") ;
+  { dy_errmsg(2,rtnnme,"pattern") ;
     return (FALSE) ; }
   patlen = (int) strlen(pattern) ;
   if (patlen > MAXPATLEN)
-  { errmsg(25,rtnnme,pattern,MAXPATLEN) ;
+  { dy_errmsg(25,rtnnme,pattern,MAXPATLEN) ;
     patlen = MAXPATLEN ; }
 /*
   Now set up the states array. For each state, the entry specifies the next
@@ -1311,14 +1292,14 @@ lex_struct *dyio_scanlex (ioid id)
   Check to make sure that the stream id is OK.
 */
   if (INVALID_STREAMID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (&lex_err) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (&lex_err) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
+  { dy_errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (&lex_err) ; }
   stream = filblk->stream ;
   mode = filblk->modes ;
@@ -1353,7 +1334,7 @@ lex_struct *dyio_scanlex (ioid id)
 	  else
 	  { ovf = TRUE ;
 	    *lexptr = '\0' ;
-	    errmsg(26,rtnnme,lex.string,MAXLEXLEN) ; } } }
+	    dy_errmsg(26,rtnnme,lex.string,MAXLEXLEN) ; } } }
       if (!(chr->class1 == CCEOF || chr->class1 == CCERR))
 	ungetc(chr->chrtrn,stream) ;
       if ((lexptr-1) == lex.string &&
@@ -1372,7 +1353,7 @@ lex_struct *dyio_scanlex (ioid id)
 	  else
 	  { ovf = TRUE ;
 	    *lexptr = '\0' ;
-	    errmsg(26,rtnnme,lex.string,MAXLEXLEN) ; } }
+	    dy_errmsg(26,rtnnme,lex.string,MAXLEXLEN) ; } }
       if (!(chr->class1 == CCEOF || chr->class1 == CCERR))
 	ungetc(chr->chrtrn,stream) ;
       lex.class = DY_LCID ;
@@ -1381,7 +1362,7 @@ lex_struct *dyio_scanlex (ioid id)
     { lex.class = DY_LCDEL ;
       break ; }
     default:				/* Should never execute this. */
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (&lex_err) ; } }
 /*
   Clean up and return. We check to see if the scan was terminated by an i/o
@@ -1473,14 +1454,14 @@ lex_struct *dyio_scanstr (ioid id,
   Check to make sure that the stream id is OK.
 */
   if (INVALID_IOID(id))
-  { errmsg(5,rtnnme,"stream id",id) ;
+  { dy_errmsg(5,rtnnme,"stream id",id) ;
     return (&lex_err) ; }
   filblk = &filblks[id] ;
   if (flgon(filblk->modes,io_active) == FALSE)
-  { errmsg(15,rtnnme,id) ;
+  { dy_errmsg(15,rtnnme,id) ;
     return (&lex_err) ; }
   if (flgon(filblk->modes,io_read) == FALSE)
-  { errmsg(16,rtnnme,dyio_idtopath(id)) ;
+  { dy_errmsg(16,rtnnme,dyio_idtopath(id)) ;
     return (&lex_err) ; }
   stream = filblk->stream ;
   mode = filblk->modes ;
@@ -1510,7 +1491,7 @@ lex_struct *dyio_scanstr (ioid id,
 */
     case DY_LCFS:
     { if (fslen <= 0)
-      { errmsg(5,rtnnme,"fslen",fslen) ;
+      { dy_errmsg(5,rtnnme,"fslen",fslen) ;
 	ungetc(chr->chrtrn,stream) ;
 	return (&lex_err) ; }
       lexptr = (char *) MALLOC(fslen+1) ;
@@ -1520,7 +1501,7 @@ lex_struct *dyio_scanstr (ioid id,
       { chr = nxtchar(stream,mode) ;
 	if (chr->class1 == CCEOF || chr->class1 == CCERR)
 	{ *lexptr = '\0' ;
-	  errmsg(27,rtnnme,fslen,lex.string) ;
+	  dy_errmsg(27,rtnnme,fslen,lex.string) ;
 	  FREE(lex.string) ;
 	  lex.string = NULL ;
 	  return (&lex_err) ; }
@@ -1558,7 +1539,7 @@ lex_struct *dyio_scanstr (ioid id,
       while (1)
       { if (chr->class1 == CCEOF || chr->class1 == CCERR)
 	{ *lexptr = '\0' ;
-	  errmsg(28,rtnnme,qschr,qechr,lex.string) ;
+	  dy_errmsg(28,rtnnme,qschr,qechr,lex.string) ;
 	  FREE(lex.string) ;
 	  lex.string = NULL ;
 	  return (&lex_err) ; }
@@ -1593,7 +1574,7 @@ lex_struct *dyio_scanstr (ioid id,
 	lex.class = DY_LCQS ;
       break ; }
     default:
-    { errmsg(5,rtnnme,"string type",stype) ;
+    { dy_errmsg(5,rtnnme,"string type",stype) ;
       ungetc(chr->chrtrn,stream) ;
       return (&lex_err) ; } }
 /*
@@ -1639,7 +1620,7 @@ void dyio_flushio (ioid id, bool echo)
   Check for sane id.
 */
   if (INVALID_IOID(id))
-  { errmsg(5,rtnnme,"i/o id",id) ;
+  { dy_errmsg(5,rtnnme,"i/o id",id) ;
     return ; }
 /*
   Flush the stream specified by id, if it's active and writeable.
@@ -1647,10 +1628,10 @@ void dyio_flushio (ioid id, bool echo)
   if (id != IOID_NOSTRM)
   { filblk = &filblks[id] ;
     if (flgon(filblk->modes,io_active) == FALSE)
-    { errmsg(15,rtnnme,id) ; }
+    { dy_errmsg(15,rtnnme,id) ; }
     else
     if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,dyio_idtopath(id)) ; }
+    { dy_errmsg(17,rtnnme,dyio_idtopath(id)) ; }
     else
     { strmid = filblk->stream ;
       if (fflush(strmid) != 0) perror(rtnnme) ; } }
@@ -1694,10 +1675,10 @@ void dyio_outfmt (ioid id, bool echo, const char *pattern, ... )
   Sanity checks on i/o id and pattern.
 */
   if (INVALID_IOID(id))
-  { errmsg(5,rtnnme,"i/o id",id) ;
+  { dy_errmsg(5,rtnnme,"i/o id",id) ;
     return ; }
   if (pattern == NULL)
-  { errmsg(2,rtnnme,"pattern") ;
+  { dy_errmsg(2,rtnnme,"pattern") ;
     return ; }
 /*
   Print to stream id, assuming it's active and writeable.
@@ -1706,10 +1687,10 @@ void dyio_outfmt (ioid id, bool echo, const char *pattern, ... )
   if (id != IOID_NOSTRM)
   { filblk = &filblks[id] ;
     if (flgon(filblk->modes,io_active) == FALSE)
-    { errmsg(15,rtnnme,id) ; }
+    { dy_errmsg(15,rtnnme,id) ; }
     else
     if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,dyio_idtopath(id)) ; }
+    { dy_errmsg(17,rtnnme,dyio_idtopath(id)) ; }
     else
     { va_start(parms,pattern) ;
       (void) vfprintf(filblk->stream,pattern,parms) ;
@@ -1753,10 +1734,10 @@ void dyio_outchr (ioid id, bool echo, char chr)
   Sanity checks on the parameters.
 */
   if (INVALID_IOID(id))
-  { errmsg(5,rtnnme,"i/o id",id) ;
+  { dy_errmsg(5,rtnnme,"i/o id",id) ;
     return ; }
   if (chr == '\0')
-  { errmsg(2,rtnnme,"chr") ;
+  { dy_errmsg(2,rtnnme,"chr") ;
     return ; }
 /*
   Write the character to the stream, if it's active and writeable.
@@ -1764,10 +1745,10 @@ void dyio_outchr (ioid id, bool echo, char chr)
   if (id != IOID_NOSTRM)
   { filblk = &filblks[id] ;
     if (flgon(filblk->modes,io_active) == FALSE)
-    { errmsg(15,rtnnme,id) ; }
+    { dy_errmsg(15,rtnnme,id) ; }
     else
     if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,dyio_idtopath(id)) ; }
+    { dy_errmsg(17,rtnnme,dyio_idtopath(id)) ; }
     else
     { strmid = filblk->stream ;
       putc(chr,filblks[id].stream) ; } }
@@ -1831,18 +1812,18 @@ int dyio_outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
   Do some sanity checks.
 */
   if (buffer == NULL)
-  { errmsg(2,rtnnme,"buffer") ;
+  { dy_errmsg(2,rtnnme,"buffer") ;
     return (0) ; }
   pad = (fldsze < 0)? FALSE : TRUE ;
   fldsze = abs(fldsze) ;
   if (fldsze < 1 || fldsze > FLDMAX)
-  { errmsg(5,rtnnme,"fldsze",fldsze) ;
+  { dy_errmsg(5,rtnnme,"fldsze",fldsze) ;
     return (0) ; }
   if (lcr != 'l' && lcr != 'c' && lcr != 'r')
-  { errmsg(3,rtnnme,"left/center/right",lcr) ;
+  { dy_errmsg(3,rtnnme,"left/center/right",lcr) ;
     return (0) ; }
   if (pattern == NULL)
-  { errmsg(2,rtnnme,"pattern") ;
+  { dy_errmsg(2,rtnnme,"pattern") ;
     return (0) ; }
 /*
   vsprintf builds the user's string in ourbuf. Then use fldsze and lcr to
@@ -1886,136 +1867,3 @@ int dyio_outfxd (char *buffer, int fldsze, char lcr, const char *pattern, ... )
 
 #undef FLDMAX
 
-
-
-#ifdef _DYLIB_FORTRAN
-
-/*
-  WARNING!
-
-  The Fortran hooks haven't been tested since the last millenium. It's highly
-  unlikely that they still work. In particular, it seems likely that each call
-  to vfprintf using the constructed varargs block should be bracked with
-  va_start / va_end.
-*/
-
-void dyio_outfmt_ (integer *ftnid, logical *ftnecho, char *pattern, ... )
-
-/*
-  This routine provides a Fortran client with an interface to the vfprintf
-  routine of ANSI C and the logging facilities of this i/o library. It deals
-  with translating the argument types supplied by Fortran-to-C interface
-  conventions into the arguments required by vfprintf. The method is to
-  construct a new varargs block, which is handed over to vfprintf. To do
-  this, we have to make the fragile assumption that a varargs block is
-  constructed in a straightforward manner --- as data items written into
-  a contiguous block of storage which we can allocate. There are more
-  extensive comments with errmsg_ and warn_ in errs.c.
-
-  The call over in Fortran will look like
-    dyio_outfmt(id,echo,pattern,ftnargtype1,arg1, ... ,
-		ftnargtypen,argn,ftnargEND)
-
-  The routine deals with a limited set of argument types: the Fortran types
-  integer, double_precision, and character, and the special categories of
-  variable and constraint names (the last two historical artifacts from
-  the initial impetus for this routine -- the Fortran ylp library -- now
-  replaced by dylp).  A special type code is used to indicate the end of
-  the list of <type,arg> pairs.
-
-  If id == 0 and echo == FALSE, nothing happens.
-  If id == 0 and echo == TRUE, only stdout is affected.
-                               (etc.)
-
-  Parameters:
-    ftnid:	the i/o id
-    ftnecho:	true to echo output to stdout
-    pattern:	output pattern, passed to printf
-    argtype, arg: the parameters for the pattern
-  
-  Returns: undefined
-*/
-
-{ va_list fargs,varargp ;
-  ioid id ;
-  bool echo ;
-  filblk_struct *filblk ;
-  int type;
-
-  double varargs[64] ;			/* double avoids alignment problems */
-  int intarg ;
-  double dblarg ;
-  char *chararg ;
-
-  const char *rtnnme = "dyio_outfmt_" ;
-
-/*
-  Convert the stream id and echo values.
-*/
-  id = (ioid) *ftnid ;
-  echo = (*ftnecho == TRUEL)?TRUE:FALSE ;
-/*
-  Sanity checks on stream id and pattern.
-*/
-  if (INVALID_IOID(id))
-  { errmsg(5,rtnnme,"i/o id",id) ;
-    return ; }
-  if (id != IOID_NOSTRM)
-  { filblk = &filblks[id] ;
-    if (flgon(filblk->modes,io_active) == FALSE)
-    { errmsg(15,rtnnme,id) ;
-      return ; }
-    if (flgon(filblk->modes,io_write) == FALSE)
-    { errmsg(17,rtnnme,dyio_idtopath(id)) ;
-      return ; } }
-  if (pattern == NULL)
-  { errmsg(2,rtnnme,"pattern") ;
-    return ; }
-/*
-  Now start up a loop to process the remainder of the arguments. For each
-  <type,arg> pair, we pull off the type and use it to condition a switch
-  with a case for each type of argument we're prepared to deal with.
-*/
-  varargp = (va_list) &varargs[0] ;
-  va_start(fargs,pattern) ;
-  for (type = (int) *va_arg(fargs,integer *) ;
-       type != ftnargEND ;
-       type = (int) *va_arg(fargs,integer *))
-    switch (type)
-    { case ftnargINTEGER:
-      { intarg = (int) *va_arg(fargs,integer *) ;
-        *((int *) varargp) = intarg ;
-	if (intarg != va_arg(varargp,int))
-	{ errmsg(1,rtnnme,__LINE__) ;
-	  return ; }
-	break ; }
-      case ftnargDOUBLE_PRECISION:
-      { dblarg = (double) *va_arg(fargs,double_precision *) ;
-	memcpy(varargp,&dblarg,sizeof(double)) ;
-        if (dblarg != va_arg(varargp,double))
-	{ errmsg(1,rtnnme,__LINE__) ;
-	  return ; }
-	break ; }
-      case ftnargCHARACTER:
-      { chararg = va_arg(fargs,char *) ;
-        *((char **) varargp) = chararg ;
-	if (chararg != va_arg(varargp,char *))
-	{ errmsg(1,rtnnme,__LINE__) ;
-	  return ; }
-	break ; }
-      default:
-      { errmsg(7,rtnnme,__LINE__,"Fortran argument type code",type) ;
-	return ; } }
-  va_end(fargs) ;
-/*
-  Finally, do the printing. Print to stdout if echo is TRUE. stdout is assumed
-  active and writeable.
-*/
-  if (id != IOID_NOSTRM)
-  { (void) vfprintf(filblk->stream,pattern,((va_list) &varargs[0])) ; }
-  if (echo == TRUE)
-  { (void) vfprintf(stdout,pattern,((va_list) &varargs[0])) ; }
-
-  return ; }
-
-#endif /* _DYLIB_FORTRAN */

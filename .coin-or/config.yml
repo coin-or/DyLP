@@ -28,7 +28,7 @@ Dependencies:
     Version: master
     Required: Required
   - Description: COIN-OR Utilties (required for OsiDylp)
-    URL: https://github.com/LouHafer/CoinUtils
+    URL: https://github.com/coin-or/CoinUtils
     Version: master
     Required: Required
   - Description: Open Solver Interface (OSI) (required for OsiDylp)

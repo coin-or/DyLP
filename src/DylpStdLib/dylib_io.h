@@ -14,15 +14,8 @@
   This code is licensed under the terms of the Eclipse Public License (EPL).
 */
 
-/*
-  @(#)io.h	2.4	03/18/04
-  svn/cvs: $Id$
-*/
 
 #include "dylib_std.h"
-#ifdef _DYLIB_FORTRAN
-#include "dylib_fortran.h"
-#endif
 
 
 /*
@@ -75,15 +68,18 @@ typedef struct { lexclass class ;
 		 char *string ; } lex_struct ;
 #endif
 
-extern bool dyio_ioinit(void) ;
-extern void dyio_ioterm(void) ;
+extern DYLPLIB_EXPORT bool dyio_ioinit(void) ;
+extern DYLPLIB_EXPORT void dyio_ioterm(void) ;
 
-extern ioid dyio_openfile(const char *path, const char *mode) ;
-extern bool dyio_isactive(ioid id) ;
-extern bool dyio_closefile(ioid id) ;
-extern bool dyio_setmode(ioid id, char mode), dyio_ttyq(ioid id) ;
+extern DYLPLIB_EXPORT ioid
+  dyio_openfile(const char *path, const char *mode) ;
 
-extern bool dyio_chgerrlog(const char *path, bool echo) ;
+extern DYLPLIB_EXPORT bool
+  dyio_isactive(ioid id),
+  dyio_closefile(ioid id),
+  dyio_setmode(ioid id, char mode), dyio_ttyq(ioid id) ;
+
+extern DYLPLIB_EXPORT bool dyio_chgerrlog(const char *path, bool echo) ;
 
 extern const char *dyio_idtopath(ioid id) ;
 extern ioid dyio_pathtoid(const char *path, const char *mode) ;
@@ -96,15 +92,12 @@ extern lex_struct *dyio_scanlex(ioid id),
 		  *dyio_scanstr(ioid id, lexclass stype,
 				int fslen, char qschr, char qechr) ;
 
-extern void dyio_flushio(ioid id, bool echo),
-	    dyio_outfmt(ioid id, bool echo, const char *pattern, ... ),
-	    dyio_outchr(ioid id, bool echo, char chr) ;
-extern int dyio_outfxd(char *buffer, int fldsze, char lcr,
-		       const char *pattern, ... ) ;
+extern DYLPLIB_EXPORT void
+  dyio_flushio(ioid id, bool echo),
+  dyio_outfmt(ioid id, bool echo, const char *pattern, ... ),
+  dyio_outchr(ioid id, bool echo, char chr) ;
 
-#ifdef _DYLIB_FORTRAN
-extern void dyio_outfmt_(integer *ftnid,
-			 logical *ftnecho, char *pattern, ... ) ;
-#endif
+extern DYLPLIB_EXPORT int
+  dyio_outfxd(char *buffer, int fldsze, char lcr, const char *pattern, ... ) ;
 
 #endif /* _DYLIB_IO_H */

@@ -84,7 +84,7 @@ int dytest_primalRays (int *p_numRays,
   rcvRays = reqRays ;
   *p_numRays = 0 ;
   if (dy_primalRays(main_lp,&rcvRays,&rays) == FALSE)
-  { errmsg(955,rtnnme,sys->nme,"primal") ;
+  { dy_errmsg(955,rtnnme,sys->nme,"primal") ;
     if (rays != NULL)
     { for (k = 0 ; k < rcvRays ; k++)
       { if (rays[k] != NULL) FREE(rays[k]) ; }
@@ -247,7 +247,7 @@ int dytest_dualRays (int *p_numRays,
   *p_numRays = 0 ;
   fullRay = TRUE ;
   if (dy_dualRays(main_lp,fullRay,&rcvRays,&rays,TRUE) == FALSE)
-  { errmsg(955,rtnnme,sys->nme,"dual") ;
+  { dy_errmsg(955,rtnnme,sys->nme,"dual") ;
     if (rays != NULL)
     { for (k = 0 ; k < rcvRays ; k++)
       { if (rays[k] != NULL) FREE(rays[k]) ; }

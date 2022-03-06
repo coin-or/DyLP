@@ -52,27 +52,27 @@ double consys_dotrow (consys_struct *consys, int rowndx, double *vec)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,"row header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (quiet_nan(0)) ; }
   if (vec == NULL)
-  { errmsg(2,rtnnme,"vec") ;
+  { dy_errmsg(2,rtnnme,"vec") ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -81,16 +81,17 @@ double consys_dotrow (consys_struct *consys, int rowndx, double *vec)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,
+    		"column",coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     dotprod += coeff->val*vec[coeff->colhdr->ndx] ; }
@@ -123,27 +124,28 @@ double consys_dotcol (consys_struct *consys, int colndx, double *vec)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(101,rtnnme,consys->nme,"column header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= 0 || colndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
 # ifdef DYLP_PARANOIA
   if (colhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
   if (colndx != colhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
+  { dy_errmsg(126,rtnnme,
+  	      consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
     return (quiet_nan(0)) ; }
   if (vec == NULL)
-  { errmsg(2,rtnnme,"vec") ;
+  { dy_errmsg(2,rtnnme,"vec") ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -152,16 +154,16 @@ double consys_dotcol (consys_struct *consys, int colndx, double *vec)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
-	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
+	        consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr->ndx <= 0 || coeff->rowhdr->ndx > consys->concnt)
-    { errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
-	     1,consys->concnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
+	        1,consys->concnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr != consys->mtx.rows[coeff->rowhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
-	     coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
+	        coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     dotprod += coeff->val*vec[coeff->rowhdr->ndx] ; }
@@ -192,24 +194,24 @@ double consys_1normrow (consys_struct *consys, int rowndx)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,"row header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -218,16 +220,17 @@ double consys_1normrow (consys_struct *consys, int rowndx)
   {
 #ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,
+    		"column",coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #endif
     norm += fabs(coeff->val) ; }
@@ -261,24 +264,24 @@ double consys_ssqrow (consys_struct *consys, int rowndx)
 */
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,"row header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -287,16 +290,17 @@ double consys_ssqrow (consys_struct *consys, int rowndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,
+    		"column",coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     norm += coeff->val*coeff->val ; }
@@ -329,24 +333,24 @@ double consys_2normrow (consys_struct *consys, int rowndx)
 */
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,"row header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -355,16 +359,17 @@ double consys_2normrow (consys_struct *consys, int rowndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,
+    		"column",coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     norm += coeff->val*coeff->val ; }
@@ -397,24 +402,24 @@ double consys_infnormrow (consys_struct *consys, int rowndx)
 */
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,"row header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (quiet_nan(0)) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (quiet_nan(0)) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -423,16 +428,17 @@ double consys_infnormrow (consys_struct *consys, int rowndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,
+    		"column",coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     norm = maxx(fabs(coeff->val),norm) ; }
@@ -463,24 +469,25 @@ double consys_1normcol (consys_struct *consys, int colndx)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(101,rtnnme,consys->nme,"column header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= 0 || colndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
 # ifdef DYLP_PARANOIA
   if (colhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
   if (colndx != colhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
+  { dy_errmsg(126,rtnnme,
+  	      consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -489,16 +496,16 @@ double consys_1normcol (consys_struct *consys, int colndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
-	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
+	        consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr->ndx <= 0 || coeff->rowhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr != consys->mtx.rows[coeff->rowhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
-	     coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
+	        coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     norm += fabs(coeff->val) ; }
@@ -529,24 +536,25 @@ double consys_ssqcol (consys_struct *consys, int colndx)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(101,rtnnme,consys->nme,"column header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= 0 || colndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
 # ifdef DYLP_PARANOIA
   if (colhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
   if (colndx != colhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
+  { dy_errmsg(126,rtnnme,
+  	      consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -555,16 +563,16 @@ double consys_ssqcol (consys_struct *consys, int colndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
-	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
+	        consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr->ndx <= 0 || coeff->rowhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr != consys->mtx.rows[coeff->rowhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
-	     coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
+	        coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     norm += coeff->val*coeff->val ; }
@@ -594,24 +602,25 @@ double consys_2normcol (consys_struct *consys, int colndx)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(101,rtnnme,consys->nme,"column header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= 0 || colndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
 # ifdef DYLP_PARANOIA
   if (colhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
   if (colndx != colhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
+  { dy_errmsg(126,rtnnme,
+  	      consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -620,16 +629,16 @@ double consys_2normcol (consys_struct *consys, int colndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
-	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
+	        consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr->ndx <= 0 || coeff->rowhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr != consys->mtx.rows[coeff->rowhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
-	     coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
+	        coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     norm += coeff->val*coeff->val ; }
@@ -659,24 +668,25 @@ double consys_infnormcol (consys_struct *consys, int colndx)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (quiet_nan(0)) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(101,rtnnme,consys->nme,"column header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
     return (quiet_nan(0)) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= 0 || colndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
     return (quiet_nan(0)) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
 # ifdef DYLP_PARANOIA
   if (colhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (quiet_nan(0)) ; }
   if (colndx != colhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
+  { dy_errmsg(126,rtnnme,
+  	      consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
     return (quiet_nan(0)) ; }
 # endif
 
@@ -685,16 +695,16 @@ double consys_infnormcol (consys_struct *consys, int colndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
-	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
+	        consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr->ndx <= 0 || coeff->rowhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
+	        1,consys->varcnt) ;
       return (quiet_nan(0)) ; }
     if (coeff->rowhdr != consys->mtx.rows[coeff->rowhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
-	     coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
+	        coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
       return (quiet_nan(0)) ; }
 #   endif
     norm = maxx(fabs(coeff->val),norm) ; }
@@ -742,15 +752,15 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
 */
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,"row header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
     return (FALSE) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (FALSE) ; }
 # endif
 
@@ -758,15 +768,15 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
 
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (FALSE) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (scalar == 0 && flgon(consys->opts,CONSYS_WRNZERO))
-  { dywarn(132,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ; }
+  { dy_warn(132,rtnnme,consys->nme,"row",rowhdr->nme,rowndx) ; }
 # endif
   if (consys->cub != NULL && consys->clb != NULL)
     do_conbnds = TRUE ;
@@ -779,16 +789,17 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (FALSE) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (FALSE) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,
+    		"column",coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (FALSE) ; }
 #   endif
     coeff->val *= scalar ; }
@@ -839,7 +850,7 @@ bool consys_mulrow (consys_struct *consys, int rowndx, double scalar)
       case contypNB:
       { break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (FALSE) ; } } }
 
   return (TRUE) ; }
@@ -885,15 +896,15 @@ bool consys_divrow (consys_struct *consys, int rowndx, double scalar)
 */
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_ROWHDR)) ;
+  { dy_errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_ROWHDR)) ;
     return (FALSE) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (FALSE) ; }
 # endif
 
@@ -901,13 +912,13 @@ bool consys_divrow (consys_struct *consys, int rowndx, double scalar)
 
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (FALSE) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (FALSE) ; }
   if (scalar == 0)
-  { errmsg(5,rtnnme,"scalar",(int) scalar) ;
+  { dy_errmsg(5,rtnnme,"scalar",(int) scalar) ;
     return (FALSE) ; }
 # endif
   if (consys->cub != NULL && consys->clb != NULL)
@@ -921,16 +932,17 @@ bool consys_divrow (consys_struct *consys, int rowndx, double scalar)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (FALSE) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (FALSE) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"column",
+    		coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (FALSE) ; }
 #   endif
     coeff->val /= scalar ; }
@@ -967,7 +979,7 @@ bool consys_divrow (consys_struct *consys, int rowndx, double scalar)
       case contypNB:
       { break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	return (FALSE) ; } } }
 
   return (TRUE) ; }
@@ -1018,24 +1030,24 @@ int consys_gcdrow (consys_struct *consys, int rowndx)
 */
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (-1) ; }
   if (consys->mtx.rows == NULL)
-  { errmsg(101,rtnnme,consys->nme,"row header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"row header") ;
     return (-1) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (rowndx <= 0 || rowndx > consys->concnt)
-  { errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"row",rowndx,1,consys->concnt) ;
     return (-1) ; }
 # endif
   rowhdr = consys->mtx.rows[rowndx] ;
 # ifdef DYLP_PARANOIA
   if (rowhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"row",rowndx) ;
     return (-1) ; }
   if (rowndx != rowhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"row",rowhdr,rowhdr->ndx,rowndx,rowhdr) ;
     return (-1) ; }
 # endif
 /*
@@ -1045,19 +1057,19 @@ int consys_gcdrow (consys_struct *consys, int rowndx)
   coeff = rowhdr->coeffs ;
 # ifdef DYLP_PARANOIA
   if (coeff == NULL)
-  { errmsg(116,rtnnme,consys->nme,rowhdr->nme,rowhdr->ndx,rowhdr->len,0) ;
+  { dy_errmsg(116,rtnnme,consys->nme,rowhdr->nme,rowhdr->ndx,rowhdr->len,0) ;
     return (-1) ; }
   if (coeff->colhdr == NULL)
-  { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	   consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+  { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	      consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
     return (-1) ; }
   if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	   1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	      1,consys->varcnt) ;
     return (-1) ; }
   if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-  { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	   coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+  { dy_errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
+	      coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
     return (-1) ; }
 # endif
   a1 = coeff->val ;
@@ -1075,16 +1087,17 @@ int consys_gcdrow (consys_struct *consys, int rowndx)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->colhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
-	     consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"colhdr",coeff,"row",
+	        consys_nme(consys,'c',rowndx,FALSE,NULL),rowndx) ;
       return (-1) ; }
     if (coeff->colhdr->ndx <= 0 || coeff->colhdr->ndx > consys->varcnt)
-    { errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
-	     1,consys->varcnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"column",coeff->colhdr->ndx,
+	        1,consys->varcnt) ;
       return (-1) ; }
     if (coeff->colhdr != consys->mtx.cols[coeff->colhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"column",coeff->colhdr,coeff->colhdr->ndx,
-	     coeff->colhdr->ndx,consys->mtx.cols[coeff->colhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,
+    		"column",coeff->colhdr,coeff->colhdr->ndx,coeff->colhdr->ndx,
+		consys->mtx.cols[coeff->colhdr->ndx]) ;
       return (-1) ; }
 #   endif
     a1 = coeff->val ;
@@ -1133,27 +1146,28 @@ bool consys_accumcol (consys_struct *consys, int colndx, double *vec)
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(101,rtnnme,consys->nme,"column header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
     return (FALSE) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= 0 || colndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
     return (FALSE) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
 # ifdef DYLP_PARANOIA
   if (colhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
   if (colndx != colhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
+  { dy_errmsg(126,rtnnme,
+  	      consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
     return (FALSE) ; }
   if (vec == NULL)
-  { errmsg(2,rtnnme,"vec") ;
+  { dy_errmsg(2,rtnnme,"vec") ;
     return (FALSE) ; }
 # endif
 
@@ -1161,16 +1175,16 @@ bool consys_accumcol (consys_struct *consys, int colndx, double *vec)
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
-	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
+	        consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (FALSE) ; }
     if (coeff->rowhdr->ndx <= 0 || coeff->rowhdr->ndx > consys->concnt)
-    { errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
-	     1,consys->concnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
+	        1,consys->concnt) ;
       return (FALSE) ; }
     if (coeff->rowhdr != consys->mtx.rows[coeff->rowhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
-	     coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
+	        coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
       return (FALSE) ; }
 #   endif
     vec[coeff->rowhdr->ndx] += coeff->val ; }
@@ -1205,27 +1219,28 @@ bool consys_mulaccumcol (consys_struct *consys, int colndx,
 
 # ifdef DYLP_PARANOIA
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (consys->mtx.cols == NULL)
-  { errmsg(101,rtnnme,consys->nme,"column header") ;
+  { dy_errmsg(101,rtnnme,consys->nme,"column header") ;
     return (FALSE) ; }
 # endif
 # ifndef DYLP_NDEBUG
   if (colndx <= 0 || colndx > consys->varcnt)
-  { errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,"column",colndx,1,consys->varcnt) ;
     return (FALSE) ; }
 # endif
   colhdr = consys->mtx.cols[colndx] ;
 # ifdef DYLP_PARANOIA
   if (colhdr == NULL)
-  { errmsg(103,rtnnme,consys->nme,"column",colndx) ;
+  { dy_errmsg(103,rtnnme,consys->nme,"column",colndx) ;
     return (FALSE) ; }
   if (colndx != colhdr->ndx)
-  { errmsg(126,rtnnme,consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
+  { dy_errmsg(126,rtnnme,
+  	      consys->nme,"column",colhdr,colhdr->ndx,colndx,colhdr) ;
     return (FALSE) ; }
   if (vec == NULL)
-  { errmsg(2,rtnnme,"vec") ;
+  { dy_errmsg(2,rtnnme,"vec") ;
     return (FALSE) ; }
 # endif
 
@@ -1233,16 +1248,16 @@ bool consys_mulaccumcol (consys_struct *consys, int colndx,
   {
 #   ifdef DYLP_PARANOIA
     if (coeff->rowhdr == NULL)
-    { errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
-	     consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
+    { dy_errmsg(125,rtnnme,consys->nme,"rowhdr",coeff,"column",
+	        consys_nme(consys,'v',colndx,FALSE,NULL),colndx) ;
       return (FALSE) ; }
     if (coeff->rowhdr->ndx <= 0 || coeff->rowhdr->ndx > consys->concnt)
-    { errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
-	     1,consys->concnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"row",coeff->rowhdr->ndx,
+	        1,consys->concnt) ;
       return (FALSE) ; }
     if (coeff->rowhdr != consys->mtx.rows[coeff->rowhdr->ndx])
-    { errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
-	     coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
+    { dy_errmsg(126,rtnnme,consys->nme,"row",coeff->rowhdr,coeff->rowhdr->ndx,
+	        coeff->rowhdr->ndx,consys->mtx.rows[coeff->rowhdr->ndx]) ;
       return (FALSE) ; }
 #   endif
     vec[coeff->rowhdr->ndx] += scalar*coeff->val ; }

@@ -9,8 +9,8 @@
 #                       Names and other basic things                        #
 #############################################################################
 
-AC_INIT([DyLP],[devel],[https://github.com/coin-or/DyLP/issues/new],[coin-or-dylp],
-  [https://github.com/coin-or/DyLP])
+AC_INIT([DyLP],[devel],[https://github.com/coin-or/DyLP/issues/new],
+	[coin-or-dylp],[https://github.com/coin-or/DyLP])
 
 
 AC_COPYRIGHT([
@@ -187,9 +187,18 @@ AC_CONFIG_FILES([doc/Makefile
 		 doc/TexMF/Makefile])
 AC_CONFIG_FILES([doc/build_dylpdoc],[chmod +x doc/build_dylpdoc])
 
-# Here put the location and name of the configuration header files
+# Here put the location and name of the configuration header files. Dylp needs
+# config.h to be idempotent, so insist on guards.
 
+AH_TOP([
+#ifndef _DYLP_AUTO_CONFIG_H_
+#define _DYLP_AUTO_CONFIG_H_
+])
+AH_BOTTOM([#endif /* _DYLP_AUTO_CONFIG_H_ */])
 AC_CONFIG_HEADERS([src/DylpStdLib/config.h src/DylpStdLib/config_dylp.h])
+if test $coin_has_osi = yes ; then
+  AC_CONFIG_HEADERS([src/OsiDylp/config_osidylp.h])
+fi
 
 # Finally, we let configure write all the output...
 

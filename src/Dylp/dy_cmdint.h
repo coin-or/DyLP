@@ -42,8 +42,8 @@
 
     cmdOK	execution of the command was adequately successful, further
 		command interpretation should continue.
-    cmdHALTNOERROR execution of the command was adequately successful, but break
-		out of the command interpretation loop.
+    cmdHALTNOERROR execution of the command was adequately successful, but
+    		break out of the command interpretation loop.
     cmdHALTERROR an error occurred during execution of the command, break
 		out of the command interpretation loop.
 
@@ -58,7 +58,8 @@
 
 typedef enum { cmdOK, cmdHALTERROR, cmdHALTNOERROR } cmd_retval ;
 
-cmd_retval dy_processcmds(ioid cmdchn, bool silent,
-			  lpopts_struct *lpopts, lptols_struct *lptols) ;
+extern DYLPLIB_EXPORT cmd_retval
+  dy_processcmds(ioid cmdchn, bool silent,
+		 lpopts_struct *lpopts, lptols_struct *lptols) ;
 
 #endif	/* _DY_CMDINT_H */
