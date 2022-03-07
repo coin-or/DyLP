@@ -23,10 +23,12 @@
   problem for me to expend the effort to fix them.
 */
 
-#include "dylib_std.h"
+/*
+  Needed only for sscanf in do_terminal.
+*/
+#include <stdio.h>
 
-static char sccsid[] UNUSED = "@(#)bnfrdr.c	3.9	09/25/04" ;
-static char svnid[] UNUSED = "$Id$" ;
+#include "dylib_std.h"
 
 #include "dylib_io.h"
 #include "dylib_errs.h"
@@ -1092,8 +1094,9 @@ bool doterminal (bnfTref_struct *ref)
 
 /*
   From stdio.h
-*/
+
   extern int sscanf(const char *str, const char *format, ...) ;
+*/
 
 /*
   First test the reference to make sure that it references a terminal.
