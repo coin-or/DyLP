@@ -32,10 +32,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifndef MALLOC
-#define MALLOC(zz_sze_zz) malloc(zz_sze_zz)
-#endif
-
 /*
   Declarations for the error message template array.
 */
@@ -230,6 +226,7 @@ static void errOrWarn (char *msgType, int errid, va_list varargs)
 */
 
 { char *ident ;
+  char *rtnnme = "errOrWarn" ;
 
 /*
   Construct the prefix and copy it into the main message buffer. We'll be
@@ -237,11 +234,11 @@ static void errOrWarn (char *msgType, int errid, va_list varargs)
 */
   char *pfxTmplt = "%%s (%s): " ;
   int pfxLen = strlen(pfxTmplt)+strlen(msgType) ;
-  char pfxBuf[pfxLen] ;
+  char *pfxBuf = MALLOC(pfxLen) ;
   sprintf(pfxBuf,pfxTmplt,msgType) ;
   pfxLen = strlen(pfxBuf) ;
 
-  char msgBuf[MAXERRTXT+pfxLen+1] ;
+  char *msgBuf = MALLOC(MAXERRTXT+pfxLen+1) ;
   strcpy(msgBuf,pfxBuf) ;
 /*
   Flush stdout and elogchn, so that any buffered normal output appears before
@@ -304,6 +301,11 @@ static void errOrWarn (char *msgType, int errid, va_list varargs)
   Flush the logged error message, so that the user will definitely see it.
 */
   if (elogchn != NULL) fflush(elogchn) ;
+/*
+  Free the message buffers.
+*/
+  FREE(pfxBuf) ;
+  FREE(msgBuf) ;
 
   return ; }
 
