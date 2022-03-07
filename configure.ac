@@ -93,9 +93,9 @@ AC_DYLP_EQUIV_FOR_CPP_BOOL
 ########################################################################
 
 # Now determine the names in this environment for isfinite() and isnan(). The
-# most common variants are finite() and isnan(). We check for others. After
-# these macros finish, DYLP_ISFINITE has the name for isfinite(), and
-# DYLP_ISNAN has the name for isnan().
+# most common variants are finite() and isnan(); isfinite() is gaining
+# ground. We check for others. After these macros finish, DYLP_ISFINITE has
+# the name for isfinite(), and DYLP_ISNAN has the name for isnan().
 
 AC_DYLP_FIND_ISFINITE
 AC_DYLP_FIND_ISNAN
