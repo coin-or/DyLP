@@ -132,26 +132,41 @@ typedef struct lnk_struct_tag
   Some macros to hide the memory allocation functions.
 
   The serious debugging versions of these macros (MALLOC_DEBUG = 2) use
-  outfmt from the io library and assume the existence of a string, rtnnme
-  (typically the name of the current subroutine) that's used to identify the
-  origin of the message. There's enough information in the messages to track
-  the allocation and deallocation of blocks, should you not have access to an
-  interactive debugger with this capability.
+  dyio_outfmt from the io library and assume the existence of a string,
+  rtnnme (typically the name of the current subroutine) that's used to
+  identify the origin of the message. There's enough information in the
+  messages to track the allocation and deallocation of blocks, should you
+  not have access to an interactive debugger with this capability.
 
-  The casual debugging versions (MALLOC_DEBUG = 1) only check for a return
-  value of 0 and print a message to stderr with the file and line number.
-  This at least tells you when your code has core dumped because it ran out
-  of space (as opposed to a bug you can actually fix).
+  The casual debugging versions (MALLOC_DEBUG = 1, or, equivalently, simply
+  defining MALLOC_DEBUG) only check for a return value of 0 and print a
+  message to stderr with the file and line number.  This at least tells you
+  when your code has core dumped because it ran out of space (as opposed
+  to a bug you can actually fix).
 */
 
 #if (MALLOC_DEBUG == 2)
 
 #include "dylib_io.h"
+extern void *zz_ptr_zz ;
+extern ioid zz_chn_zz ;
 
-void *zz_ptr_zz ;
-ioid  zz_chn_zz ;
+/*
+  Invoke this macro exactly once in a file context as 'MALLOC_DBG_INIT ;'
+  to allocate the global variables used in the messages. zz_ptr_zz could
+  be static but it's just as easy to make it global along with zz_chn_zz.
+*/
+#define MALLOC_DBG_INIT \
+  void *zz_ptr_zz ; \
+  ioid  zz_chn_zz
 
-#define MALLOC_DBG_INIT(chn) ( zz_chn_zz = chn )
+/*
+  Invoke this macro exactly once, typically in the main program just after
+  calling dyio_ioinit.  After calling dyio_ioinit, ioid 2 is connected to
+  stdout and ioid 3 to stderr. Or use dyio_openfile to set up a specific
+  file for these messages.
+*/
+#define MALLOC_DBG_SETCHN(chn) ( zz_chn_zz = chn )
 
 #define MALLOC(zz_sze_zz) \
   ( zz_ptr_zz = (void *) malloc(zz_sze_zz), \
@@ -179,7 +194,11 @@ ioid  zz_chn_zz ;
 #elif (MALLOC_DEBUG == 1)
 
 #include <stdio.h>
-void *zz_ptr_zz ;
+static void *zz_ptr_zz ;
+
+#define MALLOC_DBG_INIT
+
+#define MALLOC_DBG_SETCHN(chn)
 
 #define MALLOC(zz_sze_zz) \
   ( zz_ptr_zz = (void *) malloc(zz_sze_zz), \
@@ -206,7 +225,9 @@ void *zz_ptr_zz ;
 
 #else
 
-#define MALLOC_DBG_INIT(chn)
+#define MALLOC_DBG_INIT
+
+#define MALLOC_DBG_SETCHN(chn)
 
 #define MALLOC(zz_sze_zz) malloc(zz_sze_zz)
 
