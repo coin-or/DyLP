@@ -17,7 +17,7 @@ jobs:
     name: Run tests
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include: [
           { os: windows-2019, arch: x86_64, msystem: mingw64, debug: true, suffix: "-dbg" },
