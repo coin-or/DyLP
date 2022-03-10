@@ -19731,7 +19731,7 @@ printf "%s\n" "$as_me: Checking for proper name for isfinite()." >&6;}
   ac_name_of_isfinite=
 
   if test -z "$ac_name_of_isfinite" ; then
-    for fname in isfinite finite _finite ; do
+    for fname in __builtin_isfinite isfinite finite _finite ; do
       as_ac_Symbol=`printf "%s\n" "ac_cv_have_decl_$fname" | $as_tr_sh`
 ac_fn_check_decl "$LINENO" "$fname" "$as_ac_Symbol" "
   #ifdef HAVE_CMATH
@@ -19788,7 +19788,7 @@ printf "%s\n" "$as_me: Checking for proper name for isnan()." >&6;}
   ac_name_of_isnan=
 
   if test -z "$ac_name_of_isnan" ; then
-    for fname in isnan _isnan isnand _isnand nan _nan ; do
+    for fname in __builtin_isnan isnan _isnan isnand _isnand nan _nan ; do
       as_ac_Symbol=`printf "%s\n" "ac_cv_have_decl_$fname" | $as_tr_sh`
 ac_fn_check_decl "$LINENO" "$fname" "$as_ac_Symbol" "
   #ifdef HAVE_CMATH
