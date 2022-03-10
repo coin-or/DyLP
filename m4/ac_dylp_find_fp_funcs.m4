@@ -20,7 +20,7 @@ AC_DEFUN([AC_DYLP_FIND_ISFINITE],
   ac_name_of_isfinite=
 
   if test -z "$ac_name_of_isfinite" ; then
-    for fname in isfinite finite _finite ; do
+    for fname in __builtin_isfinite isfinite finite _finite ; do
       AC_CHECK_DECL([$fname],[ac_name_of_isfinite=$fname],,AC_COIN_MATH_HDRS)
       if test -n "$ac_name_of_isfinite" ; then
         break
@@ -55,7 +55,7 @@ AC_DEFUN([AC_DYLP_FIND_ISNAN],
   ac_name_of_isnan=
 
   if test -z "$ac_name_of_isnan" ; then
-    for fname in isnan _isnan isnand _isnand nan _nan ; do
+    for fname in __builtin_isnan isnan _isnan isnand _isnand nan _nan ; do
       AC_CHECK_DECL([$fname],[ac_name_of_isnan=$fname],,AC_COIN_MATH_HDRS)
       if test -n "$ac_name_of_isnan" ; then
         break
