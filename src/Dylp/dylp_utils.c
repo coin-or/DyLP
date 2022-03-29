@@ -2363,7 +2363,7 @@ void dy_finishup (lpprob_struct *orig_lp, dyphase_enum phase)
   Otherwise, if orig_lp->phase is dyDONE,  we're cleanly done and we'll try
   to build an answer as best we can.  `Cleanly done' covers error and
   non-error returns, but we only retain data structures if the client requests
-  it and the result is such that their might be some use in it (e.g., hot
+  it and the result is such that there might be some use in it (e.g., hot
   start after modification, requests for tableau vectors, etc.). This is a bit
   subjective; currently limited to the four possibilities listed below.
 

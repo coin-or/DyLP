@@ -789,7 +789,7 @@ typedef enum { ibINV = 0, ibLOGICAL, ibSLACK, ibARCH } ibtype_enum ;
 		one iteration of dual or primal simplex, but shows problem
 		status rather than lpITERLIM.
   cxUNLOAD	This call is solely for the purpose of freeing the problem
-		data structures. (Replaces dyDONE/lpctlONLYFREE hack.)
+		data structures.
   cxSINGLELP	This is a one-off call to solve a single LP from scratch.
   cxINITIALLP	This is a call to solve a single LP from scratch, but will
 		likely be followed by calls to reoptimise.
