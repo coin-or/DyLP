@@ -462,47 +462,6 @@ void ODSI::getReducedGradient (double *cbar, double *y, const double *c) const
 
   return ; }
 
-#if 0
-/*
-  Delete this from the OsiSimplex interface 100828. Keep the code around for a
-  bit to see if anyone yells. I put out an announcement of deletion 100821,
-  but sometimes it takes a whack upside the head to get peoples' attention.
-
-  Calculate duals and reduced costs for a given objective function, but do
-  change the values held in this ODSI. Really, all this amounts to is a call
-  to getReducedGradient, plus the necessary bookkeeping to update cached
-  values and tell dylp that the objective has changed, should we happen to
-  call it.
-
-  The approach here is not quite as efficient as it could be, but avoids
-  duplicating the code of ODSI::setObjective. The alternative approach would
-  write the duals and cbar directly to _row_price and _col_cbar,
-  respectively, by passing them as parameters to getReducedGradient.  This
-  would avoid the cost of tossing out the current vectors and allocating new
-  space. The cost of reallocation seems a reasonable price for better code
-  structure.
-*/
-void ODSI::setObjectiveAndRefresh (const double *c)
-{
-  int n = getNumCols() ;
-  int m = getNumRows() ;
-  double *cbar = new double[n] ;
-  double *y = new double[m] ;
-/*
-  Do the calculation.  getReducedGradient compensates for objective sense, so
-  don't fuss about that just yet.
-*/
-  getReducedGradient(cbar,y,c) ;
-/*
-  Write the new objective into the ODSI object, with all the necessary
-  bookkeeping. Then restore the cached vectors.
-*/
-  setObjective(c) ;
-  _col_cbar = cbar ;
-  _row_price = y ;
-
-  return ; }
-#endif
 
 /*
   Return the vector of basic variable indices. We don't have to ask dylp;

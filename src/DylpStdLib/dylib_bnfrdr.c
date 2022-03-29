@@ -1093,12 +1093,6 @@ bool doterminal (bnfTref_struct *ref)
   static lex_struct lex_nil = {DY_LCNIL,NULL} ;
 
 /*
-  From stdio.h
-
-  extern int sscanf(const char *str, const char *format, ...) ;
-*/
-
-/*
   First test the reference to make sure that it references a terminal.
   We'll put off testing for correct storage spec 'til further down when
   we sort out just what will be stored.

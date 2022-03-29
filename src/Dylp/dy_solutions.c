@@ -515,6 +515,7 @@ void dy_rowDualsGivenC (lpprob_struct *orig_lp, double **p_y,
       y[i_orig] = -yi ;
     else
       y[i_orig] = yi ; }
+  FREE(sc_y) ;
 
 # ifndef DYLP_NDEBUG
   if (dy_opts->print.soln >= 3)

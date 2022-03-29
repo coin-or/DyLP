@@ -780,9 +780,6 @@ void ODSI::installPresolve ()
 
   return ; }
 
-
-
-
 
 
 /*
@@ -798,16 +795,15 @@ void ODSI::installPresolve ()
 
   The call to assignPresolvetoPostsolve will destroy preObj and set the pointer
   to null.
+
+  Note that postsolve makes use of the row bound vectors from the original
+  problem, hence we pass in saved_row_lower and saved_row_upper.
 */
 
 CoinPostsolveMatrix *ODSI::initialisePostsolve (CoinPresolveMatrix *&preObj)
 
-{ 
-
-  const double *origRowLB = getRowLower() ;
-  const double *origRowUB = getRowUpper() ;
-  CoinPostsolveMatrix *postObj =
-      new CoinPostsolveMatrix(0,0,0,origRowLB,origRowUB) ;
+{ CoinPostsolveMatrix *postObj =
+      new CoinPostsolveMatrix(0,0,0,saved_row_lower,saved_row_upper) ;
 
   postObj->assignPresolveToPostsolve(preObj) ;
 

@@ -27,6 +27,7 @@
 #define RUN_GALENETMIXED 1
 #define RUN_GALENET 1
 
+#include <stdio.h>
 
 #include "dylp.h"
 
@@ -217,12 +218,14 @@ int main (int argc, char **argv)
   errcnt = 0 ;
 /*
   Acquire default option and tolerance structures. Allocate an
-  lpprob_struct to be our top-level handle.
+  lpprob_struct to be our top-level handle. Set the owner field so that dylp
+  will do the right thing when carrying over data structures between calls.
 */
   main_lpopts = NULL ;
   main_lptols = NULL ;
   dy_defaults(&main_lpopts,&main_lptols) ;
   main_lp = (lpprob_struct *) CALLOC(1,sizeof(lpprob_struct)) ;
+  main_lp->owner = (void *) 0x42 ;
 /*
   Initialise the basis factorisation package with a data structure capable of
   50 constraints.  The second parameter controls how many basis updates the
@@ -265,6 +268,7 @@ int main (int argc, char **argv)
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxSINGLELP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = FALSE ;
     main_lpopts->finpurge.vars = TRUE ;
@@ -316,7 +320,7 @@ int main (int argc, char **argv)
 /*
   Call dylp to free internal structures, then free main_sys.
 */
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -337,11 +341,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxSINGLELP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = FALSE ;
     main_lpopts->finpurge.vars = TRUE ;
@@ -372,7 +377,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -393,11 +398,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxSINGLELP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = FALSE ;
     main_lpopts->finpurge.vars = TRUE ;
@@ -438,7 +444,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -463,11 +469,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxINITIALLP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = TRUE ;
     main_lpopts->finpurge.vars = FALSE ;
@@ -499,7 +506,7 @@ int main (int argc, char **argv)
     main_lpopts->forcecold = FALSE ;
 
     dyio_outfmt(dy_logchn,dy_gtxecho,"Resolving exprimalray ...") ;
-    lpretval = do_lp(main_lp,main_lptols,main_lpopts,1) ;
+    lpretval = do_lp(main_lp,main_lptols,main_lpopts,2) ;
     dyio_outfmt(ttyout,dy_gtxecho,"\n  %s, z = %.12f.\n",
 		dy_prtlpret(lpretval),main_lp->obj) ;
     if (dumpsoln == TRUE)
@@ -533,7 +540,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -557,11 +564,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxINITIALLP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = TRUE ;
     main_lpopts->finpurge.vars = FALSE ;
@@ -635,7 +643,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -665,11 +673,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxSINGLELP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = TRUE ;
     main_lpopts->finpurge.vars = FALSE ;
@@ -731,7 +740,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -756,11 +765,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxSINGLELP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = TRUE ;
     main_lpopts->finpurge.vars = FALSE ;
@@ -822,7 +832,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -848,11 +858,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxSINGLELP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = TRUE ;
     main_lpopts->finpurge.vars = FALSE ;
@@ -914,7 +925,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
@@ -939,11 +950,12 @@ int main (int argc, char **argv)
     errcnt++ ; }
   else
   { dy_checkdefaults(main_sys,main_lpopts,main_lptols) ;
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    setflg(main_lp->ctlopts,lpctlNOFREE) ;
     main_lp->phase = dyINV ;
     main_lp->consys = main_sys ;
     main_lp->rowsze = main_sys->rowsze ;
     main_lp->colsze = main_sys->colsze ;
+    main_lpopts->context = cxSINGLELP ;
     main_lpopts->forcecold = TRUE ;
     main_lpopts->fullsys = TRUE ;
     main_lpopts->finpurge.vars = FALSE ;
@@ -1006,7 +1018,7 @@ int main (int argc, char **argv)
     errcnt += dytest_colPrimals(main_lp,main_lptols,main_lpopts) ;
     errcnt += dytest_rowPrimals(main_lp,main_lptols,main_lpopts) ;
 
-    comflg(main_lp->ctlopts,lpctlONLYFREE|lpctlNOFREE) ;
+    main_lpopts->context = cxUNLOAD ;
     dylp(main_lp,main_lpopts,main_lptols,NULL) ;
     consys_free(main_sys) ;
     main_sys = NULL ;
