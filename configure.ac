@@ -56,9 +56,12 @@ AC_COIN_CHECK_MATH_HDRS
 
 AC_COIN_CHK_LIBM([DylpLib])
 
-# Finalize the flags. That's as much as DylpLib needs.
+# Finalize the flags. That's as much as DylpLib needs. Make sure DylpTest has
+# the flags required by DylpLib.
 
 AC_COIN_FINALIZE_FLAGS(DylpLib)
+AC_COIN_CHK_HERE([DylpLib],[DylpTest],[dylp])
+
 
 #############################################################################
 #                     COIN-OR components                                    #
@@ -67,20 +70,21 @@ AC_COIN_FINALIZE_FLAGS(DylpLib)
 # None of these are required to build and test libDylp. All are needed to
 # properly test libOsiDylp and to fully link the doxygen documentation.
 
-AC_COIN_CHK_PKG([CoinUtils],[OsiDylpLib])
-AC_COIN_CHK_PKG([Osi],[OsiDylpLib])
-AC_COIN_CHK_PKG([OsiTests],[OsiDylpLib],[osi-unittests])
+AC_COIN_CHK_PKG([CoinUtils],[OsiDylpLib OsiDylpTest])
+AC_COIN_CHK_PKG([Osi],[OsiDylpLib OsiDylpTest])
+AC_COIN_CHK_PKG([OsiTests],[OsiDylpLib OsiDylpTest],[osi-unittests])
 
 # Just Sample will be enough to run basic tests. If Netlib is present, the
 # OsiDylp test will run the Netlib problem set.
 
-AC_COIN_CHK_PKG([Sample],,[coindatasample],,dataonly)
-AC_COIN_CHK_PKG([Netlib],,[coindatanetlib],,dataonly)
+AC_COIN_CHK_PKG([Sample],[OsiDylpTest],[coindatasample],,dataonly)
+AC_COIN_CHK_PKG([Netlib],[OsiDylpTest],[coindatanetlib],,dataonly)
 
-# Finalize libs and cflags for OsiDylpLib, then tack on information for dylp,
-# which is not yet installed.
-AC_COIN_FINALIZE_FLAGS(OsiDylpLib)
-AC_COIN_CHK_HERE([DylpLib],[OsiDylpLib],[dylp])
+# Finalize libs and cflags for OsiDylpLib and OsiDylpTest, then tack on
+# information for dylp, which is not yet installed.
+
+AC_COIN_FINALIZE_FLAGS([OsiDylpLib OsiDylpTest])
+AC_COIN_CHK_HERE([DylpLib],[OsiDylpLib OsiDylpTest],[dylp])
 
 #############################################################################
 #                       Doing project specific tests                        #

@@ -21,7 +21,7 @@ unitTest_SOURCES = \
 
 # List libraries required for the unitTest
 
-unitTest_LDADD        = ../src/Dylp/libDylp.la $(DYLPLIB_LIBS)
+unitTest_LDADD        = ../src/Dylp/libDylp.la $(DYLPTEST_LIBS)
 
 # Here list all include flags, relative to this "srcdir" directory.
 
@@ -40,9 +40,9 @@ noinst_PROGRAMS += osiUnitTest
 osiUnitTest_SOURCES = osiUnitTest.cpp OsiDylpSolverInterfaceTest.cpp
 
 osiUnitTest_LDADD = ../src/OsiDylp/libOsiDylp.la ../src/Dylp/libDylp.la \
-	$(OSIDYLPLIB_LFLAGS) $(DYLPLIB_LFLAGS)
+	$(OSIDYLPTEST_LFLAGS)
 
-AM_CPPFLAGS += -I$(srcdir)/../src/OsiDylp $(OSIDYLPLIB_CFLAGS)
+AM_CPPFLAGS += -I$(srcdir)/../src/OsiDylp $(OSIDYLPTEST_CFLAGS)
 
 osiTestDep = osiUnitTest$(EXEEXT)
 

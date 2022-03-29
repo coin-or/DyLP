@@ -679,6 +679,8 @@ coin_doxy_tagname
 coin_doxy_usedot
 coin_have_latex
 coin_have_doxygen
+OSIDYLPTEST_CFLAGS_NOPC
+OSIDYLPTEST_LFLAGS_NOPC
 OSIDYLPLIB_CFLAGS_NOPC
 OSIDYLPLIB_LFLAGS_NOPC
 NETLIB_DATA
@@ -693,6 +695,9 @@ COIN_HAS_OSI_FALSE
 COIN_HAS_OSI_TRUE
 COIN_HAS_COINUTILS_FALSE
 COIN_HAS_COINUTILS_TRUE
+OSIDYLPTEST_PCFILES
+OSIDYLPTEST_CFLAGS
+OSIDYLPTEST_LFLAGS
 OSIDYLPLIB_PCFILES
 OSIDYLPLIB_CFLAGS
 OSIDYLPLIB_LFLAGS
@@ -701,6 +706,9 @@ COIN_HAS_PKGCONFIG_FALSE
 COIN_HAS_PKGCONFIG_TRUE
 ac_ct_PKG_CONFIG
 PKG_CONFIG
+DYLPTEST_PCFILES
+DYLPTEST_CFLAGS
+DYLPTEST_LFLAGS
 DYLPLIB_CFLAGS_NOPC
 DYLPLIB_LFLAGS_NOPC
 DYLPLIB_LFLAGS
@@ -18117,6 +18125,30 @@ printf "%s\n" "$as_me: DYLPLIB_CFLAGS: \"${DYLPLIB_CFLAGS}\"" >&6;}
 
 
 
+
+
+
+
+
+    DYLPTEST_PCFILES="$DYLPTEST_PCFILES dylp"
+       DYLPTEST_LFLAGS="$DYLPTEST_LFLAGS $DYLPLIB_LFLAGS"
+       DYLPTEST_CFLAGS="$DYLPTEST_CFLAGS `echo $DYLPLIB_CFLAGS | sed -e s/-DDYLPLIB_BUILD//`"
+
+       # Define BUILDTOOLS_DEBUG to enable debugging output
+       if test "$BUILDTOOLS_DEBUG" = 1 ; then
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: CHK_HERE adding DylpLib to DylpTest:" >&5
+printf "%s\n" "$as_me: CHK_HERE adding DylpLib to DylpTest:" >&6;}
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: DYLPTEST_PCFILES: \"${DYLPTEST_PCFILES}\"" >&5
+printf "%s\n" "$as_me: DYLPTEST_PCFILES: \"${DYLPTEST_PCFILES}\"" >&6;}
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: DYLPTEST_LFLAGS: \"${DYLPTEST_LFLAGS}\"" >&5
+printf "%s\n" "$as_me: DYLPTEST_LFLAGS: \"${DYLPTEST_LFLAGS}\"" >&6;}
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: DYLPTEST_CFLAGS: \"${DYLPTEST_CFLAGS}\"" >&5
+printf "%s\n" "$as_me: DYLPTEST_CFLAGS: \"${DYLPTEST_CFLAGS}\"" >&6;}
+       fi
+
+
+
+
 #############################################################################
 #                     COIN-OR components                                    #
 #############################################################################
@@ -18294,6 +18326,9 @@ printf "%s\n" "$as_me: $PKG_CONFIG path is \"$COIN_PKG_CONFIG_PATH\"" >&6;}
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for package CoinUtils" >&5
 printf %s "checking for package CoinUtils... " >&6; }
+
+
+
 
 
 
@@ -18522,6 +18557,9 @@ printf "%s\n" "#define DYLP_HAS_COINUTILS 1" >>confdefs.h
     OSIDYLPLIB_PCFILES="$coinutils_pcfiles $OSIDYLPLIB_PCFILES"
        OSIDYLPLIB_LFLAGS="$coinutils_lflags $OSIDYLPLIB_LFLAGS"
        OSIDYLPLIB_CFLAGS="$coinutils_cflags $OSIDYLPLIB_CFLAGS"
+      OSIDYLPTEST_PCFILES="$coinutils_pcfiles $OSIDYLPTEST_PCFILES"
+       OSIDYLPTEST_LFLAGS="$coinutils_lflags $OSIDYLPTEST_LFLAGS"
+       OSIDYLPTEST_CFLAGS="$coinutils_cflags $OSIDYLPTEST_CFLAGS"
 
 
 
@@ -18536,6 +18574,9 @@ printf "%s\n" "#define DYLP_HAS_COINUTILS 1" >>confdefs.h
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for package Osi" >&5
 printf %s "checking for package Osi... " >&6; }
+
+
+
 
 
 
@@ -18764,6 +18805,9 @@ printf "%s\n" "#define DYLP_HAS_OSI 1" >>confdefs.h
     OSIDYLPLIB_PCFILES="$osi_pcfiles $OSIDYLPLIB_PCFILES"
        OSIDYLPLIB_LFLAGS="$osi_lflags $OSIDYLPLIB_LFLAGS"
        OSIDYLPLIB_CFLAGS="$osi_cflags $OSIDYLPLIB_CFLAGS"
+      OSIDYLPTEST_PCFILES="$osi_pcfiles $OSIDYLPTEST_PCFILES"
+       OSIDYLPTEST_LFLAGS="$osi_lflags $OSIDYLPTEST_LFLAGS"
+       OSIDYLPTEST_CFLAGS="$osi_cflags $OSIDYLPTEST_CFLAGS"
 
 
 
@@ -18778,6 +18822,9 @@ printf "%s\n" "#define DYLP_HAS_OSI 1" >>confdefs.h
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for package OsiTests" >&5
 printf %s "checking for package OsiTests... " >&6; }
+
+
+
 
 
 
@@ -19006,6 +19053,9 @@ printf "%s\n" "#define DYLP_HAS_OSITESTS 1" >>confdefs.h
     OSIDYLPLIB_PCFILES="$ositests_pcfiles $OSIDYLPLIB_PCFILES"
        OSIDYLPLIB_LFLAGS="$ositests_lflags $OSIDYLPLIB_LFLAGS"
        OSIDYLPLIB_CFLAGS="$ositests_cflags $OSIDYLPLIB_CFLAGS"
+      OSIDYLPTEST_PCFILES="$ositests_pcfiles $OSIDYLPTEST_PCFILES"
+       OSIDYLPTEST_LFLAGS="$ositests_lflags $OSIDYLPTEST_LFLAGS"
+       OSIDYLPTEST_CFLAGS="$ositests_cflags $OSIDYLPTEST_CFLAGS"
 
 
 
@@ -19024,6 +19074,9 @@ printf "%s\n" "#define DYLP_HAS_OSITESTS 1" >>confdefs.h
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for package Sample" >&5
 printf %s "checking for package Sample... " >&6; }
+
+
+
 
 
 
@@ -19219,6 +19272,9 @@ fi
 
 printf "%s\n" "#define DYLP_HAS_SAMPLE 1" >>confdefs.h
 
+    OSIDYLPTEST_PCFILES="$sample_pcfiles $OSIDYLPTEST_PCFILES"
+       OSIDYLPTEST_LFLAGS="$sample_lflags $OSIDYLPTEST_LFLAGS"
+       OSIDYLPTEST_CFLAGS="$sample_cflags $OSIDYLPTEST_CFLAGS"
 
 
 
@@ -19234,6 +19290,9 @@ printf "%s\n" "#define DYLP_HAS_SAMPLE 1" >>confdefs.h
 
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for package Netlib" >&5
 printf %s "checking for package Netlib... " >&6; }
+
+
+
 
 
 
@@ -19429,6 +19488,9 @@ fi
 
 printf "%s\n" "#define DYLP_HAS_NETLIB 1" >>confdefs.h
 
+    OSIDYLPTEST_PCFILES="$netlib_pcfiles $OSIDYLPTEST_PCFILES"
+       OSIDYLPTEST_LFLAGS="$netlib_lflags $OSIDYLPTEST_LFLAGS"
+       OSIDYLPTEST_CFLAGS="$netlib_cflags $OSIDYLPTEST_CFLAGS"
 
 
 
@@ -19486,6 +19548,56 @@ printf "%s\n" "$as_me: OSIDYLPLIB_LFLAGS: \"${OSIDYLPLIB_LFLAGS}\"" >&6;}
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPLIB_CFLAGS: \"${OSIDYLPLIB_CFLAGS}\"" >&5
 printf "%s\n" "$as_me: OSIDYLPLIB_CFLAGS: \"${OSIDYLPLIB_CFLAGS}\"" >&6;}
       fi
+     if test "$BUILDTOOLS_DEBUG" = 1 ; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: FINALIZE_FLAGS for OsiDylpTest:" >&5
+printf "%s\n" "$as_me: FINALIZE_FLAGS for OsiDylpTest:" >&6;}
+      fi
+      OSIDYLPTEST_LFLAGS_NOPC=$OSIDYLPTEST_LFLAGS
+
+      OSIDYLPTEST_CFLAGS_NOPC=$OSIDYLPTEST_CFLAGS
+
+      if test -n "${OSIDYLPTEST_PCFILES}" ; then
+        temp_CFLAGS=`PKG_CONFIG_PATH="$COIN_PKG_CONFIG_PATH" $PKG_CONFIG --cflags ${OSIDYLPTEST_PCFILES}`
+        temp_LFLAGS=`PKG_CONFIG_PATH="$COIN_PKG_CONFIG_PATH" $PKG_CONFIG --libs $pkg_static ${OSIDYLPTEST_PCFILES}`
+        OSIDYLPTEST_CFLAGS="$temp_CFLAGS ${OSIDYLPTEST_CFLAGS}"
+        OSIDYLPTEST_LFLAGS="$temp_LFLAGS ${OSIDYLPTEST_LFLAGS}"
+      fi
+
+      # setup XYZ_EXPORT symbol for library users
+      libexport_attribute=
+      if test "$enable_shared" = yes ; then
+        case $build_os in
+          cygwin* | mingw* | msys* | cegcc* )
+            libexport_attribute="__declspec(dllimport)"
+            if test "$enable_static" = yes ; then
+              as_fn_error $? "Cannot do DLL and static LIB builds simultaneously. Do not add --enable-static without --disable-shared." "$LINENO" 5
+            fi
+          ;;
+        esac
+      fi
+
+printf "%s\n" "#define OSIDYLPTEST_EXPORT $libexport_attribute" >>confdefs.h
+
+
+      # add -DXYZ_BUILD to XYZ_CFLAGS
+      OSIDYLPTEST_CFLAGS="${OSIDYLPTEST_CFLAGS} -DOSIDYLPTEST_BUILD"
+
+      # Define BUILDTOOLS_DEBUG to enable debugging output
+      if test "$BUILDTOOLS_DEBUG" = 1 ; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPTEST_LFLAGS_NOPC: \"${OSIDYLPTEST_LFLAGS_NOPC}\"" >&5
+printf "%s\n" "$as_me: OSIDYLPTEST_LFLAGS_NOPC: \"${OSIDYLPTEST_LFLAGS_NOPC}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPTEST_CFLAGS_NOPC: \"${OSIDYLPTEST_CFLAGS_NOPC}\"" >&5
+printf "%s\n" "$as_me: OSIDYLPTEST_CFLAGS_NOPC: \"${OSIDYLPTEST_CFLAGS_NOPC}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: adding \"${OSIDYLPTEST_PCFILES}\"" >&5
+printf "%s\n" "$as_me: adding \"${OSIDYLPTEST_PCFILES}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPTEST_LFLAGS: \"${OSIDYLPTEST_LFLAGS}\"" >&5
+printf "%s\n" "$as_me: OSIDYLPTEST_LFLAGS: \"${OSIDYLPTEST_LFLAGS}\"" >&6;}
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPTEST_CFLAGS: \"${OSIDYLPTEST_CFLAGS}\"" >&5
+printf "%s\n" "$as_me: OSIDYLPTEST_CFLAGS: \"${OSIDYLPTEST_CFLAGS}\"" >&6;}
+      fi
+
+
+
 
 
 
@@ -19508,6 +19620,21 @@ printf "%s\n" "$as_me: OSIDYLPLIB_PCFILES: \"${OSIDYLPLIB_PCFILES}\"" >&6;}
 printf "%s\n" "$as_me: OSIDYLPLIB_LFLAGS: \"${OSIDYLPLIB_LFLAGS}\"" >&6;}
          { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPLIB_CFLAGS: \"${OSIDYLPLIB_CFLAGS}\"" >&5
 printf "%s\n" "$as_me: OSIDYLPLIB_CFLAGS: \"${OSIDYLPLIB_CFLAGS}\"" >&6;}
+       fi
+      OSIDYLPTEST_PCFILES="$OSIDYLPTEST_PCFILES dylp"
+       OSIDYLPTEST_LFLAGS="$OSIDYLPTEST_LFLAGS $DYLPLIB_LFLAGS"
+       OSIDYLPTEST_CFLAGS="$OSIDYLPTEST_CFLAGS `echo $DYLPLIB_CFLAGS | sed -e s/-DDYLPLIB_BUILD//`"
+
+       # Define BUILDTOOLS_DEBUG to enable debugging output
+       if test "$BUILDTOOLS_DEBUG" = 1 ; then
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: CHK_HERE adding DylpLib to OsiDylpTest:" >&5
+printf "%s\n" "$as_me: CHK_HERE adding DylpLib to OsiDylpTest:" >&6;}
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPTEST_PCFILES: \"${OSIDYLPTEST_PCFILES}\"" >&5
+printf "%s\n" "$as_me: OSIDYLPTEST_PCFILES: \"${OSIDYLPTEST_PCFILES}\"" >&6;}
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPTEST_LFLAGS: \"${OSIDYLPTEST_LFLAGS}\"" >&5
+printf "%s\n" "$as_me: OSIDYLPTEST_LFLAGS: \"${OSIDYLPTEST_LFLAGS}\"" >&6;}
+         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: OSIDYLPTEST_CFLAGS: \"${OSIDYLPTEST_CFLAGS}\"" >&5
+printf "%s\n" "$as_me: OSIDYLPTEST_CFLAGS: \"${OSIDYLPTEST_CFLAGS}\"" >&6;}
        fi
 
 
@@ -19730,8 +19857,9 @@ printf "%s\n" "$as_me: Checking for proper name for isfinite()." >&6;}
 
   ac_name_of_isfinite=
 
+
   if test -z "$ac_name_of_isfinite" ; then
-    for fname in __builtin_isfinite isfinite finite _finite ; do
+    for fname in isfinite finite _finite __builtin_isfinite ; do
       as_ac_Symbol=`printf "%s\n" "ac_cv_have_decl_$fname" | $as_tr_sh`
 ac_fn_check_decl "$LINENO" "$fname" "$as_ac_Symbol" "
   #ifdef HAVE_CMATH
@@ -19766,6 +19894,145 @@ fi
       fi
     done
   fi
+  if test -n "$ac_name_of_isfinite" ; then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: CHECK_DECL found $ac_name_of_isfinite." >&5
+printf "%s\n" "$as_me: CHECK_DECL found $ac_name_of_isfinite." >&6;}
+  fi
+
+
+  if test -z "$ac_name_of_isfinite" ; then
+    temp=
+    coin_save_LIBS="$LIBS"
+    LIBS=$DYLPLIB_LFLAGS
+    if test "$cross_compiling" = yes
+then :
+  { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "cannot run test program while cross compiling
+See \`config.log' for more details" "$LINENO" 5; }
+else $as_nop
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+  #ifdef HAVE_CMATH
+  # include <cmath>
+  #else
+  # ifdef HAVE_MATH_H
+  #  include <math.h>
+  # endif
+  #endif
+  #ifdef HAVE_CFLOAT
+  # include <cfloat>
+  #else
+  # ifdef HAVE_FLOAT_H
+  #  include <float.h>
+  # endif
+  #endif
+  #ifdef HAVE_CIEEEFP
+  # include <cieeefp>
+  #else
+  # ifdef HAVE_IEEEFP_H
+  #  include <ieeefp.h>
+  # endif
+  #endif
+
+int
+main (void)
+{
+double dvar = 1.0 ;
+	  if (isfinite(dvar))
+	  { return (0) ; }
+	  else
+	  { return (1) ; }
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"
+then :
+  temp='isfinite'
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+    if test -n "$temp" ; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Just try isfinite(double) worked." >&5
+printf "%s\n" "$as_me: Just try isfinite(double) worked." >&6;}
+      ac_name_of_isfinite=$temp
+    fi
+    LIBS="$coin_save_LIBS"
+  fi
+
+
+  if test -z "$ac_name_of_isfinite" ; then
+    temp=
+    coin_save_LIBS="$LIBS"
+    LIBS=$DYLPLIB_LFLAGS
+    if test "$cross_compiling" = yes
+then :
+  { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "cannot run test program while cross compiling
+See \`config.log' for more details" "$LINENO" 5; }
+else $as_nop
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+  #ifdef HAVE_CMATH
+  # include <cmath>
+  #else
+  # ifdef HAVE_MATH_H
+  #  include <math.h>
+  # endif
+  #endif
+  #ifdef HAVE_CFLOAT
+  # include <cfloat>
+  #else
+  # ifdef HAVE_FLOAT_H
+  #  include <float.h>
+  # endif
+  #endif
+  #ifdef HAVE_CIEEEFP
+  # include <cieeefp>
+  #else
+  # ifdef HAVE_IEEEFP_H
+  #  include <ieeefp.h>
+  # endif
+  #endif
+
+int
+main (void)
+{
+ double dvar = 1.0 ;
+#if __has_builtin(__builtin_isfinite)
+  if (isfinite(dvar))
+  { return (0) ; }
+  else
+  { return (1) ; }
+#else
+  choke me
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_run "$LINENO"
+then :
+  temp='isfinite'
+fi
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+  conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+
+    if test -n "$temp" ; then
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Exotic M1 test found $temp!" >&5
+printf "%s\n" "$as_me: Exotic M1 test found $temp!" >&6;}
+      ac_name_of_isfinite=$temp
+    fi
+    LIBS="$coin_save_LIBS"
+  fi
 
   if test -z "$ac_name_of_isfinite" ; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Cannot find a C function to check if an IEEE floating point
@@ -19788,7 +20055,7 @@ printf "%s\n" "$as_me: Checking for proper name for isnan()." >&6;}
   ac_name_of_isnan=
 
   if test -z "$ac_name_of_isnan" ; then
-    for fname in __builtin_isnan isnan _isnan isnand _isnand nan _nan ; do
+    for fname in isnan _isnan isnand _isnand nan _nan __builtin_isnan ; do
       as_ac_Symbol=`printf "%s\n" "ac_cv_have_decl_$fname" | $as_tr_sh`
 ac_fn_check_decl "$LINENO" "$fname" "$as_ac_Symbol" "
   #ifdef HAVE_CMATH
