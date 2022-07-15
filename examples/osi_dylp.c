@@ -36,8 +36,6 @@
 			  but allows an opening title and closing message
 			  giving the result of the LP.
   -p <num>		Set overall print level to <num>, [0..5].
-  -e <errmsg-file>	Source text for error messages (defaults to
-			  dy_errmsgs.txt).
   -E <errlog-file>	A logging file for error messages (default is to
 			  direct error messages to stderr and the log file).
   -o <option-file>	Control ('.spc') options for dylp. Default is to not
@@ -59,7 +57,7 @@
   specified to suppress output to stdout.
 */
 
-#include <string.h>
+// #include <string.h>
 
 /*
   We're getting close to the O/S here. Microsoft does it differently, of
@@ -67,6 +65,7 @@
   where, but I'm hoping that sys/time.h and sys/resource.h together will
   cover it.
 */
+
 #include <time.h>
 #if defined(_MSC_VER) || defined(__MSVCRT__)
   /* Nothing to do here. */
@@ -75,27 +74,11 @@
 # include <sys/resource.h>
 #endif
 
-#include "dy_cmdint.h"
 #include "dylp.h"
+#include "dy_cmdint.h"
 
-static char sccsid[] UNUSED = "@(#)osi_dylp.c	1.10	09/25/04" ;
-static char svnid[] UNUSED = "$Id$" ;
-
-const char *osidylp_version = "1.10" ;			/* sccs! */
+const char *osidylp_version = "??" ;
 const char *osidylp_time ;
-
-/*
-  Macro cleverness to specify a default error message file. Depends on ANSI
-  C merge of consecutive string constants. DYLP_ERRMSGDIR should have the
-  form "path/to/distribution/DyLP/src/Dylp/", including the quotes. See
-  DyLP/src/DylpStdLib/DylpConfig.h for further information.
-*/
-
-#ifdef DYLP_ERRMSGDIR
-# define DYLP_ERRMSGPATH DYLP_ERRMSGDIR "dy_errmsgs.txt"
-#else
-# define DYLP_ERRMSGPATH "dy_errmsgs.txt"
-#endif
 
 /*
   Variables which control i/o operations.
@@ -175,10 +158,6 @@ static void print_help (ioid chn, bool echo, const char *name)
   dyio_outfmt(chn,echo,"\n  %s\t\t%s","-p <num>",
   	      "Set overall print level to <num>, [0..5].") ;
 
-  dyio_outfmt(chn,echo,"\n  %s\t%s","-e <errmsg-file>",
-	      "Source text for error messages (defaults to") ;
-  dyio_outfmt(chn,echo,"\n\t\t\t%s","dy_errmsgs.txt).") ;
-
   dyio_outfmt(chn,echo,"\n  %s\t%s","-E <errlog-file>",
 	       "A logging file for error messages (default is to") ;
   dyio_outfmt(chn,echo,
@@ -233,12 +212,16 @@ static void print_help (ioid chn, bool echo, const char *name)
 
 #if defined(_MSC_VER) || defined(__MSVCRT__)
 
-typedef long int __time_t ;
-typedef long int __suseconds_t ;
+  typedef long int __time_t ;
+  typedef long int __suseconds_t ;
 
+# if defined(_WIN64)
+  // Msys2 MinGW handles this on its own
+# else
 struct timeval
 { __time_t tv_sec ;
   __suseconds_t tv_usec ; } ;
+#endif
 
 static void get_timeval (struct timeval *tv)
 /*
@@ -394,13 +377,13 @@ static void stats_lp (const char *outpath, bool echo, lpprob_struct *lp,
   Set up the output. Don't echo this to stdout twice.
 */
   if (outpath == NULL)
-  { dywarn(2,rtnnme,"file name") ;
+  { dy_warn(2,rtnnme,"file name") ;
     chn = IOID_NOSTRM ; }
   else
   { chn = dyio_pathtoid(outpath,NULL) ;
     if (chn == IOID_INV) chn = dyio_openfile(outpath,"w") ;
     if (chn == IOID_INV)
-    { dywarn(10,rtnnme,outpath,"w") ;
+    { dy_warn(10,rtnnme,outpath,"w") ;
       chn = IOID_NOSTRM ; }
     if (strcmp(outpath,"stdout") == 0) echo = FALSE ; }
 /*
@@ -533,7 +516,7 @@ int main (int argc, char *argv[])
   ioid ttyin,ttyout,outchn,logchn,cmdchn ;
   int optlett,printlvl ;
   bool silent,terse,swaperrs,errecho,gtxecho,doversion,dohelp ;
-  const char *errmsgpath,*errlogpath,*optpath,*mpspath,*logpath ;
+  const char *errlogpath,*optpath,*mpspath,*logpath ;
 
   struct timeval lptime ;
   
@@ -565,7 +548,6 @@ int main (int argc, char *argv[])
   Set up some defaults, then process the command line options. This is all very
   specific to Unix and SunOS.
 */
-  errmsgpath = DYLP_ERRMSGPATH ;
   errlogpath = NULL ;
   optpath = NULL ;
   mpspath = NULL ;
@@ -590,10 +572,7 @@ int main (int argc, char *argv[])
        optlett != -1 ;
        optlett = getopt(argc,argv,optstring))
     switch (optlett)
-    { case 'e':
-      { errmsgpath = optarg ;
-	break ; }
-      case 'E':
+    { case 'E':
       { errlogpath = optarg ;
 	break ; }
       case 'o':
@@ -626,9 +605,9 @@ int main (int argc, char *argv[])
       { dohelp = TRUE ;
 	break ; }
       case '?':
-      { errinit(errmsgpath,errlogpath,TRUE) ;
+      { dy_errinit(errlogpath,TRUE) ;
 	dyio_ioinit() ;
-	errmsg(3,rtnnme,"command line option",optopt) ;
+	dy_errmsg(3,rtnnme,"command line option",optopt) ;
 	exit (1) ; } }
 /*
   If there's still a parameter left, it must be the mps file, specified without
@@ -660,7 +639,7 @@ int main (int argc, char *argv[])
   Grab the time and format it nicely.
 */
   if (time(&timeval) == (time_t)(-1))
-  { dywarn(19,rtnnme) ;
+  { dy_warn(19,rtnnme) ;
     osidylp_time = "n/a" ; }
   else
   { tm = localtime(&timeval) ;
@@ -693,9 +672,9 @@ int main (int argc, char *argv[])
     errecho = FALSE ;
   else
     errecho = TRUE ;
-  errinit(errmsgpath,errlogpath,errecho) ;
+  dy_errinit(errlogpath,errecho) ;
   if (dyio_ioinit() != TRUE)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     exit (2) ; }
 /*
   Connect ttyout to the standard output. Initialize ttyin, setting the mode to
@@ -704,11 +683,11 @@ int main (int argc, char *argv[])
 */
   ttyout = dyio_openfile("stdout","w") ;
   if (ttyout == IOID_INV)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     exit(3) ; }
   ttyin = dyio_openfile("stdin","r") ;
   if (ttyin == IOID_INV)
-  { errmsg(1,rtnnme,__LINE__) ;
+  { dy_errmsg(1,rtnnme,__LINE__) ;
     exit(4) ; }
   (void) dyio_setmode(ttyin,'l') ;
   cmdchn = ttyin ;
@@ -718,7 +697,7 @@ int main (int argc, char *argv[])
   if (logpath != NULL)
   { logchn = dyio_openfile(logpath,"w") ;
     if (logchn == IOID_INV)
-    { dywarn(201,rtnnme,logpath) ;
+    { dy_warn(201,rtnnme,logpath) ;
       logchn = IOID_NOSTRM ; } }
   else
   { logchn = IOID_NOSTRM ; }
@@ -735,7 +714,7 @@ int main (int argc, char *argv[])
   { swaperrs = TRUE ;
     errlogpath = logpath ;
     if (dyio_chgerrlog(errlogpath,errecho) == FALSE)
-    { dywarn(18,rtnnme,"<null>",errlogpath) ; } }
+    { dy_warn(18,rtnnme,"<null>",errlogpath) ; } }
 /*
   Ok, after all that work, check if we've been asked for the version or usage
   messages. If so, do it and head for the exit. Version preempts help.
@@ -756,7 +735,7 @@ int main (int argc, char *argv[])
   { outchn = dyio_pathtoid(outpath,NULL) ;
     if (outchn == IOID_INV) outchn = dyio_openfile(outpath,"w") ;
     if (outchn == IOID_INV)
-    { dywarn(10,rtnnme,outpath,"w") ; }
+    { dy_warn(10,rtnnme,outpath,"w") ; }
     else
     { dyio_outfmt(outchn,FALSE,"\n\t\t    %s\tV %s\n",rtnnme,osidylp_version) ;
       dyio_outfmt(outchn,FALSE,"\n\t\t%s",runtime) ;
@@ -767,20 +746,13 @@ int main (int argc, char *argv[])
   shell, doing a one-time solution for an LP, set up a default of cold start
   using the full system and a logical basis. This can be overridden in a .spc
   file if desired.
-
-  For reasons that escape me at the moment, the parser fails on Windows. This
-  may get fixed eventually. For now, disabled by the simple expedient of
-  forcing optpath to NULL.
 */
   dy_defaults(&main_lpopts,&main_lptols) ;
   main_lpopts->forcecold = TRUE ;
   main_lpopts->fullsys = TRUE ;
   main_lpopts->coldbasis = ibLOGICAL ;
-# if defined(_MSC_VER) || defined(__MSVCRT__)
-  optpath = NULL ;
-# endif
   if (optpath != NULL)
-  { cmdchn = dyio_openfile(optpath,"r") ;
+  { cmdchn = dyio_openfile(optpath,"rb") ;
     if (cmdchn == IOID_INV) exit (1) ;
     (void) dyio_setmode(cmdchn,'l') ;
     switch (dy_processcmds(cmdchn,silent,main_lpopts,main_lptols))
@@ -815,7 +787,7 @@ int main (int argc, char *argv[])
   Run the lp.
 */
   if (do_lp(&lptime,printlvl) == FALSE)
-  { errmsg(443,rtnnme,main_sys->nme,dy_prtlpphase(main_lp->phase,TRUE),
+  { dy_errmsg(443,rtnnme,main_sys->nme,dy_prtlpphase(main_lp->phase,TRUE),
 	   main_lp->iters) ; }
 /*
   Should we produce any output? Print to a file, if requested.
@@ -864,7 +836,7 @@ int main (int argc, char *argv[])
   if (logchn != IOID_INV && logchn != IOID_NOSTRM)
   { (void) dyio_closefile(logchn) ; }
   dyio_ioterm() ;
-  errterm() ;
+  dy_errterm() ;
 
   exit(0) ;
   

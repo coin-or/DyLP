@@ -3,6 +3,9 @@
 #ifndef __CONFIG_OSIDYLP_H__
 #define __CONFIG_OSIDYLP_H__
 
+/* Library visibility attribute */
+#undef OSIDYLPLIB_EXPORT
+
 /* Define this variable to enable OsiDylp's informational printing features.
    */
 #undef ODSI_INFOMSGS

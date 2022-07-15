@@ -6741,13 +6741,18 @@ inline void ODSI::indexCheck (int k, bool isCol, std::string rtnnme)
 
   This is imperfect (to say the least) as one often wants different settings
   for the initial call to the solver vs. subsequent calls to reoptimize.
+
+  The 'b' in the file mode requests that the file be opened in binary mode on
+  Windows systems. On POSIX systems, it does nothing. Dylp's parser likes to
+  back up using ftell / fseek and that doesn't work well for files opened in
+  text mode due to the translation of 'crlf' <-> 'lf' in text mode. 
 */
 
 void ODSI::dylp_controlfile (const char *name,
 			     const bool silent, const bool mustexist)
 
 { if (name == 0 || *name == 0) return ;
-  string mode = (mustexist)?"r":"q" ;
+  string mode = (mustexist)?"rb":"qb" ;
   ioid cmdchn = dyio_openfile(name,mode.c_str()) ;
   if (!(cmdchn == IOID_INV || cmdchn == IOID_NOSTRM))
   { dyio_setmode (cmdchn, 'l') ;  

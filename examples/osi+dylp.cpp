@@ -773,17 +773,10 @@ int main (int argc, char *argv[])
 /*
   Time to set up the lp options. Establish a set of defaults, then read the
   options file to see what the user has in mind.
-
-  For reasons that escape me at the moment, the parser fails on Windows. This
-  may get fixed eventually. For now, disabled by the simple expedient of
-  forcing optpath to NULL.
 */
   dy_defaults(&main_lpopts,&main_lptols) ;
-# if defined(_MSC_VER) || defined(__MSVCRT__)
-  optpath = NULL ;
-# endif
   if (optpath != NULL)
-  { dy_cmdchn = openfile(optpath,"r") ;
+  { dy_cmdchn = openfile(optpath,"rb") ;
     if (dy_cmdchn == IOID_INV) exit (1) ;
     (void) setmode(dy_cmdchn,'l') ;
     switch (process_cmds(silent))

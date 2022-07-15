@@ -26,6 +26,9 @@
 */
 
 #include "dylib_std.h"
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+#include <fcntl.h>		// for _O_TEXT, _O_BINARY
+#endif
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -88,6 +91,8 @@ static ioid maxfiles ;
   io_free	Free i/o, with '\n' treated as white space.
   io_read	Stream is opened for input.
   io_write	Stream is opened for output.
+  io_wintext	(Windows) Stream is text mode.
+  io_winbinary	(Windows) Stream is binary mode.
 */
 
 #define io_active	1<<0
@@ -95,6 +100,8 @@ static ioid maxfiles ;
 #define io_free		1<<2
 #define io_read		1<<3
 #define io_write	1<<4
+#define io_wintext	1<<5
+#define io_winbinary	1<<6
 
 
 
@@ -317,6 +324,13 @@ bool dyio_ioinit (void)
 
   extern FILE *dy_errlogq(char **elogpath) ;
 
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+/*
+  Establish a default for Windows text / binary, if the environment doesn't
+  provide it.
+*/
+  if (!(_fmode == _O_TEXT || _fmode == _O_BINARY)) { _fmode = _O_TEXT ; }
+# endif
 /*
   See the comments on the filblks array at the beginning of the file, for the
   explanation of the magic number 2. It's possible that the o/s may have
@@ -329,6 +343,9 @@ bool dyio_ioinit (void)
   filblk->dname = NULL ;
   filblk->fname = "stdin" ;
   setflg(filblk->modes,io_active|io_free|io_read) ;
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+  setflg(filblk->modes,io_wintext) ;
+# endif
   filblk->refcnt = 1 ;
 
   filblk = &filblks[2] ;
@@ -336,6 +353,9 @@ bool dyio_ioinit (void)
   filblk->dname = NULL ;
   filblk->fname = "stdout" ;
   setflg(filblk->modes,io_active|io_free|io_write) ;
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+  setflg(filblk->modes,io_wintext) ;
+# endif
   filblk->refcnt = 1 ;
 
   filblk = &filblks[3] ;
@@ -343,6 +363,9 @@ bool dyio_ioinit (void)
   filblk->dname = NULL ;
   filblk->fname = "stderr" ;
   setflg(filblk->modes,io_active|io_free|io_write) ;
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+  setflg(filblk->modes,io_wintext) ;
+# endif
   filblk->refcnt = 1 ;
 
 /*
@@ -428,22 +451,51 @@ static bool rwmodecmp (filblk_struct *filblk, const char *mode)
   if (filblk == NULL)
   { dy_errmsg(2,rtnnme,"filblk") ;
     return (FALSE) ; }
+  if (strlen(mode) > 3)
+  { dy_errmsg(4,rtnnme,"mode",mode) ;
+    return (FALSE) ; }
   modes = filblk->modes ;
 
-  rw = (mode[1] == '+')?TRUE:FALSE ;
+  if (strchr(mode,'+') != NULL)
+  { rw = TRUE ; }
+  else
+  { rw = FALSE ; }
   switch (mode[0])
   { case 'r':
     { if (flgoff(modes,io_read) == TRUE) return (FALSE) ;
       if (rw == TRUE && flgoff(modes,io_write) == TRUE) return (FALSE) ;
-      return (TRUE) ; }
+      break ; }
     case 'a':
     case 'w':
     { if (flgoff(modes,io_write) == TRUE) return (FALSE) ;
       if (rw == TRUE && flgoff(modes,io_read) == TRUE) return (FALSE) ;
-      return (TRUE) ; }
+      break ; }
     default:
     { dy_errmsg(4,rtnnme,"r/w mode",mode) ;
-      return (FALSE) ; } } }
+      return (FALSE) ; } }
+
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+/*
+  Relevant only for Windows, check for text or binary mode. Use the default if
+  not specified.
+*/
+  char *tb = strpbrk(mode,"tb") ;
+  if (tb != NULL)
+  { if (*tb == 't')
+    { if (flgoff(modes,io_wintext) == TRUE) return (FALSE) ; }
+    else if (*tb == 'b')
+    { if (flgoff(modes,io_winbinary) == TRUE) return (FALSE) ; } }
+  else
+  { if (_fmode == _O_TEXT)
+    { if (flgoff(modes,io_wintext) == TRUE) return (FALSE) ; }
+    else
+    { if (flgoff(modes,io_winbinary) == TRUE) return (FALSE) ; } }
+# endif
+
+/*
+  All tests passed.
+*/
+  return (TRUE) ; }
 
 
 
@@ -469,24 +521,49 @@ static bool setrwmode (filblk_struct *filblk, char *mode)
   { dy_errmsg(2,rtnnme,"filblk") ;
     return (FALSE) ; }
 
-  rw = (mode[1] == '+')?TRUE:FALSE ;
+  flags flgs = 0 ;
+  filblk->modes = 0 ;
+/*
+  Make sure the basic mode is valid.
+*/
   switch (mode[0])
   { case 'r':
-    { if (rw == TRUE)
-	setflg(filblk->modes,io_read|io_write) ;
-      else
-	setflg(filblk->modes,io_read) ;
-      return (TRUE) ; }
+    { setflg(flgs,io_read) ;
+      break ; }
     case 'a':
     case 'w':
-    { if (rw == TRUE)
-	setflg(filblk->modes,io_read|io_write) ;
-      else
-	setflg(filblk->modes,io_write) ;
-      return (TRUE) ; }
+    { setflg(flgs,io_write) ;
+      break ; }
     default:
     { dy_errmsg(4,rtnnme,"r/w mode",mode) ;
-      return (FALSE) ; } } }
+      return (FALSE) ; } }
+/*
+  Bump to read/write if there's a plus in the mode.
+*/
+  if (strchr(mode,'+') != NULL)
+  { setflg(flgs,io_read|io_write) ; }
+
+# if defined(_MSC_VER) || defined(__MSVCRT__)
+/*
+  Relevant only for Windows, check for text or binary mode. Use the default if
+  not specified.
+*/
+  char *tb = strpbrk(mode,"tb") ;
+  if (tb != NULL)
+  { if (*tb == 't')
+    { setflg(flgs,io_wintext) ; }
+    else if (*tb == 't')
+    { setflg(flgs,io_winbinary) ; } }
+  else
+  { if (_fmode == _O_TEXT)
+    { setflg(flgs,io_wintext) ; }
+    else
+    { setflg(flgs,io_winbinary) ; } }
+# endif
+
+  filblk->modes = flgs ;
+
+  return (TRUE) ; }
 
 
 
@@ -682,11 +759,15 @@ ioid dyio_openfile (const char *path, const char *mode)
     2): Six additional modes "R","R+","W","W+","A","A+" are provided to
 	override feature 1, i.e., to force a rewind or truncate operation, as
 	appropriate.
-    3): The letter `q' (query) is interpreted as `open the file if it exists,
-	but it's not an error if it doesn't exist.'
+    3): The letter `q' or 'Q' (query) is interpreted as `open the file if it
+        exists, but it's not an error if it doesn't exist.'
+
+  For the benefit of windows systems, the qualifiers 't' (text) and 'b'
+  (binary) are also supported. On POSIX systems (e.g., linux), these are
+  irrelevant.
 	
   'Compatible' mode means everything has to match except the case of the
-  letter.
+  base mode letter.
 
   Parameters:
     path:	Address of the full path name (directory path plus file name) 
@@ -702,7 +783,7 @@ ioid dyio_openfile (const char *path, const char *mode)
   filblk_struct *filblk ;
   const char *fname ;
   char *tmp ;
-  char mode_var[3] ;
+  char mode_var[4] ;
   int len ;
   ioid id ;
   bool mustexist,totop ;
@@ -717,11 +798,11 @@ ioid dyio_openfile (const char *path, const char *mode)
   { dy_errmsg(2,rtnnme,"r/w mode") ;
     return (IOID_INV) ; }
 /*
-  Get a copy of mode so we can play with the string.
+  Get a copy of mode so we can play with the string. A valid mode string can
+  be up to three letters.
 */
-  mode_var[0] = mode[0] ;
-  mode_var[1] = mode[1] ;
-  mode_var[2] = '\0' ;
+  strncpy(mode_var,mode,3) ;
+  mode_var[3] = '\0' ;
 /*
   If mode_var starts with an upper case letter, change to lower case. For
   modes beginning with 'W', 'R', set the rewind flag. Convert query modes
@@ -1259,12 +1340,12 @@ bool dyio_scan (ioid id, const char pattern[], bool rwnd, bool wrap)
 lex_struct *dyio_scanlex (ioid id)
 
 /*
-  This routine is a general lexical scanner. It recognizes three classes of 
-  lexemes: numbers (DY_LCNUM), identifiers (DY_LCID), and delimiters (DY_LCDEL). As
-  with character classes, these are augmented by two classes for EOF (DY_LCEOF)
-  and i/o error (DY_LCERR). Lexemes are limited to 80 characters in length. Longer
-  lexemes are truncated and the user is warned, but no error is indicated in
-  the returned value.
+  This routine is a general lexical scanner. It recognizes three classes
+  of lexemes: numbers (DY_LCNUM), identifiers (DY_LCID), and delimiters
+  (DY_LCDEL). As with character classes, these are augmented by two classes
+  for EOF (DY_LCEOF) and i/o error (DY_LCERR). Lexemes are limited to 80
+  characters in length. Longer lexemes are truncated and the user is warned,
+  but no error is indicated in the returned value.
 
   The basic form of the scanner follows the outline presented in Section 3.3
   of Gries, "Compiler Construction for Digital Computers".
@@ -1382,13 +1463,13 @@ lex_struct *dyio_scanstr (ioid id,
 			  lexclass stype, int fslen, char qschr, char qechr)
 
 /*
-  This routine is a string scanner. It scans two types of strings, fixed length
-  (DY_LCFS) and quoted (DY_LCQS). Before starting the string scan, the input is read
-  until a non-CCINV character is encountered (i.e, we skip over whitespace
-  characters).
-  
-  Fixed length strings have the length specified by fslen. The algorithm is
-  to copy the next fslen characters into a text string and return.
+  This routine is a string scanner. It scans two types of strings, fixed
+  length (DY_LCFS) and quoted (DY_LCQS). Before starting the string scan,
+  the input is read until a non-CCINV character is encountered (i.e,
+  we skip over whitespace characters).
+
+  Fixed length strings have the length specified by fslen. The algorithm
+  is to copy the next fslen characters into a text string and return.
 
   Quoted strings are bounded by a start character and an end character, passed
   in qschr and qechr, respectively.

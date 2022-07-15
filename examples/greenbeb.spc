@@ -3,8 +3,6 @@
 ! with the full constraint system. Generally this is more efficient if an lp
 ! will only be solved once.
 
-! svn/cvs: $Id$
-
 lpcontrol fullsys true ;
 
 ! Information print for current phase.
