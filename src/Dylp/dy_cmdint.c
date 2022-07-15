@@ -133,7 +133,7 @@ static cmd_retval docmd (ioid cmdchn, bool cmdecho, lex_struct *txt,
   cmd_retval retval ;
   const char *rtnnme = "docmd" ;
 
-/* dy_setup.c */
+/* dy_options.c */
 
   extern cmd_retval dy_printopt(ioid cmdchn, bool cmdecho, const char *keywd,
   				lpopts_struct *lpopts, lptols_struct *lptols),

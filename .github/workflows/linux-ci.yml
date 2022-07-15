@@ -1,10 +1,14 @@
 ---
 name: Linux build and test
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'master'
       - 'stable/*'
+    paths:
+      - 'src/**'
+      - 'test/**'
   pull_request:
     branches:
       - '**'
