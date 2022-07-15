@@ -594,7 +594,7 @@ void dy_setprintopts (int lvl, lpopts_struct *opts)
       opts->print.pricing = maxx(opts->print.pricing,0) ;
       opts->print.pivoting = maxx(opts->print.pivoting,0) ;
       opts->print.pivreject = maxx(opts->print.pivreject,0) ;
-      opts->print.degen = maxx(opts->print.degen,1) ;
+      opts->print.degen = maxx(opts->print.degen,0) ;
       opts->print.phase1 = maxx(opts->print.phase1,1) ;
       opts->print.phase2 = maxx(opts->print.phase2,1) ;
       opts->print.dual = maxx(opts->print.dual,1) ;

@@ -18072,7 +18072,8 @@ fi
   LIBS="$coin_save_LIBS"
 
 
-# Finalize the flags. That's as much as DylpLib needs.
+# Finalize the flags. That's as much as DylpLib needs. Make sure DylpTest has
+# the flags required by DylpLib.
 
 
    if test "$BUILDTOOLS_DEBUG" = 1 ; then
@@ -19498,8 +19499,9 @@ printf "%s\n" "#define DYLP_HAS_NETLIB 1" >>confdefs.h
   fi
 
 
-# Finalize libs and cflags for OsiDylpLib, then tack on information for dylp,
-# which is not yet installed.
+# Finalize libs and cflags for OsiDylpLib and OsiDylpTest, then tack on
+# information for dylp, which is not yet installed.
+
 
    if test "$BUILDTOOLS_DEBUG" = 1 ; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: FINALIZE_FLAGS for OsiDylpLib:" >&5
@@ -20691,8 +20693,7 @@ fi
 # input files for the examples are available in the VPATH directory.
 
 
-  ac_config_links="$ac_config_links examples/plain:examples/plain"
-ac_config_links="$ac_config_links examples/generic.spc:examples/generic.spc"
+  ac_config_links="$ac_config_links examples/generic.spc:examples/generic.spc"
 ac_config_links="$ac_config_links examples/greenbeb.spc:examples/greenbeb.spc"
 
 
@@ -20721,6 +20722,11 @@ if test $coin_has_osi = yes ; then
   ac_config_files="$ac_config_files osi-dylp.pc:src/OsiDylp/osi-dylp.pc.in"
 
 fi
+
+# The examples
+
+ac_config_files="$ac_config_files examples/plain"
+
 
 # And all the stuff that goes into building the documentation. See the note in
 # Makefile.am with respect to CONFIG_CLEAN_FILES and the distclean and
@@ -21907,7 +21913,6 @@ do
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "libtoolclpatch") CONFIG_COMMANDS="$CONFIG_COMMANDS libtoolclpatch" ;;
     "libtoolmingwpatch") CONFIG_COMMANDS="$CONFIG_COMMANDS libtoolmingwpatch" ;;
-    "examples/plain") CONFIG_LINKS="$CONFIG_LINKS examples/plain:examples/plain" ;;
     "examples/generic.spc") CONFIG_LINKS="$CONFIG_LINKS examples/generic.spc:examples/generic.spc" ;;
     "examples/greenbeb.spc") CONFIG_LINKS="$CONFIG_LINKS examples/greenbeb.spc:examples/greenbeb.spc" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
@@ -21919,6 +21924,7 @@ do
     "doxydoc/doxygen.conf") CONFIG_FILES="$CONFIG_FILES doxydoc/doxygen.conf" ;;
     "dylp.pc") CONFIG_FILES="$CONFIG_FILES dylp.pc" ;;
     "osi-dylp.pc") CONFIG_FILES="$CONFIG_FILES osi-dylp.pc:src/OsiDylp/osi-dylp.pc.in" ;;
+    "examples/plain") CONFIG_FILES="$CONFIG_FILES examples/plain" ;;
     "doc/Makefile") CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
     "doc/dylpabsdir.tex") CONFIG_FILES="$CONFIG_FILES doc/dylpabsdir.tex" ;;
     "doc/makefile.dylpdoc") CONFIG_FILES="$CONFIG_FILES doc/makefile.dylpdoc" ;;
@@ -23375,6 +23381,7 @@ _LT_EOF
     "libtoolmingwpatch":C) sed -e '/^deplibs_check_method/s/.*/deplibs_check_method="pass_all"/g' libtool > libtool.tmp
              mv libtool.tmp libtool
              chmod 755 libtool ;;
+    "examples/plain":F) chmod +x examples/plain ;;
     "doc/build_dylpdoc":F) chmod +x doc/build_dylpdoc ;;
 
   esac

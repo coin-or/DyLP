@@ -114,9 +114,8 @@ CONFIG_HEADER = $(top_builddir)/src/DylpStdLib/config.h \
 	$(top_builddir)/src/DylpStdLib/config_dylp.h \
 	$(top_builddir)/src/OsiDylp/config_osidylp.h
 CONFIG_CLEAN_FILES = examples/Makefile doxydoc/doxygen.conf dylp.pc \
-	osi-dylp.pc
-CONFIG_CLEAN_VPATH_FILES = examples/plain examples/generic.spc \
-	examples/greenbeb.spc
+	osi-dylp.pc examples/plain
+CONFIG_CLEAN_VPATH_FILES = examples/generic.spc examples/greenbeb.spc
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -429,6 +428,8 @@ doxydoc/doxygen.conf: $(top_builddir)/config.status $(top_srcdir)/doxydoc/doxyge
 dylp.pc: $(top_builddir)/config.status $(srcdir)/dylp.pc.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 osi-dylp.pc: $(top_builddir)/config.status $(top_srcdir)/src/OsiDylp/osi-dylp.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+examples/plain: $(top_builddir)/config.status $(top_srcdir)/examples/plain.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
