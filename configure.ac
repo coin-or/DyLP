@@ -151,8 +151,7 @@ AC_COIN_DOXYGEN([CoinUtils Osi])
 # In case this is a VPATH configuration we need to make sure that the
 # input files for the examples are available in the VPATH directory.
 
-AC_COIN_VPATH_LINK([examples/plain
-		    examples/generic.spc examples/greenbeb.spc])
+AC_COIN_VPATH_LINK([examples/generic.spc examples/greenbeb.spc])
 
 ##############################################################################
 #                   Finishing up by writing all the output                   #
@@ -179,6 +178,10 @@ AC_CONFIG_FILES([dylp.pc])
 if test $coin_has_osi = yes ; then
   AC_CONFIG_FILES([osi-dylp.pc:src/OsiDylp/osi-dylp.pc.in])
 fi
+
+# The examples
+
+AC_CONFIG_FILES([examples/plain],[chmod +x examples/plain])
 
 # And all the stuff that goes into building the documentation. See the note in
 # Makefile.am with respect to CONFIG_CLEAN_FILES and the distclean and

@@ -1,5 +1,11 @@
 /* src/DylpStdLib/config_dylp.h.in. */
 
+#ifndef __CONFIG_DYLP_H__
+#define __CONFIG_DYLP_H__
+
+/* Library visibility attribute */
+#undef DYLPLIB_EXPORT
+
 /* Version number of project */
 #undef DYLP_VERSION
 
@@ -16,3 +22,4 @@
    the C++ bool type. */
 #undef BOOL
 
+#endif

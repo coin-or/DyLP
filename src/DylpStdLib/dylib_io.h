@@ -81,16 +81,16 @@ extern DYLPLIB_EXPORT bool
 
 extern DYLPLIB_EXPORT bool dyio_chgerrlog(const char *path, bool echo) ;
 
-extern const char *dyio_idtopath(ioid id) ;
-extern ioid dyio_pathtoid(const char *path, const char *mode) ;
+extern DYLPLIB_EXPORT const char *dyio_idtopath(ioid id) ;
+extern DYLPLIB_EXPORT ioid dyio_pathtoid(const char *path, const char *mode) ;
 
 extern long dyio_mark(ioid id) ;
 extern bool dyio_backup(ioid id, long there) ;
 
 extern bool dyio_scan(ioid id, const char pattern[], bool rwnd, bool wrap) ;
-extern lex_struct *dyio_scanlex(ioid id),
-		  *dyio_scanstr(ioid id, lexclass stype,
-				int fslen, char qschr, char qechr) ;
+extern lex_struct
+  *dyio_scanlex(ioid id),
+  *dyio_scanstr(ioid id, lexclass stype, int fslen, char qschr, char qechr) ;
 
 extern DYLPLIB_EXPORT void
   dyio_flushio(ioid id, bool echo),

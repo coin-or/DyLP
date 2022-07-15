@@ -13,11 +13,14 @@
 
 /*
   There are two conditional compilation symbols in this file, BONSAIG and
-  COIN_HAS_DYLP. BONSAIG should be defined only if you're building BonsaiG.
+  COIN_HAS_DYLP. BONSAIG should be defined only if you're building the
+  BonsaiG MILP code. Almost certainly, you are not.
+
   COIN_HAS_DYLP should be defined only if you're trying to use this MPS
-  reader instead of the COIN MPS i/o routines. Almost certainly, you don't
-  want to define BONSAIG, and COIN_HAS_DYLP will be defined as appropriate in
-  DylpConfig.h.
+  reader instead of the COIN MPS i/o routines.  More than likely, you don't
+  want to define COIN_HAS_DYLP either. First off, the CoinUtils MPS routines
+  really are better, and second, the code controlled by COIN_HAS_DYLP is
+  only necessary if you need to pass the OSI unit test.
 */
 
 /*
@@ -117,12 +120,25 @@
 
 
 
-#include "dy_cmdint.h"
-#include "dylp.h"
+#define DYLP_INTERNAL
+
+#include "dylib_std.h"
+#include "dylib_io.h"
+#include "dylib_errs.h"
+#include "dy_vector.h"
 #include "dylib_hash.h"
 #include "dylib_strrtns.h"
-#include <string.h>
+#include "dy_mpsin.h"
 #include <errno.h>
+
+/*
+  dy_logchn		i/o id for the execution log file
+  dy_gtxecho		controls echoing of generated text to stdout
+*/
+
+extern ioid dy_logchn ;
+extern bool dy_gtxecho ;
+
 
 #ifndef BONSAIG
 
@@ -139,9 +155,6 @@ typedef struct { int minmax ;
 # include "milp.h"
 #endif
 
-
-static char sccsid[] UNUSED = "@(#)mpsio.c	4.4	11/06/04" ;
-static char svnid[] UNUSED = "$Id$" ;
 
 /*
   A bunch of definitions and declarations for mpsin and its slave routines.
@@ -264,7 +277,7 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
   Paranoia
 */
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (mpsinINV) ; }
 # endif
 /*
@@ -272,25 +285,25 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
 */
   lex = getmpsline(mpschn) ;
   if (lex->class == DY_LCERR)
-  { errmsg(168,rtnnme,mysection) ;
+  { dy_errmsg(168,rtnnme,mysection) ;
     return (mpsinINV) ; }
   if (lex->class == DY_LCEOF)
-  { errmsg(169,rtnnme,mysection) ;
+  { dy_errmsg(169,rtnnme,mysection) ;
     return (mpsinINV) ; }
   tok = strtok(lex->string,sepchars) ;
   if (tok == NULL || cistrcmp(tok,"name") != 0)
-  { errmsg(150,rtnnme,mysection,(tok == NULL)?"":tok) ;
+  { dy_errmsg(150,rtnnme,mysection,(tok == NULL)?"":tok) ;
     return (mpsinINV) ; }
 /*
   And now the name itself. If we get a name, create the constraint system.
 */
   tok = strtok(NULL,sepchars) ;
   if (tok == NULL)
-  { errmsg(151,rtnnme,mysection,"indicator") ;
+  { dy_errmsg(151,rtnnme,mysection,"indicator") ;
     return (mpsinINV) ; }
   *consys = consys_create(tok,0,CONSYS_WRNATT,10,10,infinity) ;
   if (*consys == NULL)
-  { errmsg(152,rtnnme,tok) ;
+  { dy_errmsg(152,rtnnme,tok) ;
     return (mpsinINV) ; }
 # ifndef NDEBUG
   dyio_outfmt(dy_logchn,dy_gtxecho,"\n\treading model %s.\n",(*consys)->nme) ;
@@ -306,7 +319,7 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
   tok = strtok(NULL,sepchars) ;
 # if 0
   if (tok == NULL || cistrcmp(tok,"free") != 0)
-    dywarn(150,rtnnme,"free",(tok == NULL)?"":tok) ;
+    dy_warn(150,rtnnme,"free",(tok == NULL)?"":tok) ;
 # endif
 /*
   Now check for the "rows" keyword that marks the start of the rows section.
@@ -314,14 +327,14 @@ static mpsinstate_enum mpsin_name (ioid mpschn, consys_struct **consys,
 */
   lex = getmpsline(mpschn) ;
   if (lex->class == DY_LCERR)
-  { errmsg(168,rtnnme,mysection) ;
+  { dy_errmsg(168,rtnnme,mysection) ;
     return (mpsinINV) ; }
   if (lex->class == DY_LCEOF)
-  { errmsg(169,rtnnme,mysection) ;
+  { dy_errmsg(169,rtnnme,mysection) ;
     return (mpsinINV) ; }
   tok = strtok(lex->string,sepchars) ;
   if (tok == NULL || cistrcmp(tok,"rows") != 0)
-  { errmsg(150,rtnnme,"rows",(tok == NULL)?"":tok) ;
+  { dy_errmsg(150,rtnnme,"rows",(tok == NULL)?"":tok) ;
     return (mpsinINV) ; }
 
   return (mpsinROWS) ; }
@@ -377,7 +390,7 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
   pkrow = pkvec_new(0) ;
   if (consys_attach(consys,CONSYS_CTYP,
 		    sizeof(contyp_enum),(void **) &consys->ctyp) == FALSE)
-  { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
+  { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
     return (mpsinINV) ; }
   setflg(consys->parts,CONSYS_CTYP) ;
 /*
@@ -405,7 +418,7 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
     typelett = *tok ;
     tok = strtok(NULL,sepchars) ;
     if (tok == NULL)
-    { errmsg(153,rtnnme,"constraint",mysection) ;
+    { dy_errmsg(153,rtnnme,"constraint",mysection) ;
       return (mpsinINV) ; }
     keep_row = TRUE ;
     switch (typelett)
@@ -414,7 +427,7 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
       { typecode = contypNB ;
 	if (!(consys->objndx <= 0 &&
 	      (consys->objnme == NULL || strcmp(tok,consys->objnme) == 0)))
-	{ dywarn(172,rtnnme,consys->nme,tok) ;
+	{ dy_warn(172,rtnnme,consys->nme,tok) ;
 	  keep_row = FALSE ; }
 	break ; }
       case 'E':
@@ -431,10 +444,10 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
 	break ; }
       case 'D':
       case 'd':
-      { errmsg(171,rtnnme,tok) ;
+      { dy_errmsg(171,rtnnme,tok) ;
 	return (mpsinINV) ; }
       default:
-      { errmsg(154,rtnnme,consys->nme,(unsigned) typelett,typelett,tok) ;
+      { dy_errmsg(154,rtnnme,consys->nme,(unsigned) typelett,typelett,tok) ;
 	return (mpsinINV) ; } }
 /*
   Install the constraint (unless it's a superfluous contypNB). The objective
@@ -445,7 +458,7 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
     if (keep_row == TRUE)
     { if (consys_addrow_pk(consys,
 			   'a',typecode,pkrow,0.0,0.0,NULL,NULL) == FALSE)
-      { errmsg(156,rtnnme,"constraint",consys->nme,pkrow->nme) ;
+      { dy_errmsg(156,rtnnme,"constraint",consys->nme,pkrow->nme) ;
 	return (mpsinINV) ; }
       if (typecode == contypNB)
       { consys->objndx = pkrow->ndx ;
@@ -456,14 +469,14 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
     if ((void *) intermediary !=
 	dyhash_enter(STRALLOC(pkrow->nme),conhash,conhashsze,
 		     (void *) intermediary))
-    { errmsg(155,rtnnme,"constraint",
+    { dy_errmsg(155,rtnnme,"constraint",
 	     consys_nme(consys,'c',pkrow->ndx,TRUE,NULL)) ;
       return (mpsinINV) ; }
 /*
   Check for garbage at the end of the line, and complain if there is any.
 */
     tok = strtok(NULL,sepchars) ;
-    if (tok != NULL) dywarn(157,rtnnme,tok,"constraint",pkrow->nme) ; }
+    if (tok != NULL) dy_warn(157,rtnnme,tok,"constraint",pkrow->nme) ; }
 /*
   This is the end of the loop which parses the rows section.  Check that we
   got here because we saw the "columns" indicator, and fail if things are
@@ -478,16 +491,16 @@ static mpsinstate_enum mpsin_rows (ioid mpschn, consys_struct *consys)
 # endif
   if (seen_cols == FALSE)
   { if (lex->class == DY_LCERR)
-      errmsg(168,rtnnme,mysection) ;
+      dy_errmsg(168,rtnnme,mysection) ;
     else
     if (lex->class == DY_LCEOF)
-      errmsg(169,rtnnme,mysection) ;
+      dy_errmsg(169,rtnnme,mysection) ;
     else
-      errmsg(1,rtnnme,__LINE__) ;
+      dy_errmsg(1,rtnnme,__LINE__) ;
     return (mpsinINV) ; }
   
   if (consys->objndx < 0)
-  { errmsg(177,rtnnme,consys->nme,
+  { dy_errmsg(177,rtnnme,consys->nme,
 	   (consys->objnme == NULL)?"<n/a>":consys->objnme) ;
     return (mpsinINV) ; }
 
@@ -550,7 +563,7 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
   colnam[0] = '\0' ;
   if (consys_attach(consys,CONSYS_VTYP,
 		    sizeof(vartyp_enum),(void **) &consys->vtyp) == FALSE)
-  { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VTYP)) ;
+  { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VTYP)) ;
     return (mpsinINV) ; }
   setflg(consys->parts,CONSYS_VTYP) ;
   sos3lst = NULL ;
@@ -590,13 +603,13 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
     if (cistrcmp(pkcol->nme,tok) != 0)
     { if (marker == FALSE)
       { if (consys_addcol_pk(consys,vartype,pkcol,0.0,0.0,0.0) == FALSE)
-	{ errmsg(156,rtnnme,"column",consys->nme,pkcol->nme) ;
+	{ dy_errmsg(156,rtnnme,"column",consys->nme,pkcol->nme) ;
 	  return (mpsinINV) ; }
 	intermediary = pkcol->ndx ;
 	if ((void *) intermediary !=
 	    dyhash_enter(STRALLOC(pkcol->nme),varhash,varhashsze,
 	    	  (void *) intermediary))
-	{ errmsg(155,rtnnme,"variable",
+	{ dy_errmsg(155,rtnnme,"variable",
 		 consys_nme(consys,'v',pkcol->ndx,TRUE,NULL)) ;
 	  return (mpsinINV) ; }
 	pkcol->cnt = 0 ;
@@ -627,13 +640,13 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
       strcpy(colnam,tok) ;
       tok = strtok(NULL,sepchars) ;
       if (tok == NULL)
-      { errmsg(158,rtnnme,consys->nme,pkcol->nme) ;
+      { dy_errmsg(158,rtnnme,consys->nme,pkcol->nme) ;
 	return (mpsinINV) ; }
       if (cistrcmp(tok,"'marker'") == 0)
       { marker = TRUE ;
 	tok = strtok(NULL,sepchars) ;
 	if (tok == NULL)
-	{ errmsg(159,rtnnme,consys->nme,pkcol->nme) ;
+	{ dy_errmsg(159,rtnnme,consys->nme,pkcol->nme) ;
 	  return (mpsinINV) ; }
 /*
   sosorg/sosend bracket groups of variables which are SOS3.  There is no
@@ -644,13 +657,14 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 */
 	if (cistrcmp(tok,"'sosorg'") == 0)
 	{ if (sosset == TRUE)
-	  { errmsg(161,rtnnme,"sosorg",pkcol->nme,"sosend") ;
+	  { dy_errmsg(161,rtnnme,"sosorg",pkcol->nme,"sosend") ;
 	    return (mpsinINV) ; }
 	  intermediary =
 		(ptrdiff_t) dyhash_lookup(pkcol->nme,conhash,conhashsze) ;
 	  sosndx = (int) intermediary ;
 	  if (sosndx == 0)
-	  { errmsg(162,rtnnme,"SOS constraint",pkcol->nme,"marker","sosorg") ;
+	  { dy_errmsg(162,rtnnme,
+	  	      "SOS constraint",pkcol->nme,"marker","sosorg") ;
 	    return (mpsinINV) ; }
 	  sosset = TRUE ;
 	  vartype = vartypBIN ;
@@ -665,7 +679,7 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 	else
 	if (cistrcmp(tok,"'sosend'") == 0)
 	{ if (sosset != TRUE)
-	  { errmsg(161,rtnnme,"sosend",pkcol->nme,"sosorg") ;
+	  { dy_errmsg(161,rtnnme,"sosend",pkcol->nme,"sosorg") ;
 	    return (mpsinINV) ; }
 	  sosset = FALSE ;
 	  vartype = vartypCON ; }
@@ -677,19 +691,19 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 	else
 	if (cistrcmp(tok,"'intorg'") == 0)
 	{ if (intblk == TRUE)
-	  { errmsg(161,rtnnme,"intorg",pkcol->nme,"intend") ;
+	  { dy_errmsg(161,rtnnme,"intorg",pkcol->nme,"intend") ;
 	    return (mpsinINV) ; }
 	  intblk = TRUE ;
 	  vartype = vartypINT ; }
 	else
 	if (cistrcmp(tok,"'intend'") == 0)
 	{ if (intblk != TRUE)
-	  { errmsg(161,rtnnme,"intend",pkcol->nme,"intorg") ;
+	  { dy_errmsg(161,rtnnme,"intend",pkcol->nme,"intorg") ;
 	    return (mpsinINV) ; }
 	  intblk = FALSE ;
 	  vartype = vartypCON ; }
 	else
-	{ errmsg(163,rtnnme,tok,pkcol->nme) ;
+	{ dy_errmsg(163,rtnnme,tok,pkcol->nme) ;
 	  return (mpsinINV) ; }
 	continue ; }
 /*
@@ -716,22 +730,23 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
     { rownam = tok ;
       tok = strtok(NULL,sepchars) ;
       if (tok == NULL)
-      { errmsg(164,rtnnme,consys->nme,pkcol->nme,rownam) ;
+      { dy_errmsg(164,rtnnme,consys->nme,pkcol->nme,rownam) ;
 	return (mpsinINV) ; }
       aij = strtod(tok,&chkptr) ;
       if (chkptr == tok || errno == ERANGE)
-      { errmsg(165,rtnnme,tok,consys->nme,pkcol->nme,rownam) ;
+      { dy_errmsg(165,rtnnme,tok,consys->nme,pkcol->nme,rownam) ;
 	return (mpsinINV) ; }
       intermediary = (ptrdiff_t) dyhash_lookup(rownam,conhash,conhashsze) ;
       rowndx = (int) intermediary ;
       if (rowndx == 0)
-      { errmsg(166,rtnnme,"constraint",rownam,"column",consys->nme,pkcol->nme) ;
+      { dy_errmsg(166,rtnnme,
+      		  "constraint",rownam,"column",consys->nme,pkcol->nme) ;
 	return (mpsinINV) ; }
       if (rowndx != -1)
       { if (aij != 0.0 && !(sosset == TRUE && rowndx == sosndx))
 	{ if (pkcol->cnt >= pkcol->sze)
 	    if (pkvec_resize(pkcol,0) == FALSE)
-	    { errmsg(174,rtnnme,consys->nme,pkcol->nme) ;
+	    { dy_errmsg(174,rtnnme,consys->nme,pkcol->nme) ;
 	      return (mpsinINV) ; }
 	  pkcol->coeffs[pkcol->cnt].val = aij ;
 	  pkcol->coeffs[pkcol->cnt].ndx = rowndx ;
@@ -742,12 +757,12 @@ static mpsinstate_enum mpsin_columns (ioid mpschn, consys_struct *consys)
 */
   if (nxtstate == mpsinINV)
   { if (lex->class == DY_LCERR)
-      errmsg(168,rtnnme,mysection) ;
+      dy_errmsg(168,rtnnme,mysection) ;
     else
     if (lex->class == DY_LCEOF)
-      errmsg(169,rtnnme,mysection) ;
+      dy_errmsg(169,rtnnme,mysection) ;
     else
-      errmsg(1,rtnnme,__LINE__) ;
+      dy_errmsg(1,rtnnme,__LINE__) ;
     return (mpsinINV) ; }
 
   pkcol->nme = NULL ;
@@ -802,7 +817,7 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
 */
   if (consys_attach(consys,CONSYS_RHS,
 			   sizeof(double),(void **) &consys->rhs) == FALSE)
-  { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHS)) ;
+  { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHS)) ;
     return (mpsinINV) ; }
   setflg(consys->parts,CONSYS_RHS) ;
   rhs = consys->rhs ;
@@ -859,18 +874,18 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
     { intermediary = (ptrdiff_t) dyhash_lookup(tok,conhash,conhashsze) ;
       rowndx = (int) intermediary ;
       if (rowndx == 0)
-      { errmsg(166,rtnnme,"constraint",tok,consys_assocnme(NULL,CONSYS_RHS),
-	       consys->nme,rhsnme) ;
+      { dy_errmsg(166,rtnnme,"constraint",tok,
+      		  consys_assocnme(NULL,CONSYS_RHS),consys->nme,rhsnme) ;
 	return (mpsinINV) ; }
       rownme = tok ;
       tok = strtok(NULL,sepchars) ;
       if (tok == NULL)
-      { errmsg(164,rtnnme,consys->nme,rhsnme,
+      { dy_errmsg(164,rtnnme,consys->nme,rhsnme,
 	       consys_nme(consys,'c',rowndx,TRUE,NULL)) ;
 	return (mpsinINV) ; }
       aij = strtod(tok,&chkptr) ;
       if (chkptr == tok || errno == ERANGE)
-      { errmsg(165,rtnnme,tok,consys->nme,rhsnme,rownme) ;
+      { dy_errmsg(165,rtnnme,tok,consys->nme,rhsnme,rownme) ;
 	return (mpsinINV) ; }
        rhs[rowndx] = aij ; } }
 /*
@@ -878,12 +893,12 @@ static mpsinstate_enum mpsin_rhs (ioid mpschn, consys_struct *consys)
 */
   if (nxtstate == mpsinINV)
   { if (lex->class == DY_LCERR)
-      errmsg(168,rtnnme,mysection) ;
+      dy_errmsg(168,rtnnme,mysection) ;
     else
     if (lex->class == DY_LCEOF)
-      errmsg(169,rtnnme,mysection) ;
+      dy_errmsg(169,rtnnme,mysection) ;
     else
-      errmsg(1,rtnnme,__LINE__) ;
+      dy_errmsg(1,rtnnme,__LINE__) ;
     return (mpsinINV) ; }
 
   return (nxtstate) ; }
@@ -944,7 +959,7 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
 */
   if (consys_attach(consys,CONSYS_RHSLOW,
 		    sizeof(double),(void **) &consys->rhslow) == FALSE)
-  { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHSLOW)) ;
+  { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHSLOW)) ;
     return (mpsinINV) ; }
   setflg(consys->parts,CONSYS_RHSLOW) ;
   rhslow = consys->rhslow ;
@@ -952,10 +967,10 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
   contyp = consys->ctyp ;
 # ifndef NDEBUG
   if (rhs == NULL)
-  { errmsg(160,rtnnme,mysection,consys_assocnme(consys,CONSYS_RHS)) ;
+  { dy_errmsg(160,rtnnme,mysection,consys_assocnme(consys,CONSYS_RHS)) ;
     return (mpsinINV) ; }
   if (contyp == NULL)
-  { errmsg(160,rtnnme,mysection,consys_assocnme(consys,CONSYS_CTYP)) ;
+  { dy_errmsg(160,rtnnme,mysection,consys_assocnme(consys,CONSYS_CTYP)) ;
     return (mpsinINV) ; }
 # endif
 /*
@@ -1007,17 +1022,18 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
     { intermediary = (ptrdiff_t) dyhash_lookup(tok,conhash,conhashsze) ;
       rowndx = (int) intermediary ;
       if (rowndx == 0)
-      { errmsg(166,rtnnme,"constraint",tok,"range vector",consys->nme,rngnme) ;
+      { dy_errmsg(166,rtnnme,
+      		  "constraint",tok,"range vector",consys->nme,rngnme) ;
 	return (mpsinINV) ; }
       rownme = tok ;
       tok = strtok(NULL,sepchars) ;
       if (tok == NULL)
-      { errmsg(164,rtnnme,consys->nme,rngnme,
+      { dy_errmsg(164,rtnnme,consys->nme,rngnme,
 	       consys_nme(consys,'c',rowndx,TRUE,NULL)) ;
 	return (mpsinINV) ; }
       aij = strtod(tok,&chkptr) ;
       if (chkptr == tok || errno == ERANGE)
-      { errmsg(165,rtnnme,tok,consys->nme,rngnme,rownme) ;
+      { dy_errmsg(165,rtnnme,tok,consys->nme,rngnme,rownme) ;
 	return (mpsinINV) ; }
 /*
   We've got the row index and coefficient, so install the range. rhs, rhslow,
@@ -1039,10 +1055,11 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
 	{ rhslow[rowndx] = rhs[rowndx]-fabs(aij) ;
 	  break ; }
 	case contypNB:
-	{ errmsg(175,rtnnme,consys_nme(consys,'c',rowndx,TRUE,NULL),rowndx) ;
+	{ dy_errmsg(175,rtnnme,
+		    consys_nme(consys,'c',rowndx,TRUE,NULL),rowndx) ;
 	  return (mpsinINV) ; }
 	default:
-	{ errmsg(1,rtnnme,__LINE__) ;
+	{ dy_errmsg(1,rtnnme,__LINE__) ;
 	  break ; } }
       contyp[rowndx] = contypRNG ; } }
 /*
@@ -1050,12 +1067,12 @@ static mpsinstate_enum mpsin_ranges (ioid mpschn, consys_struct *consys)
 */
   if (nxtstate == mpsinINV)
   { if (lex->class == DY_LCERR)
-      errmsg(168,rtnnme,mysection) ;
+      dy_errmsg(168,rtnnme,mysection) ;
     else
     if (lex->class == DY_LCEOF)
-      errmsg(169,rtnnme,mysection) ;
+      dy_errmsg(169,rtnnme,mysection) ;
     else
-      errmsg(1,rtnnme,__LINE__) ;
+      dy_errmsg(1,rtnnme,__LINE__) ;
     return (mpsinINV) ; }
   
   return (nxtstate) ; }
@@ -1128,14 +1145,14 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
 */
   if (consys_attach(consys,CONSYS_VUB,
 		    sizeof(double),(void **) &consys->vub) == FALSE)
-  { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VUB)) ;
+  { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VUB)) ;
     return (mpsinINV) ; }
   setflg(consys->parts,CONSYS_VUB) ;
   vub = consys->vub ;
   infinity = consys->inf ;
   if (consys_attach(consys,CONSYS_VLB,
 		    sizeof(double),(void **) &consys->vlb) == FALSE)
-  { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VLB)) ;
+  { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VLB)) ;
     return (mpsinINV) ; }
   setflg(consys->parts,CONSYS_VLB) ;
   vlb = consys->vlb ;
@@ -1146,7 +1163,7 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
   vartyp = consys->vtyp ;
 # ifndef NDEBUG
   if (vartyp == NULL)
-  { errmsg(160,rtnnme,mysection,consys_assocnme(consys,CONSYS_VTYP)) ;
+  { dy_errmsg(160,rtnnme,mysection,consys_assocnme(consys,CONSYS_VTYP)) ;
     return (mpsinINV) ; }
 # endif
   for (colndx = 1 ; colndx <= consys->archvcnt ; colndx++)
@@ -1189,27 +1206,27 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
     if (named_vec == TRUE)
     { bndnme = strtok(NULL,sepchars) ;
       if (bndnme == NULL)
-      { errmsg(153,rtnnme,"bound vector name",mysection) ;
+      { dy_errmsg(153,rtnnme,"bound vector name",mysection) ;
 	return (mpsinINV) ; } }
     varnme = strtok(NULL,sepchars) ;
     if (varnme == NULL)
-    { errmsg(153,rtnnme,"variable",mysection) ;
+    { dy_errmsg(153,rtnnme,"variable",mysection) ;
       return (mpsinINV) ; }
     intermediary = (ptrdiff_t) dyhash_lookup(varnme,varhash,varhashsze) ;
     colndx = (int) intermediary ;
     if (colndx == 0)
-    { errmsg(162,rtnnme,"variable",varnme,consys->nme,mysection) ;
+    { dy_errmsg(162,rtnnme,"variable",varnme,consys->nme,mysection) ;
       return (mpsinINV) ; }
     aij = quiet_nan(0) ;
     if (cistrcmp(bndcode,"lo") == 0 || cistrcmp(bndcode,"up") == 0 ||
 	cistrcmp(bndcode,"fx") == 0 || cistrcmp(bndcode,"ui") == 0)
     { tok = strtok(NULL,sepchars) ;
       if (tok == NULL)
-      { errmsg(164,rtnnme,consys->nme,varnme,mysection) ;
+      { dy_errmsg(164,rtnnme,consys->nme,varnme,mysection) ;
 	return (mpsinINV) ; }
       aij = strtod(tok,&chkptr) ;
       if (chkptr == tok || errno == ERANGE)
-      { errmsg(165,rtnnme,tok,consys->nme,varnme,mysection) ;
+      { dy_errmsg(165,rtnnme,tok,consys->nme,varnme,mysection) ;
 	return (mpsinINV) ; } }
 /*
   Begin a series of if statements, to see if we recognise the bound type.
@@ -1265,7 +1282,7 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
   Lastly, the error case, for a bound type we don't recognise.
 */
     else
-    { errmsg(167,rtnnme,bndcode,consys_nme(consys,'v',colndx,TRUE,NULL),
+    { dy_errmsg(167,rtnnme,bndcode,consys_nme(consys,'v',colndx,TRUE,NULL),
 	     colndx) ;
       return (mpsinINV) ; } }
 /*
@@ -1273,12 +1290,12 @@ static mpsinstate_enum mpsin_bounds (ioid mpschn, consys_struct *consys)
 */
   if (seen_end == FALSE)
   { if (lex->class == DY_LCERR)
-      errmsg(168,rtnnme,mysection) ;
+      dy_errmsg(168,rtnnme,mysection) ;
     else
     if (lex->class == DY_LCEOF)
-      errmsg(169,rtnnme,mysection) ;
+      dy_errmsg(169,rtnnme,mysection) ;
     else
-      errmsg(1,rtnnme,__LINE__) ;
+      dy_errmsg(1,rtnnme,__LINE__) ;
     return (mpsinINV) ; }
 /*
   Otherwise, scan the bounds vectors and see if there are any integer variables
@@ -1341,14 +1358,14 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
 
 # ifdef PARANOIA
   if (consys->ctyp == NULL)
-  { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
+  { dy_errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_CTYP)) ;
     return (mpsinINV) ; }
   if (consys->rhs == NULL)
-  { errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHS)) ;
+  { dy_errmsg(101,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHS)) ;
     return (mpsinINV) ; }
   if (consys->objndx <= 0 || consys->objndx > consys->archccnt)
-  { errmsg(102,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_OBJ),
-	   1,consys->archccnt) ;
+  { dy_errmsg(102,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_OBJ),
+	      1,consys->archccnt) ;
     return (mpsinINV) ; }
 # endif
 /*
@@ -1368,17 +1385,19 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
   consys->obj = NULL ;
   if (consys_attach(consys,CONSYS_OBJ,
 		    sizeof(double),(void **) &consys->obj) == FALSE)
-  { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_OBJ)) ;
+  { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_OBJ)) ;
     return (mpsinINV) ; }
   setflg(consys->parts,CONSYS_OBJ) ;
   if (mipopts->minmax == -1)
   { if (consys_mulrow(consys,consys->objndx,-1.0) == FALSE)
-    { errmsg(173,rtnnme,consys->nme,
-	     consys_nme(consys,'c',consys->objndx,FALSE,NULL),consys->objndx) ;
+    { dy_errmsg(173,rtnnme,consys->nme,
+    		consys_nme(consys,'c',consys->objndx,FALSE,NULL),
+		consys->objndx) ;
       return (mpsinINV) ; } }
   if (consys_getrow_ex(consys,consys->objndx,&consys->obj) == FALSE)
-  { errmsg(112,rtnnme,"retrieve","row",
-	   consys_nme(consys,'c',consys->objndx,FALSE,NULL),consys->objndx) ;
+  { dy_errmsg(112,rtnnme,"retrieve","row",
+	      consys_nme(consys,'c',consys->objndx,FALSE,NULL),
+	      consys->objndx) ;
     return (mpsinINV) ; }
 /*
   The OSI test suite doesn't take kindly to reordering the constraint system.
@@ -1391,8 +1410,9 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
 #else
   { if (consys_delrow(consys,consys->objndx) == FALSE)
 #endif
-    { errmsg(112,rtnnme,consys->nme,"delete","row",
-	     consys_nme(consys,'c',consys->objndx,FALSE,NULL),consys->objndx) ;
+    { dy_errmsg(112,rtnnme,consys->nme,"delete","row",
+	        consys_nme(consys,'c',consys->objndx,FALSE,NULL),
+		consys->objndx) ;
       return (mpsinINV) ; } }
   else
   { consys->ctyp[consys->objndx] = contypEQ ;
@@ -1405,7 +1425,7 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
     pkvec->coeffs[0].val = -1.0 ;
     if (consys_addcol_pk(consys,vartypCON,
 			 pkvec,0.0,-consys->inf,mipopts->zinit) == FALSE)
-    { errmsg(156,rtnnme,"column",consys->nme,pkvec->nme) ;
+    { dy_errmsg(156,rtnnme,"column",consys->nme,pkvec->nme) ;
       return (mpsinINV) ; }
     consys->xzndx = pkvec->ndx ;
     (void) STRFREE(pkvec->nme) ;
@@ -1420,11 +1440,11 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
     ndx = (int) intermediary ;
 #   ifndef NDEBUG
     if (ndx < 1 || ndx > consys->archccnt)
-    { errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->archccnt) ;
+    { dy_errmsg(102,rtnnme,consys->nme,"constraint",ndx,1,consys->archccnt) ;
       return (mpsinINV) ; }
     if (consys->ctyp[ndx] != contypEQ)
-    { errmsg(176,rtnnme,consys_nme(consys,'c',ndx,TRUE,NULL),ndx,
-	     consys_prtcontyp(consys->ctyp[ndx])) ;
+    { dy_errmsg(176,rtnnme,consys_nme(consys,'c',ndx,TRUE,NULL),ndx,
+	        consys_prtcontyp(consys->ctyp[ndx])) ;
       return (mpsinINV) ; }
 #   endif
     consys->rhs[ndx] = 1.0 ; }
@@ -1445,17 +1465,18 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
 */
   for (ndx = consys->archccnt ; ndx > 0 ; ndx--)
   { if (consys_infnormrow(consys,ndx) == 0)
-    { dywarn(179,rtnnme,consys->nme,consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
+    { dy_warn(179,rtnnme,consys->nme,
+    	      consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
       if (consys_delrow(consys,ndx) == FALSE)
-      { errmsg(112,rtnnme,consys->nme,"delete","row",
-	       consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
+      { dy_errmsg(112,rtnnme,consys->nme,"delete","row",
+	          consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
 	return (mpsinINV) ; }
     continue ; }
       
     if (consys->ctyp[ndx] == contypGE)
     { if (consys_mulrow(consys,ndx,-1.0) == FALSE)
-      { errmsg(112,rtnnme,consys->nme,"scalar multiply","row",
-	       consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
+      { dy_errmsg(112,rtnnme,consys->nme,"scalar multiply","row",
+	          consys_nme(consys,'c',ndx,FALSE,NULL),ndx) ;
 	return (mpsinINV) ; } } }
 #endif /* !COIN_HAS_DYLP */
 #ifdef BONSAIG
@@ -1464,7 +1485,7 @@ static mpsinstate_enum mpsin_enddata (ioid mpschn, consys_struct *consys,
   specifications into the permanent run-time structure.
 */
   if (tourclass_init(consys,varhash,varhashsze) == FALSE)
-  { errmsg(761,rtnnme) ;
+  { dy_errmsg(761,rtnnme) ;
     return (mpsinINV) ; }
 #endif
 /*
@@ -1555,7 +1576,7 @@ static mpsinstate_enum mpsin_force (consys_struct *consys,
   { case mpsinRHS:
     { if (consys_attach(consys,CONSYS_RHS,
 			sizeof(double),(void **) &consys->rhs) == FALSE)
-      { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHS)) ;
+      { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_RHS)) ;
 	return (mpsinINV) ; }
       setflg(consys->parts,CONSYS_RHS) ;
       if (tostate == mpsinRANGES) break ; }
@@ -1564,25 +1585,25 @@ static mpsinstate_enum mpsin_force (consys_struct *consys,
     case mpsinBOUNDS:
     { if (consys_attach(consys,CONSYS_VUB,
 			sizeof(double),(void **) &consys->vub) == FALSE)
-      { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VUB)) ;
+      { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VUB)) ;
 	return (mpsinINV) ; }
       setflg(consys->parts,CONSYS_VUB) ;
       if (consys_attach(consys,CONSYS_VLB,
 			sizeof(double),(void **) &consys->vlb) == FALSE)
-      { errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VLB)) ;
+      { dy_errmsg(100,rtnnme,consys->nme,consys_assocnme(NULL,CONSYS_VLB)) ;
 	return (mpsinINV) ; }
       setflg(consys->parts,CONSYS_VLB) ;
       if (tostate == mpsinENDDATA) break ; }
     default:
-    { errmsg(1,rtnnme,__LINE__) ;
+    { dy_errmsg(1,rtnnme,__LINE__) ;
       return (mpsinINV) ; } }
 
   return (tostate) ; }
 
 
 
-bool mpsin (const char *mpspath, consys_struct **consys,
-	    mipopts_struct *mipopts, double infinity)
+static bool mpsin (const char *mpspath, consys_struct **consys,
+		   mipopts_struct *mipopts, double infinity)
 
 /*
   This routine reads an MPS format input file and creates a constraint system
@@ -1615,13 +1636,13 @@ bool mpsin (const char *mpspath, consys_struct **consys,
 */
 # ifndef NDEBUG
   if (consys == NULL)
-  { errmsg(2,rtnnme,"consys") ;
+  { dy_errmsg(2,rtnnme,"consys") ;
     return (FALSE) ; }
   if (mpspath == NULL)
-  { errmsg(2,rtnnme,"mpspath") ;
+  { dy_errmsg(2,rtnnme,"mpspath") ;
     return (FALSE) ; }
   if (mipopts == NULL)
-  { errmsg(2,rtnnme,"mipopts") ;
+  { dy_errmsg(2,rtnnme,"mipopts") ;
     return (FALSE) ; }
 # endif
 /*
@@ -1674,13 +1695,13 @@ bool mpsin (const char *mpspath, consys_struct **consys,
 	  return (TRUE) ; }
 	break ; }
       default:
-      { errmsg(1,rtnnme,__LINE__) ;
+      { dy_errmsg(1,rtnnme,__LINE__) ;
 	nxtstate = mpsinINV ;
 	break ; } }
 /*
   Something's screwed up if we reach here.
 */
-  errmsg(170,rtnnme,mpspath) ;
+  dy_errmsg(170,rtnnme,mpspath) ;
   return (FALSE) ; }
 
 #ifndef BONSAIG

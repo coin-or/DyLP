@@ -1,0 +1,203 @@
+#!/bin/bash
+
+# Simple bash script to run the osi_dylp main program. Mainly to make it a bit
+# easier to find MPS files and get the parameters right. Also, the script
+# will look for a dylp options (.spc) file and add it to the osi_dylp command
+# line.
+
+# This next bit (prefix, exec_prefix, add bindir to PATH) is required to add
+# the installation bin directory to PATH so that we can find DLLs on Windows.
+# It does no harm in a unix environment.
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+PATH=${PATH}:@bindir@
+
+# Wrappers. Dylp's mps reader doesn't do zipped files, so we'll need to unzip
+# before calling the wrapper. OsiDylp can handle zipped files.
+
+wrappers=(./osi_dylp ./odsi+dylp)
+dfltWrapper=0
+mustUnzip=1
+
+# The help message
+
+printHelp () {
+  cat <<TillDone
+
+usage: plain [--odsi|--dylp] [--help] [wrapper options] mps_file
+
+  -odsi selects the odsi+dylp (OsiDylp/C++) wrapper
+  -dylp selects the osi_dylp (native/C) wrapper
+
+  MPS file search directories are
+TillDone
+
+  for dir in ${mpsSearchDirs[*]} ; do
+    echo "    $dir"
+  done
+  echo ""
+
+  echo "  $wrapper options are:"
+  $wrapper -h
+  echo ""
+}
+
+# Check for MPS files in likely places. The current directory and the
+# installation directory (substituted during configuration, if defined) are
+# assigned directly. Then check some likely suspects. We need the trailing '/'
+# here to avoid issues below with something like '/exmip1'.
+
+mpsSearchDirs=(./ @NETLIB_DATA@/)
+for dataDir in ../Data ../../Data ../../../Data ; do
+  if test -d $dataDir && test -x $dataDir ; then
+    for dir in `ls $dataDir` ; do
+      dir="$dataDir/$dir"
+      if test -d $dir && test -x $dir &&
+         { ls $dir/*.mps >& /dev/null ||
+	   ls $dir/*.mps.gz >& /dev/null ; } ; then 
+	mpsSearchDirs+=("$dir/")
+      fi
+    done
+  fi
+done
+
+# See if the user has specified a front-end on the command line.
+
+wrapper=${wrappers[$dfltWrapper]}
+case "${1/#--/-}" in
+  -odsi )
+    wrapper=${wrappers[1]}
+    mustUnzip=0
+    shift
+    ;;
+  -dylp )
+    wrapper=${wrappers[0]}
+    mustUnzip=1
+    shift
+    ;;
+esac
+
+# If we have no parameters left, or what's left is --help, print the help
+# and exit
+
+if test $# -le 0 || expr "$*" : '^.*-help.*$' >& /dev/null ; then
+  printHelp
+  exit
+fi
+
+# MPS file should be the last parameter. Anything that's left gets passed to
+# the wrapper.
+
+parameters=($*)
+paramCnt=${#parameters[*]}
+userMPS=${parameters[$paramCnt-1]}
+unset parameters[$paramCnt-1]
+theRest="${parameters[@]}"
+
+# Dissect userFile. This could be anything from a simple example name to a
+# full absolute path. Try to parse it into a path, a base (example) name, and
+# an extension.
+
+if expr $userMPS : '^.*/.*$' >& /dev/null ; then
+  userPath=`echo $userMPS | sed -e 's/^\(.*\)\/[^/]*$/\1/'`
+  userPath="${userPath}/"
+else
+  userPath=''
+fi
+userBase=${userMPS#$userPath}
+userExt=`echo $userBase | sed -e 's/^[^.]*\(.*\)$/\1/'`
+userBase=${userBase%$userExt}
+
+# echo "after dissection: '$userPath' '$userBase' '$userExt'"
+
+# Search for the mps file. If the user handed us an absolute path, that
+# overrules the search directories.
+
+if expr $userPath : '^/.*$' >& /dev/null ; then
+  mpsSearchDirs=($userPath)
+fi
+
+# echo "MPS search directories: '${mpsSearchDirs[*]}'"
+
+# Search for an mps file. The reason for putting the loop with suffixes on the
+# outside is so that we'll find the shortest suffix, whereever it might
+# reside. Note that the user may well have included the suffix in the
+# example name and we'll never consider explicit suffixes, and the suffix may
+# be nonexistent.
+
+for ext in "" ".mps" ".gz" ".mps.gz" ; do
+  candidate=${userBase}${ext}
+  for dir in ${mpsSearchDirs[*]} ; do
+    if test -e $dir/$candidate ; then
+      mpsFile=$candidate
+      mpsDir=$dir
+    fi
+  done
+done
+
+if test -z $mpsFile ; then
+  echo "Can't locate ${userMPS}; exiting."
+  exit
+fi
+
+# echo "found ${mpsDir}${mpsFile}"
+
+
+# Do we need to unzip this file?
+
+if test $mustUnzip -eq 1 && expr "$mpsFile" : '^.*\.gz$' >& /dev/null ; then
+  echo "  unzipping $mpsFile for $wrapper"
+  unzipmpsFile=`echo $mpsFile | sed -e 's/^\(.*\)\.gz$/\1/'`
+  gunzip -c ${mpsDir}${mpsFile} > $unzipmpsFile
+  echo "  created uncompressed copy of $mpsFile as $unzipmpsFile."
+else
+  unzipmpsFile=${mpsDir}${mpsFile}
+fi
+
+# echo "unzipped file: $unzipmpsFile"
+
+# Check for example.spc in the directory where the mps file was located, and in
+# the current directory. Failing that, look for generic.spc in the same
+# places.
+
+if test -e $mpsDir/${userBase}.spc ; then
+  spcfile="-o $mpsDir/${userBase}.spc"
+elif test -e ${userBase}.spc ; then
+  spcfile="-o ${userBase}.spc"
+elif test -e $mpsDir/generic.spc ; then
+  spcfile="-o generic.spc"
+elif test -e generic.spc ; then
+  spcfile="-o generic.spc"
+else
+  spcfile=
+fi
+
+# echo "spc file: '$spcfile'"
+
+# Go to it.
+
+echo -n "Processing $unzipmpsFile"
+if test "$spcfile" != "" ; then
+  echo -n ", spc = $spcfile"
+fi
+if test "$theRest" != "" ; then
+  echo -n ", options = $theRest"
+fi
+echo "."
+
+echo "$wrapper $spcfile -p 1"
+echo "         -m ${unzipmpsFile} -L ${userBase}.log -O ${userBase}.out $flags"
+
+$wrapper $spcfile -p 1 \
+      -m ${unzipmpsFile} -L ${userBase}.log \
+      -O ${userBase}.out $flags
+
+# echo "status is $?"
+
+if test $mustUnzip -eq 1 ; then
+  rm $unzipmpsFile
+fi
+
+exit

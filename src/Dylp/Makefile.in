@@ -146,12 +146,12 @@ am_libDylp_la_OBJECTS = dy_consys_io.lo dy_consys_mathutils.lo \
 	dy_bound.lo dy_cmdint.lo dy_coldstart.lo dy_conmgmt.lo \
 	dy_dual.lo dy_dualmultipivot.lo dy_dualpivot.lo dy_duenna.lo \
 	dy_force.lo dy_hotstart.lo dylp.lo dylp_io.lo dylp_utils.lo \
-	dy_options.lo dy_penalty.lo dy_pivreject.lo dy_primal.lo \
-	dy_primalmultipivot.lo dy_primalpivot.lo dy_rays.lo \
-	dy_scaling.lo dy_setup.lo dy_solutions.lo dy_statistics.lo \
-	dy_tableau.lo dy_varmgmt.lo dy_warmstart.lo glpinv.lo \
-	glplib1.lo glplib2.lo glplib3.lo glplib4.lo glpluf.lo \
-	dy_vector_utils.lo
+	dy_mpsin.lo dy_options.lo dy_penalty.lo dy_pivreject.lo \
+	dy_primal.lo dy_primalmultipivot.lo dy_primalpivot.lo \
+	dy_rays.lo dy_scaling.lo dy_setup.lo dy_solutions.lo \
+	dy_statistics.lo dy_tableau.lo dy_varmgmt.lo dy_warmstart.lo \
+	glpinv.lo glplib1.lo glplib2.lo glplib3.lo glplib4.lo \
+	glpluf.lo dy_vector_utils.lo
 libDylp_la_OBJECTS = $(am_libDylp_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -184,9 +184,10 @@ am__depfiles_remade = ./$(DEPDIR)/dy_basis.Plo \
 	./$(DEPDIR)/dy_consys_utils.Plo ./$(DEPDIR)/dy_dual.Plo \
 	./$(DEPDIR)/dy_dualmultipivot.Plo ./$(DEPDIR)/dy_dualpivot.Plo \
 	./$(DEPDIR)/dy_duenna.Plo ./$(DEPDIR)/dy_force.Plo \
-	./$(DEPDIR)/dy_hotstart.Plo ./$(DEPDIR)/dy_options.Plo \
-	./$(DEPDIR)/dy_penalty.Plo ./$(DEPDIR)/dy_pivreject.Plo \
-	./$(DEPDIR)/dy_primal.Plo ./$(DEPDIR)/dy_primalmultipivot.Plo \
+	./$(DEPDIR)/dy_hotstart.Plo ./$(DEPDIR)/dy_mpsin.Plo \
+	./$(DEPDIR)/dy_options.Plo ./$(DEPDIR)/dy_penalty.Plo \
+	./$(DEPDIR)/dy_pivreject.Plo ./$(DEPDIR)/dy_primal.Plo \
+	./$(DEPDIR)/dy_primalmultipivot.Plo \
 	./$(DEPDIR)/dy_primalpivot.Plo ./$(DEPDIR)/dy_rays.Plo \
 	./$(DEPDIR)/dy_scaling.Plo ./$(DEPDIR)/dy_setup.Plo \
 	./$(DEPDIR)/dy_solutions.Plo ./$(DEPDIR)/dy_statistics.Plo \
@@ -440,6 +441,7 @@ libDylp_la_SOURCES = \
 	dylp.c dylp.h \
 	dylp_io.c \
 	dylp_utils.c \
+	dy_mpsin.c dy_mpsin.h \
 	dy_options.c \
 	dy_penalty.c \
 	dy_pivreject.c \
@@ -485,6 +487,7 @@ includecoin_HEADERS = \
 	dy_cmdint.h \
 	dy_consys.h \
 	dylp.h \
+	dy_mpsin.h \
 	dy_vector.h
 
 all: all-am
@@ -581,6 +584,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_duenna.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_force.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_hotstart.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_mpsin.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_options.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_penalty.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dy_pivreject.Plo@am__quote@ # am--include-marker
@@ -772,6 +776,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/dy_duenna.Plo
 	-rm -f ./$(DEPDIR)/dy_force.Plo
 	-rm -f ./$(DEPDIR)/dy_hotstart.Plo
+	-rm -f ./$(DEPDIR)/dy_mpsin.Plo
 	-rm -f ./$(DEPDIR)/dy_options.Plo
 	-rm -f ./$(DEPDIR)/dy_penalty.Plo
 	-rm -f ./$(DEPDIR)/dy_pivreject.Plo
@@ -856,6 +861,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/dy_duenna.Plo
 	-rm -f ./$(DEPDIR)/dy_force.Plo
 	-rm -f ./$(DEPDIR)/dy_hotstart.Plo
+	-rm -f ./$(DEPDIR)/dy_mpsin.Plo
 	-rm -f ./$(DEPDIR)/dy_options.Plo
 	-rm -f ./$(DEPDIR)/dy_penalty.Plo
 	-rm -f ./$(DEPDIR)/dy_pivreject.Plo

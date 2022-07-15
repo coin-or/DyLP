@@ -37,7 +37,6 @@
 #      define OSIDYLPLIB_EXPORT
 #    endif
 #  else /* OSIDYLPLIB_BUILD */
-#    define OSIDYLPLIB_EXPORT
 #    include "config_osidylp.h"
 #  endif
 

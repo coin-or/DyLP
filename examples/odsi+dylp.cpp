@@ -404,12 +404,7 @@ int main (int argc, const char* argv[])
 
     switch (argLett)
     { case 'o':
-      { 
-        optpath = argv[++argNum] ;
-#if defined(_MSC_VER) || defined(__MSVCRT__)
-/* Disabled on Windows --- parser fails. */
-	optpath = NULL ;
-#endif
+      { optpath = argv[++argNum] ;
 	break ; }
       case 'm':
       { mpspath = argv[++argNum] ;

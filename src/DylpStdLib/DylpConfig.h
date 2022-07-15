@@ -45,7 +45,6 @@
 #      define DYLPLIB_EXPORT
 #    endif
 #  else /* DYLPLIB_BUILD */
-#    define DYLPLIB_EXPORT
 #    include "config_dylp.h"
 #  endif
 
@@ -66,6 +65,11 @@
 #      endif
 #    else
 #      define DYLPLIB_EXPORT
+#    endif
+#    ifdef DYLPLIB_BUILD
+#      include config_default.h
+#    else
+#      include config_dylp_default.h
 #    endif
 #  endif
 

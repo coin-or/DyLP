@@ -37,6 +37,7 @@ libDylp_la_SOURCES = \
 	dylp.c dylp.h \
 	dylp_io.c \
 	dylp_utils.c \
+	dy_mpsin.c dy_mpsin.h \
 	dy_options.c \
 	dy_penalty.c \
 	dy_pivreject.c \
@@ -85,4 +86,5 @@ includecoin_HEADERS = \
 	dy_cmdint.h \
 	dy_consys.h \
 	dylp.h \
+	dy_mpsin.h \
 	dy_vector.h
