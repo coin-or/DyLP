@@ -7,7 +7,7 @@ It alternates between primal and dual simplex phases.
 Between simplex phases, it deactivates variables and
 constraints which are not currently useful, and scans the full constraint
 system to activate variables and constraints which have become useful.
-The [dylp documentation](DyLP/doc/dylp.pdf) describes dylp's algorithms
+The [dylp documentation](doc/dylp.pdf) describes dylp's algorithms
 in detail.
 
 dylp is intended as a development code.
