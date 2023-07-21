@@ -1,4 +1,10 @@
-## dylp Overview
+# Dylp
+
+[
+ ![A COIN-OR Project](https://coin-or.github.io/coin-or-badge.png)
+](https://www.coin-or.org)
+
+## Overview
 
 dylp is an implementation of the dynamic simplex algorithm.
 Briefly, dynamic simplex attempts to work with an active constraint system
@@ -7,7 +13,7 @@ It alternates between primal and dual simplex phases.
 Between simplex phases, it deactivates variables and
 constraints which are not currently useful, and scans the full constraint
 system to activate variables and constraints which have become useful.
-The [dylp documentation](DyLP/doc/dylp.pdf) describes dylp's algorithms
+The [dylp documentation](doc/dylp.pdf) describes dylp's algorithms
 in detail.
 
 dylp is intended as a development code.
@@ -16,8 +22,7 @@ instrumented and commented.
 It can be built with extensive statistics, informational printing, and
 consistency checks.
 It can also be built without any of these.
-Fully optimised, it's decently fast, with run times averaging three to four
-times that of clp, depending on the problem and the runtime environment.
+Fully optimised, it's decently fast.
 
 dylp is a C code, and can be used in a pure C environment completely
 independent of other COIN software.
@@ -26,14 +31,25 @@ OsiDylp, which takes advantage of capabilities provided by COIN
 (_e.g._, enhanced input/output and constraint system preprocessing) and is
 recommended if you're working in a C++ environment.
 
-dylp is not under active development and languished for many years following
-the author's retirement.
-Recently it's been upgraded to conform to the COIN GitHub repository
-standards.
+dylp is released as open source under the
+[Eclipse Public License 2.0](http://www.opensource.org/licenses/EPL-2.0).
+
+It is distributed under the auspices of the [COIN-OR Foundation](https://www.coin-or.org)
+
+dylp is not under active development.
+The source repository is https://github.com/coin-or/DyLP.
+In summer 2022 it was upgraded to conform to 
+COIN GitHub repository standards current at the time.
+
+## Current Build Status
+
+[![Windows Builds](https://github.com/coin-or/DyLP/actions/workflows/windows-ci.yml/badge.svg?branch=master)](https://github.com/coin-or/DyLP/actions/workflows/windows-ci.yml?query=branch%3Amaster)
+
+[![Linux and MacOS Builds](https://github.com/coin-or/DyLP/actions/workflows/linux-ci.yml/badge.svg?branch=master)](https://github.com/coin-or/DyLP/actions/workflows/linux-ci.yml?query=branch%3Amaster)
 
 ## Download, Configuration, and Testing
 
-dylp has lain dormant for a long time and has no current releases.
+dylp has no current releases.
 Clone the git repository and use the master branch.
 You can use [coinbrew](https://github.com/coin-or/coinbrew) to automate the
 process of cloning the repositories for dylp and its dependencies and building
@@ -97,13 +113,16 @@ A simple shell script, `plain`, provides a convenient wrapper for both main
 programs.
 Execute the command '`plain --help`' for usage information.
 
-----------
-
 
 ## Dependencies
 
-Appropriate versions of dylp's dependencies are specified in the `config.yml`
-used by coinbrew.
+dylp's dependencies are specified in the
+[`config.yml`](.coin-or/config.yml)
+file used by coinbrew and in the (semi-obsolete)
+[Dependencies](.coin-or/Dependencies)
+file.
+The master branch is specified but the latest releases should be entirely
+sufficient.
 
 ## Bugs
 
@@ -114,11 +133,4 @@ You can [browse existing issues](https://github.com/coin-or/DyLP/issues) to
 see if your bug has already been reported and add additional information.
 Otherwise, please
 [submit a new issue](https://github.com/coin-or/DyLP/issues/new).
-
-----------
-
-
-## Project Manager
-
-@LouHafer: Lou Hafer (retired)
 
