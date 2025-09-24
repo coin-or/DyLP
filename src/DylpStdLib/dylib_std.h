@@ -63,6 +63,7 @@
 #ifndef	__cplusplus
 #define FALSE 0
 #define TRUE 1
+# if __STDC_VERSION__ < 202311
 # ifdef BOOL
   typedef BOOL bool ;
 # else
@@ -78,6 +79,7 @@
 # warning The compile-time symbol BOOL is not defined (dylib_std.h); using int
   typedef int bool ;
 # endif
+#endif
 #endif
 
 #ifdef __cplusplus
