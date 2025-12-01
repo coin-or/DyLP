@@ -54,29 +54,44 @@
 /*
   We need a boolean type. Never could understand why C doesn't have this.
 
-  [Aug 10, 2001] For compatibility with C++, TRUE and FALSE are defined
-  to be the corresponding C++ values. BOOL should be set in the compiler
-  command line to be the storage type (char/short/int/long) that matches
-  the size of a C++ "bool".
+  [Aug 10, 2001] For compatibility with C++, TRUE and FALSE are defined to
+  be the corresponding C++ values. DYLP_BOOL should be set in configuration
+  to be the storage type (char/short/int/long) that matches the size of
+  a C++ bool. If configuration fails to find a suitable type, DYLP_BOOL is
+  undefined.
+
+  [Nov 24, 2025] The C23 standard finally has bool. Dylp's configuration now
+  looks for a builtin bool type and uses it when present (DYLP_C_HAS_BOOL
+  == 1) . In the unlikely event that sizeof(C bool) != sizeof(C++ bool),
+  configuration will issue a warning.
 */
 
 #ifndef	__cplusplus
-#define FALSE 0
-#define TRUE 1
-# ifdef BOOL
-  typedef BOOL bool ;
+# if DYLP_C_HAS_BOOL == 1
+#   ifndef FALSE
+#     define FALSE false
+#   endif
+#   ifndef TRUE
+#     define TRUE true
+#   endif
 # else
+#   define FALSE 0
+#   define TRUE 1
+#   ifdef DYLP_BOOL_TYPE
+      typedef DYLP_BOOL_TYPE bool ;
+#   else
 /*
   You're in trouble. Normally a definition for BOOL is determined by the
-  autotools configure script; if not there, it should be set in one of the
-  config*_default.h files. See DylpConfig.h for the logic.  If you're not
-  worried about C++ compatibility, int is as good a choice as anything. If
-  you're concerned about C++ compatibility, char is a good first guess. If
-  that doesn't work, write a small C++ program that prints out sizeof(bool)
-  and add the definition here.
+  autotools configure script; if not there, it should be set in one of
+  the config*_default.h files. See DylpConfig.h for the logic.  If you're
+  concerned about C++ compatibility, char is a good first guess.  If you're
+  not worried about C++ compatibility, int is as good a choice as anything.
+  If that doesn't work, write a small C++ program that prints out sizeof(bool)
+  and add the appropriate definition here.
 */
-# warning The compile-time symbol BOOL is not defined (dylib_std.h); using int
-  typedef int bool ;
+#     warning The compile-time symbol DYLP_BOOL_TYPE is not defined (dylib_std.h); using char
+      typedef char bool ;
+#   endif
 # endif
 #endif
 

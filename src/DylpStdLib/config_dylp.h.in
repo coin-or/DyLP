@@ -18,8 +18,11 @@
 /* Release Version number of project */
 #undef DYLP_VERSION_RELEASE
 
+/* Define to 1 if C has a native bool type. */
+#undef DYLP_C_HAS_BOOL
+
 /* Define to the C type whose size in bytes matches the size in bytes of the
    the C++ bool type. */
-#undef BOOL
+#undef DYLP_BOOL_TYPE
 
 #endif
