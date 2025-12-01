@@ -20,8 +20,8 @@
 
 #include <math.h>
 
-extern ioid dy_logchn ;
-extern bool dy_gtxecho ;
+extern ioid dytest_logchn ;
+extern bool dytest_gtxecho ;
 
 
 
@@ -116,7 +116,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 
 # ifndef DYLP_NDEBUG
   if (printlvl >= 2)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"%s: generating basis matrix from %s (%d x %d).\n",
 		rtnnme,sys->nme,m,n) ; }
 # endif
@@ -127,7 +127,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
   basisLen = main_lp->basis->len ;
 # ifndef DYLP_NDEBUG
   if (printlvl >= 3)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"  basis contains %d entries.\n",basisLen) ; }
 # endif
 /*
@@ -139,7 +139,8 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
     return (FALSE) ; }
 # ifndef DYLP_NDEBUG
   if (printlvl >= 3)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"  created system %s (%d x %d).\n",
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
+  		"  created system %s (%d x %d).\n",
 		basis->nme,basis->rowsze,basis->colsze) ; }
 # endif
 /*
@@ -160,7 +161,8 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       return (NULL) ; }
 # ifndef DYLP_NDEBUG
   if (printlvl >= 5)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"  added %s (%d) to basis as row %d.\n",
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
+  		"  added %s (%d) to basis as row %d.\n",
 		consys_nme(sys,'c',i,FALSE,NULL),i,ai->ndx) ; }
 # endif
   }
@@ -218,7 +220,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
       basis2sys[aj->ndx] = -lastRow ;
 #     ifndef DYLP_NDEBUG
       if (printlvl >= 5)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
+      { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "  fabricated unit column for inactive %s (%d) at %d.\n",
 		    aj->nme,lastRow,aj->ndx) ; }
 #     endif
@@ -249,11 +251,11 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 #   ifndef DYLP_NDEBUG
     if (printlvl >= 5)
     { if (j < 0)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
+      { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "  fabricated unit column for %s (%d) at %d.\n",
 		    aj->nme,-j,aj->ndx) ; }
       else
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
+      { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "  inserted column for %s (%d) at %d.\n",
 		    aj->nme,j,aj->ndx) ; } }
 #   endif
@@ -278,7 +280,7 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
     basis2sys[aj->ndx] = -k ;
 #   ifndef DYLP_NDEBUG
     if (printlvl >= 5)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "  fabricated unit column for inactive %s (%d) at %d.\n",
 		  aj->nme,k,aj->ndx) ; }
 #   endif
@@ -288,13 +290,13 @@ static consys_struct *create_basis (lpprob_struct *main_lp,
 
 # ifndef DYLP_NDEBUG
   if (printlvl >= 3)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"  Basis matrix is:\n") ;
-    dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,"  Basis matrix is:\n") ;
+    dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"Pos'n\tConstraint\t  Variable\t  Orig.Col\n") ;
     for (i = 1 ; i <= m ; i++)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "%5d\t%-16s",i,consys_nme(basis,'c',i,FALSE,NULL)) ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "  %-16s  %5d\n",consys_nme(basis,'v',i,FALSE,NULL),
 		  basis2sys[i]) ; } }
 # endif
@@ -339,11 +341,11 @@ int dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.tableau >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"%s: checking columns of basis inverse using %s (%d x %d).\n",
 		rtnnme,sys->nme,sys->concnt,sys->varcnt) ;
     if (main_lpopts->print.tableau >= 2)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "  basis contains %d entries.\n",main_lp->basis->len) ; } }
 # endif
 /*
@@ -380,10 +382,10 @@ int dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
       { expected = 0.0 ; }
       if (fabs(aidotbetaj-expected) > main_lptols->zero)
       { errcnt++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "\n  ERROR: a<%d> dot beta<%d> = %g ; expected %g; ",
 		    i,j,aidotbetaj,expected) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"err %g, tol %g.",
 		    (aidotbetaj-expected),main_lptols->zero) ; } } }
 /*
   We're done. Do a bit of cleanup.
@@ -393,10 +395,11 @@ int dytest_betaj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (basis2sys != NULL) FREE(basis2sys) ;
 
   if (errcnt != 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: found %d errors testing Binv(B).\n",
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
+  		"\n%s: found %d errors testing Binv(B).\n",
 	   rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass Binv(B).\n",rtnnme) ; }
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,"\n%s: pass Binv(B).\n",rtnnme) ; }
 
   return (errcnt) ; }
 
@@ -439,11 +442,11 @@ int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.tableau >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"%s: checking ftran'd columns abar<j> using %s (%d x %d).\n",
 		rtnnme,sys->nme,m,n) ;
     if (main_lpopts->print.tableau >= 2)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "  basis contains %d entries.\n",main_lp->basis->len) ; } }
 # endif
 /*
@@ -480,10 +483,10 @@ int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { aidotabarj = consys_dotrow(basis,i,abarj) ;
       if (fabs(aidotabarj-aj[i]) > main_lptols->zero)
       { errcnt++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "\n  ERROR: a<%d> dot abar<%d> = %g ; expected %g; ",
 		    i,j,aidotabarj,aj[i]) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"err %g, tol %g.",
 		    (aidotabarj-aj[i]),main_lptols->zero) ; } } }
 /*
   And to be really thorough, test the columns associated with logicals.
@@ -500,10 +503,10 @@ int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { aidotabarj = consys_dotrow(basis,i,abarj) ;
       if (fabs(aidotabarj-aj[i]) > main_lptols->zero)
       { errcnt++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "\n  ERROR: a<%d> dot abar<%d> = %g ; expected %g; ",
 		    i,-k,aidotabarj,aj[i]) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"err %g, tol %g.",
 		    (aidotabarj-aj[i]),main_lptols->zero) ; } }
     aj[k] = 0.0 ; }
 /*
@@ -515,11 +518,12 @@ int dytest_abarj (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (basis2sys != NULL) FREE(basis2sys) ;
 
   if (errcnt != 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: found %d errors testing B(inv(B)A) = A.\n",
 	   rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass B(inv(B)A).\n",rtnnme) ; }
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
+  		"\n%s: pass B(inv(B)A).\n",rtnnme) ; }
   
   return (errcnt) ; }
 
@@ -560,11 +564,11 @@ int dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.tableau >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"%s: checking rows of basis inverse using %s (%d x %d).\n",
 		rtnnme,sys->nme,sys->concnt,sys->varcnt) ;
     if (main_lpopts->print.tableau >= 2)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "  basis contains %d entries.\n",main_lp->basis->len) ; } }
 # endif
 /*
@@ -600,10 +604,10 @@ int dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
       { expected = 0.0 ; }
       if (fabs(betaidotaj-expected) > main_lptols->zero)
       { errcnt++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
 		    i,j,betaidotaj,expected) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"err %g, tol %g.",
 		    (betaidotaj-expected),main_lptols->zero) ; } } }
 /*
   We're done. Do a bit of cleanup.
@@ -613,10 +617,12 @@ int dytest_betai (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (basis2sys != NULL) FREE(basis2sys) ;
 
   if (errcnt != 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: found %d errors testing inv(B)B.\n",
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
+  		"\n%s: found %d errors testing inv(B)B.\n",
 	   rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass inv(B)B.\n",rtnnme) ; }
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
+  		"\n%s: pass inv(B)B.\n",rtnnme) ; }
   
   return (errcnt) ; }
 
@@ -662,7 +668,7 @@ int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.tableau >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"%s: checking rows of inv(B)A using %s (%d x %d).\n",
 		rtnnme,sys->nme,m,n) ; }
 # endif
@@ -690,10 +696,10 @@ int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
       abarij = abari[j] ;
       if (fabs(abarij-expected) > main_lptols->zero)
       { errcnt++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
 		    i,j,abarij,expected) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"err %g, tol %g.",
 		    (abarij-expected),main_lptols->zero) ; } }
 /*
   Now test the columns for the logical variables.
@@ -708,10 +714,10 @@ int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
       abarij = betai[j] ;
       if (fabs(abarij-expected) > main_lptols->zero)
       { errcnt++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "\n  ERROR: beta<%d> dot a<%d> = %g ; expected %g; ",
 		    i,-j,abarij,expected) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"err %g, tol %g.",
 		    (abarij-expected),main_lptols->zero) ; } } }
 /*
   We're done. Do a bit of cleanup.
@@ -721,11 +727,11 @@ int dytest_abari (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (abarj != 0) FREE(abarj) ;
 
   if (errcnt != 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 	  "\n%s: found %d errors testing e<i>(inv(B)A) against inv(B)a<j>.\n",
 	   rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: pass e<i>(inv(B)A) against inv(B)a<j>.\n",rtnnme) ; }
 
   return (errcnt) ; }
