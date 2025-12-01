@@ -1,22 +1,20 @@
 
 
+/*
+  This file is a part of the Dylp LP distribution.
 
-//   This file is a part of the Dylp LP distribution.
+        Copyright (C) 2005 -- 2025 Lou Hafer
+        lou@sfu.ca
 
-//         Copyright (C) 2005 -- 2007 Lou Hafer
+  This code is licensed under the terms of the Eclipse Public License (EPL).
 
-//         School of Computing Science
-//         Simon Fraser University
-//         Burnaby, B.C., V5A 1S6, Canada
-//         lou@cs.sfu.ca
+  I haven't yet gone through and removed messages specific to the bonsaiG
+  MIP code. That'll happen eventually.
+*/
 
-//   This code is licensed under the terms of the Eclipse Public License (EPL).
-
-//   I haven't yet gone through and removed messages specific to the bonsaiG
-//   MIP code. That'll happen eventually.
-
-//   General error messages, useful pretty much anywhere
-
+/*
+  General error messages, useful pretty much anywhere
+*/
 const char *dy_errmsgtmplts[] = {
   /*0*/ "<<unused>>",
   /*1*/ "internal confusion, line %d.",
@@ -28,9 +26,9 @@ const char *dy_errmsgtmplts[] = {
   /*7*/ "line %d: unrecognised %s %d.",
   /*8*/ "line %d: unable to allocate %d bytes.",
   /*9*/ "<<open>>",
-
-//   Error messages used primarily by the basic io routines in io(io)
-
+/*
+  Error messages used primarily by the basic io routines in io(io)
+*/
   /*10*/ "open failed for file \"%s\", mode \"%s\".",
   /*11*/ "close failed for file \"%s\".",
   /*12*/ "i/o error while reading from \"%s\".",
@@ -52,9 +50,9 @@ const char *dy_errmsgtmplts[] = {
   /*27*/ "	truncated.",
   /*28*/ "string quoted with \"%c\", \"%c\" beginning with \"%s\" prematurely truncated.",
   /*29*/ "<<open>>",
-
-//   Error messages used primarily by the routines of io(bnfrdr)
-
+/*
+  Error messages used primarily by the routines of io(bnfrdr)
+*/
   /*30*/ "storage offset %d is outside legal range 0 to %d for the current node.",
   /*31*/ "node size %d is less than 0.",
   /*32*/ "null bnf reference encountered for component %d, %d components expected.",
@@ -118,9 +116,9 @@ const char *dy_errmsgtmplts[] = {
   /*87*/ "<<open>>",
   /*88*/ "<<open>>",
   /*89*/ "<<open>>",
-
-//   Error messages related to packed vectors
-
+/*
+  Error messages related to packed vectors
+*/
   /*90*/ "inconsistent packed vector %s (%d):\n"
   /*90*/ "	size %d, nonzero %d, coefficient array %sallocated.",
   /*91*/ "vector %s (%d) requires space for %d entries; resize specifies %d.",
@@ -132,9 +130,9 @@ const char *dy_errmsgtmplts[] = {
   /*97*/ "<<open>>",
   /*98*/ "<<open>>",
   /*99*/ "<<open>>",
-
-//   Error messages related to constraint system care and maintenance
-
+/*
+  Error messages related to constraint system care and maintenance
+*/
   /*100*/ "[%s]: unable to attach \"%s\".",
   /*101*/ "[%s]: %s is missing.",
   /*102*/ "[%s]: %s index %d violates range %d..%d.",
@@ -195,9 +193,9 @@ const char *dy_errmsgtmplts[] = {
   /*147*/ "<<open>>",
   /*148*/ "<<open>>",
   /*149*/ "<<open>>",
-
-//   Error messages used primarily by the MPS i/o package.
-
+/*
+  Error messages used primarily by the MPS i/o package.
+*/
   /*150*/ "expecting the keyword \"%s\", instead found \"%s\".",
   /*151*/ "mangled %s %s record.",
   /*152*/ "could not create constraint system \"%s\".",
@@ -251,9 +249,9 @@ const char *dy_errmsgtmplts[] = {
   /*197*/ "<<open>>",
   /*198*/ "<<open>>",
   /*199*/ "<<open>>",
-
-//   Error messages from the main program
-
+/*
+  Error messages from the main program
+*/
   /*200*/ "cannot get system time.",
   /*201*/ "could not open log file %s; logging disabled.",
   /*202*/ "[%s]: could not create search tree root.",
@@ -284,10 +282,9 @@ const char *dy_errmsgtmplts[] = {
   /*227*/ "<<open>>",
   /*228*/ "<<open>>",
   /*229*/ "<<open>>",
-
-
-//   Error messages from the command interpreter
-
+/*
+  Error messages from the command interpreter
+*/
   /*230*/ "unexpected command text \"%s\".",
   /*231*/ "<<open>>",
   /*232*/ "indirect command file \"%s\" did not close properly.",
@@ -358,9 +355,9 @@ const char *dy_errmsgtmplts[] = {
   /*297*/ "<<open>>",
   /*298*/ "<<open>>",
   /*299*/ "<<open>>",
-
-//   Error messages from the LP code
-
+/*
+  Error messages from the LP code
+*/
   /*300*/ "nonsense status %#08x for variable %s (%d).",
   /*301*/ "found only %d of the %d basic variables required to form\n"
   /*301*/ "	a basis for constraint system %s.",
@@ -583,9 +580,9 @@ const char *dy_errmsgtmplts[] = {
   /*447*/ "<<open>>",
   /*448*/ "<<open>>",
   /*449*/ "<<open>>",
-
-//   Error messages from the arc consistency package.
-
+/*
+  Error messages from the arc consistency package.
+*/
   /*450*/ "[%s]: coefficient a<%d,%d> = a<%s,%s>= 0.",
   /*451*/ "[%s]: could not calculate bounds for constraint %s (%d).",
   /*452*/ "[%s]: failed to push constraint %s (%d).",
@@ -654,9 +651,9 @@ const char *dy_errmsgtmplts[] = {
   /*507*/ "<<open>>",
   /*508*/ "<<open>>",
   /*509*/ "<<open>>",
-
-//   Error messages from the 2-3 tree package.
-
+/*
+  Error messages from the 2-3 tree package.
+*/
   /*510*/ "in the %s tree, %s (%#08x) thinks its children\n"
   /*510*/ "	are of type %s; they should be %s.",
   /*511*/ "%s problem at %s tree %s (%#08x);\n"
@@ -764,9 +761,9 @@ const char *dy_errmsgtmplts[] = {
   /*597*/ "<<open>>",
   /*598*/ "<<open>>",
   /*599*/ "<<open>>",
-
-// 	Error messages from the branch-and-bound tree routines.
-
+/*
+  Error messages from the branch-and-bound tree routines.
+*/
   /*600*/ "(T%d:#%d@%d): cannot create this node in the\n"
   /*600*/ "	branch-and-bound search tree.",
   /*601*/ "(T%d:#%d@%d): improper status %s; should be %s.",
@@ -825,9 +822,9 @@ const char *dy_errmsgtmplts[] = {
   /*647*/ "<<open>>",
   /*648*/ "<<open>>",
   /*649*/ "<<open>>",
-
-// 	Error messages from the bound storage/regeneration utilities.
-
+/*
+  Error messages from the bound storage/regeneration utilities.
+*/
   /*650*/ "[%s]: %s<%s (%d)> = %g has IEEE FP class %s (%d).",
   /*651*/ "[%s]: %s<%s (%d)> = %g is inside the zero tolerance %g.",
   /*652*/ "[%s]: %s.bnd = %g has IEEE FP class %s (%d).",
@@ -858,9 +855,9 @@ const char *dy_errmsgtmplts[] = {
   /*672*/ "<<open>>",
   /*673*/ "<<open>>",
   /*674*/ "<<open>>",
-
-// 	Error messages from the basis storage/regeneration utilities.
-
+/*
+  Error messages from the basis storage/regeneration utilities.
+*/
   /*675*/ "no %s in stored basis copy.",
   /*676*/ "[%s]: stored %s array length %d violates\n"
   /*676*/ "	allowable range %d..%d.",
@@ -889,9 +886,9 @@ const char *dy_errmsgtmplts[] = {
   /*697*/ "<<open>>",
   /*698*/ "<<open>>",
   /*699*/ "<<open>>",
-
-// 	Error messages related to tours, integrated variable forcing & fixing
-
+/*
+  Error messages related to tours, integrated variable forcing & fixing
+*/
   /*700*/ "[%s]: %s could not install fixed\n"
   /*700*/ "	variables at T%d:#%d@%d.",
   /*701*/ "(T%d:#%d@%d): the monotone variable count is %d,\n"
@@ -930,10 +927,9 @@ const char *dy_errmsgtmplts[] = {
   /*722*/ "<<open>>",
   /*723*/ "<<open>>",
   /*724*/ "<<open>>",
-
-
-// 	Error messages related to fathoming and penalties
-
+/*
+  Error messages related to fathoming and penalties
+*/
   /*725*/ "subproblem T%d:#%d fathomed on %s; it should have\n"
   /*725*/ "	evaluated as infeasible because of the objective constraint.",
   /*726*/ "cannot perform penalty calculations at T%d:#%d@%d.",
@@ -965,10 +961,10 @@ const char *dy_errmsgtmplts[] = {
   /*747*/ "<<open>>",
   /*748*/ "<<open>>",
   /*749*/ "<<open>>",
-
-// 	Error messages related to branching priority and tour groups
-// 	(bonsai MIP code only)
-
+/*
+  Error messages related to branching priority and tour groups (bonsai MIP
+  code only)
+*/
   /*750*/ "(T%d): invalid priority %d recovered for %s (%d).",
   /*751*/ "(T%d:#%d@%d): %d variable(s) remain to be forced;\n"
   /*751*/ "	tour leader selection is premature.",
@@ -1030,10 +1026,10 @@ const char *dy_errmsgtmplts[] = {
   /*797*/ "<<open>>",
   /*798*/ "<<open>>",
   /*799*/ "<<open>>",
-
-// 	Error messages related to expansion of the active subproblem.
-// 	(bonsai MIP code only)
-
+/*
+  Error messages related to expansion of the active subproblem (bonsai MIP
+  code only).
+*/
   /*800*/ "(T%d:#%d@%d): missing liveinfo or var1/var2 structures.",
   /*801*/ "(T%d:#%d@%d): this node is already a parent.",
   /*802*/ "<<open>>",
@@ -1090,10 +1086,10 @@ const char *dy_errmsgtmplts[] = {
   /*847*/ "<<open>>",
   /*848*/ "<<open>>",
   /*849*/ "<<open>>",
-
-// 	Error messages related to constraint analysis, box bounds,
-// 	branch-on-hyperplane, and max-min-slack.
-
+/*
+  Error messages related to constraint analysis, box bounds,
+  branch-on-hyperplane, and max-min-slack.
+*/
   /*850*/ "[%s]: %s (%d) mismatch in variable/coefficient classification;\n"
   /*850*/ "	row count %d, classified %d vars, %d coefficients.",
   /*851*/ "[%s]: constraint classification failed.",
@@ -1148,9 +1144,9 @@ const char *dy_errmsgtmplts[] = {
   /*897*/ "<<open>>",
   /*898*/ "<<open>>",
   /*899*/ "<<open>>",
-
-// 	Error messages generated by cutting plane management.
-
+/*
+  Error messages generated by cutting plane management.
+*/
   /*900*/ "(T%d:#%d@%d): error in range of cuts to delete. Deleting to\n"
   /*900*/ "	%s (%d) will delete architectural constraints from %d to %d.",
   /*901*/ "(T%d:#%d@%d): suspicious constraint count %d is not equal to\n"
@@ -1205,9 +1201,9 @@ const char *dy_errmsgtmplts[] = {
   /*947*/ "<<open>>",
   /*948*/ "<<open>>",
   /*949*/ "<<open>>",
-
-// 	Error messages related to dylp's simplex/tableau and ray routines
-
+/*
+  Error messages related to dylp's simplex/tableau and ray routines
+*/
   /*950*/ "[%s]: inactive %s %s (%d); cannot %s.",
   /*951*/ "[%s]: nonbasic variable %s (%d); cannot %s.",
   /*952*/ "[%s]: error calculating basis inverse %s %d, %s %s (%d).",

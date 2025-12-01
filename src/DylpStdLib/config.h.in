@@ -8,15 +8,18 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* Define to the C type whose size in bytes matches the size in bytes of the
-   the C++ bool type. */
-#undef BOOL
-
 /* Define to 1 if your C++ compiler doesn't accept -c and -o together. */
 #undef CXX_NO_MINUS_C_MINUS_O
 
 /* Library Visibility Attribute */
 #undef DYLPLIB_EXPORT
+
+/* Define to the C type whose size in bytes matches the size in bytes of the
+   the C++ bool type. */
+#undef DYLP_BOOL_TYPE
+
+/* Define to 1 if C has a native bool type. */
+#undef DYLP_C_HAS_BOOL
 
 /* Define to 1 if CoinUtils is available. */
 #undef DYLP_HAS_COINUTILS
@@ -153,7 +156,7 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS

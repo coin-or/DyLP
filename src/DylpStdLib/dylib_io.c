@@ -309,10 +309,8 @@ bool dyio_ioinit (void)
     find it (the particular case of interest would be a desire to log normal
     and error messages to the same file). To maintain information hiding,
     there is a routine, dy_errlogq, which returns the required information.
-
-  Parameters:
-    errlogpath:	the path name of the error log file; used only if dy_errlogq
-		returns a non-NULL FILE handle
+    (See dy_errinit in dylib_errs.{c,h} to set up an error log file; it
+    should be called before dyio_ioinit.)
 
   Returns: TRUE if the initialisation succeeds, FALSE otherwise
 */
@@ -724,7 +722,9 @@ bool dyio_ttyq (ioid id)
   const char *rtnnme = "dyio_ttyq" ;
 
   extern int isatty(int fildes) ;
-  /*extern int fileno(FILE *stream) ;*/
+#ifndef _POSIX_C_SOURCE
+  extern int fileno(FILE *stream) ;
+#endif
 
 /*
   Check to make sure the stream ID is OK.
