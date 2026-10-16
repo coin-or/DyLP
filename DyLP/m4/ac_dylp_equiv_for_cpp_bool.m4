@@ -30,12 +30,33 @@ AC_DEFUN([AC_DYLP_EQUIV_FOR_CPP_BOOL],
 
   AC_LANG_PUSH(C)
   dylp_booltype="no"
-  _AC_COMPUTE_INT([(long) (sizeof (char))],
+
+# Check if bool is a builtin type. If so, we have to use it. If it's not
+# the same size as the c++ bool, warn the user.
+
+  ac_cv_sizeof_c_bool=0
+  dylp_has_native_bool=0
+  _AC_COMPUTE_INT([(long) (sizeof (bool))],
       [ac_cv_sizeof_c_bool],
       [AC_INCLUDES_DEFAULT([$3])],
-      [AC_MSG_FAILURE([cannot compute sizeof (char) for C])])
-  if test $ac_cv_sizeof_cpp_bool = $ac_cv_sizeof_c_bool; then
-    dylp_booltype="char"
+      [ac_cv_sizeof_c_bool=-1])
+  if test $ac_cv_sizeof_c_bool -ge 1 ; then
+    dylp_booltype="bool"
+    dylp_has_native_bool=1
+    if test $ac_cv_sizeof_cpp_bool != $ac_cv_sizeof_c_bool ; then
+      AC_MSG_WARN([C bool is $ac_cv_sizeof_c_bool bytes. C++ bool is
+		   $ac_cv_sizeof_cpp_bool bytes. Dylp alone will be ok but
+		   will not play nicely with C++ code.])
+    fi
+  fi
+  if test $dylp_booltype = "no"; then
+    _AC_COMPUTE_INT([(long) (sizeof (char))],
+	[ac_cv_sizeof_c_bool],
+	[AC_INCLUDES_DEFAULT([$3])],
+	[AC_MSG_FAILURE([cannot compute sizeof (char) for C])])
+    if test $ac_cv_sizeof_cpp_bool = $ac_cv_sizeof_c_bool; then
+      dylp_booltype="char"
+    fi
   fi
   if test $dylp_booltype = "no"; then
     _AC_COMPUTE_INT([(long) (sizeof (int))],
@@ -64,17 +85,22 @@ AC_DEFUN([AC_DYLP_EQUIV_FOR_CPP_BOOL],
       dylp_booltype="long int"
     fi
   fi
+
+  AC_DEFINE_UNQUOTED([DYLP_C_HAS_BOOL],[$dylp_has_native_bool],
+      [Define to 1 if C has a native bool type.])
+
   if test $dylp_booltype = "no"; then
     dylp_booltype="char"
     AC_MSG_WARN([Cannot determine C type to match C++ bool. Defaulting to
-		 char. Dylp will compile, but will certainly crash when
-		 executed.])
+		 char. Dylp alone will be ok but will not play nicely with
+		 C++ code.])
+  else
+    AC_DEFINE_UNQUOTED([DYLP_BOOL_TYPE],[$dylp_booltype],
+	[Define to the C type whose size in bytes matches the size in bytes
+	 of the the C++ bool type.])
+    AC_MSG_NOTICE([C $dylp_booltype will be used as bool by dylp.])
   fi
-  AC_DEFINE_UNQUOTED([BOOL],[$dylp_booltype],
-      [Define to the C type whose size in bytes matches the size in bytes
-       of the the C++ bool type.])
   AC_LANG_POP(C)
 
-  AC_MSG_NOTICE([C $dylp_booltype will be used as bool by dylp.])
 ])
 

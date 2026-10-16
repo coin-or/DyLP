@@ -1,9 +1,5 @@
 /* src/DylpStdLib/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to the C type whose size in bytes matches the size in bytes of the
-   the C++ bool type. */
-#undef BOOL
-
 /* Define to the debug sanity check level (0 is no test) */
 #undef COIN_DYLP_CHECKLEVEL
 
@@ -24,6 +20,13 @@
 
 /* Define to 1 if the Sample package is available */
 #undef COIN_HAS_SAMPLE
+
+/* Define to the C type whose size in bytes matches the size in bytes of the
+   the C++ bool type. */
+#undef DYLP_BOOL_TYPE
+
+/* Define to 1 if C has a native bool type. */
+#undef DYLP_C_HAS_BOOL
 
 /* Directory containing the DyLP error message text file (dy_errmsgs.txt).
    Should be set to /absolute/path/to/srcdir/DyLP/src/Dylp, using native path
