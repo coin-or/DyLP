@@ -26074,10 +26074,16 @@ echo "$as_me: Found floating point header files $fp_header_list." >&6;}
 
  { echo "$as_me:$LINENO: Checking for proper name for isfinite()." >&5
 echo "$as_me: Checking for proper name for isfinite()." >&6;}
-  ac_name_of_isfinite="unavailable"
-  echo "$as_me:$LINENO: checking for finite" >&5
-echo $ECHO_N "checking for finite... $ECHO_C" >&6
-if test "${ac_cv_func_finite+set}" = set; then
+
+  ac_name_of_isfinite=
+
+
+  if test -z "$ac_name_of_isfinite" ; then
+    for fname in isfinite finite _finite __builtin_isfinite ; do
+      as_ac_Symbol=`echo "ac_cv_have_decl_$fname" | $as_tr_sh`
+echo "$as_me:$LINENO: checking whether $fname is declared" >&5
+echo $ECHO_N "checking whether $fname is declared... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Symbol+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
@@ -26086,54 +26092,22 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-/* Define finite to an innocuous variant, in case <limits.h> declares finite.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define finite innocuous_finite
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char finite (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef finite
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char finite ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_finite) || defined (__stub___finite)
-choke me
-#else
-char (*f) () = finite;
-#endif
-#ifdef __cplusplus
-}
-#endif
+$ac_includes_default
 
 int
 main ()
 {
-return f != finite;
+#ifndef $fname
+  char *p = (char *) $fname;
+#endif
+
   ;
   return 0;
 }
 _ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
   ac_status=$?
   grep -v '^ *+' conftest.er1 >conftest.err
   rm -f conftest.er1
@@ -26147,129 +26121,48 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
+	 { ac_try='test -s conftest.$ac_objext'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_func_finite=yes
+  eval "$as_ac_Symbol=yes"
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_func_finite=no
+eval "$as_ac_Symbol=no"
 fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: $ac_cv_func_finite" >&5
-echo "${ECHO_T}$ac_cv_func_finite" >&6
-if test $ac_cv_func_finite = yes; then
-  ac_name_of_isfinite=finite
-fi
-
-  if test "$ac_name_of_isfinite" = "unavailable"; then
-    echo "$as_me:$LINENO: checking for _finite" >&5
-echo $ECHO_N "checking for _finite... $ECHO_C" >&6
-if test "${ac_cv_func__finite+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* Define _finite to an innocuous variant, in case <limits.h> declares _finite.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define _finite innocuous__finite
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char _finite (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef _finite
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char _finite ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub__finite) || defined (__stub____finite)
-choke me
-#else
-char (*f) () = _finite;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-int
-main ()
-{
-return f != _finite;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func__finite=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_func__finite=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func__finite" >&5
-echo "${ECHO_T}$ac_cv_func__finite" >&6
-if test $ac_cv_func__finite = yes; then
-  ac_name_of_isfinite=_finite
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Symbol'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Symbol'}'`" >&6
+if test `eval echo '${'$as_ac_Symbol'}'` = yes; then
+  ac_name_of_isfinite=$fname
 fi
 
+      if test -n "$ac_name_of_isfinite" ; then
+        break
+      fi
+    done
   fi
-  if test "$ac_name_of_isfinite" = "unavailable"; then
-    echo "$as_me:$LINENO: checking for isfinite" >&5
-echo $ECHO_N "checking for isfinite... $ECHO_C" >&6
-if test "${ac_cv_func_isfinite+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
+  if test -n "$ac_name_of_isfinite" ; then
+    { echo "$as_me:$LINENO: CHECK_DECL found $ac_name_of_isfinite." >&5
+echo "$as_me: CHECK_DECL found $ac_name_of_isfinite." >&6;}
+  fi
+
+
+  if test -z "$ac_name_of_isfinite" ; then
+    temp=
+    coin_save_LIBS="$LIBS"
+    LIBS=$DYLPLIB_LIBS
+    if test "$cross_compiling" = yes; then
+  { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
 else
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -26277,97 +26170,119 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-/* Define isfinite to an innocuous variant, in case <limits.h> declares isfinite.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define isfinite innocuous_isfinite
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char isfinite (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef isfinite
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char isfinite ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_isfinite) || defined (__stub___isfinite)
-choke me
-#else
-char (*f) () = isfinite;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
+$ac_includes_default
 int
 main ()
 {
-return f != isfinite;
+double dvar = 1.0 ;
+	  if (isfinite(dvar))
+	  { return (0) ; }
+	  else
+	  { return (1) ; }
   ;
   return 0;
 }
 _ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
+rm -f conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
+  (eval $ac_link) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_func_isfinite=yes
+  temp='isfinite'
 else
-  echo "$as_me: failed program was:" >&5
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_func_isfinite=no
 fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
+rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: $ac_cv_func_isfinite" >&5
-echo "${ECHO_T}$ac_cv_func_isfinite" >&6
-if test $ac_cv_func_isfinite = yes; then
-  ac_name_of_isfinite=isfinite
-fi
-
+    if test -n "$temp" ; then
+      { echo "$as_me:$LINENO: Just try isfinite(double) worked." >&5
+echo "$as_me: Just try isfinite(double) worked." >&6;}
+      ac_name_of_isfinite=$temp
+    fi
+    LIBS="$coin_save_LIBS"
   fi
-  if test "$ac_name_of_isfinite" = "unavailable"; then
+
+
+  if test -z "$ac_name_of_isfinite" ; then
+    temp=
+    coin_save_LIBS="$LIBS"
+    LIBS=$DYLPLIB_LIBS
+    if test "$cross_compiling" = yes; then
+  { { echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+int
+main ()
+{
+ double dvar = 1.0 ;
+#if __has_builtin(__builtin_isfinite)
+  if (isfinite(dvar))
+  { return (0) ; }
+  else
+  { return (1) ; }
+#else
+  choke me
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  temp='isfinite'
+else
+  echo "$as_me: program exited with status $ac_status" >&5
+echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+fi
+rm -f core *.core gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+    if test -n "$temp" ; then
+      { echo "$as_me:$LINENO: Exotic M1 test found $temp!" >&5
+echo "$as_me: Exotic M1 test found $temp!" >&6;}
+      ac_name_of_isfinite=$temp
+    fi
+    LIBS="$coin_save_LIBS"
+  fi
+
+  if test -z "$ac_name_of_isfinite" ; then
     { echo "$as_me:$LINENO: WARNING: Cannot find a C function to check if an IEEE floating point
 		 value is finite. There is no hope of building dylp on this
 		 system." >&5
 echo "$as_me: WARNING: Cannot find a C function to check if an IEEE floating point
 		 value is finite. There is no hope of building dylp on this
 		 system." >&2;}
+    ac_name_of_isfinite="<<none found>>"
   fi
 
 cat >>confdefs.h <<_ACEOF
@@ -26379,10 +26294,15 @@ echo "$as_me: Using $ac_name_of_isfinite as isfinite()." >&6;}
 
  { echo "$as_me:$LINENO: Checking for proper name for isnan()." >&5
 echo "$as_me: Checking for proper name for isnan()." >&6;}
-  ac_name_of_isnan="unavailable"
-  echo "$as_me:$LINENO: checking for isnan" >&5
-echo $ECHO_N "checking for isnan... $ECHO_C" >&6
-if test "${ac_cv_func_isnan+set}" = set; then
+
+  ac_name_of_isnan=
+
+  if test -z "$ac_name_of_isnan" ; then
+    for fname in isnan _isnan isnand _isnand nan _nan __builtin_isnan ; do
+      as_ac_Symbol=`echo "ac_cv_have_decl_$fname" | $as_tr_sh`
+echo "$as_me:$LINENO: checking whether $fname is declared" >&5
+echo $ECHO_N "checking whether $fname is declared... $ECHO_C" >&6
+if eval "test \"\${$as_ac_Symbol+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
@@ -26391,54 +26311,22 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-/* Define isnan to an innocuous variant, in case <limits.h> declares isnan.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define isnan innocuous_isnan
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char isnan (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef isnan
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char isnan ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_isnan) || defined (__stub___isnan)
-choke me
-#else
-char (*f) () = isnan;
-#endif
-#ifdef __cplusplus
-}
-#endif
+$ac_includes_default
 
 int
 main ()
 {
-return f != isnan;
+#ifndef $fname
+  char *p = (char *) $fname;
+#endif
+
   ;
   return 0;
 }
 _ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
   ac_status=$?
   grep -v '^ *+' conftest.er1 >conftest.err
   rm -f conftest.er1
@@ -26452,131 +26340,41 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
+	 { ac_try='test -s conftest.$ac_objext'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
-  ac_cv_func_isnan=yes
+  eval "$as_ac_Symbol=yes"
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-ac_cv_func_isnan=no
+eval "$as_ac_Symbol=no"
 fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
-echo "$as_me:$LINENO: result: $ac_cv_func_isnan" >&5
-echo "${ECHO_T}$ac_cv_func_isnan" >&6
-if test $ac_cv_func_isnan = yes; then
-  ac_name_of_isnan=isnan
-fi
-
-  if test "$ac_name_of_isnan" = "unavailable"; then
-    echo "$as_me:$LINENO: checking for _isnan" >&5
-echo $ECHO_N "checking for _isnan... $ECHO_C" >&6
-if test "${ac_cv_func__isnan+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* Define _isnan to an innocuous variant, in case <limits.h> declares _isnan.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define _isnan innocuous__isnan
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char _isnan (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef _isnan
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char _isnan ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub__isnan) || defined (__stub____isnan)
-choke me
-#else
-char (*f) () = _isnan;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-int
-main ()
-{
-return f != _isnan;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func__isnan=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_func__isnan=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func__isnan" >&5
-echo "${ECHO_T}$ac_cv_func__isnan" >&6
-if test $ac_cv_func__isnan = yes; then
-  ac_name_of_isnan=_isnan
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_Symbol'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_Symbol'}'`" >&6
+if test `eval echo '${'$as_ac_Symbol'}'` = yes; then
+  ac_name_of_isnan=$fname
 fi
 
+      if test -n "$ac_name_of_isnan" ; then
+        break
+      fi
+    done
   fi
-  if test "$ac_name_of_isnan" = "unavailable"; then
+
+  if test -z "$ac_name_of_isnan" ; then
     { echo "$as_me:$LINENO: WARNING: Cannot find a C function to check if an IEEE floating point
 		 value is NaN. There is no hope of building dylp on this
 		 system." >&5
 echo "$as_me: WARNING: Cannot find a C function to check if an IEEE floating point
 		 value is NaN. There is no hope of building dylp on this
 		 system." >&2;}
+    ac_name_of_isnan="<<none found>>"
   fi
 
 cat >>confdefs.h <<_ACEOF
