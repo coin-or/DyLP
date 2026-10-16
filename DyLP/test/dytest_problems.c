@@ -19,8 +19,8 @@
 
 #include "dylp.h"
 
-extern ioid dy_logchn ;
-extern bool dy_gtxecho ;
+extern ioid dytest_logchn ;
+extern bool dytest_gtxecho ;
 
 /*
   The exmip1 example used throughout COIN unit tests. This example is drawn
@@ -1108,10 +1108,11 @@ static consys_struct *load_consys (
 #   ifndef DYLP_NDEBUG
     if (printlvl >= 2)
     { typlett = (ctypi == contypGE)?'>':'<' ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "%s: installing row %g <= %s (%d) <= %g ",
 		  rtnnme,rlb[i],ai->nme,i,rub[i]) ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,"as %g %c= %s (%d, %s) %c= %g.\n",
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
+      		  "as %g %c= %s (%d, %s) %c= %g.\n",
 		  rlbi,typlett,consys_nme(sys,'c',ai->ndx,FALSE,NULL),ai->ndx,
 		  consys_prtcontyp(ctypi),typlett,rubi) ; }
 #   endif
@@ -1164,10 +1165,11 @@ static consys_struct *load_consys (
       retval = consys_addcol_pk(sys,vartypCON,aj,cj,vlbj,vubj) ;
 #     ifndef DYLP_NDEBUG
       if (printlvl >= 2)
-      { dyio_outfmt(dy_logchn,dy_gtxecho,
+      { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 	      "%s: installing column %g <= %s (%d) <= %g, %d coefficients, ",
 	      rtnnme,vlb[j],aj->nme,j,vub[j],aj->cnt) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"as %g <= %s (%d) <= %g, cj = %g.\n",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
+	      "as %g <= %s (%d) <= %g, cj = %g.\n",
 	      vlbj,consys_nme(sys,'v',aj->ndx,FALSE,NULL),aj->ndx,vubj,cj) ; }
 #     endif
       if (retval == FALSE)
