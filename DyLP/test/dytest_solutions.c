@@ -20,8 +20,8 @@
 
 #include "dylp.h"
 
-extern ioid dy_logchn ;
-extern bool dy_gtxecho ;
+extern ioid dytest_logchn ;
+extern bool dytest_gtxecho ;
 
 
 
@@ -66,11 +66,11 @@ int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.soln >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: checking y = c<B>inv(B) using %s (%d x %d).",
 		rtnnme,sys->nme,m,n) ;
     if (main_lpopts->print.soln >= 2)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "  basis contains %d entries.\n",main_lp->basis->len) ; } }
 # endif
 /*
@@ -107,15 +107,15 @@ int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { basis2sys[i] = j ; } }
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.soln >= 5)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n\tc<B> =") ;
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,"\n\tc<B> =") ;
     k = 0 ;
     for (i = 1 ; i <= m ; i++)
     { if (cB[i] != 0)
       { if ((++k)%4 == 0)
 	{ k = 0 ;
-	  dyio_outfmt(dy_logchn,dy_gtxecho,"\n\t      ") ; }
+	  dyio_outfmt(dytest_logchn,dytest_gtxecho,"\n\t      ") ; }
 	j = basis2sys[i] ;
-	dyio_outfmt(dy_logchn,dy_gtxecho," (%d %g  %s %d)",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho," (%d %g  %s %d)",
 		    i,cB[i],consys_nme(sys,'v',j,FALSE,NULL),j) ; } } }
 #   endif
 /*
@@ -138,7 +138,7 @@ int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     for (k = 1 ; k <= m ; k++)
     { 
       /*
-         dyio_outfmt(dy_logchn,dy_gtxecho,
+         dyio_outfmt(dytest_logchn,dytest_gtxecho,
     		  "\n %s (%d) %g * %g",
 		  consys_nme(sys,'c',k,FALSE,NULL),k,cB[k],betai[k]) ;
       */
@@ -147,10 +147,11 @@ int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { errcnt++ ;
       if (j < 0)
       { j = n-j ; }
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\n  ERROR: pos'n %d %s (%d) c<B> dot beta<j> = %g; ",
 		    i,consys_nme(sys,'v',j,FALSE,NULL),j-n,cBdotbetai) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"expected %g; err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
+		    "expected %g; err %g, tol %g.",
 		    y[i],(cBdotbetai-y[i]),main_lptols->zero) ; } }
 /*
   Free up space and report the result.
@@ -161,11 +162,12 @@ int dytest_rowDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (y != NULL) FREE(y) ;
 
   if (errcnt != 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: found %d errors testing y = c<B>inv(B).\n",
 		rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass y = c<B>inv(B).\n",rtnnme) ; }
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
+  		"\n%s: pass y = c<B>inv(B).\n",rtnnme) ; }
 
   return (errcnt) ; }
 
@@ -216,7 +218,7 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.soln >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: checking cbar<N> = c<N> - yN using %s (%d x %d).",
 		rtnnme,sys->nme,m,n) ; }
 # endif
@@ -244,11 +246,11 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     statj = status[j] ;
     if (fabs(cbarj-cbarN[j]) > main_lptols->cost)
     { errcnt++ ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\nERROR: col %s (%d) %s cbar<%d> = %g; expected %g;",
 		  consys_nme(sys,'v',j,FALSE,NULL),j,dy_prtvstat(statj),
 		  j,cbarj,cbarN[j]) ;
-      dyio_outfmt(dy_logchn,dy_gtxecho," error %g, tol %g.",
+      dyio_outfmt(dytest_logchn,dytest_gtxecho," error %g, tol %g.",
 		  fabs(cbarj),main_lptols->cost) ; }
     staterr = FALSE ;
     switch (statj)
@@ -271,7 +273,7 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
       { break ; } }
     if (staterr == TRUE)
     { errcnt++ ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\nERROR: col %s (%d) %s cbar<%d> = %g; should be %s.",
 		  consys_nme(sys,'v',j,FALSE,NULL),j,dy_prtvstat(statj),
 		  j,cbarj,errstring) ; } }
@@ -283,11 +285,11 @@ int dytest_colDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (status != NULL) FREE(status) ;
 
   if (errcnt != 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: found %d errors testing cbar<N> = c<N> - yN.\n",
 		rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: pass cbar<N> = c<N> - yN.\n",rtnnme) ; }
 
   return (errcnt) ; }
@@ -347,7 +349,7 @@ int dytest_allDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.soln >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: checking yA = c using %s (%d x %d).",
 		rtnnme,sys->nme,m,n) ; }
 # endif
@@ -375,10 +377,11 @@ int dytest_allDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     if ((flgon(statj,vstatNBLB) && ydotaj-cj < -main_lptols->cost) ||
 	(flgon(statj,vstatNBUB) && ydotaj-cj > main_lptols->cost))
     { errcnt++ ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\n  ERROR: %s (%d) y dot a<j> = %g; ",
 		    consys_nme(sys,'v',j,FALSE,NULL),j,ydotaj) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"expected %s %g; err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
+		    "expected %s %g; err %g, tol %g.",
 		    (flgon(statj,vstatNBUB)?"<=":">="),
 		    cj,ydotaj-cj,main_lptols->cost) ; }
 /*
@@ -404,10 +407,11 @@ int dytest_allDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 	  break ; } } }
     if (fabs(ydotaj-cj) > main_lptols->cost)
     { errcnt++ ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\n  ERROR: %s (%d) y dot a<j> = %g; ",
 		    consys_nme(sys,'v',j,FALSE,NULL),j,ydotaj) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"expected %g; err %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
+		    "expected %g; err %g, tol %g.",
 		    cj,fabs(ydotaj-cj),main_lptols->cost) ; } }
 /*
   Free up space and report the result.
@@ -417,11 +421,11 @@ int dytest_allDuals (lpprob_struct *main_lp, lptols_struct *main_lptols,
   if (status != NULL) FREE(status) ;
 
   if (errcnt != 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: found %d errors testing yA = c.\n",
 		rtnnme,errcnt) ; }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,"\n%s: pass yA = c.\n",rtnnme) ; }
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,"\n%s: pass yA = c.\n",rtnnme) ; }
 
   return (errcnt) ; }
 
@@ -481,7 +485,7 @@ int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.soln >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 	  "\n%s: checking primal architectural variables using %s (%d x %d).",
 	  rtnnme,sys->nme,m,n) ; }
 # endif
@@ -564,11 +568,11 @@ int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 	  break ; } }
     if (staterr == TRUE)
     { nberrs++ ;
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\nERROR: %s col %s (%d) = %g; expected %g;",
 		  dy_prtvstat(statj),consys_nme(sys,'v',j,FALSE,NULL),j,
 		  xj,betaidotb) ;
-      dyio_outfmt(dy_logchn,dy_gtxecho," error %g, tol %g.",
+      dyio_outfmt(dytest_logchn,dytest_gtxecho," error %g, tol %g.",
 		  fabs(xj-betaidotb),main_lptols->zero) ;
       continue ; }
     if (xj == 0.0) continue ;
@@ -608,10 +612,10 @@ int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
       i_bpos = basis[k].cndx ;
       if (fabs(xj-xB[i_bpos]) > main_lptols->zero)
       { berrs++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "\nERROR: basis pos'n %d %s (%d) = %g; expected %g;",
 		    i_bpos,consys_nme(sys,'v',j,FALSE,NULL),j,xj,xB[i_bpos]) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho," error %g, tol %g.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho," error %g, tol %g.",
 		    fabs(xj-xB[i_bpos]),main_lptols->zero) ; } } }
 /*
   Free up space and report the result.
@@ -624,15 +628,15 @@ int dytest_colPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
   if ((berrs+nberrs) != 0)
   { if (berrs != 0)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\n%s: found %d errors testing x<B> = inv(B)b.\n",
 		  rtnnme,berrs) ; }
     if (nberrs != 0)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 	      "\n%s: found %d errors testing x<N> against bounds & status.\n",
 	      rtnnme,nberrs) ; } }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: pass test of primal architectural variable values.\n",
 		rtnnme) ; }
 
@@ -692,7 +696,7 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
 # ifndef DYLP_NDEBUG
   if (main_lpopts->print.soln >= 1)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 	  "\n%s: checking primal basic variables using %s (%d x %d).",
 	  rtnnme,sys->nme,m,n) ; }
 # endif
@@ -753,18 +757,18 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     if (i_basis < 0)
     { if (j > 0)
       { inderrs++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"\nERROR: constraint %s (%d)",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"\nERROR: constraint %s (%d)",
 		    consys_nme(sys,'c',i,FALSE,NULL),i) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "; basis entry = %d; should specify a logical.",j) ; }
       else
       if (-j != i)
       { inderrs++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"\nERROR: basis[%d] (%s)",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"\nERROR: basis[%d] (%s)",
 		    i,consys_nme(sys,'c',i,FALSE,NULL)) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho," is %s (%d);",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho," is %s (%d);",
 		    consys_nme(sys,'c',n-j,FALSE,NULL),-j) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho," expected %s (%d).",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho," expected %s (%d).",
 		    consys_nme(sys,'c',n+i,FALSE,NULL),i) ; } }
 /*
   The constraint is active. We should have indB[i] = basis[i_basis].vndx. It
@@ -774,14 +778,14 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
     { k = basis[i_basis].vndx ;
       if (j != k)
       { inderrs++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"\nERROR: constraint %s (%d)",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"\nERROR: constraint %s (%d)",
 		    consys_nme(sys,'c',i,FALSE,NULL),i) ;
 	statj = (k < 0)?(n-k):(k) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "; basis[%d] specifies %s (%d)",
 		    i_basis,consys_nme(sys,'v',statj,FALSE,NULL),k) ;
 	statj = (j < 0)?(n-j):(j) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		    "; indB[%d] specifies %s (%d); they should agree.",
 		    i,consys_nme(sys,'v',statj,FALSE,NULL),j) ; }
 /*
@@ -792,18 +796,19 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
       { statj = -((int) status[k]) ;
 	if (i_basis != statj)
 	{ inderrs++ ;
-	  dyio_outfmt(dy_logchn,dy_gtxecho,"\nERROR: constraint %s (%d)",
+	  dyio_outfmt(dytest_logchn,dytest_gtxecho,
+	  	      "\nERROR: constraint %s (%d)",
 		      consys_nme(sys,'c',i,FALSE,NULL),i) ;
-	  dyio_outfmt(dy_logchn,dy_gtxecho,
+	  dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		      "; status[%d] = %d but basis[%d].vndx = %d",
 		      k,statj,i_basis,k) ;
-	  dyio_outfmt(dy_logchn,dy_gtxecho,
+	  dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		      "; they should point to each other.") ; } } } }
   if (inderrs > 0)
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: found %d errors cross-checking basis index vectors.\n",
 		rtnnme,inderrs) ;
-    dyio_outfmt(dy_logchn,dy_gtxecho,
+    dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\tTests of basic variable values not performed.\n") ;
     if (xB != NULL) FREE(xB) ;
     if (indB != NULL) FREE(indB) ;
@@ -857,9 +862,9 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 	break ; }
       default:
       { nberrs++ ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"\nERROR: constraint %s (%d)",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"\nERROR: constraint %s (%d)",
 		    consys_nme(sys,'c',i,FALSE,NULL),i) ;
-	dyio_outfmt(dy_logchn,dy_gtxecho,"; status of %s (%d) is %s.",
+	dyio_outfmt(dytest_logchn,dytest_gtxecho,"; status of %s (%d) is %s.",
 		    consys_nme(sys,'v',j,FALSE,NULL),j,dy_prtvstat(statj)) ;
 	xj = 0.0 ;
 	break ; } }
@@ -903,10 +908,10 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
       { statj = n-j ; }
       else
       { statj = j ; }
-      dyio_outfmt(dy_logchn,dy_gtxecho,
+      dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		  "\nERROR: basis pos'n %d %s (%d) = %g; expected %g;",
 		  i,consys_nme(sys,'v',statj,FALSE,NULL),j,xB[i],xBaccum[i]) ;
-      dyio_outfmt(dy_logchn,dy_gtxecho," error %g, tol %g.",
+      dyio_outfmt(dytest_logchn,dytest_gtxecho," error %g, tol %g.",
 		  fabs(xB[i]-xBaccum[i]),main_lptols->zero) ; } }
 /*
   Free up space and report the result.
@@ -920,15 +925,15 @@ int dytest_rowPrimals (lpprob_struct *main_lp, lptols_struct *main_lptols,
 
   if ((berrs+nberrs) != 0)
   { if (berrs != 0)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: found %d errors testing x<B> = inv(B)b.\n",
 		rtnnme,berrs) ; }
     if (nberrs != 0)
-    { dyio_outfmt(dy_logchn,dy_gtxecho,
+    { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 	      "\n%s: found %d errors attempting to use nonbasic variables.\n",
 	      rtnnme,nberrs) ; } }
   else
-  { dyio_outfmt(dy_logchn,dy_gtxecho,
+  { dyio_outfmt(dytest_logchn,dytest_gtxecho,
 		"\n%s: pass test of primal basic variable values.\n",
 		rtnnme) ; }
 
